@@ -131,7 +131,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 							if (parts[i].temp>SOAP_FREEZING)
 							{
 								if (bmap[(y+ry)/CELL][(x+rx)/CELL] ||
-									(r && ptypes[r&0xFF].state != ST_GAS && (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS))
+								    (r && !(sim->elements[r&0xFF].Properties&TYPE_GAS) && (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS))
 								{
 									detach(i);
 									continue;

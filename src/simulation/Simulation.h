@@ -128,6 +128,10 @@ public:
 	{
 		return (t>0 && t<PT_NUM && elements[t].Enabled);
 	}
+	bool IsElementOrNone(int t) const
+	{
+		return (t>=0 && t<PT_NUM && elements[t].Enabled);
+	}
 	bool InBounds(int x, int y)
 	{
 		return (x>=0 && y>=0 && x<XRES && y<YRES);

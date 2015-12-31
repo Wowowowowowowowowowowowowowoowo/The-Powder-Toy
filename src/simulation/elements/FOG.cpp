@@ -25,7 +25,7 @@ int FOG_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (ptypes[r&0xFF].state==ST_SOLID && !(rand()%10) && !parts[i].life && !(ptypes[r&0xFF].properties&PROP_CLONE))
+				if ((sim->elements[r&0xFF].Properties&TYPE_SOLID) && !(rand()%10) && !parts[i].life && !(sim->elements[r&0xFF].Properties&PROP_CLONE))
 				{
 					part_change_type(i,x,y,PT_RIME);
 				}

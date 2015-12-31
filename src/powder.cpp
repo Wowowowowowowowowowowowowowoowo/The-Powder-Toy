@@ -387,16 +387,16 @@ bool transfer_heat(int i, int t, int surround[8])
 
 		ctemph = ctempl = pt;
 		// change boiling point with pressure
-		if ((ptypes[t].state == ST_LIQUID && ptransitions[t].tht > -1 && ptransitions[t].tht < PT_NUM && ptypes[ptransitions[t].tht].state == ST_GAS) || t==PT_LNTG || t==PT_SLTW)
+		if (((ptypes[t].properties&TYPE_LIQUID) && globalSim->IsElementOrNone(ptransitions[t].tht) && (ptypes[ptransitions[t].tht].properties&TYPE_GAS)) || t==PT_LNTG || t==PT_SLTW)
 			ctemph -= 2.0f*pv[y/CELL][x/CELL];
-		else if ((ptypes[t].state == ST_GAS && ptransitions[t].tlt > -1 && ptransitions[t].tlt < PT_NUM && ptypes[ptransitions[t].tlt].state == ST_LIQUID) || t==PT_WTRV)
+		else if (((ptypes[t].properties&TYPE_GAS) && globalSim->IsElementOrNone(ptransitions[t].tlt) && (ptypes[ptransitions[t].tlt].properties&TYPE_LIQUID)) || t==PT_WTRV)
 			ctempl -= 2.0f*pv[y/CELL][x/CELL];
 		s = 1;
 
 		if (!(ptypes[t].properties&PROP_INDESTRUCTIBLE))
 		{
 			//A fix for ice with ctype = 0
-			if ((t==PT_ICEI || t==PT_SNOW) && (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW || !globalSim->elements[parts[i].ctype].Enabled))
+			if ((t==PT_ICEI || t==PT_SNOW) && (!globalSim->IsElement(parts[i].ctype) || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW))
 				parts[i].ctype = PT_WATR;
 			if (ptransitions[t].tht > -1 && ctemph >= ptransitions[t].thv)
 			{
@@ -643,7 +643,7 @@ bool transfer_heat(int i, int t, int surround[8])
 					//and I don't feel like checking each one right now
 					parts[i].tmp = 0;
 				}
-				if (ptypes[t].state==ST_GAS && ptypes[parts[i].type].state!=ST_GAS)
+				if ((ptypes[t].properties&TYPE_GAS) && !(ptypes[parts[i].type].properties&TYPE_GAS))
 					pv[y/CELL][x/CELL] += 0.50f;
 				if (t==PT_NONE)
 				{

@@ -67,7 +67,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 {
 	int t = parts[i].type;
 
-	if ((parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && ptypes[parts[i].ctype].falldown>0) || parts[i].ctype==SPC_AIR || parts[i].ctype == PT_NEUT || parts[i].ctype == PT_PHOT || parts[i].ctype == PT_LIGH)
+	if ((sim->IsElement(parts[i].ctype) && sim->elements[parts[i].ctype].Falldown>0) || parts[i].ctype==SPC_AIR || parts[i].ctype == PT_NEUT || parts[i].ctype == PT_PHOT || parts[i].ctype == PT_LIGH)
 		playerp->elem = parts[i].ctype;
 	playerp->frames++;
 
@@ -361,9 +361,9 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 				if (!r && !bmap[(y+ry)/CELL][(x+rx)/CELL])
 					continue;
 				
-				if (ptypes[r&0xFF].falldown != 0 || ptypes[r&0xFF].state == ST_GAS
-				    || ptypes[r&0xFF].properties&TYPE_GAS
-				    || ptypes[r&0xFF].properties&TYPE_LIQUID
+				if (sim->elements[r&0xFF].Falldown != 0
+				    || sim->elements[r&0xFF].Properties&TYPE_GAS
+				    || sim->elements[r&0xFF].Properties&TYPE_LIQUID
 				    || (r&0xFF) == PT_NEUT || (r&0xFF) == PT_PHOT)
 				{
 					if (!playerp->rocketBoots || (r&0xFF) != PT_PLSM)
@@ -413,7 +413,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 	{
 		ry -= 2*(rand()%2)+1;
 		int r = pmap[ry][rx];
-		if (ptypes[r&0xFF].state == ST_SOLID)
+		if (sim->elements[r&0xFF].Properties&TYPE_SOLID)
 		{
 			if (pmap[ry][rx])
 				sim->spark_conductive_attempt(pmap[ry][rx]>>8, rx, ry);
@@ -488,7 +488,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 				{
 					parts[np].vx -= -gvy*(5*((((int)playerp->pcomm)&0x02) == 0x02) - 5*(((int)(playerp->pcomm)&0x01) == 0x01));
 					parts[np].vy -= gvx*(5*((((int)playerp->pcomm)&0x02) == 0x02) - 5*(((int)(playerp->pcomm)&0x01) == 0x01));
-					parts[i].vx -= (ptypes[(int)playerp->elem].weight*parts[np].vx)/1000;
+					parts[i].vx -= (sim->elements[(int)playerp->elem].Weight*parts[np].vx)/1000;
 				}
 				playerp->frames = 0;
 			}
@@ -603,13 +603,13 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 			parts[i].life -= (int)(rand()*20/RAND_MAX)+32;
 		}
 
-		if (ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && ((playerp->elem!=PT_LIGH && parts[r>>8].temp>=323) || parts[r>>8].temp<=243) && (!playerp->rocketBoots || (r&0xFF)!=PT_PLSM))
+		if (sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && ((playerp->elem!=PT_LIGH && parts[r>>8].temp>=323) || parts[r>>8].temp<=243) && (!playerp->rocketBoots || (r&0xFF)!=PT_PLSM))
 		{
 			parts[i].life -= 2;
 			playerp->accs[3] -= 1;
 		}
 			
-		if (ptypes[r&0xFF].properties&PROP_DEADLY)
+		if (sim->elements[r&0xFF].Properties&PROP_DEADLY)
 			switch (r&0xFF)
 			{
 				case PT_ACID:
@@ -619,7 +619,7 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 					parts[i].life -= 1;
 			}
 
-		if (ptypes[r&0xFF].properties&PROP_RADIOACTIVE)
+		if (sim->elements[r&0xFF].Properties&PROP_RADIOACTIVE)
 			parts[i].life -= 1;
 
 #ifdef NOMOD
