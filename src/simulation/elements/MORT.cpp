@@ -53,7 +53,7 @@ void MORT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Description = "Steam Train.";
 
 	elem->State = ST_NONE;
-	elem->Properties = TYPE_PART;
+	elem->Properties = TYPE_GAS;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
