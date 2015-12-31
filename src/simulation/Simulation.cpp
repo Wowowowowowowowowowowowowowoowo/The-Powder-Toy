@@ -658,8 +658,8 @@ bool Simulation::UpdateParticle(int i)
 		   (bmap[y/CELL][x/CELL] == WL_WALLELEC) ||
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWAIR) ||
 		   (bmap[y/CELL][x/CELL] == WL_DESTROYALL) ||
-		   (bmap[y/CELL][x/CELL] == WL_ALLOWLIQUID && elements[t].Falldown != 2) ||
-		   (bmap[y/CELL][x/CELL] == WL_ALLOWSOLID && elements[t].Falldown != 1) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWLIQUID && !(elements[t].Properties&TYPE_LIQUID)) ||
+		   (bmap[y/CELL][x/CELL] == WL_ALLOWPOWDER && !(elements[t].Properties&TYPE_PART)) ||
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWGAS && !(elements[t].Properties&TYPE_GAS)) || //&&  elements[t].Falldown!=0 && t!=PT_FIRE && t!=PT_SMKE && t!=PT_HFLM) ||
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
 		   (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||

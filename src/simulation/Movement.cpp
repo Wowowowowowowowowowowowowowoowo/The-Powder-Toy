@@ -22,9 +22,9 @@ bool Simulation::IsWallBlocking(int x, int y, int type)
 			return true;
 		else if (wall == WL_ALLOWENERGY && !(ptypes[type].properties&TYPE_ENERGY))
 			return true;
-		else if (wall == WL_ALLOWLIQUID && ptypes[type].falldown!=2)
+		else if (wall == WL_ALLOWLIQUID && !(ptypes[type].properties&TYPE_LIQUID))
 			return true;
-		else if (wall == WL_ALLOWSOLID && ptypes[type].falldown!=1)
+		else if (wall == WL_ALLOWPOWDER && !(ptypes[type].properties&TYPE_PART))
 			return true;
 		else if (wall == WL_ALLOWAIR || wall == WL_WALL || wall == WL_WALLELEC)
 			return true;
@@ -529,7 +529,7 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 			return 0;
 		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWLIQUID && ptypes[pt].falldown!=2)
 			return 0;
-		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWSOLID && ptypes[pt].falldown!=1)
+		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWPOWDER && ptypes[pt].falldown!=1)
 			return 0;
 		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWAIR || bmap[ny/CELL][nx/CELL]==WL_WALL || bmap[ny/CELL][nx/CELL]==WL_WALLELEC)
 			return 0;

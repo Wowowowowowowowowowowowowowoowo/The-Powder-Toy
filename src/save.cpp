@@ -271,7 +271,7 @@ int change_wall(int wt)
 	else if (wt == 9)
 		return WL_ALLOWAIR;
 	else if (wt == 10)
-		return WL_ALLOWSOLID;
+		return WL_ALLOWPOWDER;
 	else if (wt == 11)
 		return WL_ALLOWALLELEC;
 	else if (wt == 12)
@@ -302,7 +302,7 @@ int change_wallpp(int wt)
 	else if (wt == O_WL_ALLOWAIR)
 		return WL_ALLOWAIR;
 	else if (wt == O_WL_ALLOWSOLID)
-		return WL_ALLOWSOLID;
+		return WL_ALLOWPOWDER;
 	else if (wt == O_WL_ALLOWALLELEC)
 		return WL_ALLOWALLELEC;
 	else if (wt == O_WL_EHOLE)
