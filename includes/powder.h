@@ -45,11 +45,6 @@
 #define O_MAX_TEMP 3500
 #define O_MIN_TEMP -273
 
-#define ST_NONE 0
-#define ST_SOLID 1
-#define ST_LIQUID 2
-#define ST_GAS 3
-
 #define TYPE_PART			0x0000001 //1 Powders
 #define TYPE_LIQUID			0x0000002 //2 Liquids
 #define TYPE_SOLID			0x0000004 //4 Solids

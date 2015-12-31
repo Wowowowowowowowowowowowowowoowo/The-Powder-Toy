@@ -2233,10 +2233,14 @@ void initElementsAPI(lua_State * l)
 	SETCONST(l, FLAG_PHOTDECO);
 	SETCONST(l, FLAG_EXPLODE);
 	SETCONST(l, FLAG_DISAPPEAR);
-	SETCONST(l, ST_NONE);
-	SETCONST(l, ST_SOLID);
-	SETCONST(l, ST_LIQUID);
-	SETCONST(l, ST_GAS);
+	lua_pushinteger(l, 0);
+	lua_setfield(l, -2, "ST_NONE");
+	lua_pushinteger(l, 0);
+	lua_setfield(l, -2, "ST_SOLID");
+	lua_pushinteger(l, 0);
+	lua_setfield(l, -2, "ST_LIQUID");
+	lua_pushinteger(l, 0);
+	lua_setfield(l, -2, "ST_GAS");
 
 	SETCONST(l, SC_WALL);
 	SETCONST(l, SC_ELEC);
@@ -2401,7 +2405,7 @@ int elements_getProperty(const char * key, int * format, unsigned int * modified
 	}
 	else if (!strcmp(key, "State"))
 	{
-		offset = offsetof(Element, State);
+		offset = 0;
 		*format = 6;
 	}
 	else if (!strcmp(key, "Properties"))
@@ -2491,8 +2495,8 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 		case 5: //Unsigned int (Properties, PhotonReflectWavelength, Latent)
 			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 			break;
-		case 6: //Char (State)
-			*((char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (char)luaL_checkinteger(l, 3);
+		case 6: // old state (removed)
+		default:
 			break;
 	}
 }
@@ -2523,9 +2527,7 @@ void elements_writeProperty(lua_State *l, int id, int format, int offset)
 		case 5: //Unsigned int (Properties, PhotonReflectWavelengths, Latent)
 			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)));
 			break;
-		case 6: //Char (State)
-			lua_pushinteger(l, *((char*)(((unsigned char*)&globalSim->elements[id])+offset)));
-			break;
+		case 6: // old state (removed)
 		default:
 			lua_pushnil(l);
 	}
@@ -2638,7 +2640,7 @@ int elements_element(lua_State * l)
 {
 	int args = lua_gettop(l), id, i = 0;
 	unsigned int modifiedStuff = 0;
-	const char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "PhotonReflectWavelengths", "Weight", "Temperature", "HeatConduct", "Latent", "Description", "State", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
+	const char *propertyList[] = { "Name", "Colour", "Color", "MenuVisible", "MenuSection", "Advection", "AirDrag", "AirLoss", "Loss", "Collision", "Gravity", "Diffusion", "HotAir", "Falldown", "Flammable", "Explosive", "Meltable", "Hardness", "PhotonReflectWavelengths", "Weight", "Temperature", "HeatConduct", "Latent", "Description", "Properties", "LowPressure", "LowPressureTransition", "HighPressure", "HighPressureTransition", "LowTemperature", "LowTemperatureTransition", "HighTemperature", "HighTemperatureTransition", NULL};
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 

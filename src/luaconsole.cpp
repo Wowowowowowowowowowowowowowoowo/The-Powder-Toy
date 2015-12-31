@@ -633,7 +633,7 @@ int luacon_element_getproperty(const char * key, int * format, unsigned int * mo
 	}
 	else if (!strcmp(key, "state"))
 	{
-		offset = offsetof(Element, State);
+		offset = 0;
 		*format = 6;
 	}
 	else if (!strcmp(key, "properties"))
