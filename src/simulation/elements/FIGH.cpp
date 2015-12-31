@@ -171,7 +171,6 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Fighter. Tries to kill stickmen. You must first give it an element to kill him with.";
 
-	elem->State = ST_NONE;
 	elem->Properties = PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;

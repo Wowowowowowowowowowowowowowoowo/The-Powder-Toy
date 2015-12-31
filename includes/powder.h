@@ -109,7 +109,6 @@ struct part_type
 	float heat;
 	unsigned char hconduct;
 	char *descs;
-	char state;
 	unsigned int properties;
 	int (*graphics_func) (GRAPHICS_FUNC_ARGS);
 };

@@ -46,7 +46,6 @@ void NONE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Erases particles.";
 
-	elem->State = ST_NONE;
 	elem->Properties = 0;
 
 	elem->LowPressureTransitionThreshold = IPL;

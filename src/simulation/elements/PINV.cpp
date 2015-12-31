@@ -60,7 +60,6 @@ void PINV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Powered invisible,invisible to particles while activated.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_NEUTPASS|PROP_POWERED|PROP_INDESTRUCTIBLE;
 
 	elem->LowPressureTransitionThreshold = IPL;

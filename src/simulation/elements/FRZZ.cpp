@@ -67,7 +67,6 @@ void FRZZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Freeze powder. When melted, forms ice that always cools. Spreads with regular water.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = IPL;

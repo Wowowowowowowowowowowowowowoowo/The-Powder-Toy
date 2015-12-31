@@ -96,7 +96,6 @@ void BCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Breakable Clone.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC|PROP_BREAKABLECLONE|PROP_DRAWONCTYPE|PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;

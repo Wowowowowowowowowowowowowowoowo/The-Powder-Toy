@@ -46,7 +46,6 @@ void WHOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Air vent, creates pressure and pushes other particles away.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID;
 
 	elem->LowPressureTransitionThreshold = IPL;

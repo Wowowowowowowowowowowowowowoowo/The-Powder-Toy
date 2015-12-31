@@ -81,7 +81,6 @@ void CAUS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Caustic Gas, acts like ACID.";
 
-	elem->State = ST_GAS;
 	elem->Properties = TYPE_GAS|PROP_DEADLY;
 
 	elem->LowPressureTransitionThreshold = IPL;

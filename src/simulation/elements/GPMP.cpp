@@ -68,7 +68,6 @@ void GPMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Gravity pump. Changes gravity to its temp when activated. (use HEAT/COOL)";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;

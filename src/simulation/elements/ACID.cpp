@@ -137,7 +137,6 @@ void ACID_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Dissolves almost everything.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID|PROP_DEADLY;
 
 	elem->LowPressureTransitionThreshold = IPL;

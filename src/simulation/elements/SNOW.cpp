@@ -49,7 +49,6 @@ void SNOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 1095;
 	elem->Description = "Light particles. Created when ICE breaks under pressure.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_PART|PROP_LIFE_DEC|PROP_NEUTPASS;
 
 	elem->LowPressureTransitionThreshold = IPL;

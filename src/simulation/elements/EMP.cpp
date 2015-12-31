@@ -174,7 +174,6 @@ void EMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Electromagnetic pulse. Breaks activated electronics.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;

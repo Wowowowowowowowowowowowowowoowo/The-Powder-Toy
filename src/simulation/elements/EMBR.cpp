@@ -119,7 +119,6 @@ void EMBR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Sparks. Formed by explosions.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL|PROP_SPARKSETTLE;
 
 	elem->LowPressureTransitionThreshold = IPL;

@@ -61,7 +61,6 @@ void BRCK_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Brick, breakable building material.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_HOT_GLOW;
 
 	elem->LowPressureTransitionThreshold = IPL;

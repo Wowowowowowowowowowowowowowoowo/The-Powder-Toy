@@ -136,7 +136,6 @@ void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Powered Heater. Flood fill heats particles to its temp. Use only one.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;

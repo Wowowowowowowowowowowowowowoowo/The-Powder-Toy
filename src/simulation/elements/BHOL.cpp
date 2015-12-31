@@ -46,7 +46,6 @@ void BHOL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Vacuum, sucks in other particles and heats up.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID;
 
 	elem->LowPressureTransitionThreshold = IPL;

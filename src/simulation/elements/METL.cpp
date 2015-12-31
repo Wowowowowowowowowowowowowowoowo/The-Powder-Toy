@@ -46,7 +46,6 @@ void METL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 919;
 	elem->Description = "The basic conductor. Meltable.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 
 	elem->LowPressureTransitionThreshold = IPL;

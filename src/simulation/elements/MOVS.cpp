@@ -156,7 +156,6 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Moving solid. Acts like a bouncy ball.";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = -25.0f;

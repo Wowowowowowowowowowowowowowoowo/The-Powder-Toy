@@ -282,7 +282,6 @@ void SOAP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Soap. Creates bubbles, washes off deco color, and cures virus.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID|PROP_NEUTPENETRATE|PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;

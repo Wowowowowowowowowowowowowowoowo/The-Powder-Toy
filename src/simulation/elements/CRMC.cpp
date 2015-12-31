@@ -67,7 +67,6 @@ void CRMC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Ceramic. Gets stronger under pressure.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID | PROP_NEUTPASS;
 
 	elem->LowPressureTransitionThreshold = IPL;

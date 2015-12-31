@@ -2742,7 +2742,6 @@ void Simulation_Compat_CopyData(Simulation* sim)
 		ptypes[t].heat = sim->elements[t].DefaultProperties.temp;
 		ptypes[t].hconduct = sim->elements[t].HeatConduct;
 		ptypes[t].descs = mystrdup(sim->elements[t].Description.c_str());
-		ptypes[t].state = sim->elements[t].State;
 		ptypes[t].properties = sim->elements[t].Properties;
 		ptypes[t].graphics_func = sim->elements[t].Graphics;
 

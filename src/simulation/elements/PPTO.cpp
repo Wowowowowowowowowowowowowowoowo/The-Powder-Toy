@@ -64,7 +64,6 @@ void PPTO_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Powered Portal OUT, can be turned on/off.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;

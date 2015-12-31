@@ -68,7 +68,6 @@ void FOG_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Fog, created when an electric current is passed through RIME.";
 
-	elem->State = ST_GAS;
 	elem->Properties = TYPE_GAS|PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;

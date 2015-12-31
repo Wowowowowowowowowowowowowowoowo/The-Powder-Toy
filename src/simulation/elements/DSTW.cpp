@@ -100,7 +100,6 @@ void DSTW_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 7500;
 	elem->Description = "Distilled water, does not conduct electricity.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID|PROP_NEUTPASS;
 
 	elem->LowPressureTransitionThreshold = IPL;

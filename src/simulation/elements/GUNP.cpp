@@ -46,7 +46,6 @@ void GUNP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Gunpowder. Light dust, explodes on contact with fire or spark.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = IPL;

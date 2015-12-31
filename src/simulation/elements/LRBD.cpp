@@ -46,7 +46,6 @@ void LRBD_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Liquid Rubidium.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;

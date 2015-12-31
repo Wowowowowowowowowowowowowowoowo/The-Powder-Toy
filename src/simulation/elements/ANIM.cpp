@@ -119,7 +119,6 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Animated Liquid Crystal. Can show multiple frames, use left/right in the deco editor.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;

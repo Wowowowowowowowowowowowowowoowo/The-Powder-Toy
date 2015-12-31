@@ -44,7 +44,6 @@ Element::Element():
 	HeatConduct(128),
 	Latent(0),
 	Description("No Description."),
-	State(ST_SOLID),
 	Properties(TYPE_SOLID),
 	LowPressureTransitionThreshold(IPL),
 	LowPressureTransitionElement(NT),

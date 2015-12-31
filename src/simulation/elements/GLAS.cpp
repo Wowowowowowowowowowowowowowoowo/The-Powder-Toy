@@ -63,7 +63,6 @@ void GLAS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Glass. Meltable. Shatters under pressure, and refracts photons.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID | PROP_NEUTPASS | PROP_HOT_GLOW | PROP_SPARKSETTLE;
 
 	elem->LowPressureTransitionThreshold = IPL;

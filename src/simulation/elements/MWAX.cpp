@@ -46,7 +46,6 @@ void MWAX_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Liquid Wax. Hardens into WAX at 45 degrees.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID;
 
 	elem->LowPressureTransitionThreshold = IPL;

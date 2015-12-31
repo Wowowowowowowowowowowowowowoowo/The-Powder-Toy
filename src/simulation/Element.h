@@ -79,7 +79,6 @@ public:
 	unsigned int Latent;
 	std::string Description;
 
-	char State;
 	unsigned int Properties;
 
 	float LowPressureTransitionThreshold;

@@ -67,7 +67,6 @@ void ANAR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Anti-air. Very light dust, which behaves opposite gravity.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = IPL;

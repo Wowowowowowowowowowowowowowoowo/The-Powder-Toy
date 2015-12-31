@@ -137,7 +137,6 @@ void H2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Hydrogen. Combusts with OXYG to make WATR. Undergoes fusion at high temperature and pressure.";
 
-	elem->State = ST_GAS;
 	elem->Properties = TYPE_GAS;
 
 	elem->LowPressureTransitionThreshold = IPL;

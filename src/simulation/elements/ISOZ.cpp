@@ -48,7 +48,6 @@ void ISOZ_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Isotope-Z. Radioactive liquid. Decays into photons when touching PHOT or under negative pressure.";
 
-	elem->State = ST_LIQUID;
 	elem->Properties = TYPE_LIQUID|PROP_NEUTPENETRATE;
 
 	elem->LowPressureTransitionThreshold = IPL;

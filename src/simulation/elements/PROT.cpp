@@ -197,7 +197,6 @@ void PROT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Protons. Transfer heat to materials, and removes sparks.";
 
-	elem->State = ST_GAS;
 	elem->Properties = TYPE_ENERGY;
 
 	elem->LowPressureTransitionThreshold = IPL;

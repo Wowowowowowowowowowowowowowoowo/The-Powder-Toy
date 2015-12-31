@@ -74,7 +74,6 @@ void BMTL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Breakable metal. Common conductive building material, can melt and break under pressure.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 
 	elem->LowPressureTransitionThreshold = IPL;

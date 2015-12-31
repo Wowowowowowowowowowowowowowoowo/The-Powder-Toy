@@ -58,7 +58,6 @@ void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Button. Can be sparked just by clicking on it, but only when turned on.";
 
-	elem->State = ST_SOLID;
 	elem->Properties = TYPE_SOLID|PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;

@@ -87,7 +87,6 @@ void BOYL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Boyle, variable pressure gas. Expands when heated.";
 
-	elem->State = ST_GAS;
 	elem->Properties = TYPE_GAS;
 
 	elem->LowPressureTransitionThreshold = IPL;

@@ -121,7 +121,6 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Game Of Life: Begin 3/Stay 23";
 
-	elem->State = ST_NONE;
 	elem->Properties = TYPE_SOLID|PROP_LIFE;
 
 	elem->LowPressureTransitionThreshold = IPL;
