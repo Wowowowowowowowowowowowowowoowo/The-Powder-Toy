@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "EMP.h"
 
 int NPTCT_update(UPDATE_FUNC_ARGS);
 int FIRE_update(UPDATE_FUNC_ARGS);
@@ -237,6 +238,13 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 							continue;
 					}
 					break;
+				case PT_EMP:
+					if (!parts[r>>8].life && parts[i].life < 4)
+					{
+						((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Activate();
+						parts[r>>8].life = 220;
+						break;
+					}
 				default:
 					break;
 				}

@@ -41,27 +41,6 @@ public:
 	}
 };
 
-int EMP_update(UPDATE_FUNC_ARGS)
-{
-	if (parts[i].life)
-		return 0;
-	for (int rx =- 2; rx <= 2; rx++)
-		for (int ry = -2; ry <= 2; ry++)
-			if (x+rx>=0 && y+ry>=0 && x+rx<XRES && y+ry<YRES && (rx || ry))
-			{
-				int r = pmap[y+ry][x+rx];
-				if (!r)
-					continue;
-				if ((r&0xFF)==PT_SPRK && parts[r>>8].life > 0 && parts[r>>8].life < 4)
-				{
-					((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Activate();
-					parts[i].life = 220;
-					return 0;
-				}
-			}
-	return 0;
-}
-
 void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 {
 	/* Known differences from original one-particle-at-a-time version:
@@ -116,7 +95,7 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 				{
 					if (rand()%5 < 2)
 						sim->part_change_type(r, rx, ry, PT_BREL);
-					else if (!(rand()%120))
+					else
 						sim->part_change_type(r, rx, ry, PT_NTCT);
 				}
 			}
@@ -253,7 +232,7 @@ void EMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = &EMP_update;
+	elem->Update = NULL;
 	elem->Graphics = &EMP_graphics;
 	elem->Init = &EMP_init_element;
 
