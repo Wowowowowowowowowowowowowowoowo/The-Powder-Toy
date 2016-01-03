@@ -33,19 +33,11 @@ void STKM_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 	//Setting an element for the stick man
 	if (sim->elementCount[PT_STKM] <= 0)
 	{
-		int sr = ((ElementTool*)activeTools[1])->GetID();
-		if ((sr > 0 && sr < PT_NUM && sim->elements[sr].Enabled && sim->elements[sr].Falldown > 0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
-			player.elem = sr;
-		else
-			player.elem = PT_DUST;
+		STKM_default_element(sim, &player);
 	}
 	if (sim->elementCount[PT_STKM2] <= 0)
 	{
-		int sr = ((ElementTool*)activeTools[1])->GetID();
-		if ((sr > 0 && sr < PT_NUM && sim->elements[sr].Enabled && sim->elements[sr].Falldown > 0) || sr == PT_NEUT || sr == PT_PHOT || sr == PT_LIGH)
-			player2.elem = sr;
-		else
-			player2.elem = PT_DUST;
+		STKM_default_element(sim, &player2);
 	}
 }
 
@@ -67,8 +59,8 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 {
 	int t = parts[i].type;
 
-	if ((sim->IsElement(parts[i].ctype) && sim->elements[parts[i].ctype].Falldown>0) || parts[i].ctype==SPC_AIR || parts[i].ctype == PT_NEUT || parts[i].ctype == PT_PHOT || parts[i].ctype == PT_LIGH)
-		playerp->elem = parts[i].ctype;
+	if (sim->IsElement(parts[i].ctype))
+		STKM_set_element(sim, playerp, parts[i].ctype);
 	playerp->frames++;
 
 	// Temperature handling
@@ -361,16 +353,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 				if (!r && !bmap[(y+ry)/CELL][(x+rx)/CELL])
 					continue;
 				
-				if (sim->elements[r&0xFF].Falldown != 0
-				    || sim->elements[r&0xFF].Properties&TYPE_GAS
-				    || sim->elements[r&0xFF].Properties&TYPE_LIQUID
-				    || (r&0xFF) == PT_NEUT || (r&0xFF) == PT_PHOT)
-				{
-					if (!playerp->rocketBoots || (r&0xFF) != PT_PLSM)
-						playerp->elem = r&0xFF;  //Current element
-				}
-				if ((r&0xFF) == PT_TESC || (r&0xFF) == PT_LIGH)
-					playerp->elem = PT_LIGH;
+				STKM_set_element(sim, playerp, r&0xFF);
 				if ((r&0xFF) == PT_PLNT && parts[i].life<100) //Plant gives him 5 HP
 				{
 					if (parts[i].life<=95)
@@ -723,6 +706,30 @@ void STKM_ElementDataContainer::HandleKeys(int sdl_key, int sdl_rkey)
 	{
 		player2.comm = (int)(player2.comm)&7;
 	}
+}
+
+void STKM_ElementDataContainer::STKM_default_element(Simulation *sim, Stickman *playerp)
+{
+	int sr = ((ElementTool*)activeTools[1])->GetID();
+	if (sim->IsElement(sr))
+		STKM_set_element(sim, playerp, sr);
+	else
+		playerp->elem = PT_DUST;
+}
+
+void STKM_ElementDataContainer::STKM_set_element(Simulation *sim, Stickman *playerp, int element)
+{
+	if (sim->elements[element].Falldown != 0
+	    || sim->elements[element].Properties&TYPE_GAS
+	    || sim->elements[element].Properties&TYPE_LIQUID
+	    || sim->elements[element].Properties&TYPE_ENERGY
+	    || element == PT_LOLZ || element == PT_LOVE || element == SPC_AIR)
+	{
+		if (!playerp->rocketBoots || element != PT_PLSM)
+			playerp->elem = element;
+	}
+	if (element == PT_TESC || element == PT_LIGH)
+		playerp->elem = PT_LIGH;
 }
 
 int STKM_update(UPDATE_FUNC_ARGS)
