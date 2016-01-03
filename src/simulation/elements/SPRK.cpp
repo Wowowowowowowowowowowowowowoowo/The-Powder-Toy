@@ -344,7 +344,7 @@ conduct:
 				{
 					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
-				else if (sender==PT_ETRD && parts[i].life==5) //ETRD is odd and conducts to others only at life 5, this could probably be somewhere else
+				else if (!parts[r>>8].life && sender==PT_ETRD && parts[i].life==5) //ETRD is odd and conducts to others only at life 5, this could probably be somewhere else
 				{
 					part_change_type(i,x,y,sender);
 					parts[i].ctype = PT_NONE;
