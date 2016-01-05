@@ -16,7 +16,7 @@ class ourSpawn:
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		proc = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			stderr=subprocess.PIPE, startupinfo=startupinfo, shell = False, env = env)
+			stderr=subprocess.PIPE, startupinfo=startupinfo, shell=False, env=env)
 		data, err = proc.communicate()
 		rv = proc.wait()
 		if rv:
@@ -87,10 +87,12 @@ if msvc and platform != "Windows":
 	FatalError("Error: --msvc only works on windows")
 
 #Create SCons Environment
-if platform == "Windows" and not GetOption('msvc'):
-	env = Environment(tools = ['mingw'], ENV = {'PATH' : os.environ['PATH']})
+if GetOption('msvc'):
+	env = Environment(tools=['default'], ENV={'PATH' : os.environ['PATH'], 'TMP' : os.environ['TMP']}, TARGET_ARCH='x86')
+elif platform == "Windows":
+	env = Environment(tools=['mingw'], ENV={'PATH' : os.environ['PATH']})
 else:
-	env = Environment(tools = ['default'], ENV = {'PATH' : os.environ['PATH']})
+	env = Environment(tools=['default'], ENV={'PATH' : os.environ['PATH']})
 
 #attempt to automatically find cross compiler
 if not tool and compilePlatform == "Linux" and compilePlatform != platform:
