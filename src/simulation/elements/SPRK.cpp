@@ -15,6 +15,7 @@
 
 #include "simulation/ElementsCommon.h"
 #include "EMP.h"
+#include "ETRD.h"
 
 int NPTCT_update(UPDATE_FUNC_ARGS);
 int FIRE_update(UPDATE_FUNC_ARGS);
@@ -30,7 +31,6 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			parts[i].temp = R_TEMP + 273.15f;
 		if (ct<=0 || ct>=PT_NUM || !ptypes[ct].enabled)
 			ct = PT_METL;
-		part_change_type(i,x,y,ct);
 		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;
 		if (ct == PT_WATR)
@@ -43,6 +43,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 		else if (ct == PT_SWCH || ct == PT_BUTN)
 #endif
 			parts[i].life = 14;
+		part_change_type(i,x,y,ct);
 		return 0;
 	}
 
@@ -59,13 +60,13 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 	case PT_ETRD:
 		if (parts[i].life == 1)
 		{
-			nearp = nearest_part(i, PT_ETRD, -1);
+			nearp = nearestSparkablePart(sim, i);
 			if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL)
 			{
 				sim->CreateLine(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), PT_PLSM, 0);
+				parts[i].life = 20;
 				part_change_type(i, x, y, ct);
 				ct = parts[i].ctype = PT_NONE;
-				parts[i].life = 20;
 				sim->spark_conductive(nearp, (int)(parts[nearp].x+0.5f),(int)(parts[nearp].y+0.5f));
 				parts[nearp].life = 9;
 			}
