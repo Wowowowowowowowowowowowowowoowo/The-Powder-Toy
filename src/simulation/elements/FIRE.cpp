@@ -170,6 +170,20 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 						}
 					}
 				}
+
+#ifndef NOMOD
+				// LAVA(CLST) + LAVA(PQRT) + high enough temp = LAVA(CRMC) + LAVA(CRMC)
+				if (t == PT_LAVA && parts[i].ctype == PT_QRTZ && rt == PT_LAVA && parts[r>>8].ctype == PT_CLST)
+				{
+					float pres = std::max(pv[y/CELL][x/CELL]*10.0f, 0.0f);
+					if (parts[i].temp >= pres+sim->elements[PT_CRMC].HighTemperatureTransitionThreshold+50.0f)
+					{
+						parts[i].ctype = PT_CRMC;
+						parts[r>>8].ctype = PT_CRMC;
+					}
+				}
+#endif
+
 				if ((surround_space || ptypes[rt].explosive) &&
 					ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]*10.0f)) > (rand()%1000) &&
 					//exceptions, t is the thing causing the flame and rt is what's burning
