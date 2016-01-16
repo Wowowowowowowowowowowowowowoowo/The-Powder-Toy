@@ -76,22 +76,19 @@ void Window_::FocusComponent(Component *toFocus)
 
 void Window_::UpdateComponents()
 {
-	std::vector<Component*>::iterator iter = Components.end(), end = Components.begin();
-	do
+	for (int i = Components.size()-1; i >= 0; i--)
 	{
-		iter--;
-		Component *c = *iter;
-		if (c->toDelete)
+		if (Components[i]->toDelete)
 		{
-			c->SetParent(NULL);
-			Components.erase(iter);
-			delete c;
+			Components[i]->SetParent(NULL);
+			delete Components[i];
+			Components.erase(Components.begin()+i);
 		}
-		else if (c->toAdd)
+		else if (Components[i]->toAdd)
 		{
-			c->SetVisible(true);
+			Components[i]->SetVisible(true);
 		}
-	} while (iter != end);
+	}
 }
 
 void Window_::DoExit()
