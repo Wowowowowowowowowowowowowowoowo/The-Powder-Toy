@@ -58,18 +58,18 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && parts[i].life==10)
 	{
 		//create photons a different way
-		if (parts[i].ctype==PT_PHOT)
+		if (parts[i].ctype == PT_PHOT)
 		{
 			for (rx=-1; rx<2; rx++)
 				for (ry=-1; ry<2; ry++)
 					if (rx || ry)
 					{
-						int r = sim->part_create(-1, x+rx, y+ry, parts[i].ctype);
+						int r = sim->part_create(-1, x+rx, y+ry, PT_PHOT);
 						if (r!=-1)
 						{
 							parts[r].vx = rx*3.0f;
 							parts[r].vy = ry*3.0f;
-							if (r>i)
+							if (r > i)
 							{
 								// Make sure movement doesn't happen until next frame, to avoid gaps in the beams of photons produced
 								parts[r].flags |= FLAG_SKIPMOVE;
@@ -78,19 +78,19 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 					}
 		}
 		//create life a different way
-		else if (parts[i].ctype==PT_LIFE)
+		else if (parts[i].ctype == PT_LIFE)
 		{
 			for (rx=-1; rx<2; rx++)
 				for (ry=-1; ry<2; ry++)
 				{
 					// TODO: change this create_part
-					create_part(-1, x+rx, y+ry, parts[i].ctype|(parts[i].tmp<<8));
+					sim->part_create(-1, x+rx, y+ry, PT_LIFE, parts[i].tmp);
 				}
 		}
-		else if (parts[i].ctype!=PT_LIGH || !(rand()%30))
+		else if (parts[i].ctype != PT_LIGH || !(rand()%30))
 		{
-			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype);
-			if (np > -1)
+			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype&0xFF);
+			if (np >= 0)
 			{
 				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && ptransitions[parts[i].tmp].tht==PT_LAVA)
 					parts[np].ctype = parts[i].tmp;

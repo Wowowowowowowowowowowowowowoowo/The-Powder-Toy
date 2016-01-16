@@ -319,8 +319,17 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					if (!j)
 						strcpy(console_error, "Cannot create particle with type NONE");
-					else if (create_part(-1,nx,ny,j)<0)
-						strcpy(console_error, "Could not create particle");
+					else
+					{
+						int v = -1;
+						if (j&~(0xFF))
+						{
+							v = j>>8;
+							j = j&0xFF;
+						}
+						if (globalSim->part_create(-1, nx, ny, j, v) < 0)
+							strcpy(console_error, "Could not create particle");
+					}
 				}
 			}
 			else if (strcmp(console2, "bubble")==0 && console3[0])
@@ -329,12 +338,12 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					int first, rem1, rem2;
 
-					first = create_part(-1, nx+18, ny, PT_SOAP);
+					first = globalSim->part_create(-1, nx+18, ny, PT_SOAP);
 					rem1 = first;
 
 					for (i = 1; i<=30; i++)
 					{
-						rem2 = create_part(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
+						rem2 = globalSim->part_create(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
 
 						parts[rem1].ctype = 7;
 						parts[rem1].tmp = rem2;

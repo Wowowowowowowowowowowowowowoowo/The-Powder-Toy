@@ -161,8 +161,6 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 
 int get_brush_flags();
 
-int create_part(int p, int x, int y, int t);
-
 int is_wire(int x, int y);
 
 int is_wire_off(int x, int y);

@@ -89,19 +89,6 @@ void part_change_type(int i, int x, int y, int t)//changes the type of particle 
 	globalSim->part_change_type(i, x, y, t);
 }
 
-//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
-//TODO: replace with Simulation::part_create now
-int create_part(int p, int x, int y, int tv)
-{
-	int i;
-
-	int t = tv & 0xFF;
-	int v = (tv >> 8) & 0xFFFFFFFF;
-
-	i = globalSim->part_create(p, x, y, t, v);
-	return i;
-}
-
 int is_wire(int x, int y)
 {
 	return bmap[y][x]==WL_DETECT || bmap[y][x]==WL_EWALL || bmap[y][x]==WL_ALLOWLIQUID || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_ALLOWALLELEC || bmap[y][x]==WL_EHOLE;
@@ -639,7 +626,7 @@ bool transfer_heat(int i, int t, int surround[8])
 				if (t == PT_FIRE)
 				{
 					//hackish, if tmp isn't 0 the FIRE might turn into DSTW later
-					//idealy transitions should use create_part(i) but some elements rely on properties staying constant
+					//idealy transitions should use part_create(i) but some elements rely on properties staying constant
 					//and I don't feel like checking each one right now
 					parts[i].tmp = 0;
 				}

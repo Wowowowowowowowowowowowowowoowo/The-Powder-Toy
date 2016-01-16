@@ -1392,7 +1392,7 @@ int luatpt_create(lua_State* l)
 			if (!console_parse_type(name, &t, NULL))
 				return luaL_error(l,"Unrecognised element '%s'", name);
 		}
-		retid = create_part(-1, x, y, t);
+		retid = globalSim->part_create(-1, x, y, t);
 		// failing to create a particle often happens (e.g. if space is already occupied) and isn't usually important, so don't raise an error
 		lua_pushinteger(l, retid);
 		return 1;
@@ -2481,12 +2481,12 @@ int luatpt_bubble(lua_State* l)
 	int y = luaL_optint(l, 1, 0);
 	int first, rem1, rem2, i;
 
-	first = create_part(-1, x+18, y, PT_SOAP);
+	first = globalSim->part_create(-1, x+18, y, PT_SOAP);
 	rem1 = first;
 
 	for (i = 1; i<=30; i++)
 	{
-		rem2 = create_part(-1, (int)(x+18*cosf(i/5.0f)), (int)(y+18*sinf(i/5.0f)), PT_SOAP);
+		rem2 = globalSim->part_create(-1, (int)(x+18*cosf(i/5.0f)), (int)(y+18*sinf(i/5.0f)), PT_SOAP);
 
 		parts[rem1].ctype = 7;
 		parts[rem1].tmp = rem2;
