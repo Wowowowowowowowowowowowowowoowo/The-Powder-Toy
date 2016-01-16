@@ -5154,8 +5154,16 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					for (int i = comment_page*20; i < info->comment_count; i++)
 					{
 						commentobj = cJSON_GetArrayItem(root, i%20);
-						if(commentobj){
-							if((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
+						if (commentobj)
+						{
+							if ((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String)
+							{
+								info->commentauthors[i] = (char*)calloc(63,sizeof(char*));
+								if (!strcmp(tmpobj->valuestring, "jacobot") || !strcmp(tmpobj->valuestring, "boxmein"))
+									sprintf(info->commentauthors[i], "\bt%s", tmpobj->valuestring);
+								else
+									strncpy(info->commentauthors[i], tmpobj->valuestring, 63);
+							}
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "Username")) && tmpobj->type == cJSON_String) { info->commentauthorsunformatted[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthorsunformatted[i], tmpobj->valuestring, 63); }
 							if((tmpobj = cJSON_GetObjectItem(commentobj, "UserID")) && tmpobj->type == cJSON_String) { info->commentauthorIDs[i] = (char*)calloc(16,sizeof(char*)); strncpy(info->commentauthorIDs[i], tmpobj->valuestring, 16); }
 							//if((tmpobj = cJSON_GetObjectItem(commentobj, "Gravatar")) && tmpobj->type == cJSON_String) { info->commentauthors[i] = (char*)calloc(63,sizeof(char*)); strncpy(info->commentauthors[i], tmpobj->valuestring, 63); }
