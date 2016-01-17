@@ -27,7 +27,7 @@ class ETRD_ElementDataContainer : public ElementDataContainer
 {
 public:
 	std::vector<ETRD_deltaWithLength> deltaPos;
-	const int maxLength = 12;
+	static const int maxLength = 12;
 	bool isValid;
 	int countLife0;
 
