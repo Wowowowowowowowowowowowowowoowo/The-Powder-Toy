@@ -962,6 +962,14 @@ mouse drawing when starting a zoom window. Fix possible voting issues /
 improve error messages. Fix crash when loading SPRK with huge ctype. Fix some 
 text in the options menu.
 
+Version 33.0 1/17/16
+Fix clicking on "next page" in the save browser opening a save instead. 
+Improve save / thumbnail download speed, make sure pending downloads don't  
+cause freezes on exit. Fix WIND tool corrupting the pressure grid and causing 
+crashes. Change the update server to http://starcatcher.us/TPT/. Update 
+internal script manager to 3.5 to fix restarting issues. Fix DLAY delay for 
+real this time. Many simulation updates from tpt++ and other changes.
+
 
 
 
