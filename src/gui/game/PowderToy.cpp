@@ -1336,7 +1336,11 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
 	mouseInZoom = IsMouseInZoom(mouse);
-	if (placingZoomTouch)
+	if (deco_disablestuff)
+	{
+
+	}
+	else if (placingZoomTouch)
 	{
 		if (x < XRES && y < YRES)
 		{

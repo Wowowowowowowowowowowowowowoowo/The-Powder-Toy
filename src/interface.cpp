@@ -7455,7 +7455,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			box_R.cursor = strlen(box_R.str);
 		}
 	}
-	if (the_game->ZoomWindowShown())
+	if (the_game->ZoomWindowShown() || the_game->GetStampState() != PowderToy::NONE)
 		decobox_hidden = 1;
 	/*if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
 	{
