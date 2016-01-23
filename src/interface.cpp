@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common/tpt-minmax.h"
 #include "SDLCompat.h"
 
 #include <stdio.h>
@@ -7097,7 +7098,6 @@ void decoration_textbox_color(ui_edit* textbox, int *color, int *color2)
 	if (*color < 0) *color = 0;
 	*color2 = *color;
 	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
-	(*textbox).focus = 0;
 }
 
 ARGBColour decocolor = COLARGB(255, 255, 0, 0);
@@ -7233,40 +7233,28 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	else
 	{
 		deco_disablestuff = 1;
-		if(sdl_key == SDLK_RETURN)
-		{
-			decoration_textbox_color(&box_R, &cr, &currR);
-		}
+		decoration_textbox_color(&box_R, &cr, &currR);
 	}
 	if(!box_G.focus)
 		sprintf(box_G.str,"%d",currG);
 	else
 	{
 		deco_disablestuff = 1;
-		if(sdl_key == SDLK_RETURN)
-		{
-			decoration_textbox_color(&box_G, &cg, &currG);
-		}
+		decoration_textbox_color(&box_G, &cg, &currG);
 	}
 	if(!box_B.focus)
 		sprintf(box_B.str,"%d",currB);
 	else
 	{
 		deco_disablestuff = 1;
-		if(sdl_key == SDLK_RETURN)
-		{
-			decoration_textbox_color(&box_B, &cb, &currB);
-		}
+		decoration_textbox_color(&box_B, &cb, &currB);
 	}
 	if(!box_A.focus)
 		sprintf(box_A.str,"%d",currA);
 	else
 	{
 		deco_disablestuff = 1;
-		if(sdl_key == SDLK_RETURN)
-		{
-			decoration_textbox_color(&box_A, &ca, &currA);
-		}
+		decoration_textbox_color(&box_A, &ca, &currA);
 	}
 
 	//fillrect(vid_buf, 250, YRES+4, 40, 15, currR, currG, currB, currA);
@@ -7278,11 +7266,13 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	else
 		drawtext(vid_buf, 298, YRES+4, "\xCA", 255, 255, 255, 255);
 
-	if(can_select_color && !decobox_hidden && mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20)//in the main window
+	//in the main window
+	if (can_select_color && !decobox_hidden && ((mx >= window_offset_x && my >= 2 && mx <= window_offset_x+255+4+10+5 && my <= 2+255+20) || clickedHueBox || clickedSaturation))
 	{
 		//inside brightness bar
-		if(mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255 && !clickedSaturation)
+		if (((mx >= grid_offset_x +255+4 && my >= 5 && mx <= grid_offset_x+255+4+10 && my <= 5+255) || clickedHueBox) && !clickedSaturation)
 		{
+			my = std::min(std::max(5, my), 260);
 			tv =  my - 5;
 			if (b && !bq)
 				clickedHueBox = true;
@@ -7305,8 +7295,10 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				sprintf(box_A.str,"%d",ca);
 		}
 		//inside color grid
-		if(mx >= grid_offset_x && my >= 5 && mx <= grid_offset_x+255 && my <= 5+255 && !clickedHueBox)
+		if (((mx >= grid_offset_x && my >= 5 && mx <= grid_offset_x+255 && my <= 5+255) || clickedSaturation) && !clickedHueBox)
 		{
+			mx = std::min(std::max(grid_offset_x, mx), grid_offset_x+255);
+			my = std::min(std::max(5, my), 260);
 			th = mx - grid_offset_x;
 			th = (int)( th*359/255 );
 			ts = 255 - (my - 5);
@@ -7346,7 +7338,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 				for (i=0;i<NPART;i++)
 					parts[i].dcolour = COLARGB(0, 0, 0, 0);
 			}
-			deco_disablestuff = 1;
+		deco_disablestuff = 1;
 	}
 	else if (mx > XRES || my > YRES)//mouse outside normal drawing area
 	{
