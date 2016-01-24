@@ -3,6 +3,7 @@
 
 #include <string>
 #include "common/Point.h"
+#include "graphics/ARGBColour.h"
 #include "Component.h"
 
 class VideoBuffer;
@@ -12,7 +13,7 @@ class ButtonAction
 {
 public:
 	ButtonAction() { }
-	virtual void ButtionActionCallback(Button *button, unsigned char b) { }
+	virtual void ButtionActionCallback(Button *button, unsigned char b) = 0;
 };
 
 class Button : public Component
@@ -23,10 +24,12 @@ public:
 
 private:
 	std::string text;
+	ARGBColour textColor;
 	ToolTip *tooltip;
 	ButtonAction *callback;
 	TextAlign alignment;
 	State state;
+	bool isCloseButton;
 
 	// "hold" button does different actions when you hold it for one second
 	uint32_t timeHeldDown;
@@ -36,11 +39,14 @@ public:
 	virtual ~Button();
 
 	void SetText(std::string text_);
+	void SetColor(ARGBColour newColor);
+	void SetTextColor(ARGBColour newColor);
 	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
 	void SetCallback(ButtonAction *callback_);
 	void SetAlign(TextAlign align) { alignment = align; }
 	void SetState(State state_) { state = state_; }
+	void SetCloseButton(bool isCloseButton_) { isCloseButton = isCloseButton_; }
 
 	bool IsHeld() { return timeHeldDown > 1000; }
 

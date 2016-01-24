@@ -31,6 +31,18 @@ Window_::~Window_()
 	Components.clear();
 }
 
+void Window_::Resize(Point position_, Point size_)
+{
+	delete videoBuffer;
+	position = position_;
+	size = size_;
+	if (position.X == CENTERED)
+		position.X = (XRES+BARSIZE-size.X)/2;
+	if (position.Y == CENTERED)
+		position.Y = (YRES+MENUSIZE-size.Y)/2;
+	videoBuffer = new VideoBuffer(size.X, size.Y);
+}
+
 void Window_::AddComponent(Component *other)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)

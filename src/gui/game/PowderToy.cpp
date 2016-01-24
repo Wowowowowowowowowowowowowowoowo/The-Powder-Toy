@@ -27,6 +27,7 @@
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 
+#include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
 
@@ -1776,12 +1777,29 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	{
 	case 'q':
 	case SDLK_ESCAPE:
-		if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
+	{
+		class ConfirmQuit : public ConfirmAction
 		{
-			this->ignoreQuits = false;
-			this->toDelete = true;
-		}
+			PowderToy *you_just_lost;
+		public:
+			ConfirmQuit(PowderToy *the_game) :
+				you_just_lost(the_game)
+			{
+
+			}
+			virtual void Action(bool isConfirmed)
+			{
+				if (isConfirmed)
+				{
+					you_just_lost->ignoreQuits = false;
+					you_just_lost->toDelete = true;
+				}
+			}
+		};
+		ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmQuit(this), "You are about to quit", "Are you sure you want to exit the game?", "Quit");
+		Engine::Ref().ShowWindow(confirm);
 		break;
+	}
 	case 's':
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
 		if (globalSim->elementCount[PT_STKM2] > 0 ? (modifiers&(KMOD_LCTRL|KMOD_LMETA)) : !(sdl_mod&(KMOD_CTRL|KMOD_META)))

@@ -72,6 +72,7 @@
 #include "simulation/GolNumbers.h"
 
 #include "interface/Engine.h"
+#include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
 
@@ -7331,13 +7332,21 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			deco_disablestuff = 1;
 		}
 		//clear button
-		if(b && !bq && mx >= window_offset_x + 230 && my >= 2 +255+6 && mx <= window_offset_x + 230 +26 && my <= 2 +255+5 +13)
-			if (confirm_ui(vid_buf, "Reset Decoration Layer", "Do you really want to erase everything?", "Erase") )
+		if (b && !bq && mx >= window_offset_x+230 && my >= 2+255+6 && mx <= window_offset_x + 230+26 && my <= 2+255+5+13)
+		{
+			class ResetDeco : public ConfirmAction
 			{
-				int i;
-				for (i=0;i<NPART;i++)
-					parts[i].dcolour = COLARGB(0, 0, 0, 0);
-			}
+			public:
+				virtual void Action(bool isConfirmed)
+				{
+					if (isConfirmed)
+						for (int i = 0; i < NPART; i++)
+							parts[i].dcolour = COLARGB(0, 0, 0, 0);
+				}
+			};
+			ConfirmPrompt *confirm = new ConfirmPrompt(new ResetDeco(), "Reset Decoration Layer", "Do you really want to erase everything?", "Erase");
+			Engine::Ref().ShowWindow(confirm);
+		}
 		deco_disablestuff = 1;
 	}
 	else if (mx > XRES || my > YRES)//mouse outside normal drawing area

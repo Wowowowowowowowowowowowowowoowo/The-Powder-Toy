@@ -42,7 +42,7 @@ public:
 	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }
 	bool IsEnabled() { return enabled; }
 	void SetEnabled(bool enabled_) { enabled = enabled_; if (!enabled) isMouseInside = false; }
-	void SetColor(ARGBColour newColor) { color = newColor; }
+	virtual void SetColor(ARGBColour newColor) { color = newColor; }
 	ARGBColour GetColor() { return color; }
 
 	// can be used to line up components

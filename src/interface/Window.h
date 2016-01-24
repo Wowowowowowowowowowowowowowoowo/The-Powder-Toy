@@ -12,6 +12,7 @@ class Window_
 public:
 	Window_(Point position, Point size);
 	virtual ~Window_();
+	void Resize(Point position, Point size);
 
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);

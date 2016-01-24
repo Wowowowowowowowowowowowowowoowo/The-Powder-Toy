@@ -67,6 +67,7 @@ CreateSign::CreateSign(int signID, Point pos):
 	};
 	moveButton = new Button(leftJuButton->Below(Point(0, 4)), leftJuButton->GetSize(), "Move");
 	moveButton->SetCallback(new MoveAction());
+	moveButton->SetCloseButton(true);
 	this->AddComponent(moveButton);
 
 	class DeleteAction : public ButtonAction
@@ -79,6 +80,7 @@ CreateSign::CreateSign(int signID, Point pos):
 	};
 	deleteButton = new Button(middleJuButton->Below(Point(0, 4)), middleJuButton->GetSize(), "\x86\x85 Delete");
 	deleteButton->SetCallback(new DeleteAction());
+	deleteButton->SetCloseButton(true);
 	this->AddComponent(deleteButton);
 
 	class OkAction : public ButtonAction
@@ -91,6 +93,7 @@ CreateSign::CreateSign(int signID, Point pos):
 	};
 	okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
 	okButton->SetCallback(new OkAction());
+	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
 
 	if (signID == -1)
@@ -153,5 +156,4 @@ void CreateSign::SaveSign()
 		if (signID == -1)
 			signs.push_back(theSign);
 	}
-	this->toDelete = true;
 }

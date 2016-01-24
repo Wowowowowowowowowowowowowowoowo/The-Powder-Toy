@@ -1,14 +1,17 @@
 #include "Button.h"
+#include "Window.h"
 #include "common/tpt-minmax.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
 Button::Button(Point position, Point size_, std::string text_):
 	Component(position, size_),
+	textColor(COLRGB(255, 255, 255)),
 	tooltip(NULL),
 	callback(NULL),
 	alignment(CENTER),
 	state(NORMAL),
+	isCloseButton(false),
 	timeHeldDown(0)
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
@@ -42,6 +45,17 @@ void Button::SetText(std::string text_)
 	}
 }
 
+void Button::SetColor(ARGBColour newColor)
+{
+	color = newColor;
+	textColor = newColor;
+}
+
+void Button::SetTextColor(ARGBColour newColor)
+{
+	textColor = newColor;
+}
+
 void Button::SetTooltip(ToolTip *newTip)
 {
 	delete tooltip;
@@ -67,12 +81,17 @@ void Button::OnMouseDown(int x, int y, unsigned char button)
 
 void Button::OnMouseUp(int x, int y, unsigned char button)
 {
-	if (IsClicked() && isMouseInside && enabled && callback)
+	if (IsClicked() && isMouseInside && enabled)
 	{
-		if (state == HOLD)
-			callback->ButtionActionCallback(this, IsHeld() ? 4 : button);
-		else
-			callback->ButtionActionCallback(this, button);
+		if (callback)
+		{
+			if (state == HOLD)
+				callback->ButtionActionCallback(this, IsHeld() ? 4 : button);
+			else
+				callback->ButtionActionCallback(this, button);
+		}
+		if (isCloseButton && GetParent())
+			GetParent()->toDelete = true;
 	}
 }
 
@@ -97,7 +116,7 @@ void Button::OnDraw(VideoBuffer* vid)
 	else
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
 
-	ARGBColour textColor;
+	ARGBColour realTextColor;
 	ARGBColour backgroundColor = 0;
 	if (!enabled)
 	{
@@ -105,7 +124,7 @@ void Button::OnDraw(VideoBuffer* vid)
 			backgroundColor = color;
 		else if (state == HIGHLIGHTED)
 			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
-		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
+		realTextColor = COLRGB((int)(COLR(textColor)*.55f), (int)(COLG(textColor)*.55f), (int)(COLB(textColor)*.55f));
 	}
 #ifdef TOUCHUI
 	// Mouse not inside button, Mouse not down, or over button but click did not start on button
@@ -117,16 +136,16 @@ void Button::OnDraw(VideoBuffer* vid)
 	{
 		if (state == INVERTED)
 		{
-			textColor = COLRGB(255-COLR(color), 255-COLG(color), 255-COLB(color));
+			realTextColor = COLRGB(255-COLR(textColor), 255-COLG(textColor), 255-COLB(textColor));
 			backgroundColor = color;
 		}
 		else if (state == HIGHLIGHTED)
 		{
 			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
-			textColor = color;
+			realTextColor = textColor;
 		}
 		else
-			textColor = color;
+			realTextColor = textColor;
 	}
 	else
 	{
@@ -134,25 +153,25 @@ void Button::OnDraw(VideoBuffer* vid)
 		if (IsClicked())
 		{
 			if (state == INVERTED)
-				textColor = color;
+				realTextColor = textColor;
 			else if (state == HOLD)
 			{
 				if (IsHeld())
 				{
-					textColor = COLPACK(0x000000);
+					realTextColor = COLPACK(0x000000);
 					backgroundColor = COLARGB(255, COLR(color), COLG(color), COLB(color));
 				}
 				else
 				{
 					unsigned int heldAmount = std::min((int)(timeHeldDown/20), 100);
-					textColor = color;
+					realTextColor = textColor;
 					backgroundColor = COLARGB(100+heldAmount, COLR(color), COLG(color), COLB(color));
 				}
 			}
 			else
 			{
 				backgroundColor = color;
-				textColor = COLPACK(0x000000);
+				realTextColor = COLPACK(0x000000);
 			}
 		}
 		// Mouse over button, not held down
@@ -161,17 +180,17 @@ void Button::OnDraw(VideoBuffer* vid)
 			if (state == INVERTED)
 			{
 				backgroundColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
-				textColor = COLRGB(255-COLR(color), 255-COLG(color), 255-COLB(color));
+				realTextColor = COLRGB(255-COLR(textColor), 255-COLG(textColor), 255-COLB(textColor));
 			}
 			else if (state == HIGHLIGHTED)
 			{
 				backgroundColor = COLARGB(155, COLR(color), COLG(color), COLB(color));
-				textColor = color;
+				realTextColor = textColor;
 			}
 			else
 			{
 				backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
-				textColor = color;
+				realTextColor = textColor;
 			}
 		}
 	}
@@ -182,12 +201,12 @@ void Button::OnDraw(VideoBuffer* vid)
 	if (alignment == LEFT)
 	{
 		Point textSize = VideoBuffer::TextSize(text);
-		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
 	}
 	else
 	{
 		Point textSize = VideoBuffer::TextSize(text);
-		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
 	}
 }
 
