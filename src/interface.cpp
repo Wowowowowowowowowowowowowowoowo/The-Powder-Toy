@@ -7180,7 +7180,10 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		ui_edit_draw(vid_buf, &box_B);
 		ui_edit_draw(vid_buf, &box_A);
 		sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
-		drawtext(vid_buf,on_left?145:504,264,hex,currR,currG,currB,currA);
+		if (mx > (on_left?143:502) && my > 264 && mx < (on_left?203:562) && my < 280)
+			drawtext(vid_buf,on_left?145:504,265,hex,currR,currG,currB,200);
+		else
+			drawtext(vid_buf,on_left?145:504,265,hex,currR,currG,currB,255);
 
 		//draw color square
 		for(ss=0; ss<=255; ss++)
@@ -7346,6 +7349,13 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			};
 			ConfirmPrompt *confirm = new ConfirmPrompt(new ResetDeco(), "Reset Decoration Layer", "Do you really want to erase everything?", "Erase");
 			Engine::Ref().ShowWindow(confirm);
+		}
+		if (b && !bq && mx > (on_left?143:502) && my > 264 && mx < (on_left?203:562) && my < 280)
+		{
+			char hex[32];
+			sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
+			clipboard_push_text(hex);
+			the_game->SetInfoTip("Copied to clipboard");
 		}
 		deco_disablestuff = 1;
 	}
