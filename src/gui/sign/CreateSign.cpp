@@ -89,7 +89,7 @@ CreateSign::CreateSign(int signID, Point pos):
 			dynamic_cast<CreateSign*>(button->GetParent())->SaveSign();
 		}
 	};
-	okButton = new Button(Point(0, this->size.Y-14), Point(this->size.X+1, 15), "OK");
+	okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
 	okButton->SetCallback(new OkAction());
 	this->AddComponent(okButton);
 

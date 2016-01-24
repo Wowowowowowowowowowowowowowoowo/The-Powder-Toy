@@ -133,10 +133,9 @@ void Window_::DoDraw()
 
 	OnDraw(videoBuffer);
 
+	if (position.X > 0 || position.Y > 0 || size.X < XRES+BARSIZE || size.Y < YRES+MENUSIZE)
+		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
 	videoBuffer->CopyVideoBuffer(vid_buf, XRES+BARSIZE, position.X, position.Y);
-	// TODO: use videobuffer function for this ...
-	if (position.X > 0 || position.Y > 0 || size.X < XRES+BARSIZE-1 || size.Y < YRES+MENUSIZE-1)
-		drawrect(vid_buf, position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
 }
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
