@@ -12,7 +12,6 @@ class ToolTip;
 class ButtonAction
 {
 public:
-	ButtonAction() { }
 	virtual void ButtionActionCallback(Button *button, unsigned char b) = 0;
 };
 

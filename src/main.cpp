@@ -85,6 +85,8 @@
 // new interface stuff
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
+#include "gui/dialogs/ErrorPrompt.h"
+#include "gui/dialogs/InfoPrompt.h"
 #include "gui/game/PowderToy.h"
 #include "gui/profile/ProfileViewer.h"
 
@@ -2208,9 +2210,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			info_box(vid_buf, "Finalizing update...");
 			if (update_finish())
-				error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
+				Engine::Ref().ShowWindow(new ErrorPrompt("Update failed - try downloading a new version."));
 			else
-				info_ui(vid_buf, "Update success", "You have successfully updated Jacob1's Mod!");
+				Engine::Ref().ShowWindow(new InfoPrompt("Update success", "You have successfully updated Jacob1's Mod!"));
 			update_flag = 0;
 		}
 

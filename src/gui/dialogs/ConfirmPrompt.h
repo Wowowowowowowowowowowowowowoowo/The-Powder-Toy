@@ -6,7 +6,6 @@
 class ConfirmAction
 {
 public:
-	virtual void ConfirmActionCallback() { }
 	virtual void Action(bool isConfirmed) = 0;
 };
 
