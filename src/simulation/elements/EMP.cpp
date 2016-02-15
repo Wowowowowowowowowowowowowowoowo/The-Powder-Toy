@@ -52,6 +52,8 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 
 	particle *parts = sim->parts;
 	int triggerCount = ((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_trigger_count;
+	if (triggerCount == 0)
+		return;
 	((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_trigger_count = 0;
 
 	float prob_changeCenter = Probability::binomial_gte1(triggerCount, 1.0f/48);
