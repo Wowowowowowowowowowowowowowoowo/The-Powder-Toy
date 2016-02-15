@@ -1696,7 +1696,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 		}
 #if defined(LUACONSOLE) && !defined(NOMOD)
-		else if (!strcmp(bson_iterator_key(&iter), "LuaCode"))
+		else if (!strcmp(bson_iterator_key(&iter), "LuaCode") && replace > 0)
 		{
 			if (bson_iterator_type(&iter) == BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter)) == BSON_BIN_USER && (LuaCodeLen = bson_iterator_bin_len(&iter)) > 0)
 			{
