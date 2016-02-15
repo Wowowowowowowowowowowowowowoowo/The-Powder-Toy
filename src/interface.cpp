@@ -2567,7 +2567,8 @@ void old_menu_v2(int active_menu, int x, int y, int b, int bq)
 		if (over)
 		{
 			menu_draw_text(over, YRES-9);
-			menu_select_element(b, over);
+			if (b && !bq)
+				menu_select_element(b, over);
 		}
 	}
 	int numMenus = GetNumMenus();
