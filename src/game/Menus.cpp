@@ -19,34 +19,35 @@ MenuSection* menuSections[SC_TOTAL];
 
 void InitMenusections()
 {
-	menuSections[0] =  new MenuSection('\xC1', "Walls", true);
-	menuSections[1] =  new MenuSection('\xC2', "Electronics", true);
-	menuSections[2] =  new MenuSection('\xD6', "Powered Materials", true);
-	menuSections[3] =  new MenuSection('\x99', "Sensors", true);
-	menuSections[4] =  new MenuSection('\xE3', "Force Creating", true);
-	menuSections[5] =  new MenuSection('\xC3', "Explosives", true);
-	menuSections[6] =  new MenuSection('\xC5', "Gases", true);
-	menuSections[7] =  new MenuSection('\xC4', "Liquids", true);
-	menuSections[8] =  new MenuSection('\xD0', "Powders", true);
-	menuSections[9] =  new MenuSection('\xD1', "Solids", true);
-	menuSections[10] = new MenuSection('\xC6', "Radioactive", true);
-	menuSections[11] = new MenuSection('\xCC', "Special", true);
-	menuSections[12] = new MenuSection('\xD2', "Game of Life", true);
-	menuSections[13] = new MenuSection('\xD7', "Tools", true);
+	menuSections[0] =  new MenuSection('\xC1', "Walls", true, false);
+	menuSections[1] =  new MenuSection('\xC2', "Electronics", true, false);
+	menuSections[2] =  new MenuSection('\xD6', "Powered Materials", true, false);
+	menuSections[3] =  new MenuSection('\x99', "Sensors", true, false);
+	menuSections[4] =  new MenuSection('\xE3', "Force Creating", true, false);
+	menuSections[5] =  new MenuSection('\xC3', "Explosives", true, false);
+	menuSections[6] =  new MenuSection('\xC5', "Gases", true, false);
+	menuSections[7] =  new MenuSection('\xC4', "Liquids", true, false);
+	menuSections[8] =  new MenuSection('\xD0', "Powders", true, false);
+	menuSections[9] =  new MenuSection('\xD1', "Solids", true, false);
+	menuSections[10] = new MenuSection('\xC6', "Radioactive", true, false);
+	menuSections[11] = new MenuSection('\xCC', "Special", true, false);
+	menuSections[12] = new MenuSection('\xD2', "Game of Life", true, false);
+	menuSections[13] = new MenuSection('\xD7', "Tools", true, false);
 #ifdef NOMOD
-	menuSections[14] = new MenuSection('\xE5', "Deco", true);
-	menuSections[15] = new MenuSection('\xC8', "Cracker!", false);
-	menuSections[16] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+	menuSections[14] = new MenuSection('\xE5', "Deco", true, true);
+	menuSections[15] = new MenuSection('\xC8', "Cracker!", false, false);
+	menuSections[16] = new MenuSection('\xE2', "Other", false, false); //list of elements that are hidden or disabled, not in any menu
 #ifdef TOUCHUI
-	menuSections[17] = new MenuSection('\xE6', "Search", true);
+	menuSections[17] = new MenuSection('\xE6', "Search", true, true);
 #endif
 #else
-	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true);
-	menuSections[15] = new MenuSection('\xE5', "Deco", true);
-	menuSections[16] = new MenuSection('\xC8', "Cracker!", false);
-	menuSections[17] = new MenuSection('\xE2', "Favorite2", false);
-	menuSections[18] = new MenuSection('\xE2', "HUD", false);
-	menuSections[19] = new MenuSection('\xE2', "Other", false); //list of elements that are hidden or disabled, not in any menu
+	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true, false);
+	menuSections[15] = new MenuSection('\xE5', "Deco", true, true);
+	menuSections[16] = new MenuSection('\xC8', "Cracker!", false, false);
+	menuSections[17] = new MenuSection('\xE2', "Favorite2", false, false);
+	menuSections[18] = new MenuSection('\xE2', "HUD", false, false);
+	menuSections[19] = new MenuSection('\xE2', "Other", false, false); //list of elements that are hidden or disabled, not in any menu
+	menuSections[20] = new MenuSection('\xE6', "Search", false, true);
 #endif
 }
 

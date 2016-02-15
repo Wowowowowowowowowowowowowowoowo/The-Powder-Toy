@@ -119,6 +119,9 @@ void luacon_open()
 		{"newtonian_gravity", &luatpt_gravity},
 		{"ambient_heat", &luatpt_airheat},
 		{"active_menu", &luatpt_active_menu},
+		{"menu_enabled", &luatpt_menu_enabled},
+		{"menu_click", &luatpt_menu_click},
+		{"num_menus", &luatpt_num_menus},
 		{"decorations_enable", &luatpt_decorations_enable},
 		{"display_mode", &luatpt_cmode_set},
 		{"throw_error", &luatpt_error},
@@ -2310,6 +2313,46 @@ int luatpt_active_menu(lua_State* l)
 	else
 		return luaL_error(l, "Invalid menu");
 	return 0;
+}
+
+int luatpt_menu_enabled(lua_State* l)
+{
+	int menusection = luaL_checkint(l, 1);
+	if (menusection < 0 || menusection >= SC_TOTAL)
+		return luaL_error(l, "Invalid menu");
+	int acount = lua_gettop(l);
+	if (acount == 1)
+	{
+		lua_pushboolean(l, menuSections[menusection]->enabled);
+		return 1;
+	}
+	luaL_checktype(l, 2, LUA_TBOOLEAN);
+	int enabled = lua_toboolean(l, 2);
+	menuSections[menusection]->enabled = enabled;
+	return 0;
+}
+
+int luatpt_menu_click(lua_State* l)
+{
+	int menusection = luaL_checkint(l, 1);
+	if (menusection < 0 || menusection >= SC_TOTAL)
+		return luaL_error(l, "Invalid menu");
+	int acount = lua_gettop(l);
+	if (acount == 1)
+	{
+		lua_pushboolean(l, menuSections[menusection]->click);
+		return 1;
+	}
+	luaL_checktype(l, 2, LUA_TBOOLEAN);
+	int click = lua_toboolean(l, 2);
+	menuSections[menusection]->click = click;
+	return 0;
+}
+
+int luatpt_num_menus(lua_State* l)
+{
+	lua_pushinteger(l, GetNumMenus());
+	return 1;
 }
 
 int luatpt_decorations_enable(lua_State* l)

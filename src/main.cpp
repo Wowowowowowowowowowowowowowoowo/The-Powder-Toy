@@ -2177,14 +2177,20 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (hover >= 0 && x>=menuStartPosition && x<XRES+BARSIZE-1)
 			{
 				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
-				if (((hover != SC_DECO && !b) || (hover == SC_DECO && b && !bq)))
+				if (((!menuSections[hover]->click && !b) || (menuSections[hover]->click && b && !bq)))
 				{
-					if (hover == SC_DECO && active_menu != SC_DECO)
+					if (menuSections[hover]->click && !menuSections[active_menu]->click)
 						last_active_menu = active_menu;
 					if (hover == SC_FAV)
 						active_menu = last_fav_menu;
 					else
 						active_menu = hover;
+
+					if (hover == SC_SEARCH)
+					{
+						element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
+						active_menu = last_active_menu;
+					}
 				}
 			}
 			menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu

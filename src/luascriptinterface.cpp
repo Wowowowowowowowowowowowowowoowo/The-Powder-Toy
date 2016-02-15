@@ -2268,6 +2268,9 @@ void initElementsAPI(lua_State * l)
 	SETCONST(l, SC_FAV2);
 	SETCONST(l, SC_HUD);
 	SETCONST(l, SC_CRACKER);
+	SETCONST(l, SC_OTHER);
+	SETCONST(l, SC_SEARCH);
+	SETCONST(l, SC_TOTAL);
 
 	//Element identifiers
 	for(i = 0; i < PT_NUM; i++)

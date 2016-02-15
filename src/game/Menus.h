@@ -37,7 +37,7 @@
 #define SC_HUD 18
 #define SC_OTHER 19
 #define SC_SEARCH 20
-#define SC_TOTAL 20
+#define SC_TOTAL 21
 #endif
 
 #include <vector>
@@ -51,12 +51,14 @@ public:
 	std::string name;
 	std::vector<Tool*> tools;
 	bool enabled;
+	bool click;
 
-	MenuSection(char icon_, std::string name_, bool enabled_):
+	MenuSection(char icon_, std::string name_, bool enabled_, bool click_):
 		icon(icon_),
 		name(name_),
 		tools(std::vector<Tool*>()),
-		enabled(enabled_)
+		enabled(enabled_),
+		click(click_)
 	{
 	}
 
