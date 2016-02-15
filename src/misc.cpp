@@ -659,10 +659,10 @@ void load_presets(void)
 			FillMenus();
 		}
 #endif
-#ifndef TOUCHUI
+/*#ifndef TOUCHUI
 		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
 			old_menu = 1;
-#endif
+#endif*/
 		if (tmpobj = cJSON_GetObjectItem(root, "alt_find"))
 			finding |= 0x8;
 		if (tmpobj = cJSON_GetObjectItem(root, "dateformat"))
