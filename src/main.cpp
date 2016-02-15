@@ -213,6 +213,9 @@ int saveDataOpenSize = 0;
 	int vs = 0;
 #endif
 bool firstRun = false;
+bool doubleScreenDialog = false;
+int screenWidth = 0;
+int screenHeight = 0;
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;

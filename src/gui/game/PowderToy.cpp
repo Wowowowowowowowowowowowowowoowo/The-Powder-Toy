@@ -1062,6 +1062,27 @@ void PowderToy::OnTick(uint32_t ticks)
 		prop_edit_ui(GetVid()->GetVid());
 		openProp = false;
 	}
+	if (doubleScreenDialog)
+	{
+		std::stringstream message;
+		message << "Switching to double size mode since your screen was determined to be large enough: ";
+		message << screenWidth << "x" << screenHeight << " detected, " << (XRES+BARSIZE)*2 << "x" << (YRES+MENUSIZE)*2 << " required";
+		message << "\nTo undo this, hit Cancel. You can toggle double size mode in settings at any time.";
+		class ConfirmScale : public ConfirmAction
+		{
+		public:
+			virtual void Action(bool isConfirmed)
+			{
+				if (!isConfirmed)
+				{
+					Engine::Ref().SetScale(1);
+				}
+			}
+		};
+		ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmScale(), "Large screen detected", message.str());
+		Engine::Ref().ShowWindow(confirm);
+		doubleScreenDialog = false;
+	}
 
 	// a ton of stuff with the buttons on the bottom row has to be updated
 	// later, this will only be done when an event happens

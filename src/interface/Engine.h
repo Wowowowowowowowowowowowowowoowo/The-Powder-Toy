@@ -18,6 +18,9 @@ public:
 	void ShowWindow(Window_ *window);
 	void CloseWindow(Window_ *window);
 
+	int GetScale();
+	void SetScale(int newScale);
+
 private:
 	bool EventProcess(SDL_Event event);
 	void ShowWindowDelayed();

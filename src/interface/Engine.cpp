@@ -299,3 +299,13 @@ void Engine::CloseWindowDelayed()
 		SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
 }
+
+int Engine::GetScale()
+{
+	return sdl_scale;
+}
+
+void Engine::SetScale(int newScale)
+{
+	set_scale(newScale, kiosk_enable);
+}

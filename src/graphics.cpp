@@ -4582,8 +4582,13 @@ int sdl_open()
 	{
 		const SDL_VideoInfo *info = SDL_GetVideoInfo();
 		// at least 50 pixels of buffer space just to be safe
-		if (sdl_scale == 1 && info->current_w-50 > ((XRES+BARSIZE)*2) && info->current_h-50 > ((YRES+MENUSIZE)*2))
+		if (sdl_scale == 1 && info->current_w-50 > ((XRES+BARSIZE)*-2) && info->current_h-50 > ((YRES+MENUSIZE)*-2))
+		{
 			sdl_scale = 2;
+			doubleScreenDialog = true;
+			screenWidth = info->current_w;
+			screenHeight = info->current_h;
+		}
 	}
 #endif
 	

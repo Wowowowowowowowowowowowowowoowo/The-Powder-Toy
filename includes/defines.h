@@ -174,6 +174,9 @@ extern int saveDataOpenSize;
 #endif
 
 extern bool firstRun;
+extern bool doubleScreenDialog;
+extern int screenWidth;
+extern int screenHeight;
 extern float FPSB2;
 extern int main_loop;
 extern int elapsedTime;
