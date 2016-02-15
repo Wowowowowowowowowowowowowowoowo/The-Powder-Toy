@@ -2079,6 +2079,21 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					globalSim->RecountElements();
 				}
 			}
+			if (!the_game->MouseClicksIgnored())
+			{
+				if (sdl_key == SDLK_UP && (sdl_mod & KMOD_CTRL) && tab_num > 1)
+				{
+					tab_save(tab_num, 0);
+					tab_num--;
+					tab_load(tab_num);
+				}
+				else if (sdl_key == SDLK_DOWN && (sdl_mod & KMOD_CTRL) && tab_num < num_tabs)
+				{
+					tab_save(tab_num, 0);
+					tab_num++;
+					tab_load(tab_num);
+				}
+			}
 		}
 #ifdef INTERNAL
 		int counterthing;
