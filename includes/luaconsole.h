@@ -52,7 +52,7 @@ int luaopen_bit(lua_State *L);
 int luacon_step(int mx, int my);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
 void luacon_log(char *log);
-int luacon_keyevent(int key, int modifier, int event);
+int luacon_keyevent(int key, unsigned short character, int modifier, int event);
 int luacon_eval(char *command, char **result);
 int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt);
 int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb);

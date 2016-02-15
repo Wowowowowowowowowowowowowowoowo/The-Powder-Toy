@@ -1676,7 +1676,7 @@ bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short
 		return true;
 
 #ifdef LUACONSOLE
-	if (!luacon_keyevent(key, modifiers, LUACON_KDOWN))
+	if (!luacon_keyevent(key, character, modifiers, LUACON_KDOWN))
 	{
 		heldKey = 0;
 		return false;
@@ -1920,7 +1920,7 @@ bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned sho
 		return true;
 
 #ifdef LUACONSOLE
-	if (!luacon_keyevent(key, modifiers, LUACON_KUP))
+	if (!luacon_keyevent(key, character, modifiers, LUACON_KUP))
 	{
 		releasedKey = 0;
 		return false;
@@ -1973,7 +1973,7 @@ void PowderToy::OnDefocus()
 {
 #ifdef LUACONSOLE
 	if (ctrlHeld || shiftHeld || altHeld)
-		luacon_keyevent(0, 0, LUACON_KUP);
+		luacon_keyevent(0, 0, 0, LUACON_KUP);
 #endif
 
 	ctrlHeld = shiftHeld = altHeld = false;
