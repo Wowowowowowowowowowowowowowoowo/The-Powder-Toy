@@ -50,8 +50,6 @@
 #ifdef MACOSX
 extern "C"
 {
-char * readUserPreferences();
-void writeUserPreferences(const char * prefData);
 char * readClipboard();
 void writeClipboard(const char * clipboardData);
 }
@@ -159,11 +157,9 @@ void save_presets()
 	char * outputdata;
 	char mode[32];
 	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *tmpobj;
-#ifndef MACOSX
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
 		return;
-#endif
 	root = cJSON_CreateObject();
 	
 	cJSON_AddStringToObject(root, "Powder Toy Preferences", "Don't modify this file unless you know what you're doing. P.S: editing the admin/mod fields in your user info doesn't give you magical powers");
@@ -322,14 +318,10 @@ void save_presets()
 	
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
-	
-#ifdef MACOSX
-	writeUserPreferences(outputdata);
-#else
+
 	fwrite(outputdata, 1, strlen(outputdata), f);
 	fclose(f);
 	free(outputdata);
-#endif
 }
 
 void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
@@ -361,11 +353,7 @@ int cJSON_GetInt(cJSON **tmpobj)
 void load_presets(void)
 {
 	int prefdatasize = 0;
-#ifdef MACOSX
-	char * prefdata = readUserPreferences();
-#else
 	char * prefdata = (char*)file_load("powder.pref", &prefdatasize);
-#endif
 	cJSON *root;
 	if (prefdata && (root = cJSON_Parse(prefdata)))
 	{
