@@ -971,6 +971,19 @@ crashes. Change the update server to http://starcatcher.us/TPT/. Update
 internal script manager to 3.5 to fix restarting issues. Fix DLAY delay for 
 real this time. Many simulation updates from tpt++ and other changes.
 
+Version 33.1 2/15/16
+Don't require pressing 'enter' to set deco color in editor. Improve mouse 
+handling in deco editor. Fix bug causing it to create deco underneath the 
+color selector when picking a color. Don't allow placing / creating stamps 
+when color selector is shown. Some dialogs now use the new interface code, 
+fixes update dialogs making the bottom row of buttons disappear. Hex color in 
+deco editor can be copied by clicking on the text. Fix electronics sometimes 
+randomly heating to 10K for no reason. Fix embeded lua code being re-run when 
+placing stamps. New ctrl+up/down shortcuts for switching tabs. New lua 
+functions: tpt.menu_enabled, tpt.menu_click, tpt.num_menus(). Fix 'fav' when 
+using the alternate menu design ('o' key). Don't load old menu preference from 
+powder.pref because it confused too many people. Some updates from tpt++.
+
 
 
 
