@@ -1640,7 +1640,7 @@ void info_ui(pixel *vid_buf, const char *top, const char *txt)
 void info_box(pixel *vid_buf, char *msg)
 {
 	int w = textwidth(msg)+16;
-	int x0=(XRES-w)/2,y0=(YRES-24)/2;
+	int x0=((XRES+BARSIZE)-w)/2,y0=((YRES+MENUSIZE)-24)/2;
 	
 	clearrect(vid_buf, x0-1, y0-1, w+3, 27);
 	drawrect(vid_buf, x0, y0, w, 24, 192, 192, 192, 255);

@@ -980,9 +980,9 @@ fixes update dialogs making the bottom row of buttons disappear. Hex color in
 deco editor can be copied by clicking on the text. Fix electronics sometimes 
 randomly heating to 10K for no reason. Fix embeded lua code being re-run when 
 placing stamps. New ctrl+up/down shortcuts for switching tabs. New lua 
-functions: tpt.menu_enabled, tpt.menu_click, tpt.num_menus(). Fix 'fav' when 
-using the alternate menu design ('o' key). Don't load old menu preference from 
-powder.pref because it confused too many people. Some updates from tpt++.
+functions: tpt.menu_enabled, tpt.menu_click, tpt.num_menus(). Fix 'fav' menu 
+when using the alternate menu design ('o' key). Don't load old menu preference 
+from powder.pref because it confused too many people. Some updates from tpt++.
 
 
 
