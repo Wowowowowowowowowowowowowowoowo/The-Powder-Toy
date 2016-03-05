@@ -2491,7 +2491,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							partsptr[newIndex].tmp = 1;
 						else if (partsptr[newIndex].type == PT_PSTN)
 							partsptr[newIndex].temp = 283.15;
-						else if (partsptr[newIndex].type == PT_DLAY && !modsave)
+						else if (partsptr[newIndex].type == PT_DLAY)
 							partsptr[newIndex].temp = partsptr[newIndex].temp - 1.0f;
 						else if (partsptr[newIndex].type == PT_CRAY)
 						{

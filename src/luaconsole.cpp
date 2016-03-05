@@ -819,8 +819,7 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 	{
 		loop_time = SDL_GetTicks();
 		lua_rawgeti(l, -1, i);
-		lua_pushlstring(l, (const char*)&key, 1);
-		//lua_pushlstring(l, (const char*)&character, 1); // uncomment this to fix keypress function
+		lua_pushlstring(l, (const char*)&character, 1);
 		lua_pushinteger(l, key);
 		lua_pushinteger(l, modifier);
 		lua_pushinteger(l, event);
