@@ -455,21 +455,6 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "compatible_with"))
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				if (bson_iterator_int(&iter) > MOD_SAVE_VERSION)
-				{
-					fprintf(stderr, "Save is not compatible\n");
-					goto fail;
-				}
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
 		else if (!strcmp(bson_iterator_key(&iter), "Jacob1's_Mod"))
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
@@ -1293,7 +1278,6 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_int(&b, "color_mode", colour_mode);
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
 	bson_append_int(&b, "edgeMode", globalSim->GetEdgeMode());
-	bson_append_int(&b, "compatible_with", 8); //unused?
 	
 	bson_append_string(&b, "leftSelectedElementIdentifier", activeTools[0]->GetIdentifier().c_str());
 	bson_append_string(&b, "rightSelectedElementIdentifier", activeTools[1]->GetIdentifier().c_str());

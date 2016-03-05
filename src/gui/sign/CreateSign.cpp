@@ -115,6 +115,7 @@ void CreateSign::OnKeyPress(int key, unsigned short character, unsigned short mo
 	if (key == SDLK_RETURN)
 	{
 		SaveSign();
+		this->toDelete = true;
 	}
 }
 
