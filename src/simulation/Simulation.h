@@ -50,6 +50,8 @@ public:
 	bool forceStackingCheck;
 
 	// settings
+	char edgeMode;
+	char saveEdgeMode;
 	bool msRotation; //for moving solids
 	int maxFrames;   //for animated LCRY
 	bool instantActivation; //electronics are instantly activated
@@ -174,6 +176,11 @@ public:
 #endif
 		else if ((photons[y][x]>>8)==i)
 			photons[y][x] = 0;
+	}
+
+	char GetEdgeMode()
+	{
+		return saveEdgeMode == -1 ? edgeMode : saveEdgeMode;
 	}
 
 private:

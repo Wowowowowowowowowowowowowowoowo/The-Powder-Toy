@@ -85,8 +85,7 @@ void Simulation::InitElements()
 
 void Simulation::Clear()
 {
-	int t;
-	for (t=0; t<PT_NUM; t++)
+	for (int t = 0; t < PT_NUM; t++)
 	{
 		if (elementData[t])
 		{
@@ -102,6 +101,9 @@ void Simulation::Clear()
 #else
 	instantActivation = true;
 #endif
+	saveEdgeMode = -1;
+	if (edgeMode == 1)
+		draw_bframe();
 }
 
 void Simulation::RecountElements()
@@ -1014,7 +1016,7 @@ bool Simulation::UpdateParticle(int i)
 			fin_yf += dy;
 			fin_x = (int)(fin_xf+0.5f);
 			fin_y = (int)(fin_yf+0.5f);
-			if (edgeMode == 2)
+			if (GetEdgeMode() == 2)
 			{
 				if (fin_x < CELL)
 					fin_xf += XRES-CELL*2;

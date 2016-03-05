@@ -228,7 +228,6 @@ int last_active_menu = 0;
 int last_fav_menu = SC_FAV;
 int framerender = 0;
 int pretty_powder = 0;
-char edgeMode = 0;
 int limitFPS = 60;
 int main_loop = 1;
 std::string favMenu[18];
@@ -342,8 +341,8 @@ void clear_sim()
 			parts[i].animations = NULL;
 		}
 	}
-	globalSim->Clear();
 	memset(bmap, 0, sizeof(bmap));
+	globalSim->Clear();
 	memset(emap, 0, sizeof(emap));
 	ClearSigns();
 	memset(parts, 0, sizeof(particle)*NPART);
@@ -379,8 +378,6 @@ void clear_sim()
 		}
 	}
 	finding &= 0x8;
-	if(edgeMode == 1)
-		draw_bframe();
 #ifdef LUACONSOLE
 	if (LuaCode)
 	{

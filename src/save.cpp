@@ -1292,7 +1292,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_int(&b, "display_mode", display_mode);
 	bson_append_int(&b, "color_mode", colour_mode);
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
-	bson_append_int(&b, "edgeMode", edgeMode);
+	bson_append_int(&b, "edgeMode", globalSim->GetEdgeMode());
 	bson_append_int(&b, "compatible_with", 8); //unused?
 	
 	bson_append_string(&b, "leftSelectedElementIdentifier", activeTools[0]->GetIdentifier().c_str());
@@ -2010,11 +2010,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "edgeMode") && replace == 2)
+		else if (!strcmp(bson_iterator_key(&iter), "edgeMode") && replace)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				edgeMode = bson_iterator_int(&iter);
+				globalSim->saveEdgeMode = bson_iterator_int(&iter);
+				if (globalSim->saveEdgeMode == 1)
+					draw_bframe();
+				else
+					erase_bframe();
 			}
 			else
 			{

@@ -7,7 +7,7 @@
 
 bool Simulation::OutOfBounds(int x, int y)
 {
-	if (edgeMode != 3)
+	if (GetEdgeMode() != 3)
 		return (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL);
 	else
 		return (x < 0 || x >= XRES || y < 0 || y >= YRES);
@@ -835,7 +835,7 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 	volatile float tmpx = nxf, tmpy = nyf;
 	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), t = parts[i].type;
 
-	if (edgeMode == 2)
+	if (GetEdgeMode() == 2)
 	{
 		float diffx = 0.0f, diffy = 0.0f;
 		if (nx < CELL)

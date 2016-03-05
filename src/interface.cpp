@@ -8388,7 +8388,7 @@ void simulation_ui(pixel * vid_buf)
 	int xsize = 300;
 	int ysize = 340;
 	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
-	int oldedgeMode = edgeMode;
+	int oldedgeMode = globalSim->GetEdgeMode();
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
 	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
@@ -8463,8 +8463,8 @@ void simulation_ui(pixel * vid_buf)
 	list3.w = 72;
 	list3.h = 16;
 	list3.focus = 0;
-	list3.def = "[gravity mode]";
-	list3.selected = edgeMode;
+	list3.def = "[edge mode]";
+	list3.selected = globalSim->GetEdgeMode();
 	list3.items = edgeModeList;
 	list3.count = edgeModeListCount;
 
@@ -8627,11 +8627,16 @@ void simulation_ui(pixel * vid_buf)
 		else
 			stop_grav_async();
 	}
-	edgeMode = (char)list3.selected;
-	if(edgeMode == 1 && oldedgeMode != 1)
+	int edgeMode = (char)list3.selected;
+	if (edgeMode == 1 && oldedgeMode != 1)
 		draw_bframe();
-	else if(edgeMode != 1 && oldedgeMode == 1)
+	else if (edgeMode != 1 && oldedgeMode == 1)
 		erase_bframe();
+	if (edgeMode != oldedgeMode)
+	{
+		globalSim->edgeMode = edgeMode;
+		globalSim->saveEdgeMode = -1;
+	}
 	doUpdates = listUpdate.selected ? true : false;
 	fastquit = cb7.checked;
 

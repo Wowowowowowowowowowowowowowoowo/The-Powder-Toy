@@ -221,7 +221,7 @@ void save_presets()
 	
 	//Tpt++ Simulation setting(s)
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
-	cJSON_AddString(&simulationobj, "EdgeMode", edgeMode);
+	cJSON_AddString(&simulationobj, "EdgeMode", globalSim->edgeMode);
 	cJSON_AddString(&simulationobj, "NewtonianGravity", ngrav_enable);
 	cJSON_AddString(&simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddString(&simulationobj, "PrettyPowder", pretty_powder);
@@ -536,9 +536,10 @@ void load_presets(void)
 		{
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
 			{
-				edgeMode = (char)cJSON_GetInt(&tmpobj);
+				char edgeMode = (char)cJSON_GetInt(&tmpobj);
 				if (edgeMode > 3)
 					edgeMode = 0;
+				globalSim->edgeMode = edgeMode;
 			}
 			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();

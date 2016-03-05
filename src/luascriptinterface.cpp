@@ -1216,16 +1216,40 @@ int simulation_gravityGrid(lua_State * l)
 int simulation_edgeMode(lua_State * l)
 {
 	int acount = lua_gettop(l);
-	if (acount == 0)
+
+	// allow configuring the "temp" edge mode
+	bool temp = false;
+	if (acount > 1)
 	{
-		lua_pushnumber(l, edgeMode);
+		luaL_checktype(l, 2, LUA_TBOOLEAN);
+		temp = lua_toboolean(l, 2);
+	}
+
+	// get edge mode
+	if (acount == 0 || lua_isnil(l, 1))
+	{
+		if (temp)
+			lua_pushnumber(l, globalSim->saveEdgeMode);
+		else
+			lua_pushnumber(l, globalSim->edgeMode);
 		return 1;
 	}
-	edgeMode = (char)luaL_optint(l, 1, 0);
-	if (edgeMode == 1)
+
+	// set edge mode
+	int edgeMode = (char)luaL_optint(l, 1, 0);
+	if (temp)
+		globalSim->saveEdgeMode = edgeMode;
+	else
+	{
+		globalSim->edgeMode = edgeMode;
+		globalSim->saveEdgeMode = -1;
+	}
+
+	if (globalSim->GetEdgeMode() == 1)
 		draw_bframe();
 	else
 		erase_bframe();
+
 	return 0;
 }
 
