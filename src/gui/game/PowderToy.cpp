@@ -1,4 +1,5 @@
 #include "common/tpt-minmax.h"
+#include <cstring>
 #include <sstream>
 #include "json/json.h"
 
