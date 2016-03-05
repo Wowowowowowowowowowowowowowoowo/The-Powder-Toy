@@ -692,6 +692,8 @@ void thumb_cache_add(char *id, void *thumb, int size)
 {
 	int i,m=-1,j=-1;
 	thumb_cache_inval(id);
+	if (thumb || size == 0)
+		return;
 	for (i=0; i<THUMB_CACHE_SIZE; i++)
 	{
 		if (!thumb_cache_id[i])
