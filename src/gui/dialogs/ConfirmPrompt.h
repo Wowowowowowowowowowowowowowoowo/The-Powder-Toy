@@ -17,6 +17,8 @@ public:
 	~ConfirmPrompt();
 	bool wasConfirmed;
 	void Action(bool isConfirmed);
+
+	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 };
 
 #endif

@@ -639,8 +639,7 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 	}
 }
 
-// .-.
-#include "SDLCompat.h"
+#include "common/SDL_keysym.h"
 void STKM_ElementDataContainer::HandleKeys(int sdl_key, int sdl_rkey)
 {
 	//  4

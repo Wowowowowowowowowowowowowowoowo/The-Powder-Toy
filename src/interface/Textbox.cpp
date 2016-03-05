@@ -1,6 +1,5 @@
 #include "common/tpt-minmax.h"
 #include <sstream>
-#include "SDLCompat.h"
 #include "Textbox.h"
 #include "misc.h"
 #include "common/Platform.h"

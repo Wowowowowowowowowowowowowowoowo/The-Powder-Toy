@@ -1,4 +1,3 @@
-#include "SDLCompat.h"
 #include "CreateSign.h"
 #include "interface/Label.h"
 #include "interface/Button.h"

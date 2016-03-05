@@ -1,6 +1,5 @@
 #include "common/tpt-minmax.h"
 #include <sstream>
-#include "SDLCompat.h"
 #include "json/json.h"
 
 #include "PowderToy.h"

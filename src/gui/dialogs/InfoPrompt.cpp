@@ -19,3 +19,9 @@ InfoPrompt::InfoPrompt(std::string title, std::string message, std::string OK):
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
 }
+
+void InfoPrompt::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+{
+	if (key == SDLK_RETURN)
+		this->toDelete = true;
+}

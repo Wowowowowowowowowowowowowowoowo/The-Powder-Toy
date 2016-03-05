@@ -35,6 +35,15 @@ ConfirmPrompt::ConfirmPrompt(ConfirmAction *confirmAction, std::string title, st
 	this->AddComponent(okButton);
 }
 
+void ConfirmPrompt::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+{
+	if (key == SDLK_RETURN)
+	{
+		confirmAction->Action(true);
+		this->toDelete = true;
+	}
+}
+
 ConfirmPrompt::~ConfirmPrompt()
 {
 	confirmAction->Action(wasConfirmed);

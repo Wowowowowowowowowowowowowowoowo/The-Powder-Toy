@@ -1,7 +1,6 @@
 #include "common/tpt-minmax.h"
 #include <algorithm>
 #include <cstdlib>
-#include "SDLCompat.h"
 #include "Label.h"
 #include "misc.h"
 #include "graphics/VideoBuffer.h"

@@ -4,6 +4,7 @@
 #include <vector>
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
+#include "common/SDL_keysym.h"
 #include "Component.h"
 
 class VideoBuffer;

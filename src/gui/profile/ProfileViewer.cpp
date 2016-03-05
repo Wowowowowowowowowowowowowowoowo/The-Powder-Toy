@@ -1,5 +1,4 @@
 #include <sstream>
-#include "SDLCompat.h"
 #include "json/json.h"
 #include "ProfileViewer.h"
 #include "interface/Engine.h"

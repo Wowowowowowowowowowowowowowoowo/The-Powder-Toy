@@ -4,6 +4,7 @@
 #include "graphics/ARGBColour.h"
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
+#include "common/SDL_keysym.h"
 
 class VideoBuffer;
 class Window_;
