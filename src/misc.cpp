@@ -187,26 +187,24 @@ void save_presets()
 
 	//Tpt++ Renderer settings
 	cJSON_AddItemToObject(root, "Renderer", graphicsobj=cJSON_CreateObject());
-	cJSON_AddString(&graphicsobj, "ColourMode", colour_mode);
+	cJSON_AddNumberToObject(graphicsobj, "ColourMode", colour_mode);
 	if (DEBUG_MODE)
 		cJSON_AddTrueToObject(graphicsobj, "DebugMode");
 	else
 		cJSON_AddFalseToObject(graphicsobj, "DebugMode");
-	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	tmpobj = cJSON_CreateIntArray(NULL, 0);
 	int i = 0;
 	while (display_modes[i])
 	{
-		sprintf(mode, "%x", display_modes[i]);
-		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
+		cJSON_AddItemToArray(tmpobj, cJSON_CreateNumber(display_modes[i]));
 		i++;
 	}
 	cJSON_AddItemToObject(graphicsobj, "DisplayModes", tmpobj);
-	tmpobj = cJSON_CreateStringArray(NULL, 0);
+	tmpobj = cJSON_CreateIntArray(NULL, 0);
 	i = 0;
 	while (render_modes[i])
 	{
-		sprintf(mode, "%x", render_modes[i]);
-		cJSON_AddItemToArray(tmpobj, cJSON_CreateString(mode));
+		cJSON_AddItemToArray(tmpobj, cJSON_CreateNumber(render_modes[i]));
 		i++;
 	}
 	cJSON_AddItemToObject(graphicsobj, "RenderModes", tmpobj);
@@ -221,10 +219,10 @@ void save_presets()
 	
 	//Tpt++ Simulation setting(s)
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
-	cJSON_AddString(&simulationobj, "EdgeMode", globalSim->edgeMode);
-	cJSON_AddString(&simulationobj, "NewtonianGravity", ngrav_enable);
-	cJSON_AddString(&simulationobj, "AmbientHeat", aheat_enable);
-	cJSON_AddString(&simulationobj, "PrettyPowder", pretty_powder);
+	cJSON_AddNumberToObject(simulationobj, "EdgeMode", globalSim->edgeMode);
+	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", ngrav_enable);
+	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
+	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -291,8 +289,8 @@ void save_presets()
 	if (kiosk_enable)
 		cJSON_AddTrueToObject(root, "FullScreen");
 	cJSON_AddString(&root, "FastQuit", fastquit);
-	cJSON_AddString(&root, "WindowX", savedWindowX);
-	cJSON_AddString(&root, "WindowY", savedWindowY);
+	cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
+	cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
 
 	//additional settings from my mod
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
@@ -489,35 +487,32 @@ void load_presets(void)
 		if(graphicsobj)
 		{
 			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode"))
-				colour_mode = cJSON_GetInt(&tmpobj);
+				colour_mode = tmpobj->valueint;
 			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
 			{
-				char temp[32];
 				int count = cJSON_GetArraySize(tmpobj);
 				free(display_modes);
 				display_mode = 0;
 				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for (int i = 0; i < count; i++)
 				{
-					unsigned int mode;
-					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-					sscanf(temp, "%x", &mode);
+					unsigned int mode = cJSON_GetArrayItem(tmpobj, i)->valueint;
 					display_mode |= mode;
 					display_modes[i] = mode;
 				}
 			}
 			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
 			{
-				char temp[32];
 				int count = cJSON_GetArraySize(tmpobj);
 				free(render_modes);
 				render_mode = 0;
 				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for (int i = 0; i < count; i++)
 				{
-					unsigned int mode;
-					strncpy(temp, cJSON_GetArrayItem(tmpobj, i)->valuestring, 31);
-					sscanf(temp, "%x", &mode);
+					unsigned int mode = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					// temporary hack until I update the json library
+					if (mode == 2147483648)
+						mode = 4278252144;
 					render_mode |= mode;
 					render_modes[i] = mode;
 				}
@@ -536,7 +531,7 @@ void load_presets(void)
 		{
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
 			{
-				char edgeMode = (char)cJSON_GetInt(&tmpobj);
+				char edgeMode = (char)tmpobj->valueint;
 				if (edgeMode > 3)
 					edgeMode = 0;
 				globalSim->edgeMode = edgeMode;
@@ -544,9 +539,9 @@ void load_presets(void)
 			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat"))
-				aheat_enable = cJSON_GetInt(&tmpobj);
+				aheat_enable = tmpobj->valueint;
 			if(tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder"))
-				pretty_powder = cJSON_GetInt(&tmpobj);
+				pretty_powder = tmpobj->valueint;
 		}
 
 		//read console history
@@ -614,9 +609,9 @@ void load_presets(void)
 		if (tmpobj = cJSON_GetObjectItem(root, "FastQuit"))
 			fastquit = cJSON_GetInt(&tmpobj);
 		if (tmpobj = cJSON_GetObjectItem(root, "WindowX"))
-			savedWindowX = cJSON_GetInt(&tmpobj);
+			savedWindowX = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "WindowY"))
-			savedWindowY = cJSON_GetInt(&tmpobj);
+			savedWindowY = tmpobj->valueint;
 
 		//Read some extra mod settings
 		if (tmpobj = cJSON_GetObjectItem(root, "heatmode"))

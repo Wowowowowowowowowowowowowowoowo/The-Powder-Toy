@@ -990,7 +990,10 @@ edge mode handling, edge mode now loads in saves and resets back to what you
 had it when clearing the screen. Enter can now be used to quit the game when 
 pressing 'q' and when creating signs. Fix ghost sign / potential crashes when 
 pressing enter in sign ui. Update tptmp to .87, possibly fix bug where tptmp 
-wasn't properly embeded into the mod.
+wasn't properly embedded into the mod.
+
+Version 33.3 3/5/16
+Fix crash when loading powder.prefs generated in TPT 91.0.
 
 
 
