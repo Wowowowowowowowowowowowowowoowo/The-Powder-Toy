@@ -1994,7 +1994,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "edgeMode") && replace)
+		else if (!strcmp(bson_iterator_key(&iter), "edgeMode") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
