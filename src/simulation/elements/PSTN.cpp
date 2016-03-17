@@ -266,14 +266,12 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 								}
 								else
 								{
-									//pistonCount += floor((parts[r>>8].temp-268.15)/10);// How many tens of degrees above 0 C, rounded to nearest ten degrees. Can be negative.
-									pistonCount++;
+									pistonCount += (int)floor((parts[r>>8].temp-268.15)/10);// How many tens of degrees above 0 C, rounded to nearest ten degrees. Can be negative.
 								}
 							}
 							else if (nxx==0 && nyy==0)
 							{
-								pistonCount++;
-								//pistonCount += floor((parts[i].temp-268.15)/10);
+								pistonCount += (int)floor((parts[i].temp-268.15)/10);
 								continue;
 							}
 							else
