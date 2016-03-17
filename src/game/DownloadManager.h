@@ -1,6 +1,6 @@
 #ifndef DOWNLOADMANAGER_H
 #define DOWNLOADMANAGER_H
-#include <pthread.h>
+#include "common/tpt-thread.h"
 #include <time.h>
 #include <vector>
 #include "common/Singleton.h"

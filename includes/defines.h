@@ -143,12 +143,6 @@ const int menuIconWidth = 17;
 #pragma warning(disable: 4100) // unreferenced formal parameter
 #endif
 
-#if defined(WIN) && defined(__GNUC__)
-#define TH_ENTRY_POINT __attribute__((force_align_arg_pointer))
-#else
-#define TH_ENTRY_POINT
-#endif
-
 enum PropertyType { ParticleType, Colour, Integer, UInteger, Float, String, Char, UChar };
 union PropertyValue
 {

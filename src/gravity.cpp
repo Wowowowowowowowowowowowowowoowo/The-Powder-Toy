@@ -18,7 +18,7 @@
 #include <cmath>
 #include <cstring>
 #include <sys/types.h>
-#include <pthread.h>
+#include "common/tpt-thread.h"
 #include "defines.h"
 #include "gravity.h"
 #include "powder.h"

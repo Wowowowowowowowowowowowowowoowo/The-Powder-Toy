@@ -28,9 +28,9 @@
 #include <string.h>
 #include <math.h>
 #include "SDLCompat.h"
+#include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>
-#include <pthread.h>
 #include <signal.h>
 #include <list>
 #include <sstream>
