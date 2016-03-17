@@ -491,12 +491,20 @@ void load_presets(void)
 			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
 			{
 				int count = cJSON_GetArraySize(tmpobj);
+				cJSON * tempRenderMode;
 				free(display_modes);
 				display_mode = 0;
 				display_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for (int i = 0; i < count; i++)
 				{
-					unsigned int mode = cJSON_GetArrayItem(tmpobj, i)->valueint;
+					tempRenderMode = cJSON_GetArrayItem(tmpobj, i);
+					unsigned int mode = tempRenderMode->valueint;
+					if (mode == 0)
+					{
+						char * strMode = tempRenderMode->valuestring;
+						if (strlen(strMode))
+							mode = atoi(strMode);
+					}
 					display_mode |= mode;
 					display_modes[i] = mode;
 				}
@@ -504,14 +512,22 @@ void load_presets(void)
 			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
 			{
 				int count = cJSON_GetArraySize(tmpobj);
+				cJSON * tempRenderMode;
 				free(render_modes);
 				render_mode = 0;
 				render_modes = (unsigned int*)calloc(count+1, sizeof(unsigned int));
 				for (int i = 0; i < count; i++)
 				{
-					unsigned int mode = cJSON_GetArrayItem(tmpobj, i)->valueint;
-					// temporary hack until I update the json library
-					if (mode == 2147483648)
+					tempRenderMode = cJSON_GetArrayItem(tmpobj, i);
+					unsigned int mode = tempRenderMode->valueint;
+					if (mode == 0)
+					{
+						char * strMode = tempRenderMode->valuestring;
+						if (strlen(strMode))
+							mode = atoi(strMode);
+					}
+					// temporary hack until I update the json library (first for loading current modes, second only needed for loading with valuestring)
+					if (mode == 2147483648 || mode == 2147483647)
 						mode = 4278252144;
 					render_mode |= mode;
 					render_modes[i] = mode;
