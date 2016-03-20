@@ -6481,7 +6481,7 @@ int execute_bug(pixel *vid_buf, char *feedback)
 	std::string bug = "bug=";
 	bug.append(URLEncode(feedback));
 
-	void *http = http_async_req_start(NULL, "http://mniip.com/jacob1/bug.lua", bug.c_str(), bug.length(), 0);
+	void *http = http_async_req_start(NULL, "http://starcatcher.us/TPT/bagelreport.lua", bug.c_str(), bug.length(), 0);
 	if (svf_login)
 	{
 		http_auth_headers(http, svf_user, NULL, NULL);
