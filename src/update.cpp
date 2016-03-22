@@ -40,33 +40,24 @@
 #include "misc.h"
 #include "common/Platform.h"
 
-bool confirm_update(const char *changelog, const char *file)
+bool do_update(std::string file)
 {
-#ifdef ANDROID
-	return !confirm_ui(vid_buf, "\bwDo you want to update TPT?", changelog, "\btUpdate");
-#else
-	if (confirm_ui(vid_buf, "\bwDo you want to update Jacob1's Mod?", changelog, "\btUpdate"))
-	{
-		int len;
-		char *tmp = download_ui(vid_buf, file, &len);
+	int len;
+	char *tmp = download_ui(vid_buf, file.c_str(), &len);
 
-		if (tmp)
+	if (tmp)
+	{
+		doingUpdate = true;
+		save_presets();
+		if (update_start(tmp, len))
 		{
-			doingUpdate = true;
+			update_cleanup();
+			doingUpdate = false;
 			save_presets();
-			if (update_start(tmp, len))
-			{
-				update_cleanup();
-				doingUpdate = false;
-				save_presets();
-				error_ui(vid_buf, 0, "Update failed - try downloading a new version.");
-			}
-			else
-				return false;
+			return false;
 		}
 	}
 	return true;
-#endif
 }
 
 int update_start(char *data, int len)

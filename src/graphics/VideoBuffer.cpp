@@ -44,11 +44,12 @@ void VideoBuffer::ClearRect(int x, int y, int w, int h)
 		std::fill(&vid[x+width*(y+i)], &vid[x+w+width*(y+i)], 0);
 }
 
-void VideoBuffer::CopyVideoBuffer(pixel* vidPaste, int vidWidth, int x, int y)
+void VideoBuffer::CopyVideoBuffer(pixel* vidPaste, int vidWidth, int x, int y, int maxPasteHeight)
 {
-	for (int i = 0; i < height; i++)
+	for (int i = 0; i < height && i < maxPasteHeight; i++)
 	{
-		std::copy(&vid[width*i], &vid[width*(i+1)], &vidPaste[x+((y+i)*vidWidth)]);
+		if (y+i >= 0)
+			std::copy(&vid[width*i], &vid[width*(i+1)], &vidPaste[x+((y+i)*vidWidth)]);
 	}
 }
 

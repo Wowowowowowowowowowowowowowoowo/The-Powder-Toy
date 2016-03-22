@@ -17,6 +17,8 @@
 #ifndef UPDATE_H
 #define UPDATE_H
 
+#include <string>
+
 #ifdef WIN
 #ifdef _64BIT
 	#define UPDATE_ARCH "Windows64"
@@ -45,7 +47,7 @@
 	#define UPDATE_CPU "Unknown"
 #endif
 
-bool confirm_update(const char *changelog, const char *file);
+bool do_update(std::string file);
 int update_start(char *data, int len);
 int update_finish(void);
 void update_cleanup(void);

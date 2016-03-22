@@ -28,6 +28,7 @@
 #include "simulation/ToolNumbers.h"
 
 #include "gui/dialogs/ConfirmPrompt.h"
+#include "gui/dialogs/ErrorPrompt.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
 
@@ -651,14 +652,39 @@ void PowderToy::SaveStamp(bool alt)
 // misc main gui functions
 void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 {
-	if (!confirm_update(changelog.c_str(), file.c_str()))
+	class ConfirmUpdate : public ConfirmAction
 	{
+		std::string file;
+	public:
+		ConfirmUpdate(std::string file) : file(file) { }
+
+		virtual void Action(bool isConfirmed)
+		{
+			if (isConfirmed)
+			{
 #ifdef ANDROID
-		Platform::OpenLink(file);
+				Platform::OpenLink(file);
 #else
-		exit(0);
+				if (do_update(file))
+				{
+					has_quit = true;
+				}
+				else
+				{
+					ErrorPrompt *error = new ErrorPrompt("Update failed - try downloading a new version.");
+					Engine::Ref().ShowWindow(error);
+				}
 #endif
-	}
+			}
+		}
+	};
+#ifdef ANDROID
+	std::string title = "\bwDo you want to update TPT?";
+#else
+	std::string title = "\bwDo you want to update Jacob1's Mod?";
+#endif
+	ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmUpdate(file), title, changelog, "\btUpdate");
+	Engine::Ref().ShowWindow(confirm);
 }
 
 void PowderToy::UpdateDrawMode()
@@ -898,7 +924,7 @@ void PowderToy::OnTick(uint32_t ticks)
 				int buildnum = stable["Build"].asInt();
 				std::string file = UPDATESERVER + stable["File"].asString();
 				std::string changelog = stable["Changelog"].asString();
-				if (buildnum > MOD_BUILD_VERSION)
+				//if (buildnum > MOD_BUILD_VERSION)
 				{
 					std::stringstream changelogStream;
 #ifdef ANDROID
