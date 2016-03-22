@@ -17,7 +17,7 @@ public:
 
 	void Clear();
 	void ClearRect(int x, int y, int w, int h);
-	void CopyVideoBuffer(pixel* vid, int vidWidth, int x, int y, int maxPasteHeight);
+	void CopyVideoBuffer(pixel* vid, int vidWidth, int vidHeight, int x, int y);
 
 	void DrawPixel(int x, int y, int r, int g, int b, int a);
 	void DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a);

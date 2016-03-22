@@ -924,7 +924,7 @@ void PowderToy::OnTick(uint32_t ticks)
 				int buildnum = stable["Build"].asInt();
 				std::string file = UPDATESERVER + stable["File"].asString();
 				std::string changelog = stable["Changelog"].asString();
-				//if (buildnum > MOD_BUILD_VERSION)
+				if (buildnum > MOD_BUILD_VERSION)
 				{
 					std::stringstream changelogStream;
 #ifdef ANDROID

@@ -39,6 +39,7 @@ void ConfirmPrompt::OnKeyPress(int key, unsigned short character, unsigned short
 {
 	if (key == SDLK_RETURN)
 	{
+		this->wasConfirmed = true;
 		this->toDelete = true;
 	}
 }
