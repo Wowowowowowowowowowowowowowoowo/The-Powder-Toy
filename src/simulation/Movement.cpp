@@ -841,9 +841,9 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 		bool y_ok = (ny >= CELL && ny < YRES-CELL);
 		int oldnx = nx, oldny = ny;
 		if (!x_ok)
-			nxf = remainder_p(nxf-CELL, XRES-CELL*2.5f)+CELL;
+			nxf = remainder_p(nxf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
 		if (!y_ok)
-			nyf = remainder_p(nyf-CELL, YRES-CELL*2.5f)+CELL;
+			nyf = remainder_p(nyf-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
 
 		if (!x_ok || !y_ok)
 		{
@@ -873,8 +873,8 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 			{
 				for (int j = 0; j < 16; j += 2)
 				{
-					stickman->legs[j] += (nx-oldnx)+.5f;
-					stickman->legs[j+1] += (ny-oldny)+.5f;
+					stickman->legs[j] += (nx-oldnx);
+					stickman->legs[j+1] += (ny-oldny);
 					stickman->accs[j/2] *= .95f;
 				}
 				parts[i].vy *= .95f;
