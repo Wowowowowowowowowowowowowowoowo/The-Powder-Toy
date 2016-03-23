@@ -800,8 +800,10 @@ void ParticleDebug(int mode, int x, int y)
 	// call simulation functions run before updating particles if we are updating #0
 	if (debug_currentParticle == 0)
 	{
+		framerender = 1;
 		globalSim->RecalcFreeParticles();
 		globalSim->UpdateBefore();
+		framerender = 0;
 	}
 	// update the particles
 	globalSim->UpdateParticles(debug_currentParticle, i);
@@ -1632,7 +1634,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				if (debug_flags & DEBUG_PARTICLE_UPDATES)
 				{
 					sys_pause = 1;
-					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					if (sdl_mod & (KMOD_ALT))
 					{
 						ParticleDebug(0, 0, 0);
 					}
@@ -1640,14 +1642,22 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					{
 						ParticleDebug(1, mx, my);
 					}
+					else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					{
+						if (!(finding & 0x1))
+							finding |= 0x1;
+						else
+							finding &= ~0x1;
+					}
 					else
 					{
+						sys_pause = 1;
 						framerender = 1;
 					}
 				}
 				else
 				{
-					if (sdl_mod & KMOD_CTRL)
+					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
