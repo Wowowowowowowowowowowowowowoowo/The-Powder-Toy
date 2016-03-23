@@ -52,6 +52,13 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+int AMTR_graphics(GRAPHICS_FUNC_ARGS)
+{
+	// don't render AMTR as a gas
+	// this function just overrides the default graphics
+	return 1;
+}
+
 void AMTR_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_AMTR";
@@ -95,6 +102,6 @@ void AMTR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &AMTR_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &AMTR_graphics;
 	elem->Init = &AMTR_init_element;
 }

@@ -995,6 +995,13 @@ wasn't properly embedded into the mod.
 Version 33.3 3/5/16
 Fix crash when loading powder.prefs generated in TPT 91.0.
 
+Version 33.4 3/22/16
+Fix shifting stamps causing edge mode to reset to void. Fix PSTN .temp 
+handling. Allow pressing enter to open a save if the comment box is empty. 
+Load render modes from old powder.prefs (prevents black particles on updates). 
+Fix embeded multiplayer script. Move bug reporter to starcatcher.us. Modify 
+updater to use the new interface a little more. Fixes to tpt.setdebug(0x8).
+
 
 
 
