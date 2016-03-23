@@ -1,6 +1,7 @@
 #include <cmath>
 #include "Simulation.h"
 #include "WallNumbers.h"
+#include "common/tpt-math.h"
 #include "simulation/elements/PRTI.h"
 #include "simulation/elements/FIGH.h"
 #include "simulation/elements/STKM.h"

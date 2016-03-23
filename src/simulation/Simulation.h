@@ -183,16 +183,6 @@ public:
 		return saveEdgeMode == -1 ? edgeMode : saveEdgeMode;
 	}
 
-	// these don't really belong anywhere at the moment, so go here for loop edge mode
-	static int remainder_p(int x, int y)
-	{
-		return (x % y) + (x>=0 ? 0 : y);
-	}
-	static float remainder_p(float x, float y)
-	{
-		return std::fmod(x, y) + (x>=0 ? 0 : y);
-	}
-
 private:
 	// some movement functions are private
 	void CreateGainPhoton(int pp);

@@ -27,6 +27,7 @@
 #include "ElementDataContainer.h"
 #include "Tool.h"
 
+#include "common/tpt-math.h"
 #include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Sign.h"
