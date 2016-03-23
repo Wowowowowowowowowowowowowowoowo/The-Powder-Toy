@@ -837,19 +837,16 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 
 	if (GetEdgeMode() == 2)
 	{
-		float diffx = 0.0f, diffy = 0.0f;
-		if (nx < CELL)
-			diffx = XRES-CELL*2;
-		if (nx >= XRES-CELL)
-			diffx = -(XRES-CELL*2);
-		if (ny < CELL)
-			diffy = YRES-CELL*2;
-		if (ny >= YRES-CELL)
-			diffy = -(YRES-CELL*2);
-		if (diffx || diffy)
+		bool x_ok = (nx >= CELL && nx < XRES-CELL);
+		bool y_ok = (ny >= CELL && ny < YRES-CELL);
+		int oldnx = nx, oldny = ny;
+		if (!x_ok)
+			nxf = remainder_p(nxf-CELL, XRES-CELL*2.5f)+CELL;
+		if (!y_ok)
+			nyf = remainder_p(nyf-CELL, YRES-CELL*2.5f)+CELL;
+
+		if (!x_ok || !y_ok)
 		{
-			nxf += diffx;
-			nyf += diffy;
 			nx = (int)(nxf+0.5f);
 			ny = (int)(nyf+0.5f);
 
@@ -873,11 +870,16 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 				stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
 
 			if (stickman)
-				for (int i = 0; i < 16; i += 2)
+			{
+				for (int j = 0; j < 16; j += 2)
 				{
-					stickman->legs[i] += diffx;
-					stickman->legs[i+1] += diffy;
+					stickman->legs[j] += (nx-oldnx)+.5f;
+					stickman->legs[j+1] += (ny-oldny)+.5f;
+					stickman->accs[j/2] *= .95f;
 				}
+				parts[i].vy *= .95f;
+				parts[i].vx *= .95f;
+			}
 		}
 	}
 

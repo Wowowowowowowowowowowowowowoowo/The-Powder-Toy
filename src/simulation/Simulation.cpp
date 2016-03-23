@@ -1018,14 +1018,12 @@ bool Simulation::UpdateParticle(int i)
 			fin_y = (int)(fin_yf+0.5f);
 			if (GetEdgeMode() == 2)
 			{
-				if (fin_x < CELL)
-					fin_xf += XRES-CELL*2;
-				if (fin_x >= XRES-CELL)
-					fin_xf -= XRES-CELL*2;
-				if (fin_y < CELL)
-					fin_yf += YRES-CELL*2;
-				if (fin_y >= YRES-CELL)
-					fin_yf -= YRES-CELL*2;
+				bool x_ok = (fin_x >= CELL && fin_x < XRES-CELL);
+				bool y_ok = (fin_y >= CELL && fin_y < YRES-CELL);
+				if (!x_ok)
+					fin_xf = remainder_p(fin_xf-CELL, XRES-CELL*2.5f)+CELL;
+				if (!y_ok)
+					fin_yf = remainder_p(fin_yf-CELL, YRES-CELL*2.5f)+CELL;
 				fin_x = (int)(fin_xf+0.5f);
 				fin_y = (int)(fin_yf+0.5f);
 			}
