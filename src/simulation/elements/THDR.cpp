@@ -95,7 +95,7 @@ void THDR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Lightning! Very hot, inflicts damage upon most materials, and transfers current to metals.";
 
-	elem->Properties = TYPE_ENERGY;
+	elem->Properties = TYPE_PART;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
