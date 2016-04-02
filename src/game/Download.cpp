@@ -62,7 +62,9 @@ void Download::Start()
 		http_auth_headers(http, userID, NULL, userSession);
 	if (postDataBoundary.length())
 		http_add_multipart_header(http, postDataBoundary);
+	DownloadManager::Ref().Lock();
 	downloadStarted = true;
+	DownloadManager::Ref().Unlock();
 }
 
 // for persistent connections (keepAlive = true), reuse the open connection to make another request
@@ -73,7 +75,9 @@ bool Download::Reuse(std::string newuri)
 		return false;
 	}
 	uri = std::string(newuri);
+	DownloadManager::Ref().Lock();
 	downloadFinished = false;
+	DownloadManager::Ref().Unlock();
 	Start();
 	DownloadManager::Ref().EnsureRunning();
 	return true;
@@ -85,6 +89,7 @@ char* Download::Finish(int *length, int *status)
 	if (CheckCanceled())
 		return NULL; // shouldn't happen but just in case
 	while (!CheckDone()); // block
+	DownloadManager::Ref().Lock();
 	downloadStarted = false;
 	if (length)
 		*length = downloadSize;
@@ -93,39 +98,53 @@ char* Download::Finish(int *length, int *status)
 	char *ret = downloadData;
 	downloadData = NULL;
 	if (!keepAlive)
-		Cancel();
+		downloadCanceled = true;
+	DownloadManager::Ref().Unlock();
 	return ret;
 }
 
 // returns the download size and progress (if the download has the correct length headers)
 void Download::CheckProgress(int *total, int *done)
 {
-	if (!CheckDone() && http)
+	DownloadManager::Ref().Lock();
+	if (!downloadFinished && http)
 		http_async_get_length(http, total, done);
 	else
 		*total = *done = 0;
+	DownloadManager::Ref().Unlock();
 }
 
 // returns true if the download has finished
 bool Download::CheckDone()
 {
-	return downloadFinished;
+	DownloadManager::Ref().Lock();
+	bool ret = downloadFinished;
+	DownloadManager::Ref().Unlock();
+	return ret;
 }
 
 // returns true if the download was canceled
 bool Download::CheckCanceled()
 {
-	return downloadCanceled;
+	DownloadManager::Ref().Lock();
+	bool ret = downloadCanceled;
+	DownloadManager::Ref().Unlock();
+	return ret;
 }
 
 // returns true if the download is running
 bool Download::CheckStarted()
 {
-	return downloadStarted;
+	DownloadManager::Ref().Lock();
+	bool ret = downloadStarted;
+	DownloadManager::Ref().Unlock();
+	return ret;
 }
 
 // cancels the download, the download thread will delete the Download* when it finishes (do not use Download in any way after canceling)
 void Download::Cancel()
 {
+	DownloadManager::Ref().Lock();
 	downloadCanceled = true;
+	DownloadManager::Ref().Unlock();
 }

@@ -31,6 +31,9 @@ public:
 
 	void AddDownload(Download *download);
 	void RemoveDownload(int id);
+
+	void Lock();
+	void Unlock();
 };
 
 #endif // DOWNLOADMANAGER_H

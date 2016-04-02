@@ -754,7 +754,7 @@ void http_auth_headers(void *ctx, const char *user, const char *pass, const char
 	unsigned int m;
 	struct md5_context md5;
 
-	if (user)
+	if (user && strlen(user))
 	{
 		if (pass)
 		{
@@ -775,7 +775,7 @@ void http_auth_headers(void *ctx, const char *user, const char *pass, const char
 			http_async_add_header(ctx, "X-Auth-Hash", tmp);
 			free(tmp);
 		}
-		if (session_id)
+		if (session_id && strlen(session_id))
 		{
 			http_async_add_header(ctx, "X-Auth-User-Id", user);
 			http_async_add_header(ctx, "X-Auth-Session-Key", session_id);

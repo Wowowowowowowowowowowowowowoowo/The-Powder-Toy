@@ -133,3 +133,13 @@ void DownloadManager::AddDownload(Download *download)
 	pthread_mutex_unlock(&downloadAddLock);
 	EnsureRunning();
 }
+
+void DownloadManager::Lock()
+{
+	pthread_mutex_lock(&downloadAddLock);
+}
+
+void DownloadManager::Unlock()
+{
+	pthread_mutex_unlock(&downloadAddLock);
+}
