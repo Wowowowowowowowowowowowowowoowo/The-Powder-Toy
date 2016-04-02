@@ -21,6 +21,11 @@ public:
 	int GetScale();
 	void SetScale(int newScale);
 
+	int Get3dDepth();
+	void Set3dDepth(int depth);
+
+	Point GetLastMousePosition() { return lastMousePosition; }
+
 private:
 	bool EventProcess(SDL_Event event);
 	void ShowWindowDelayed();
@@ -30,6 +35,8 @@ private:
 
 	Point lastMousePosition;
 	uint32_t lastTick;
+
+	int depth3d;
 };
 
 #endif

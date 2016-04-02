@@ -265,6 +265,7 @@ extern int sys_pause;
 extern int sys_shortcuts;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
 extern pixel *vid_buf;
+extern pixel *vid3d;
 
 extern int scrollSpeed;
 extern float scrollDeceleration;

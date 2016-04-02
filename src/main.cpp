@@ -91,6 +91,7 @@
 #include "gui/profile/ProfileViewer.h"
 
 pixel *vid_buf;
+pixel *vid3d = NULL;
 
 #ifdef TOUCHUI
 static const char *it_msg =
@@ -2538,6 +2539,8 @@ void main_end_hack()
 #endif
 	if (part_vbuf_store)
 		free(part_vbuf_store);
+	if (vid3d)
+		free(vid3d);
 	for (int i = 1; i < 10; i++)
 	{
 		char name[30] = {0};

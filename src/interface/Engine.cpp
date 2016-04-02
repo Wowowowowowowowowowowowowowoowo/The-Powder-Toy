@@ -20,7 +20,8 @@ Engine::Engine():
 	top(NULL),
 	nextTop(NULL),
 	lastMousePosition(Point(0, 0)),
-	lastTick(SDL_GetTicks())
+	lastTick(SDL_GetTicks()),
+	depth3d(0)
 {
 
 }
@@ -308,4 +309,18 @@ int Engine::GetScale()
 void Engine::SetScale(int newScale)
 {
 	set_scale(newScale, kiosk_enable);
+}
+
+int Engine::Get3dDepth()
+{
+	return depth3d;
+}
+
+void Engine::Set3dDepth(int depth)
+{
+	depth3d = depth;
+	if (depth3d)
+		SDL_ShowCursor(0);
+	else
+		SDL_ShowCursor(1);
 }

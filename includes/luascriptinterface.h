@@ -76,6 +76,7 @@ int renderer_colorMode(lua_State * l);
 int renderer_decorations(lua_State * l);
 int renderer_grid(lua_State * l);
 int renderer_debugHUD(lua_State * l);
+int renderer_depth3d(lua_State * l);
 
 void initFileSystemAPI(lua_State * l);
 int fileSystem_list(lua_State * l);

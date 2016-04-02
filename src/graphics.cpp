@@ -62,6 +62,7 @@
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
+#include "interface/Engine.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -310,28 +311,125 @@ void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale)
 }
 #endif
 
+void DrawPixel(pixel * vid, pixel color, int x, int y)
+{
+	if (x >= 0 && x < (XRES+BARSIZE) && y >= 0 && y < (YRES+MENUSIZE))
+		vid[x+y*(XRES+BARSIZE)] = color;
+}
+// draws a custom cursor, used to make 3D mode work properly (normal cursor ruins the effect)
+void DrawCursor(pixel * vid)
+{
+	/*Point mouse = Engine::Ref().GetLastMousePosition();
+	int mousex = mouse.X;
+	int mousey = mouse.Y;*/
+	int mousex, mousey;
+	mouse_get_state(&mousex, &mousey);
+	for (int j = 0; j <= 9; j++)
+	{
+		for (int i = 0; i <= j; i++)
+		{
+			if (i == 0 || i == j)
+				DrawPixel(vid, 0xFFFFFFFF, mousex+i, mousey+j);
+			else
+				DrawPixel(vid, 0xFF000000, mousex+i, mousey+j);
+		}
+	}
+	DrawPixel(vid, 0xFFFFFFFF, mousex, mousey+10);
+	for (int i = 0; i < 5; i++)
+	{
+		DrawPixel(vid, 0xFF000000, mousex+1+i, mousey+10);
+		DrawPixel(vid, 0xFFFFFFFF, mousex+6+i, mousey+10);
+	}
+	DrawPixel(vid, 0xFFFFFFFF, mousex, mousey+11);
+	DrawPixel(vid, 0xFF000000, mousex+1, mousey+11);
+	DrawPixel(vid, 0xFF000000, mousex+2, mousey+11);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+3, mousey+11);
+	DrawPixel(vid, 0xFF000000, mousex+4, mousey+11);
+	DrawPixel(vid, 0xFF000000, mousex+5, mousey+11);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+6, mousey+11);
+
+	DrawPixel(vid, 0xFFFFFFFF, mousex, mousey+12);
+	DrawPixel(vid, 0xFF000000, mousex+1, mousey+12);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+2, mousey+12);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+4, mousey+12);
+	DrawPixel(vid, 0xFF000000, mousex+5, mousey+12);
+	DrawPixel(vid, 0xFF000000, mousex+6, mousey+12);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+7, mousey+12);
+
+	DrawPixel(vid, 0xFFFFFFFF, mousex, mousey+13);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+1, mousey+13);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+4, mousey+13);
+	DrawPixel(vid, 0xFF000000, mousex+5, mousey+13);
+	DrawPixel(vid, 0xFF000000, mousex+6, mousey+13);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+7, mousey+13);
+
+	DrawPixel(vid, 0xFFFFFFFF, mousex, mousey+14);
+	for (int i = 0; i < 2; i++)
+	{
+		DrawPixel(vid, 0xFFFFFFFF, mousex+5, mousey+14+i);
+		DrawPixel(vid, 0xFF000000, mousex+6, mousey+14+i);
+		DrawPixel(vid, 0xFF000000, mousex+7, mousey+14+i);
+		DrawPixel(vid, 0xFFFFFFFF, mousex+8, mousey+14+i);
+
+		DrawPixel(vid, 0xFFFFFFFF, mousex+6, mousey+16+i);
+		DrawPixel(vid, 0xFF000000, mousex+7, mousey+16+i);
+		DrawPixel(vid, 0xFF000000, mousex+8, mousey+16+i);
+		DrawPixel(vid, 0xFFFFFFFF, mousex+9, mousey+16+i);
+	}
+
+	DrawPixel(vid, 0xFFFFFFFF, mousex+7, mousey+18);
+	DrawPixel(vid, 0xFFFFFFFF, mousex+8, mousey+18);
+}
+
 void sdl_blit_1(int x, int y, int w, int h, pixel *src, int pitch)
 {
 	pixel *dst;
-	int j;
+	int j, depth3d = Engine::Ref().Get3dDepth();
 	if (SDL_MUSTLOCK(sdl_scrn))
 		if (SDL_LockSurface(sdl_scrn)<0)
 			return;
 	dst=(pixel *)sdl_scrn->pixels+y*sdl_scrn->pitch/PIXELSIZE+x;
+	if (depth3d)
+	{
+		if (!vid3d)
+			vid3d = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+		memcpy(vid3d, src, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+		DrawCursor(vid3d);
+		src = vid3d;
+	}
 	if (SDL_MapRGB(sdl_scrn->format,0x33,0x55,0x77)!=PIXPACK(0x335577))
 	{
-		//pixel format conversion
+		//pixel format conversion, used for strange formats (OS X specifically)
 		int i;
-		pixel px;
+		unsigned int red, green, blue;
+		pixel px, lastpx, nextpx;
 		SDL_PixelFormat *fmt = sdl_scrn->format;
 		for (j=0; j<h; j++)
 		{
 			for (i=0; i<w; i++)
 			{
-				px = src[i];
-				dst[i] = ((PIXR(px)>>fmt->Rloss)<<fmt->Rshift)|
-						((PIXG(px)>>fmt->Gloss)<<fmt->Gshift)|
-						((PIXB(px)>>fmt->Bloss)<<fmt->Bshift);
+				if (depth3d)
+				{
+					lastpx = i >= depth3d && i < w+depth3d ? src[i-depth3d] : 0;
+					nextpx = i >= -depth3d && i < w-depth3d ? src[i+depth3d] : 0;
+					int redshift = PIXB(lastpx) + PIXG(lastpx);
+					if (redshift > 255)
+						redshift = 255;
+					int blueshift = PIXR(nextpx) + PIXG(nextpx);
+					if (blueshift > 255)
+						blueshift = 255;
+					red = ((int)(PIXR(lastpx)*.69f+redshift*.3f)>>fmt->Rloss)<<fmt->Rshift;
+					green = ((int)(PIXG(nextpx)*.3f)>>fmt->Gloss)<<fmt->Gshift;
+					blue = ((int)(PIXB(nextpx)*.69f+blueshift*.3f)>>fmt->Bloss)<<fmt->Bshift;
+				}
+				else
+				{
+					px = src[i];
+					red = (PIXR(px)>>fmt->Rloss)<<fmt->Rshift;
+					green = (PIXG(px)>>fmt->Gloss)<<fmt->Gshift;
+					blue = (PIXB(px)>>fmt->Bloss)<<fmt->Bshift;
+				}
+				dst[i] = red|green|blue;
 			}
 			dst+=sdl_scrn->pitch/PIXELSIZE;
 			src+=pitch;
@@ -339,9 +437,27 @@ void sdl_blit_1(int x, int y, int w, int h, pixel *src, int pitch)
 	}
 	else
 	{
+		int i;
 		for (j=0; j<h; j++)
 		{
-			memcpy(dst, src, w*PIXELSIZE);
+			if (depth3d)
+			{
+				pixel lastpx, nextpx;
+				for (i=0; i<w; i++)
+				{
+					lastpx = i >= depth3d && i < w+depth3d ? src[i-depth3d] : 0;
+					nextpx = i >= -depth3d && i < w-depth3d ? src[i+depth3d] : 0;
+					int redshift = PIXB(lastpx) + PIXG(lastpx);
+					if (redshift > 255)
+						redshift = 255;
+					int blueshift = PIXR(nextpx) + PIXG(nextpx);
+					if (blueshift > 255)
+						blueshift = 255;
+					dst[i] = PIXRGB((int)(PIXR(lastpx)*.69f+redshift*.3f), (int)(PIXG(nextpx)*.3f), (int)(PIXB(nextpx)*.69f+blueshift*.3f));
+				}
+			}
+			else
+				memcpy(dst, src, w*PIXELSIZE);
 			dst+=sdl_scrn->pitch/PIXELSIZE;
 			src+=pitch;
 		}
@@ -351,32 +467,58 @@ void sdl_blit_1(int x, int y, int w, int h, pixel *src, int pitch)
 	SDL_UpdateRect(sdl_scrn,0,0,0,0);
 }
 
-void sdl_blit_2(int x, int y, int w, int h, pixel *src, int pitch)
+void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 {
-	pixel *dst;
-	int j;
+	pixel *dst, *src = vid;
+	pixel px, lastpx, nextpx;
+	int j, depth3d = Engine::Ref().Get3dDepth();
 	int i,k;
 	if (SDL_MUSTLOCK(sdl_scrn))
 		if (SDL_LockSurface(sdl_scrn)<0)
 			return;
 	dst=(pixel *)sdl_scrn->pixels+y*sdl_scrn->pitch/PIXELSIZE+x;
+	if (depth3d)
+	{
+		if (!vid3d)
+			vid3d = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+		memcpy(vid3d, src, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
+		DrawCursor(vid3d);
+		src = vid3d;
+	}
 	if (SDL_MapRGB(sdl_scrn->format,0x33,0x55,0x77)!=PIXPACK(0x335577))
 	{
-		//pixel format conversion
-		pixel px;
+		//pixel format conversion, used for strange formats (OS X specifically)
 		SDL_PixelFormat *fmt = sdl_scrn->format;
+		int red, green, blue;
 		for (j=0; j<h; j++)
 		{
 			for (k=0; k<sdl_scale; k++)
 			{
 				for (i=0; i<w; i++)
 				{
-					px = src[i];
-					px = ((PIXR(px)>>fmt->Rloss)<<fmt->Rshift)|
-						((PIXG(px)>>fmt->Gloss)<<fmt->Gshift)|
-						((PIXB(px)>>fmt->Bloss)<<fmt->Bshift);
-					dst[i*2]=px;
-					dst[i*2+1]=px;
+					if (depth3d)
+					{
+						lastpx = i >= depth3d && i < w+depth3d ? src[i-depth3d] : 0;
+						nextpx = i >= -depth3d && i < w-depth3d ? src[i+depth3d] : 0;
+						int redshift = PIXB(lastpx) + PIXG(lastpx);
+						if (redshift > 255)
+							redshift = 255;
+						int blueshift = PIXR(nextpx) + PIXG(nextpx);
+						if (blueshift > 255)
+							blueshift = 255;
+						red = ((int)(PIXR(lastpx)*.69f+redshift*.3f)>>fmt->Rloss)<<fmt->Rshift;
+						green = ((int)(PIXG(nextpx)*.3f)>>fmt->Gloss)<<fmt->Gshift;
+						blue = ((int)(PIXB(nextpx)*.69f+blueshift*.3f)>>fmt->Bloss)<<fmt->Bshift;
+					}
+					else
+					{
+						px = src[i];
+						red = (PIXR(px)>>fmt->Rloss)<<fmt->Rshift;
+						green = (PIXG(px)>>fmt->Gloss)<<fmt->Gshift;
+						blue = (PIXB(px)>>fmt->Bloss)<<fmt->Bshift;
+					}
+					dst[i*2] = red|green|blue;
+					dst[i*2+1] = red|green|blue;
 				}
 				dst+=sdl_scrn->pitch/PIXELSIZE;
 			}
@@ -391,8 +533,21 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *src, int pitch)
 			{
 				for (i=0; i<w; i++)
 				{
-					dst[i*2]=src[i];
-					dst[i*2+1]=src[i];
+					px = src[i];
+					if (depth3d)
+					{
+						lastpx = i >= depth3d && i < w+depth3d ? src[i-depth3d] : 0;
+						nextpx = i >= -depth3d && i < w-depth3d ? src[i+depth3d] : 0;
+						int redshift = PIXB(lastpx) + PIXG(lastpx);
+						if (redshift > 255)
+							redshift = 255;
+						int blueshift = PIXR(nextpx) + PIXG(nextpx);
+						if (blueshift > 255)
+							blueshift = 255;
+						px = PIXRGB((int)(PIXR(lastpx)*.69f+redshift*.3f), (int)(PIXG(nextpx)*.3f), (int)(PIXB(nextpx)*.69f+blueshift*.3f));
+					}
+					dst[i*2] = px;
+					dst[i*2+1] = px;
 				}
 				dst+=sdl_scrn->pitch/PIXELSIZE;
 			}
