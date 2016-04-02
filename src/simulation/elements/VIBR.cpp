@@ -49,9 +49,10 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 	else
 	{
 		//Release sparks before explode
+		if (parts[i].life < 500)
+			rndstore = rand();
 		if (parts[i].life < 300)
 		{
-			rndstore = rand();
 			rx = rndstore%3-1;
 			ry = (rndstore>>2)%3-1;
 			rndstore = rndstore >> 4;
