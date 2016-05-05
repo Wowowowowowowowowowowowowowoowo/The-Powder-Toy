@@ -40,9 +40,27 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							continue;
 
 						//figure out where the copying will start/end
+						bool foundParticle = false;
+						bool isEnergy = false;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 						{
 							int rr = pmap[yCurrent][xCurrent];
+							if (!foundParticle)
+							{
+								rr = pmap[yCurrent][xCurrent];
+								if (!rr)
+								{
+									rr = photons[yCurrent][xCurrent];
+									foundParticle = isEnergy = true;
+								}
+								else
+									foundParticle = true;
+							}
+							else if (isEnergy)
+								rr = photons[yCurrent][xCurrent];
+							else
+								rr = pmap[yCurrent][xCurrent];
+
 							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[rr>>8].ctype == ctypeExtra))
 									|| !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
@@ -55,11 +73,27 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						
 						//now, actually copy the particles
 						partsRemaining = copyLength + 1;
+						int type, p;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; sim->InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
 						{
-							int type = pmap[yCurrent][xCurrent]&0xFF, p;
+							if (isEnergy)
+								type = photons[yCurrent][xCurrent]&0xFF;
+							else
+								type = pmap[yCurrent][xCurrent]&0xFF;
+
 							if (overwrite)
-								sim->part_delete(xCopyTo, yCopyTo);
+							{
+								if (isEnergy)
+								{
+									if (photons[yCopyTo][xCopyTo])
+										sim->part_kill(photons[yCopyTo][xCopyTo]>>8);
+								}
+								else
+								{
+									if (pmap[yCopyTo][xCopyTo])
+										sim->part_kill(pmap[yCopyTo][xCopyTo]>>8);
+								}
+							}
 							if (type == PT_SPRK)
 								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
 							else
@@ -68,7 +102,11 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							{
 								if (type == PT_SPRK)
 									sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
-								parts[p] = parts[pmap[yCurrent][xCurrent]>>8];
+								if (isEnergy)
+									parts[p] = parts[photons[yCurrent][xCurrent]>>8];
+								else
+									parts[p] = parts[pmap[yCurrent][xCurrent]>>8];
+
 								parts[p].x = (float)xCopyTo;
 								parts[p].y = (float)yCopyTo;
 								parts[p].animations = NULL;
