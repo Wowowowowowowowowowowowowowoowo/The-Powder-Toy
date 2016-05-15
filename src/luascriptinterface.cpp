@@ -2670,6 +2670,9 @@ int elements_allocate(lua_State * l)
 			globalSim->elements[i] = Element();
 			globalSim->elements[i].Enabled = 1;
 			globalSim->elements[i].Identifier = identifier;
+			globalSim->elements[i].MenuSection = SC_OTHER;
+			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier));
+
 			Simulation_Compat_CopyData(globalSim);
 			break;
 		}

@@ -1452,7 +1452,9 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		//	activeTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 		if (button == 2 || (altHeld && !shiftHeld && !ctrlHeld))
 		{
-			activeTools[toolIndex] = activeTools[toolIndex]->Sample(globalSim, cursor);
+			Tool *tool = activeTools[toolIndex]->Sample(globalSim, cursor);
+			if (tool)
+				activeTools[toolIndex] = activeTools[toolIndex]->Sample(globalSim, cursor);
 			return;
 		}
 
