@@ -30,7 +30,7 @@ void DownloadManager::Shutdown()
 		Download *download = (*iter);
 		if (download->http)
 			http_force_close(download->http);
-		download->Cancel();
+		download->downloadCanceled = true;
 		delete download;
 	}
 	downloads.clear();
