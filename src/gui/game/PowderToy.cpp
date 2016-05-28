@@ -1969,7 +1969,7 @@ bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned sho
 		return true;
 
 #ifdef LUACONSOLE
-	if (!luacon_keyevent(key, character, modifiers, LUACON_KUP))
+	if (!luacon_keyevent(key, key < 256 ? key : 0, modifiers, LUACON_KUP))
 	{
 		releasedKey = 0;
 		return false;
