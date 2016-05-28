@@ -107,7 +107,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 										{
 											for (int rx1 = 0; rx1 >= -1 && rx1 <= 1; rx1 = -rx1-rx1+1)
 											{
-												int np = sim->part_create(-1, x+nxi+nxx+rx1, y+nyi+nyy+ry1, parts[r>>8].tmp&0xFF);
+												int np = sim->part_create(-1, x+nxi+nxx+rx1, y+nyi+nyy+ry1, parts[r].tmp&0xFF);
 												if (np != -1)
 												{
 													parts[np].temp = parts[r].temp;
@@ -123,7 +123,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									}
 									else
 									{
-										parts[r>>8].life = 10;
+										parts[r].life = 10;
 									}
 								}
 								//this if prevents BRAY from stopping on certain materials
