@@ -2073,6 +2073,42 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*-5.0f;
 		return -1;
 	}
+	else if (tool == TOOL_MIX)
+	{
+		int thisPart = pmap[y][x];
+		if (!thisPart)
+			return 0;
+
+		if (rand() % 100 != 0)
+			return 0;
+
+		int distance = (int)(std::pow(strength, .5) * 10);
+
+		if (!(elements[thisPart&0xFF].Properties & TYPE_PART))
+			return 0;
+
+		int newX = x + (rand() % distance) - (distance/2);
+		int newY = y + (rand() % distance) - (distance/2);
+
+		if(newX < 0 || newY < 0 || newX >= XRES || newY >= YRES)
+			return 0;
+
+		int thatPart = pmap[newY][newX];
+		if(!thatPart)
+			return 0;
+
+		if(!(elements[thatPart&0xFF].Properties & TYPE_PART))
+			return 0;
+
+		pmap[y][x] = thatPart;
+		parts[thatPart>>8].x = x;
+		parts[thatPart>>8].y = y;
+
+		pmap[newY][newX] = thisPart;
+		parts[thisPart>>8].x = newX;
+		parts[thisPart>>8].y = newY;
+		return -1;
+	}
 	return -1;
 }
 
