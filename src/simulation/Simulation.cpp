@@ -2082,7 +2082,7 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 		if (rand() % 100 != 0)
 			return 0;
 
-		int distance = (int)(std::pow(strength, .5) * 10);
+		int distance = (int)(std::pow(strength, .5f) * 10);
 
 		if (!(elements[thisPart&0xFF].Properties & TYPE_PART))
 			return 0;
