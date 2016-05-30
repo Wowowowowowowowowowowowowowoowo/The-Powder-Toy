@@ -1006,6 +1006,17 @@ debugging (tpt.setdebug(0x8))
 Version 33.4 (build 70) 3/23/16
 Update internal version number to 91.1.325
 
+Version 33.5 4/2/16
+Add red-cyan 3D mode from tpt++ (only accessible via the renderer.depth3d()
+lua function). tpt++: THDR is no longer an energy particle. Make download code
+even more thread safe.
+
+Version 33.6 5/30/16
+Allow DRAY to copy energy particles. Fix crash when sampling lua elements that
+haven't been properly defined. Fix occasional freeze on exit. Add MIX tool
+by simon, from tpt++. Fix ARAY not causing STOR to release. Fix 'character'
+arg in lua keyup event (tpt++ fix).
+
 
 
 
