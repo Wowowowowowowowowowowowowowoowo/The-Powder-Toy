@@ -1014,8 +1014,12 @@ even more thread safe.
 Version 33.6 5/30/16
 Allow DRAY to copy energy particles. Fix crash when sampling lua elements that
 haven't been properly defined. Fix occasional freeze on exit. Add MIX tool
-by simon, from tpt++. Fix ARAY not causing STOR to release. Fix 'character'
+by simon, from tpt++. Fix DRAY not copying energy particles. Fix 'character'
 arg in lua keyup event (tpt++ fix).
+
+Version 33.7 6/24/16
+Missed some DRAY fixes: fix bug if the first space after the DRAY was empty,
+fix bug with DRAY's ctype sometimes not working
 
 
 
