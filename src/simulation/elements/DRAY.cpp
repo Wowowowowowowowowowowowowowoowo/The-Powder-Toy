@@ -44,23 +44,31 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						bool isEnergy = false;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 						{
-							int rr = pmap[yCurrent][xCurrent];
+							int rr;
+							// haven't found a particle yet, keep looking for one
+							// the first particle it sees decides whether it will copy energy particles or not
 							if (!foundParticle)
 							{
 								rr = pmap[yCurrent][xCurrent];
 								if (!rr)
 								{
 									rr = photons[yCurrent][xCurrent];
-									foundParticle = isEnergy = true;
+									if (rr)
+										foundParticle = isEnergy = true;
 								}
 								else
 									foundParticle = true;
 							}
-							else if (isEnergy)
+							// now that it knows what kind of particle it is copying, do some extra stuff here so we can determine when to stop
+							if ((ctype && sim->elements[ctype].Properties&TYPE_ENERGY) || isEnergy)
 								rr = photons[yCurrent][xCurrent];
 							else
 								rr = pmap[yCurrent][xCurrent];
 
+							// Checks for when to stop:
+							//  1: if .tmp isn't set, and the element in this spot is the ctype, then stop
+							//  2: if .tmp is set, stop when the length limit reaches 0
+							//  3. Stop when we are out of bounds
 							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[rr>>8].ctype == ctypeExtra))
 									|| !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
@@ -71,16 +79,18 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							}
 						}
 						
-						//now, actually copy the particles
+						// now, actually copy the particles
 						partsRemaining = copyLength + 1;
 						int type, p;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; sim->InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
 						{
+							// get particle to copy
 							if (isEnergy)
 								type = photons[yCurrent][xCurrent]&0xFF;
 							else
 								type = pmap[yCurrent][xCurrent]&0xFF;
 
+							// if sparked by PSCN, overwrite whatever is in the target location, instead of just ignoring it
 							if (overwrite)
 							{
 								if (isEnergy)
@@ -94,13 +104,17 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 										sim->part_kill(pmap[yCopyTo][xCopyTo]>>8);
 								}
 							}
-							if (type == PT_SPRK)
+							if (type == PT_SPRK) // spark hack
 								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
-							else
+							else if (type)
 								p = sim->part_create(-1, xCopyTo, yCopyTo, type);
+							else
+								continue;
+
+							// if new particle was created successfully
 							if (p >= 0)
 							{
-								if (type == PT_SPRK)
+								if (type == PT_SPRK) // spark hack
 									sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
 								if (isEnergy)
 									parts[p] = parts[photons[yCurrent][xCurrent]>>8];
