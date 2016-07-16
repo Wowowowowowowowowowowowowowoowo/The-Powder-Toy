@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 	unsigned *vid_buf = calloc(XRES*YRES, sizeof(unsigned));
 	int x, y, b = 0, lb, c = 0xA0, i, j, dc = 0;
 	int mode = 0;
-	char hex[10] = "";
+	char hex[18] = "";
 	char inputColor = 0;
 	FILE *f;
 
