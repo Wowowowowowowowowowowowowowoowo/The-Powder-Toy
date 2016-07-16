@@ -336,9 +336,11 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 	}
 
 	// Charge detector wall if foot inside
-	if (bmap[(int)(playerp->legs[5]+0.5)/CELL][(int)(playerp->legs[4]+0.5)/CELL]==WL_DETECT)
+	if (INBOND((int)(playerp->legs[5]+0.5)/CELL, (int)(playerp->legs[4]+0.5)/CELL) &&
+	        bmap[(int)(playerp->legs[5]+0.5)/CELL][(int)(playerp->legs[4]+0.5)/CELL]==WL_DETECT)
 		set_emap((int)playerp->legs[4]/CELL, (int)playerp->legs[5]/CELL);
-	if (bmap[(int)(playerp->legs[13]+0.5)/CELL][(int)(playerp->legs[12]+0.5)/CELL]==WL_DETECT)
+	if (INBOND((int)(playerp->legs[13]+0.5)/CELL, (int)(playerp->legs[12]+0.5)/CELL) &&
+	        bmap[(int)(playerp->legs[13]+0.5)/CELL][(int)(playerp->legs[12]+0.5)/CELL]==WL_DETECT)
 		set_emap((int)(playerp->legs[12]+0.5)/CELL, (int)(playerp->legs[13]+0.5)/CELL);
 
 	// Searching for particles near head
