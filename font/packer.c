@@ -7,6 +7,7 @@
 
 #define CELLW	12
 #define CELLH	10
+#define EXTENDED_FONT 1
 
 char font[256][CELLH][CELLW];
 char width[256];
@@ -52,6 +53,7 @@ int save_char(int c)
 		return 0;
 
 	printf("    0x%02hhX, ", width[c]);
+#ifdef EXTENDED_FONT
 	nb += stock_bits(abs(top[c])&3, 2);
 	nb += stock_bits(top[c] < 0 ? 1 : 0, 1);
 	nb += stock_bits(abs(left[c])&3, 2);
@@ -65,6 +67,7 @@ int save_char(int c)
 		printf("0x%02X, ", (color[c]>>8)&0xFF);
 		printf("0x%02X, ", color[c]&0xFF);
 	}
+#endif
 	printf("  ");
 
 	for (y = 0; y < CELLH; y++)
@@ -88,10 +91,12 @@ int main(int argc, char *argv[])
 
 	f = fopen("font.bin", "rb");
 	fread(width, 1, 256, f);
+#ifdef EXTENDED_FONT
 	fread(flags, 1, 256, f);
 	fread(color, 4, 256, f);
 	fread(top, 1, 256, f);
 	fread(left, 1, 256, f);
+#endif
 	fread(font, CELLW*CELLH, 256, f);
 	fclose(f);
 

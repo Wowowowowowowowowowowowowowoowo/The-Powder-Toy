@@ -6,6 +6,7 @@
 #include <math.h>
 
 #define INCLUDE_FONTDATA
+#define EXTENDED_FONT 1
 
 #include "font.h"
 
@@ -26,6 +27,7 @@ void load_char(int c)
 	int x, y, b;
 
 	int w = *(start++);
+#ifdef EXTENDED_FONT
 	unsigned char flag = *(start++);
 	signed char t = (flag&0x4) ? -(flag&0x3) : flag&0x3;
 	signed char l = (flag&0x20) ? -((flag>>3)&0x3) : (flag>>3)&0x3;
@@ -38,6 +40,7 @@ void load_char(int c)
 		blue = *(start++);
 		color[c] = (alpha << 24) | (red << 16) | (green << 8) | blue;
 	}
+#endif
 
 	if (!w)
 		return;
@@ -56,10 +59,14 @@ void load_char(int c)
 		}
 
 	width[c] = w;
+#ifdef EXTENDED_FONT
 	flags[c] = flag;
 	top[c] = t;
 	left[c] = l;
 	printf("%02X: %d %d %d %d\t0x%08X\n", c, w, t, l, flag, color[c]);
+#else
+	printf("%02X: %d\n", c, w);
+#endif
 }
 
 char *tag = "(c) 2011 Stanislaw Skowronek";
@@ -75,10 +82,12 @@ int main(int argc, char *argv[])
 
 	f = fopen("font.bin", "wb");
 	fwrite(width, 1, 256, f);
+#ifdef EXTENDED_FONT
 	fwrite(flags, 1, 256, f);
 	fwrite(color, 4, 256, f);
 	fwrite(top, 1, 256, f);
 	fwrite(left, 1, 256, f);
+#endif
 	fwrite(font, CELLW*CELLH, 256, f);
 	fclose(f);
 

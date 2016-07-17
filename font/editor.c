@@ -12,6 +12,7 @@
 #define XRES	800
 #define YRES	600
 //#define SCALE	1
+#define EXTENDED_FONT 1
 
 char font[256][CELLH][CELLW];
 char width[256];
@@ -219,10 +220,12 @@ int main(int argc, char *argv[])
 	if(f)
 	{
 		fread(width, 1, 256, f);
+#ifdef EXTENDED_FONT
 		fread(flags, 1, 256, f);
 		fread(color, 4, 256, f);
 		fread(top, 1, 256, f);
 		fread(left, 1, 256, f);
+#endif
 		fread(font, CELLW*CELLH, 256, f);
 		fclose(f);
 	}
@@ -253,6 +256,7 @@ int main(int argc, char *argv[])
 			}
 			c--;
 		}
+#ifdef EXTENDED_FONT
 		else if (sdl_key == 'w')
 			flags[c] ^= 0x1;
 		else if (sdl_key == 'c')
@@ -289,6 +293,7 @@ int main(int argc, char *argv[])
 					break;
 			}
 		}
+#endif
 
 		lb = b;
 		b = SDL_GetMouseState(&x, &y);
@@ -328,15 +333,19 @@ int main(int argc, char *argv[])
 				if (i>=0 && j>=0 && i<CELLW && j<CELLH)
 					font[c][j][i] = dc;
 				break;
+#ifdef EXTENDED_FONT
 			case 2:
 				top[c] = j;
 				break;
+#endif
 			case 3:
 				width[c] = i;
 				break;
+#ifdef EXTENDED_FONT
 			case 4:
 				left[c] = i;
 				break;
+#endif
 			}
 
 		memset(vid_buf, 0, XRES*YRES*4);
@@ -352,6 +361,7 @@ int main(int argc, char *argv[])
 		drawtext(vid_buf, 64, 192+34*CELLH, "0123456789 ~`!@#$%^&*()-=_+[]{}\\|;:'\",./<>?", 255, 255, 255);
 
 		drawtext(vid_buf, 64, 192+37*CELLH, "Use '+' (= key) and '-' to switch between characters", 255, 255, 255);
+#ifdef EXTENDED_FONT
 		drawtext(vid_buf, 64, 192+38*CELLH, "Click near a line to modify top/left offset, or character width", 255, 255, 255);
 		drawtext(vid_buf, 64, 192+39*CELLH, "Use 'w' to toggle ignore width & auto draw next character flag, and 'c' to add / turn off font color", 255, 255, 255);
 		if (inputColor)
@@ -361,25 +371,30 @@ int main(int argc, char *argv[])
 			sprintf(temptext, "Press enter to set %s color to: %i", inputColor == 1 ? "red" : (inputColor == 2 ? "green" : "blue"), (x > 255) ? 255 : x);
 			drawtext(vid_buf, 64, 192+40*CELLH, temptext, 255, 255, 255);
 		}
+#endif
 
 		drawchar(vid_buf, 32, 192+32*CELLH, c, 255, 255, 255);
-
+		
 		sprintf(hex, "%02X", c);
 		drawtext(vid_buf, 32, 192+34*CELLH, hex, 255, 255, 255);
+#ifdef EXTENDED_FONT
 		sprintf(hex, "flags: 0x%02X", flags[c]);
 		drawtext(vid_buf, 32, 192+35*CELLH, hex, 255, 255, 255);
 		sprintf(hex, "color: 0x%08X", color[c]);
 		drawtext(vid_buf, 32, 192+36*CELLH, hex, 255, 255, 255);
+#endif
 
 		sdl_blit(0, 0, XRES, YRES, vid_buf, XRES*4);
 	}
 
 	f = fopen("font.bin", "wb");
 	fwrite(width, 1, 256, f);
+#ifdef EXTENDED_FONT
 	fwrite(flags, 1, 256, f);
 	fwrite(color, 4, 256, f);
 	fwrite(top, 1, 256, f);
 	fwrite(left, 1, 256, f);
+#endif
 	fwrite(font, CELLW*CELLH, 256, f);
 	fclose(f);
 
