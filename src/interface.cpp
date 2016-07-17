@@ -2855,8 +2855,8 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 			else if (activeTools[2]->GetIdentifier() == current->GetIdentifier())
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			else if (i == SC_FAV && menuSections[i]->tools.end()-iter <= locked)
-				fillrect(vid_buf, x+31-xoff, y, 27, 15, 0, 0, 255, 127);
+			if (i == SC_FAV && menuSections[i]->tools.end()-iter <= locked)
+				drawtext(vid_buf, x+31-xoff, y, "\xED", 255, 205, 50, 255);
 
 			//if mouse inside button
 			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
