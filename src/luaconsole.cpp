@@ -45,6 +45,7 @@ extern "C"
 #include "luascriptinterface.h"
 #include "save.h"
 
+#include "common/SDL_keysym.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
@@ -819,7 +820,10 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 	{
 		loop_time = SDL_GetTicks();
 		lua_rawgeti(l, -1, i);
-		lua_pushlstring(l, (const char*)&character, 1);
+		if ((modifier & (KMOD_CTRL|KMOD_META)) && (character < ' ' || character > '~') && key < 256)
+			lua_pushlstring(l, (const char*)&key, 1);
+		else
+			lua_pushlstring(l, (const char*)&character, 1);
 		lua_pushinteger(l, key);
 		lua_pushinteger(l, modifier);
 		lua_pushinteger(l, event);
