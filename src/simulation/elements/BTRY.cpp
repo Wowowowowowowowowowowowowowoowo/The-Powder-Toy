@@ -74,7 +74,7 @@ void BTRY_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
 	elem->HeatConduct = 251;
 	elem->Latent = 0;
-	elem->Description = "Generates infinite electricity.";
+	elem->Description = "Battery. Generates infinite electricity.";
 
 	elem->Properties = TYPE_SOLID;
 

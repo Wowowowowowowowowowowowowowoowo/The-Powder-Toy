@@ -89,7 +89,7 @@ void WATR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP-2.0f	+273.15f;
 	elem->HeatConduct = 29;
 	elem->Latent = 7500;
-	elem->Description = "Conducts electricity, freezes, and extinguishes fires.";
+	elem->Description = "Water. Conducts electricity, freezes, and extinguishes fires.";
 
 	elem->Properties = TYPE_LIQUID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_NEUTPASS;
 
