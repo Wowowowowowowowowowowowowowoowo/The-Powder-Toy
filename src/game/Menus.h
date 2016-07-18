@@ -74,7 +74,7 @@ extern MenuSection* menuSections[SC_TOTAL];
 
 void InitMenusections();
 void ClearMenusections();
-int GetNumMenus();
+int GetNumMenus(bool onlyEnabled=true);
 int GetMenuSection(Tool *tool);
 void FillMenus();
 

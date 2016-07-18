@@ -6642,7 +6642,7 @@ const static struct command_match matches [] = {
 	{"tpt.menu_e", "tpt.menu_enabled("},
 	{"tpt.menu_c", "tpt.menu_click("},
 	{"tpt.men", "tpt.menu_"},
-	{"tpt.nu", "tpt.num_menus()"},
+	{"tpt.nu", "tpt.num_menus("},
 	{"tpt.c", "tpt.create("},
 	{"tpt.l", "tpt.log("},
 	{"tpt.s", "tpt.set_property(\""},

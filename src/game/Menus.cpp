@@ -60,11 +60,11 @@ void ClearMenusections()
 	}
 }
 
-int GetNumMenus()
+int GetNumMenus(bool onlyEnabled)
 {
 	int total = 0;
 	for (int j = 0; j < SC_TOTAL; j++)
-		if (menuSections[j]->enabled)
+		if (!onlyEnabled || menuSections[j]->enabled)
 			total++;
 	return total;
 }
