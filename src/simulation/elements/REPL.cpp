@@ -17,20 +17,23 @@
 
 int RPEL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, ri;
-	for(ri = 0; ri <= 10; ri++)
+	for (int ri = 0; ri <= 10; ri++)
 	{
-		rx = (rand()%21)-10;
-		ry = (rand()%21)-10;
+		int rx = (rand()%21)-10;
+		int ry = (rand()%21)-10;
 		if (x+rx >= 0 && x+rx < XRES && y+ry >= 0 && y+ry < YRES && (rx || ry))
 		{
-			r = pmap[y+ry][x+rx];
+			int r = pmap[y+ry][x+rx];
 			if (!r)
 				r = photons[y+ry][x+rx];
 
-			if (r && !(ptypes[r&0xFF].properties & TYPE_SOLID)){
-				parts[r>>8].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
-				parts[r>>8].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
+			if (r && !(sim->elements[r&0xFF].Properties & TYPE_SOLID))
+			{
+				if (!parts[i].ctype || parts[i].ctype == parts[r>>8].type)
+				{
+					parts[r>>8].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
+					parts[r>>8].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
+				}
 			}
 		}
 	}
@@ -68,7 +71,7 @@ void RPEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Repels or attracts particles based on its temperature.";
 
-	elem->Properties = TYPE_SOLID;
+	elem->Properties = TYPE_SOLID | PROP_DRAWONCTYPE;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
