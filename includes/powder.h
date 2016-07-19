@@ -50,6 +50,7 @@
 #define TYPE_SOLID			0x0000004 //4 Solids
 #define TYPE_GAS			0x0000008 //8 Gases (Includes plasma)
 #define TYPE_ENERGY			0x0000010 //16 Energy (Thunder, Light, Neutrons etc.)
+#define STATE_FLAGS			0x000001F
 #define PROP_CONDUCTS		0x0000020 //32 Conducts electricity
 #define PROP_BLACK			0x0000040 //64 Absorbs Photons (not currently implemented or used, a photwl attribute might be better)
 #define PROP_NEUTPENETRATE	0x0000080 //128 Penetrated by neutrons

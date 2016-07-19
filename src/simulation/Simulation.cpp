@@ -2084,7 +2084,7 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 
 		int distance = (int)(std::pow(strength, .5f) * 10);
 
-		if (!(elements[thisPart&0xFF].Properties & TYPE_PART))
+		if (!(elements[thisPart&0xFF].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS)))
 			return 0;
 
 		int newX = x + (rand() % distance) - (distance/2);
@@ -2097,7 +2097,7 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 		if(!thatPart)
 			return 0;
 
-		if(!(elements[thatPart&0xFF].Properties & TYPE_PART))
+		if ((elements[thisPart&0xFF].Properties&STATE_FLAGS) != (elements[thatPart&0xFF].Properties&STATE_FLAGS))
 			return 0;
 
 		pmap[y][x] = thatPart;
