@@ -285,10 +285,13 @@ void save_presets()
 
 	//General settings
 	cJSON_AddStringToObject(root, "Proxy", http_proxy_string);
-	cJSON_AddString(&root, "Scale", sdl_scale);
+	cJSON_AddNumberToObject(root, "Scale", sdl_scale);
 	if (kiosk_enable)
 		cJSON_AddTrueToObject(root, "FullScreen");
-	cJSON_AddString(&root, "FastQuit", fastquit);
+	if (fastquit)
+		cJSON_AddTrueToObject(root, "FastQuit");
+	else
+		cJSON_AddFalseToObject(root, "FastQuit");
 	cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
 	cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
 
@@ -612,8 +615,10 @@ void load_presets(void)
 			http_proxy_string[0] = 0;
 		if (tmpobj = cJSON_GetObjectItem(root, "Scale"))
 		{
-			sdl_scale = cJSON_GetInt(&tmpobj);
-			if (sdl_scale <= 0)
+			sdl_scale = tmpobj->valueint;
+			if (sdl_scale == 0)
+				sdl_scale = cJSON_GetInt(&tmpobj);
+			else if (sdl_scale < 0)
 				sdl_scale = 1;
 		}
 		if (tmpobj = cJSON_GetObjectItem(root, "Fullscreen"))
@@ -623,7 +628,7 @@ void load_presets(void)
 				set_scale(sdl_scale, kiosk_enable);
 		}
 		if (tmpobj = cJSON_GetObjectItem(root, "FastQuit"))
-			fastquit = cJSON_GetInt(&tmpobj);
+			fastquit = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "WindowX"))
 			savedWindowX = tmpobj->valueint;
 		if (tmpobj = cJSON_GetObjectItem(root, "WindowY"))
