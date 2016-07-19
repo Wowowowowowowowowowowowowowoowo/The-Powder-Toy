@@ -17,18 +17,24 @@
 
 int MERC_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, trade, np;
-	int maxtmp = (int)((10000/(parts[i].temp + 1))-1);
-	if ((10000%((int)parts[i].temp+1))>rand()%((int)parts[i].temp+1))
-		maxtmp ++;
+	int r;
+	const int absorbScale = 10000; // max number of particles that can be condensed into one
+	int maxtmp = ((absorbScale/(parts[i].temp + 1))-1);
+	if ((absorbScale%((int)parts[i].temp+1))>rand()%((int)parts[i].temp+1))
+		maxtmp++;
+	if (parts[i].tmp < 0)
+		parts[i].tmp = 0;
+	if (parts[i].tmp > absorbScale)
+		parts[i].tmp = absorbScale;
+
 	if (parts[i].tmp < maxtmp)
 	{
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry=-1; ry <= 1; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
-					if (!r || (parts[i].tmp >=maxtmp))
+					if (!r || (parts[i].tmp >= maxtmp))
 						continue;
 					if ((r&0xFF)==PT_MERC && !(rand()%3))
 					{
@@ -41,40 +47,43 @@ int MERC_update(UPDATE_FUNC_ARGS)
 				}
 	}
 	else
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					r = pmap[y+ry][x+rx];
-					if (parts[i].tmp<=maxtmp)
+					if (parts[i].tmp <= maxtmp)
 						continue;
-					if ((!r)&&parts[i].tmp>=1)//if nothing then create deut
+					//if nothing then create deut
+					if ((!r) && parts[i].tmp >= 1)
 					{
-						np = sim->part_create(-1,x+rx,y+ry,PT_MERC);
-						if (np<0) continue;
+						int np = sim->part_create(-1,x+rx,y+ry,PT_MERC);
+						if (np < 0)
+							continue;
 						parts[i].tmp--;
 						parts[np].temp = parts[i].temp;
 						parts[np].tmp = 0;
 					}
 				}
-	for ( trade = 0; trade<4; trade ++)
+	for (int trade = 0; trade < 4; trade ++)
 	{
-		rx = rand()%5-2;
-		ry = rand()%5-2;
+		int rx = rand()%5-2;
+		int ry = rand()%5-2;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if ((r&0xFF)==PT_MERC&&(parts[i].tmp>parts[r>>8].tmp)&&parts[i].tmp>0)//diffusion
+			//diffusion
+			if ((r&0xFF) == PT_MERC && parts[i].tmp > parts[r>>8].tmp && parts[i].tmp > 0)
 			{
 				int temp = parts[i].tmp - parts[r>>8].tmp;
-				if (temp ==1)
+				if (temp == 1)
 				{
 					parts[r>>8].tmp ++;
 					parts[i].tmp --;
 				}
-				else if (temp>0)
+				else if (temp > 0)
 				{
 					parts[r>>8].tmp += temp/2;
 					parts[i].tmp -= temp/2;
