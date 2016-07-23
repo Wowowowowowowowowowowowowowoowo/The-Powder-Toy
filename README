@@ -1021,6 +1021,11 @@ Version 33.7 6/24/16
 Missed some DRAY fixes: fix bug if the first space after the DRAY was empty,
 fix bug with DRAY's ctype sometimes not working
 
+Version 34.0 7/23/16
+Updates from tpt++ / update to 91.4. Fix crash with FIGH in invalid positions. 
+Change favorites menu to use new icons from tpt++. Fix "Scale" setting not 
+saving in the right format.
+
 
 
 
