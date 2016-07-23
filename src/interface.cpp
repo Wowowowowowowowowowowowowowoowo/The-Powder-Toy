@@ -1556,6 +1556,14 @@ void prop_edit_ui(pixel *vid_buf)
 		sscanf(ed2.str, "%f", &value);
 		propTool->propValue.Float = value;
 		propTool->propType = Float;
+		if (!strcmp(ed.str, "temp"))
+		{
+			char last = ed2.str[strlen(ed2.str)-1];
+			if (last == 'C')
+				propTool->propValue.Float += 273.15f;
+			else if (last == 'F')
+				propTool->propValue.Float = (propTool->propValue.Float-32.0f)*5/9+273.15f;
+		}
 	}
 	else if (format == 3)
 	{
