@@ -1,7 +1,7 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 
-local versionstring = "0.87"
+local versionstring = "0.9"
 
 --TODO's
 --FIGH,STKM,STK2,LIGH need a few more creation adjustments
@@ -15,11 +15,12 @@ local versionstring = "0.87"
 --Changes from jacob, including: Support jacobsMod, keyrepeat
 --Support replace mode
 
-if TPTMP then if TPTMP.version <= 2 then TPTMP.disableMultiplayer() else error("newer version already running") end end local get_name = tpt.get_name -- if script already running, replace it
-TPTMP = {["version"] = 2, ["versionStr"] = versionstring} -- script version sent on connect to ensure server protocol is the same
+if TPTMP then if TPTMP.version <= 3 then TPTMP.disableMultiplayer() else error("newer version already running") end end local get_name = tpt.get_name -- if script already running, replace it
+TPTMP = {["version"] = 3, ["versionStr"] = versionstring} -- script version sent on connect to ensure server protocol is the same
 local issocket,socket = pcall(require,"socket")
 if not sim.clearRect then error"Tpt version not supported" end
 local using_manager = false
+local type = type -- people like to overwrite this function with a global a lot
 local _print = print
 if MANAGER ~= nil or MANAGER_EXISTS then
 	using_manager = true
@@ -161,6 +162,21 @@ local function getArgs(msg)
 	table.insert(args,word)
 	end
 	return args
+end
+
+--get different lists for other language keyboards
+local keyboardshift = { {before=" qwertyuiopasdfghjklzxcvbnm1234567890-=.,/`|;'[]\\",after=" QWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()_+><?~\\:\"{}|",},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'߿߿߿߿߿߿߿<",after=" QWERTYUIOPASDFGHJKLZXCVBNM!\"#߿߿߿ߥ&/()=?;:_*`^>",}  }
+local keyboardaltrg = { {nil},{before=" qwertyuiopasdfghjklzxcvbnm1234567890+,.-'߿߿߿߼",after=" qwertyuiopasdfghjklzxcvbnm1@߿߿߿ߤ߶{[]}\\,.-'~|",},}
+
+local function shift(s)
+	if keyboardshift[KEYBOARD]~=nil then
+		return (s:gsub("(.)",function(c)return keyboardshift[KEYBOARD]["after"]:sub(keyboardshift[KEYBOARD]["before"]:find(c,1,true))end))
+	else return s end
+end
+local function altgr(s)
+	if keyboardaltgr[KEYBOARD]~=nil then
+		return (s:gsub("(.)",function(c)return keyboardaltgr[KEYBOARD]["after"]:sub(keyboardaltgr[KEYBOARD]["before"]:find(c,1,true))end))
+	else return s end
 end
 
 local ui_base local ui_box local ui_text local ui_button local ui_scrollbar local ui_inputbox local ui_chatbox
@@ -668,7 +684,7 @@ local function getypos()
 	if jacobsmod and tpt.oldmenu and tpt.oldmenu()==1 then
 		ypos = 392
 	elseif tpt.num_menus then
-		ypos = 392-16*tpt.num_menus()
+		ypos = 392-16*tpt.num_menus()-(not jacobsmod and 16 or 0)
 	end
 	if using_manager then ypos = ypos - 17 end
 	return ypos
@@ -691,36 +707,19 @@ local eleNameTable = {
 ["DEFAULT_PT_LIFE_LLIF"] = 276,["DEFAULT_PT_LIFE_STAN"] = 267,["DEFAULT_PT_LIFE_SEED"] = 268,["DEFAULT_PT_LIFE_MAZE"] = 269,["DEFAULT_PT_LIFE_COAG"] = 270,
 ["DEFAULT_PT_LIFE_WALL"] = 271,["DEFAULT_PT_LIFE_GNAR"] = 272,["DEFAULT_PT_LIFE_REPL"] = 273,["DEFAULT_PT_LIFE_MYST"] = 274,["DEFAULT_PT_LIFE_LOTE"] = 275,
 ["DEFAULT_PT_LIFE_FRG2"] = 276,["DEFAULT_PT_LIFE_STAR"] = 277,["DEFAULT_PT_LIFE_FROG"] = 278,["DEFAULT_PT_LIFE_BRAN"] = 279,
-["DEFAULT_WL_0"] = 280,["DEFAULT_WL_1"] = 281,["DEFAULT_WL_2"] = 282,["DEFAULT_WL_3"] = 283,["DEFAULT_WL_4"] = 284,
-["DEFAULT_WL_5"] = 285,["DEFAULT_WL_6"] = 286,["DEFAULT_WL_7"] = 287,["DEFAULT_WL_8"] = 288,["DEFAULT_WL_9"] = 289,["DEFAULT_WL_10"] = 290,
-["DEFAULT_WL_11"] = 291,["DEFAULT_WL_12"] = 292,["DEFAULT_WL_13"] = 293,["DEFAULT_WL_14"] = 294,["DEFAULT_WL_15"] = 295,
-["DEFAULT_UI_SAMPLE"] = 296,["DEFAULT_UI_SIGN"] = 297,["DEFAULT_UI_PROPERTY"] = 298,["DEFAULT_UI_WIND"] = 299,
-["DEFAULT_TOOL_HEAT"] = 300,["DEFAULT_TOOL_COOL"] = 301,["DEFAULT_TOOL_AIR"] = 302,["DEFAULT_TOOL_VAC"] = 303,["DEFAULT_TOOL_PGRV"] = 304,["DEFAULT_TOOL_NGRV"] = 305,
-["DEFAULT_DECOR_SET"] = 306,["DEFAULT_DECOR_ADD"] = 307,["DEFAULT_DECOR_SUB"] = 308,["DEFAULT_DECOR_MUL"] = 309,["DEFAULT_DECOR_DIV"] = 310,["DEFAULT_DECOR_SMDG"] = 311,["DEFAULT_DECOR_CLR"] = 312,["DEFAULT_DECOR_LIGH"] = 313, ["DEFAULT_DECOR_DARK"] = 314,
-["DEFAULT_WL_16"] = 315
+--walls
+["DEFAULT_WL_ERASE"] = 280,["DEFAULT_WL_CNDTW"] = 281,["DEFAULT_WL_EWALL"] = 282,["DEFAULT_WL_DTECT"] = 283,["DEFAULT_WL_STRM"] = 284,
+["DEFAULT_WL_FAN"] = 285,["DEFAULT_WL_LIQD"] = 286,["DEFAULT_WL_ABSRB"] = 287,["DEFAULT_WL_WALL"] = 288,["DEFAULT_WL_AIR"] = 289,["DEFAULT_WL_POWDR"] = 290,
+["DEFAULT_WL_CNDTR"] = 291,["DEFAULT_WL_EHOLE"] = 292,["DEFAULT_WL_GAS"] = 293,["DEFAULT_WL_GRVTY"] = 294,["DEFAULT_WL_ENRGY"] = 295,
+["DEFAULT_WL_NOAIR"] = 296,["DEFAULT_WL_ERASEA"] = 297,
+--special tools
+["DEFAULT_UI_SAMPLE"] = 298,["DEFAULT_UI_SIGN"] = 299,["DEFAULT_UI_PROPERTY"] = 300,["DEFAULT_UI_WIND"] = 301,
+--tools
+["DEFAULT_TOOL_HEAT"] = 302,["DEFAULT_TOOL_COOL"] = 303,["DEFAULT_TOOL_AIR"] = 304,["DEFAULT_TOOL_VAC"] = 305,["DEFAULT_TOOL_PGRV"] = 306,["DEFAULT_TOOL_NGRV"] = 307, ["DEFAULT_TOOL_MIX"] = 308,
+--decoration tools
+["DEFAULT_DECOR_SET"] = 309,["DEFAULT_DECOR_CLR"] = 310,["DEFAULT_DECOR_ADD"] = 311,["DEFAULT_DECOR_SUB"] = 312,["DEFAULT_DECOR_MUL"] = 313,["DEFAULT_DECOR_DIV"] = 314,["DEFAULT_DECOR_SMDG"] = 315,
+["DEFAULT_DECOR_LIGH"] = 316, ["DEFAULT_DECOR_DARK"] = 317
 }
-local function convertDecoTool(c)
-	return c
-end
-if jacobsmod then
-	function convertDecoTool(c)
-		if c >= 307 and c <= 311 then
-			c = c + 1
-		elseif c == 312 then
-			c = 307
-		end
-		return c
-	end
-	local modNameTable = {
-	["DEFAULT_WL_ERASE"] = 280,["DEFAULT_WL_CNDTW"] = 281,["DEFAULT_WL_EWALL"] = 282,["DEFAULT_WL_DTECT"] = 283,["DEFAULT_WL_STRM"] = 284,
-	["DEFAULT_WL_FAN"] = 285,["DEFAULT_WL_LIQD"] = 286,["DEFAULT_WL_ABSRB"] = 287,["DEFAULT_WL_WALL"] = 288,["DEFAULT_WL_AIR"] = 289,["DEFAULT_WL_POWDR"] = 290,
-	["DEFAULT_WL_CNDTR"] = 291,["DEFAULT_WL_EHOLE"] = 292,["DEFAULT_WL_GAS"] = 293,["DEFAULT_WL_GRVTY"] = 294,["DEFAULT_WL_ENRGY"] = 295,["DEFAULT_WL_ERASEA"] = 280,
-	["DEFAULT_WL_NOAIR"] = 315
-	}
-	for k,v in pairs(modNameTable) do
-		eleNameTable[k] = v
-	end
-end
 local gravList= {[0]="Vertical",[1]="Off",[2]="Radial"}
 local airList= {[0]="On",[1]="Pressure Off",[2]="Velocity Off",[3]="Off",[4]="No Update"}
 local noFlood = {[15]=true,[55]=true,[87]=true,[128]=true,[158]=true}
@@ -732,9 +731,9 @@ local createOverride = {
 	[128] = function(rx,ry,c) return 0,0,c end,
 	[158] = function(rx,ry,c) return 0,0,c end}
 local golStart,golEnd=256,279
-local wallStart,wallEnd=280,295
-local toolStart,toolEnd=300,305
-local decoStart,decoEnd=306,314
+local wallStart,wallEnd=280,297
+local toolStart,toolEnd=302,308
+local decoStart,decoEnd=309,317
 
 --Functions that do stuff in powdertoy
 local function createPartsAny(x,y,rx,ry,c,brush,user)
@@ -745,7 +744,7 @@ local function createPartsAny(x,y,rx,ry,c,brush,user)
 		elseif c<=toolEnd then
 			if c>=toolStart then sim.toolBrush(x,y,rx,ry,c-toolStart,brush) end
 		elseif c<= decoEnd then
-			sim.decoBrush(x,y,rx,ry,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],convertDecoTool(c)-decoStart,brush)
+			sim.decoBrush(x,y,rx,ry,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],c-decoStart,brush)
 		end
 		return
 	elseif c>=golStart then
@@ -766,7 +765,7 @@ local function createLineAny(x1,y1,x2,y2,rx,ry,c,brush,user)
 		elseif c<=toolEnd then
 			if c>=toolStart then local str=1.0 if user.drawtype==4 then if user.shift then str=10.0 elseif user.alt then str=0.1 end end sim.toolLine(x1,y1,x2,y2,rx,ry,c-toolStart,brush,str) end
 		elseif c<= decoEnd then
-			sim.decoLine(x1,y1,x2,y2,rx,ry,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],convertDecoTool(c)-decoStart,brush)
+			sim.decoLine(x1,y1,x2,y2,rx,ry,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],c-decoStart,brush)
 		end
 		return
 	elseif c>=golStart then
@@ -785,7 +784,7 @@ local function createBoxAny(x1,y1,x2,y2,c,user)
 		elseif c<=toolEnd then
 			if c>=toolStart then sim.toolBox(x1,y1,x2,y2,c-toolStart) end
 		elseif c<= decoEnd then
-			sim.decoBox(x1,y1,x2,y2,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],convertDecoTool(c)-decoStart)
+			sim.decoBox(x1,y1,x2,y2,user.dcolour[2],user.dcolour[3],user.dcolour[4],user.dcolour[1],c-decoStart)
 		end
 		return
 	elseif c>=golStart then
@@ -1176,7 +1175,6 @@ local dataCmds = {
 		local b1,b2,b3,b4,b5,b6=cByte(),cByte(),cByte(),cByte(),cByte(),cByte()
 		local x1,y1 =((b1*16)+math.floor(b2/16)),((b2%16)*256)+b3
 		local x2,y2 =((b4*16)+math.floor(b5/16)),((b5%16)*256)+b6
-		--clear walls and parts
 		sim.clearRect(x1,y1,x2-x1+1,y2-y1+1)
 	end,
 	--Edge mode (1 byte state)

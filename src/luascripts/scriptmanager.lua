@@ -1,6 +1,6 @@
 --Cracker64's Autorun Script Manager
 --The autorun to end all autoruns
---Version 3.5
+--Version 3.7
 
 --TODO:
 --manual file addition (that can be anywhere and any extension)
@@ -9,6 +9,8 @@
 --prettier, organize code
 
 --CHANGES:
+--Version 3.7: Account for extra menu in TPT 91.4
+--Version 3.6: Fix bug where it might delete your scripts after updating on windows
 --Version 3.5: Lua5.2 support, TPT 91.0 platform API support, [] can be used to scroll, misc fixes
 --Version 3.4: some new buttons, better tooltips, fix 'Change dir' button, fix broken buttons on OS X
 --Version 3.3: fix apostophes in filenames, allow authors to rename their scripts on the server
@@ -29,13 +31,11 @@
 
 if not socket then error("TPT version not supported") end
 if MANAGER then error("manager is already running") end
-if tpt.version.jacob1s_mod == 30 and tpt.version.jacob1s_mod_minor == 0 then
-	return
-end
 
-local scriptversion = 7
-MANAGER = {["version"] = "3.5", ["scriptversion"] = scriptversion, ["hidden"] = true}
+local scriptversion = 9
+MANAGER = {["version"] = "3.7", ["scriptversion"] = scriptversion, ["hidden"] = true}
 
+local type = type -- people like to overwrite this function with a global a lot
 local TPT_LUA_PATH = 'scripts'
 local PATH_SEP = '\\'
 local OS = "WIN32"
@@ -926,7 +926,7 @@ local function smallstep()
 		if jacobsmod and tpt.oldmenu and tpt.oldmenu()==1 then
 			ypos = 390
 		elseif tpt.num_menus then
-			ypos = 390-16*tpt.num_menus()
+			ypos = 390-16*tpt.num_menus()-(not jacobsmod and 16 or 0)
 		end
 		sidebutton:onmove(0, ypos-sidebutton.y)
 		jacobsmod_old_menu_check = false
@@ -1080,7 +1080,7 @@ function ui_button.scriptcheck(self)
 		self.canupdate = false
 		localscripts[self.ID] = onlinescripts[self.ID]
 		localscripts[self.ID]["path"] = newpath
-		if oldpath ~= newpath then
+		if oldpath:gsub("\\","/") ~= newpath:gsub("\\","/") then
 			fs.removeFile(TPT_LUA_PATH.."/"..oldpath:gsub("\\","/"))
 			if running[oldpath] then
 				running[newpath],running[oldpath] = running[oldpath],nil
@@ -1149,7 +1149,7 @@ local ypos = 134
 if jacobsmod and tpt.oldmenu and tpt.oldmenu()==1 then
 	ypos = 390
 elseif tpt.num_menus then
-	ypos = 390-16*tpt.num_menus()
+	ypos = 390-16*tpt.num_menus()-(not jacobsmod and 16 or 0)
 end
 sidebutton = ui_button.new(gfx.WIDTH-16,ypos,14,15,ui_button.sidepressed,'')
 
