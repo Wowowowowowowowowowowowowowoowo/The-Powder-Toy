@@ -1103,6 +1103,14 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				partsData[fieldDescLoc] = fieldDesc&0xFF;
 				partsData[fieldDescLoc+1] = fieldDesc>>8;
 
+				if (partsptr[i].type == PT_RPEL && partsptr[i].ctype)
+				{
+					RESTRICTVERSION(91, 4);
+				}
+				else if (partsptr[i].type == PT_NWHL && partsptr[i].tmp)
+				{
+					RESTRICTVERSION(91, 5);
+				}
 				//Get the pmap entry for the next particle in the same position
 				i = partsPosLink[i];
 			}
