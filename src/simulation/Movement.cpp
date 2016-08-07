@@ -3,8 +3,6 @@
 #include "WallNumbers.h"
 #include "common/tpt-math.h"
 #include "simulation/elements/PRTI.h"
-#include "simulation/elements/FIGH.h"
-#include "simulation/elements/STKM.h"
 
 bool Simulation::OutOfBounds(int x, int y)
 {
@@ -823,6 +821,15 @@ int Simulation::DoMove(int i, int x, int y, float nxf, float nyf)
 
 	if (parts[i].type == PT_NONE)
 		return 0;
+	if (GetEdgeMode() == 2)
+	{
+		bool x_ok = (nx >= CELL && nx < XRES-CELL);
+		bool y_ok = (ny >= CELL && ny < YRES-CELL);
+		if (!x_ok)
+			nxf = remainder_p(nxf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
+		if (!y_ok)
+			nyf = remainder_p(nyf-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
+	}
 	result = TryMove(i, x, y, nx, ny);
 	if (result && Move(i,x,y,nxf,nyf))
 		return -1;
@@ -835,54 +842,6 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 	// volatile to hopefully force truncation of floats in x87 registers by storing and reloading from memory, so that rounding issues don't cause particles to appear in the wrong pmap list. If using -mfpmath=sse or an ARM CPU, this may be unnecessary.
 	volatile float tmpx = nxf, tmpy = nyf;
 	int nx = (int)(tmpx+0.5f), ny = (int)(tmpy+0.5f), t = parts[i].type;
-
-	if (GetEdgeMode() == 2)
-	{
-		bool x_ok = (nx >= CELL && nx < XRES-CELL);
-		bool y_ok = (ny >= CELL && ny < YRES-CELL);
-		int oldnx = nx, oldny = ny;
-		if (!x_ok)
-			nxf = remainder_p(nxf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
-		if (!y_ok)
-			nyf = remainder_p(nyf-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
-
-		if (!x_ok || !y_ok)
-		{
-			nx = (int)(nxf+0.5f);
-			ny = (int)(nyf+0.5f);
-
-			//kill particle if particle is out of bounds (below eval_move would return before kill)
-			if (OutOfBounds(nx, ny))
-			{
-				part_kill(i);
-				return -1;
-			}
-			//make sure there isn't something blocking it on the other side
-			if (!EvalMove(t, nx, ny) || (t == PT_PHOT && pmap[ny][nx]))
-				return -1;
-
-			//adjust stickmen legs
-			Stickman *stickman = NULL;
-			if (t == PT_STKM)
-				stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
-			else if (t == PT_STKM2)
-				stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
-			else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters())
-				stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
-
-			if (stickman)
-			{
-				for (int j = 0; j < 16; j += 2)
-				{
-					stickman->legs[j] += (nx-oldnx);
-					stickman->legs[j+1] += (ny-oldny);
-					stickman->accs[j/2] *= .95f;
-				}
-				parts[i].vy *= .95f;
-				parts[i].vx *= .95f;
-			}
-		}
-	}
 
 	parts[i].x = nxf;
 	parts[i].y = nyf;

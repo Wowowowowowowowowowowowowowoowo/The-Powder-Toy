@@ -32,6 +32,8 @@
 #include "game/Brush.h"
 #include "game/Sign.h"
 #include "simulation/elements/MOVS.h"
+#include "simulation/elements/FIGH.h"
+#include "simulation/elements/STKM.h"
 
 // Declare the element initialisation functions
 #define ElementNumbers_Include_Decl
@@ -1066,7 +1068,56 @@ bool Simulation::UpdateParticle(int i)
 	if (t == PT_STKM || t == PT_STKM2 || t == PT_FIGH)
 	{
 		//head movement, let head pass through anything
-		Move(i, x, y, parts[i].x+parts[i].vx, parts[i].y+parts[i].vy);
+		int startingx = (int)((float)parts[i].x+0.5f);
+		int startingy = (int)((float)parts[i].y+0.5f);
+		parts[i].x += parts[i].vx;
+		parts[i].y += parts[i].vy;
+		int nx = (int)((float)parts[i].x+0.5f);
+		int ny = (int)((float)parts[i].y+0.5f);
+		if (edgeMode == 2)
+		{
+			bool x_ok = (nx >= CELL && nx < XRES-CELL);
+			bool y_ok = (ny >= CELL && ny < YRES-CELL);
+			int oldnx = nx, oldny = ny;
+			if (!x_ok)
+			{
+				parts[i].x = remainder_p(parts[i].x-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
+				nx = (int)((float)parts[i].x+0.5f);
+			}
+			if (!y_ok)
+			{
+				parts[i].y = remainder_p(parts[i].y-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
+				ny = (int)((float)parts[i].y+0.5f);
+			}
+			
+			if (!x_ok || !y_ok) //when moving from left to right stickmen might be able to fall through solid things, fix with "eval_move(t, nx+diffx, ny+diffy, NULL)" but then they die instead
+			{
+				//adjust stickmen legs
+				Stickman *stickman = NULL;
+				if (t == PT_STKM)
+					stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
+				else if (t == PT_STKM2)
+					stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
+				else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters())
+					stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
+	
+				if (stickman)
+				{
+					for (int j = 0; j < 16; j += 2)
+					{
+						stickman->legs[j] += (nx-oldnx);
+						stickman->legs[j+1] += (ny-oldny);
+						stickman->accs[j/2] *= .95f;
+					}
+				}
+				parts[i].vy *= .95f;
+				parts[i].vx *= .95f;
+			}
+		}
+		if (ny!=y || nx!=x)
+		{
+			Move(i, startingx, startingy, parts[i].x, parts[i].y);
+		}
 	}
 	else if (elements[t].Properties & TYPE_ENERGY)
 	{
