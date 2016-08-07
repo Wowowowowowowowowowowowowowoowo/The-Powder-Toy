@@ -4716,10 +4716,10 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 	if (bug)
 		message = "Report bugs and feedback here. Do not suggest new elements or features, or report bugs with downloaded scripts.";
 	else
-		message = "Report saves or comments that break the rules here. Also, remember:\n"\
+		message = "Things to consider when reporting:\n"\
 				  "\bw1) \bgWhen reporting stolen saves, please include the ID of the original save.\n"
 				  "\bw2) \bgDo not ask for saves to be removed from front page unless they break the rules.\n"
-				  "\bw3) \bgYou may report saves for comments too (including your own saves)";
+				  "\bw3) \bgYou may report saves for comments and tags too (including your own saves)";
 	messageHeight = (int)(textwrapheight(message, XRES+BARSIZE-410)/2);
 
 	ui_edit_init(&ed, 209, 159+messageHeight, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
