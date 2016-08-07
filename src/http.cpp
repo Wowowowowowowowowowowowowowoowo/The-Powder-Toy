@@ -19,16 +19,17 @@
  */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 #ifndef WIN
 #include <sys/param.h>
 #endif
 #if !defined(MACOSX) && !defined(BSD)
 #include <malloc.h>
 #endif
-#include <time.h>
+#include <ctime>
 #ifdef WIN
 //#include <iphlpapi.h>
 #include <winsock2.h>
@@ -375,7 +376,7 @@ static void process_header(struct http_ctx *cx, char *str)
 			cx->state = HTS_DONE;
 		return;
 	}
-	if (!strncmp(str, "HTTP/", 5))
+	if (!strncmp(str, "http/", 5))
 	{
 		p = strchr(str, ' ');
 		if (!p)
@@ -388,17 +389,17 @@ static void process_header(struct http_ctx *cx, char *str)
 		cx->ret = atoi(p);
 		return;
 	}
-	if (!strncmp(str, "Content-Length: ", 16))
+	if (!strncmp(str, "content-length: ", 16))
 	{
 		cx->contlen = atoi(str+16);
 		return;
 	}
-	if (!strcmp(str, "Transfer-Encoding: chunked"))
+	if (!strcmp(str, "transfer-encoding: chunked"))
 	{
 		cx->chunked = 1;
 		return;
 	}
-	if (!strcmp(str, "Connection: close"))
+	if (!strcmp(str, "connection: close"))
 	{
 		cx->cclose = 1;
 		return;
@@ -441,7 +442,7 @@ static void process_byte(struct http_ctx *cx, char ch)
 				cx->hlen *= 2;
 				cx->hbuf = (char*)realloc(cx->hbuf, cx->hlen);
 			}
-			cx->hbuf[cx->hptr++] = ch;
+			cx->hbuf[cx->hptr++] = tolower(ch);
 		}
 	}
 }
