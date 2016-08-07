@@ -463,6 +463,8 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 	int t = cpart->tmp&0xFF;
 	if (t > 0 && t < PT_NUM && globalSim->elements[t].Enabled)
 	{
+		if (t == PT_STKM || t == PT_STKM2 || t == PT_FIGH)
+			return 0;
 		if (graphicscache[t].isready)
 		{
 			*pixel_mode = graphicscache[t].pixel_mode;
