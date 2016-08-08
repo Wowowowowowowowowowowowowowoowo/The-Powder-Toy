@@ -9,24 +9,22 @@ small but unfixable bugs tpt++ has.
 The mod updates whenever I feel like it. Don't ignore the update notifications 
 like you do in other mods though, this mod actually has it's own in game 
 updater, hosted at http://staracatcher.us/TPT. Typically there is an update, 
-no matter how small, once a month, although that is constantly changing as my 
-schedule and interest in working on the mod changes. All the changes made to 
-tpt during it's multiple month breaks between versions are quickly backported 
-into the mod, making it much more up to date and quicker to test new official 
-features.
+no matter how small, once every 1-2 months, although that is constantly 
+changing as my schedule and interest in working on the mod changes. All the 
+changes made to tpt are quickly backported into the mod, making it much more up 
+to date and quicker to test new official features.
 
 When you first start up the mod, it might look a lot different (or the same, 
 if you remember what TPT used to look like before the rewrite). Everything 
 functions exactly the same though. There are a few areas you may want to look 
-at to see the new features. The main one is the favorites menu, shown by the 
-blurry 'J' icon on the bottom right. This is the first feature added to the 
-mod, and has functioned exactly the same to this day. Another place is the 
-FAV2 menu, accessed by clicking the rightmost 'MORE' button in the favorites 
-menu. You can find many options and submenus in here, all in the odd 
-element button format. Elsewhere, if you click the 'T' quickoption in the top 
-right you can access the 'tabs' feature. Other changes can be seen in the 
-redone console or in the save preview. An in detail explanation of these 
-features and others are provided below.
+at to see the new features. The main one is the sub menus in the favorites menu. 
+The favorites menu is the first feature added to the mod. Although it is now in 
+the official version, the submenus are unique to the mod. You can find many 
+options here, all in element button format (i'll make an actual options ui 
+someday ....). Elsewhere, if you click the 'T' quickoption in the top right you 
+can access the 'tabs' feature. Other changes can be seen in the redone console 
+or in the save preview. An in detail explanation of these features and others 
+are provided below.
 
 
 
@@ -77,21 +75,20 @@ Nakriollag - DIMT
 Favorites Menu / Submenus
 The favorites menu has been the center of most things in the mod since the 
 beginning. To "favorite" an element, ctrl+shift click it from any menu, and 
-it will get a green box around it. To unfavorite it, ctrl+shift+right click 
-it instead. Any recently used elements, even from past sessions, also will 
-appear in the menu, but they don't stay forever.  If you click the MORE 
-button, a new menu will appear with more options. HUD's are customizable using 
-the HUD2 button. The FIND button colors whatever element you have selected 
-red, and dims everything else. There's also a way to double or triple 
-highlight things in green and blue at the same time, if you click the button 
-more times. FND2 changes the way find is displayed, also alternatively you can 
-ctrl+f to activate FIND. The INFO button displays statistics about how long 
-and how many times you have played powder toy, your average and highest FPS, 
-and info about the current save. AUTO turns on autosave (left click to set). 
-REAL turns on realistic heat mode by savask. DATE changes date and time 
-settings, used in the HUD and on save comments. In addition to left clicking, 
-right clicking it will toggle displaying time on comments older than a day. 
-The rest (SPIN, HEAT, LUA) are explained later in the readme.
+it will get a yellow heart by it. To unfavorite it, ctrl+shift+right click 
+it instead. Any recently used elements also will appear in the menu.
+If you click the MORE button, a new menu will appear with more options. 
+HUD's are customizable using the HUD2 button. The FIND button colors whatever 
+element you have selected red, and dims everything else (now in official TPT, 
+with the ctrl+f shortcut). There's also a way to double or triple highlight 
+things in green and blue at the same time, if you click the button more times. 
+FND2 changes the way find is displayed for layered particles. The INFO button 
+displays statistics about how long and how many times you have played powder 
+toy, your average FPS, and info about the current save. REAL turns on realistic 
+heat mode by savask. DATE changes date and time settings, used in the HUD and on 
+save comments. In addition to left clicking, right clicking it will toggle 
+displaying time on comments older than a day. The rest (SPIN, HEAT, LUA) are 
+explained later in the readme.
 
 Moving Solids
 No lag, and it actually works. They are found in the special menu, and you 
@@ -99,7 +96,7 @@ can have a maximum of 256 at once. They are drawn the same shape as your
 brush, no matter what shape or size it is. They are very bouncy, and fall 
 with gravity. Pressure over 10.0 will destroy them, and if the center 
 particle is destroyed, it will fall apart, making really tiny bouncing 
-pixels. Go into the fav2 menu and click SPIN to make them able to rotate, now 
+pixels. Go into the FAV2 menu and click SPIN to make them able to rotate, now 
 enabled by default. Recent version 29 additions allow them to properly move 
 around in loop edge mode and to bounce off walls. Version 30 rewrites them 
 internally, while paused any moving solids you draw will all be attached as 
@@ -121,7 +118,7 @@ ANIM. If you delete a lot of it at once, the game will freeze for a while to
 free all the allocated memory, just wait and it will keep working.
 
 New Heat Displays
-Found in the Fav2 menu. Click the HEAT button once to go to automatic display 
+Found in the FAV2 menu. Click the HEAT button once to go to automatic display 
 mode, where the hottest temp is always pink, the lowest is dark blue, and 
 everything else in between is based off of that. Click it again to go into 
 manual heat display. The min and max temps will stop changing when you go 
@@ -173,7 +170,7 @@ current save info. A few really advanced settings may not be saved, as behind
 the scenes it is simply saving a stamp. They aren't simulated when you aren't 
 looking at them but still have uses. To save the current tab to disk, press 
 ctrl+s. You can then use the reload button from this point, even without an 
-account or looking at a save from the save server. You can really stop here 
+account or looking at a save from the save server. You could just stop here 
 with the tab feature, and only use a single tab for reloading, but there is a 
 lot more. To create a new tab, press ctrl+n or click the '+' icon in the tab 
 menu. Your previous tab will be saved. When hovering over tabs it will 
@@ -200,22 +197,25 @@ Not implemented yet are: syntax highlighting like tpt++ recently got,
 a scrollbar, and unlimited input / output lengths.
 
 Save Preview
-This may look a lot different than the default TPT, because tpt++ overhauled 
-the save preview itself when it was redone in c++. My mod may not have 
-avatars or a scrollbar yet, but it does have other cool features. Comment 
-scrolling works with the scrollwheel on your mouse, or the '[' and ']' keys. 
-There are no 'pages' like in tpt++, it's just a continuous stream of comments. 
-It will attempt to display the page number tpt would have on bottom, but at 
-the moment it can't properly display the maximum number of pages. To the right 
-of each name is the date and time each comment was posted. You can edit how 
-this is displayed with the DATE option in the fav2 menu. If you click it, it 
-will toggle showing User ID's instead. Clicking the 'Submit' button without 
-anything in the textbox will reload the comments.
-Left clicking a username will append their nick to the end of the textbox to 
-make it easier to reply to their comment without having to type out the 
-username. Shift-clicking their username will open a search for all of their 
-public saves. Ctrl-clicking their username will open their profile on the TPT 
-website.
+This may not look a lot different than the default TPT, because tpt++ 
+overhauled the save preview itself when it was redone in c++. It used to be 
+cutting edge though! My mod doesn't have avatars or a scrollbar yet, but it 
+does have other cool features. Comment scrolling works with the scrollwheel on 
+your mouse, or the '[' and ']' keys. There are no 'pages' like in tpt++, it's 
+just a continuous stream of comments. It will attempt to display the page 
+number tpt would have on bottom, but at the moment it can't properly display 
+the maximum number of pages due to API limitations. To the right of each name 
+is the date and time each comment was posted. You can edit how this is 
+displayed with the DATE option in the fav2 menu. If you click it, it will 
+toggle showing User ID's instead. Clicking the 'Submit' button without anything 
+in the textbox will reload the comments. The comment box turns red when the 
+comment is too long to be submitted (the server currently has a 500 character 
+limit). Left clicking a username will append their nick to the end of the 
+textbox to make it easier to reply to their comment without having to type out 
+the username. Shift-clicking their username will open a search for all of their 
+public saves. Ctrl-clicking their username will open the profile UI with their 
+bio and avatar.
+
 
 
 
@@ -1041,11 +1041,10 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
->Add avatars in game
+>Add avatars in game (done in profile ui)
 >Use new tpt++ methods to fetch saves and not over 2 year old ones.
 Support alternate save servers
 Support multiple logins / "remember me" setting
-Redo fav menu ...
 Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 Ability to follow users using jacksonmj's website
