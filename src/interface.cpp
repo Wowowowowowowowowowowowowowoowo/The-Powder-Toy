@@ -2590,7 +2590,8 @@ void old_menu_v2(int active_menu, int x, int y, int b, int bq)
 			int height = (int)(ceil((float)menuSections[active_menu]->tools.size()/16.0f)*18);
 			int textY = (((YRES/GetNumMenus())*active_menu)+((YRES/GetNumMenus())/2))-(height/2)+(FONT_H/2)+25+height;
 			menu_draw_text(over, textY);
-			menu_select_element(b, over);
+			if (b && !bq)
+				menu_select_element(b, over);
 		}
 	}
 	else

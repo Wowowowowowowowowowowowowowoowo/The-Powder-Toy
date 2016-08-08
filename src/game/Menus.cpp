@@ -54,6 +54,8 @@ void InitMenusections()
 
 void ClearMenusections()
 {
+	delete GetToolFromIdentifier("DEFAULT_FAV_MORE");
+	menuSections[SC_FAV]->tools.clear();
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
 		if (i != SC_FAV)

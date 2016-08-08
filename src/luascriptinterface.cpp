@@ -2941,6 +2941,7 @@ int platform_exeName(lua_State * l)
 		lua_pushstring(l, name);
 	else
 		luaL_error(l, "Error, could not get executable name");
+	free(name);
 	return 1;
 }
 
