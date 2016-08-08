@@ -191,7 +191,6 @@ extern int ngrav_enable;
 extern int limitFPS;
 extern int water_equal_test;
 extern int finding;
-extern int locked;
 extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;

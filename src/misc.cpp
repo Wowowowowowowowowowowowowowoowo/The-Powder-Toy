@@ -43,6 +43,7 @@
 #include "update.h"
 
 #include "common/Platform.h"
+#include "game/Favorite.h"
 #include "game/Menus.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
@@ -155,7 +156,6 @@ bool doingUpdate = false;
 void save_presets()
 {
 	char * outputdata;
-	char mode[32];
 	cJSON *root, *userobj, *versionobj, *recobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *tmpobj;
 	FILE *f = fopen("powder.pref", "wb");
 	if(!f)
@@ -259,19 +259,15 @@ void save_presets()
 		cJSON_AddTrueToObject(versionobj, "updateChecks");
 	else
 		cJSON_AddFalseToObject(versionobj, "updateChecks");
-	
+
+	cJSON * favArr = cJSON_CreateArray();
+	std::vector<std::string> favorites = Favorite::Ref().BuildFavoritesList(true);
+	for (std::vector<std::string>::iterator iter = favorites.begin(); iter != favorites.end(); ++iter)
+		cJSON_AddItemToArray(favArr, cJSON_CreateString((*iter).c_str()));
+	cJSON_AddItemToObject(root, "Favorites", favArr);
+
 	//Fav Menu/Records
 	cJSON_AddItemToObject(root, "records", recobj=cJSON_CreateObject());
-	cJSON_AddNumberToObject(recobj, "Favorited Elements", locked);
-	char* tempFavMenu[18];
-	for (int j = 0; j < 18; j++) //this might be better with JSON and not cJSON
-	{
-		tempFavMenu[j] = new char[favMenu[j].length()+1];
-		strncpy(tempFavMenu[j], favMenu[j].c_str(), favMenu[j].length()+1);
-	}
-	cJSON_AddItemToObject(recobj, "Recent Elements", cJSON_CreateStringArray((const char**)tempFavMenu, 18));
-	for (int j = 0; j < 18; j++)
-		delete[] tempFavMenu[j];
 	cJSON_AddNumberToObject(recobj, "Total Time Played", ((double)currentTime/1000)+((double)totaltime/1000)-((double)totalafktime/1000)-((double)afktime/1000));
 	cJSON_AddNumberToObject(recobj, "Average FPS", totalfps/frames);
 	cJSON_AddNumberToObject(recobj, "Number of frames", frames);
@@ -441,38 +437,24 @@ void load_presets(void)
 			update_flag = 0;
 		}
 		
-		//Read FavMenu/Records
+		//Read FavMenu
+		tmpobj = cJSON_GetObjectItem(root, "Favorites");
+		if (tmpobj)
+		{
+			int favSize = cJSON_GetArraySize(tmpobj);
+			for (int i = 0; i < favSize; i++)
+			{
+				std::string identifier = cJSON_GetArrayItem(tmpobj, i)->valuestring;
+				Favorite::Ref().AddFavorite(identifier);
+			}
+			if (favSize)
+				FillMenus();
+		}
+		
+		//Read Records
 		recobj = cJSON_GetObjectItem(root, "records");
 		if (recobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Favorited Elements"))
-				locked = tmpobj->valueint;
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Recent Elements"))
-			{
-				for (int i = 0; i < 18; i++)
-				{
-					std::string element = cJSON_GetArrayItem(tmpobj, i)->valuestring;
-					if (!GetToolFromIdentifier(element))
-					{
-						if (i > 18-locked)
-							locked--;
-						continue;
-					}
-					for (int j = 0; j < 18; j++)
-					{
-						if (element == favMenu[j])
-						{
-							while (j < 17-i)
-							{
-								favMenu[j] = favMenu[j+1];
-								j++;
-							}
-							break;
-						}
-					}
-					favMenu[i] = element;
-				}
-			}
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played"))
 				totaltime = (int)((tmpobj->valuedouble)*1000);
 			if (tmpobj = cJSON_GetObjectItem(recobj, "Average FPS"))

@@ -15,22 +15,21 @@
 #define SC_SPECIAL 11
 #define SC_LIFE 12
 #define SC_TOOL 13
+#define SC_FAV 14
 #ifdef NOMOD
-#define SC_DECO 14
-#define SC_CRACKER 15
-#define SC_OTHER 16
-#define SC_SEARCH 17
+#define SC_DECO 15
+#define SC_CRACKER 16
+#define SC_OTHER 17
+#define SC_SEARCH 18
 #ifdef TOUCHUI
-#define SC_TOTAL 18
+#define SC_TOTAL 19
 #else
-#define SC_TOTAL 17
+#define SC_TOTAL 18
 #endif
 
-#define SC_FAV 16
-#define SC_FAV2 16
-#define SC_HUD 16
+#define SC_FAV2 17
+#define SC_HUD 17
 #else
-#define SC_FAV 14
 #define SC_DECO 15
 #define SC_CRACKER 16
 #define SC_FAV2 17

@@ -268,7 +268,6 @@ void menu_ui_v2(pixel *vid_buf, int i);
 void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my);
 
 class Tool;
-extern std::string favMenu[18];
 Tool* menu_draw(int mx, int my, int b, int bq, int i);
 void menu_draw_text(Tool* over, int y);
 void menu_select_element(int b, Tool* over);

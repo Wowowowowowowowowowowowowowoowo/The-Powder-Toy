@@ -231,9 +231,7 @@ int framerender = 0;
 int pretty_powder = 0;
 int limitFPS = 60;
 int main_loop = 1;
-std::string favMenu[18];
 int finding = 0;
-int locked = 0;
 int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;
@@ -1131,8 +1129,6 @@ int main(int argc, char *argv[])
 			ptypes[i].descs = "";
 		}
 
-	for (int i = 0; i < 18; i++)
-		favMenu[i] = globalSim->elements[i].Identifier;
 	HudDefaults();
 	memcpy(currentHud,normalHud,sizeof(currentHud));
 

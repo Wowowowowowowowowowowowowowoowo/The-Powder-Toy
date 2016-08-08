@@ -1,6 +1,7 @@
 
 #include <sstream>
 #include "Menus.h"
+#include "Favorite.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -55,7 +56,8 @@ void ClearMenusections()
 {
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
-		menuSections[i]->ClearTools();
+		if (i != SC_FAV)
+			menuSections[i]->ClearTools();
 		delete menuSections[i];
 	}
 }
@@ -97,8 +99,11 @@ void FillMenus()
 	//Clear all menusections
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
-		menuSections[i]->ClearTools();
+		if (i != SC_FAV)
+			menuSections[i]->ClearTools();
 	}
+	delete GetToolFromIdentifier("DEFAULT_FAV_MORE");
+	menuSections[SC_FAV]->tools.clear();
 
 	//Add all generic elements to menus
 	for (int i = 0; i < PT_NUM; i++)
@@ -155,10 +160,15 @@ void FillMenus()
 	//Fill up fav. related menus somehow ...
 #ifndef NOMOD
 	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
-	for (int i = 0; i < 18; i++)
+#endif
+	std::vector<std::string> favorites = Favorite::Ref().BuildFavoritesList();
+	for (std::vector<std::string>::iterator iter = favorites.begin(); iter != favorites.end(); ++iter)
 	{
-		menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE-1, "DEFAULT_FAV_FAKE"));
+		Tool *tool = GetToolFromIdentifier((*iter));
+		if (tool)
+			menuSections[SC_FAV]->AddTool(tool);
 	}
+#ifndef NOMOD
 	for (int i = FAV_START+1; i < FAV_END; i++)
 	{
 		menuSections[SC_FAV2]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(fav[i-FAV_START].name)));

@@ -63,6 +63,7 @@
 
 #include "common/Platform.h"
 #include "game/Download.h"
+#include "game/Favorite.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
@@ -1207,6 +1208,8 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 				{
 					drawrect(vid_buf, xoff+toolx-32, yoff+tooly-1, 29, 17, 55, 55, 255, 255);
 				}
+				if (Favorite::Ref().IsFavorite(foundTool->GetIdentifier()))
+					drawtext(vid_buf, xoff+toolx-32, yoff+tooly-1, "\xED", 255, 205, 50, 255);
 				if(toolx > ed.w-4)
 				{
 					tooly += 18;
@@ -1326,10 +1329,31 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		}
 	}
 
-	if(selectedl!=-1)
-		*selectedLeft = GetToolFromIdentifier(globalSim->elements[selectedl].Identifier);
-	if(selectedr!=-1)
-		*selectedRight = GetToolFromIdentifier(globalSim->elements[selectedr].Identifier);
+	if (selectedl != -1)
+	{
+		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		{
+			Favorite::Ref().AddFavorite(globalSim->elements[selectedl].Identifier);
+			FillMenus();
+			save_presets();
+		}
+		else
+			*selectedLeft = GetToolFromIdentifier(globalSim->elements[selectedl].Identifier);
+	}
+	if (selectedr != -1)
+	{
+		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		{
+			if (Favorite::Ref().IsFavorite(globalSim->elements[selectedl].Identifier))
+			{
+				Favorite::Ref().RemoveFavorite(globalSim->elements[selectedl].Identifier);
+				FillMenus();
+				save_presets();
+			}
+		}
+		else
+			*selectedRight = GetToolFromIdentifier(globalSim->elements[selectedr].Identifier);
+	}
 	
 	while (!sdl_poll())
 	{
@@ -2819,12 +2843,6 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 			last_fav_menu = i;
 			if (i == SC_HUD && hud_menu[current->GetID()-HUD_START].menunum != hud_menunum && current->GetID() != HUD_START)
 				continue;
-			else if (i == SC_FAV && iter != menuSections[i]->tools.begin())
-			{
-				current = GetToolFromIdentifier(favMenu[iter-menuSections[i]->tools.begin()-1]);
-				if (!current)
-					continue;
-			}
 		}
 #endif
 		//if it's offscreen to the right or left, draw nothing
@@ -2863,8 +2881,6 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 55, 55, 255, 255);
 			else if (activeTools[2]->GetIdentifier() == current->GetIdentifier())
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-			if (i == SC_FAV && menuSections[i]->tools.end()-iter <= locked)
-				drawtext(vid_buf, x+31-xoff, y, "\xED", 255, 205, 50, 255);
 
 			//if mouse inside button
 			if (mx>=x+32-xoff && mx<x+58-xoff && my>=y && my<y+15)
@@ -2880,6 +2896,8 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 #endif
 			}
+			if (Favorite::Ref().IsFavorite(current->GetIdentifier()))
+				drawtext(vid_buf, x+30-xoff, y-1, "\xED", 255, 205, 50, 255);
 		}
 	}
 #ifdef TOUCHUI
@@ -3093,42 +3111,24 @@ void menu_select_element(int b, Tool* over)
 			currR = COLR(decocolor), currG = COLG(decocolor), currB = COLB(decocolor), currA = COLA(decocolor);
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
-		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		{
+			Favorite::Ref().AddFavorite(over->GetIdentifier());
+			FillMenus();
+			save_presets();
+		}
 		else
 		{
-			int j, pos = 0, pos2 = 0, last = 17-locked, lock = 0;
-			for (j = 0; j < 18; j++)
-				if (favMenu[j] == over->GetIdentifier())
-					pos = j; // If el is alredy on list, don't put it there twice
-			pos2 = pos;
-			if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked < 18 && pos < 18-locked)
-			{
-				lock = 1;
-			}
-			if (pos > 18-locked && locked != 18) lock = 1;
-			if (lock) last = 17;
-			while (pos < last)
-			{
-				favMenu[pos] = favMenu[pos+1];
-				pos = pos + 1;
-			}
-			if (last != 0)
-				favMenu[last] = over->GetIdentifier();
-			if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked < 18 && pos2 <= 18-locked)
-			{
-				locked = locked + 1;
-				save_presets();
-			}
-			else
-			{
-				activeTools[0] = over;
-				activeToolID = 0;
-				if (((ToolTool*)over)->GetID() == TOOL_PROP)
-					openProp = true;
-			}
+			activeTools[0] = over;
+			activeToolID = 0;
+			if (((ToolTool*)over)->GetID() == TOOL_PROP)
+				openProp = true;
+			Favorite::Ref().AddRecent(over->GetIdentifier());
+			FillMenus();
 		}
 	}
 	if (b==4 && over)
@@ -3156,41 +3156,25 @@ void menu_select_element(int b, Tool* over)
 		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
 		{
 		}
-		else if ((sdl_mod & (KMOD_LALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		{
+			Favorite::Ref().RemoveFavorite(over->GetIdentifier());
+			Favorite::Ref().RemoveRecent(over->GetIdentifier());
+			FillMenus();
+			save_presets();
+		}
 		else
 		{
-			int j, pos = 0, last = 17-locked, lock = 0;
-			for (j = 0; j < 18; j++)
-				if (favMenu[j] == over->GetIdentifier())
-					pos = j; // If el is alredy on list, don't put it there twice
-			if (pos > 18-locked && locked != 18) lock = 1;
-			if (lock) last = 17;
-			if (pos > 17-locked && (sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && locked > 0 && active_menu == SC_FAV)
-			{
-				std::string temp = favMenu[pos];
-				for (j = pos; j > 18-locked; j--)
-					favMenu[j] = favMenu[j-1];
-				favMenu[18-locked] = temp;
-				locked = locked - 1;
-				save_presets();
-			}
-			else
-			{
-				activeTools[1] = over;
-				activeToolID = 1;
-				if (((ToolTool*)over)->GetID() == TOOL_PROP)
-					openProp = true;
-				while (pos < last)
-				{
-					favMenu[pos] = favMenu[pos+1];
-					pos = pos + 1;
-				}
-				if (last != 0)
-					favMenu[last] = over->GetIdentifier();
-			}
+			activeTools[1] = over;
+			activeToolID = 1;
+			if (((ToolTool*)over)->GetID() == TOOL_PROP)
+				openProp = true;
+			Favorite::Ref().AddRecent(over->GetIdentifier());
+			FillMenus();
 		}
 	}
 }
