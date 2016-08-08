@@ -829,6 +829,8 @@ int Simulation::DoMove(int i, int x, int y, float nxf, float nyf)
 			nxf = remainder_p(nxf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
 		if (!y_ok)
 			nyf = remainder_p(nyf-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
+		nx = (int)(nxf+0.5f);
+		ny = (int)(nyf+0.5f);
 	}
 	result = TryMove(i, x, y, nx, ny);
 	if (result && Move(i,x,y,nxf,nyf))
