@@ -2889,10 +2889,10 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				over = current;
 #ifndef TOUCHUI
 				//draw rectangles around hovered on tools
-				if (sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_CTRL|KMOD_META) && ((ElementTool*)current)->GetID() >= 0)
+				if ((sdl_mod & KMOD_ALT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_SHIFT) && ((ElementTool*)current)->GetID() >= 0)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				else if (sdl_mod & (KMOD_SHIFT) && sdl_mod & (KMOD_CTRL|KMOD_META))
-					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
+				else if ((sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_ALT) && current->GetType() != INVALID_TOOL)
+					drawtext(vid_buf, x+30-xoff, y-1, "\xED", 255, 205, 50, 255);
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 #endif

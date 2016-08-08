@@ -34,15 +34,15 @@ void InitMenusections()
 	menuSections[11] = new MenuSection('\xCC', "Special", true, false);
 	menuSections[12] = new MenuSection('\xD2', "Game of Life", true, false);
 	menuSections[13] = new MenuSection('\xD7', "Tools", true, false);
+	menuSections[14] = new MenuSection('\xE2', "Favorites & Recents", true, false);
 #ifdef NOMOD
-	menuSections[14] = new MenuSection('\xE5', "Deco", true, true);
-	menuSections[15] = new MenuSection('\xC8', "Cracker!", false, false);
-	menuSections[16] = new MenuSection('\xE2', "Other", false, false); //list of elements that are hidden or disabled, not in any menu
+	menuSections[15] = new MenuSection('\xE5', "Deco", true, true);
+	menuSections[16] = new MenuSection('\xC8', "Cracker!", false, false);
+	menuSections[17] = new MenuSection('\xE2', "Other", false, false); //list of elements that are hidden or disabled, not in any menu
 #ifdef TOUCHUI
-	menuSections[17] = new MenuSection('\xE6', "Search", true, true);
+	menuSections[18] = new MenuSection('\xE6', "Search", true, true);
 #endif
 #else
-	menuSections[14] = new MenuSection('\xE2', "\brF\bla\bov\bgo\btr\bbi\bpt\bwe", true, false);
 	menuSections[15] = new MenuSection('\xE5', "Deco", true, true);
 	menuSections[16] = new MenuSection('\xC8', "Cracker!", false, false);
 	menuSections[17] = new MenuSection('\xE2', "Favorite2", false, false);
