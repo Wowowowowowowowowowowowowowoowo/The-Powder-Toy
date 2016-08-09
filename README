@@ -1026,6 +1026,13 @@ Updates from tpt++ / update to 91.4. Fix crash with FIGH in invalid positions.
 Change favorites menu to use new icons from tpt++. Fix "Scale" setting not 
 saving in the right format. Update internal lua scripts.
 
+Version 34.1 8/8/16
+Update to TPT 91.5. Fixes to loop edge mode (should fix id:2023102). Rewrite 
+the favorites menu. Fixes duplicate elements sometimes appearing, and it now 
+uses the same powder.pref location as default tpt. Recently used elements 
+are no longer prebuilt or saved on exit, and can be removed the same way as 
+favorites elements can be. Fix submenus in old menu interface ('o' key).
+
 
 
 
