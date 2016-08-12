@@ -388,7 +388,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		goto fail;
 	}
 
-	bson_init_data(&b, (char*)bsonData);
+	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
 	bsonInitialised = 1;
 	bson_iterator_init(&iter, &b);
 	while(bson_iterator_next(&iter))
@@ -1515,8 +1515,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		erase_bframe();
 		globalSim->instantActivation = false;
 	}
-	
-	bson_init_data(&b, (char*)bsonData);
+
+	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
 	bson_iterator_init(&iter, &b);
 	while (bson_iterator_next(&iter))
 	{

@@ -7631,17 +7631,10 @@ int save_filename_ui(pixel *vid_buf)
 		save = resample_img(save_data_image, imgw, imgh, XRES/3, YRES/3);
 	}
 
-	ed.x = x0+11;
-	ed.y = y0+25;
-	ed.w = xsize-4-16;
-	ed.nx = 1;
+	ui_edit_init(&ed, x0+11, y0+25, xsize-20, 0);
 	ed.def = "[filename]";
-	ed.focus = 1;
-	ed.hide = 0;
-	ed.cursor = ed.cursorstart = 0;
-	ed.multiline = 0;
-	ed.limit = 255;
-	ed.str[0] = 0;
+	ed.focus = 0;
+	ed.nx = 0;
 	
 	if (svf_fileopen)
 	{
@@ -7744,7 +7737,7 @@ void catalogue_ui(pixel * vid_buf)
 	int xsize = 8+(XRES/CATALOGUE_S+8)*CATALOGUE_X;
 	int ysize = 48+(YRES/CATALOGUE_S+20)*CATALOGUE_Y;
 	int x0=(XRES+BARSIZE-xsize)/2,y0=(YRES+MENUSIZE-ysize)/2,b=1,bq,mx,my;
-	int rescount, imageoncycle = 0, currentstart = 0, currentoffset = 0, thidden = 0, cactive = 0;
+	int rescount = 0, imageoncycle = 0, currentstart = 0, currentoffset = 0, thidden = 0, cactive = 0;
 	int listy = 0, listxc;
 	int listx = 0, listyc;
 	pixel * vid_buf2;
@@ -7757,18 +7750,11 @@ void catalogue_ui(pixel * vid_buf)
 	vid_buf2 = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (!vid_buf2)
 		return;
-	
-	ed.w = xsize-16-4;
-	ed.x = x0+11;
-	ed.y = y0+29;
-	ed.multiline = 0;
-	ed.limit = 255;
+
+	ui_edit_init(&ed, x0+11, y0+29, xsize-20, 0);
 	ed.def = "[search]";
 	ed.focus = 0;
-	ed.hide = 0;
-	ed.cursor = ed.cursorstart = 0;
 	ed.nx = 0;
-	strcpy(ed.str, "");
 
 	saves = get_local_saves(LOCAL_SAVE_DIR PATH_SEP, NULL, &rescount);
 	cssave = csave = saves;
@@ -7985,7 +7971,7 @@ void catalogue_ui(pixel * vid_buf)
 		if (b && !bq && (mx < x0 || mx >= x0+xsize || my < y0 || my >= y0+ysize))
 			break;
 	}
-openfin:	
+openfin:
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);
@@ -7995,6 +7981,7 @@ openfin:
 
 	if(saves)
 		free_saveslist(saves);
+	free(vid_buf2);
 	return;
 }
 
