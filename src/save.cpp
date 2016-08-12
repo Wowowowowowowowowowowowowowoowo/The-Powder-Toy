@@ -384,6 +384,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	if (BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned int*)(&bsonDataLen), (char*)inputData+12, inputDataLen-12, 0, 0))
 	{
 		fprintf(stderr, "Unable to decompress\n");
+		free(bsonData);
 		goto fail;
 	}
 

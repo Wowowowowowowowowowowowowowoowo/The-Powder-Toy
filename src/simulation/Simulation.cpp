@@ -51,6 +51,8 @@ Simulation::Simulation():
 	parts_lastActiveIndex(NPART-1),
 	debug_currentParticle(0),
 	forceStackingCheck(false),
+	edgeMode(0),
+	saveEdgeMode(0),
 	msRotation(true),
 	maxFrames(25),
 #ifdef NOMOD

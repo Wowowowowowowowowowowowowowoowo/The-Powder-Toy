@@ -657,6 +657,16 @@ void stamp_init()
 	fclose(f);
 }
 
+void stamps_free()
+{
+	for (int i = 0; i < STAMP_MAX; i++)
+		if (stamps[i].thumb)
+		{
+			free(stamps[i].thumb);
+			stamps[i].thumb = NULL;
+		}
+}
+
 void del_stamp(int d)
 {
 	stamps[d].dodelete = 1;
@@ -2548,5 +2558,6 @@ void main_end_hack()
 #else
 	rmdir("tabs");
 #endif
+	stamps_free();
 }
 #endif
