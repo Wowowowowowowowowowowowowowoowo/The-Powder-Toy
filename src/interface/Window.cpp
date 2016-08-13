@@ -9,7 +9,7 @@ Window_::Window_(Point position_, Point size_):
 	toDelete(false),
 	position(position_),
 	size(size_),
-	Components(NULL),
+	Components(std::vector<Component*>()),
 	isMouseDown(false),
 	ignoreQuits(false),
 	mouseDownOutside(false),

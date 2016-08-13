@@ -24,7 +24,6 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 		parts[i].tmp2 = rand()%40+80;
 	if (parts[i].tmp2)
 	{
-		float advection = 0.1f;
 		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
 		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
 		parts[i].tmp2--;

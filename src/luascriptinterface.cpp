@@ -1819,7 +1819,7 @@ int fileSystem_list(lua_State * l)
 	directory = opendir(directoryName);
 	if (directory != NULL)
 	{
-		while (entry = readdir(directory))
+		while ((entry = readdir(directory)))
 		{
 			if(strncmp(entry->d_name, "..", 3) && strncmp(entry->d_name, ".", 2))
 			{
@@ -1976,7 +1976,7 @@ int fileSystem_copy(lua_State * l)
 		FILE* dest = fopen(newFilename, "wb");
 		if (dest)
 		{
-			while (size = fread(buf, 1, BUFSIZ, source)) {
+			while ((size = fread(buf, 1, BUFSIZ, source))) {
 				fwrite(buf, 1, size, dest);
 			}
 

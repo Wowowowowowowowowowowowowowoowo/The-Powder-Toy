@@ -56,8 +56,8 @@ void SetRightHudText(int x, int y)
 		x = cursor.X;
 		y = cursor.Y;
 	}
-	sprintf(heattext,"");
-	sprintf(coordtext,"");
+	heattext[0] = '\0';
+	coordtext[0] = '\0';
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
 	{
 		int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
@@ -75,7 +75,8 @@ void SetRightHudText(int x, int y)
 		{
 			wl = bmap[y/CELL][x/CELL];
 		}
-		sprintf(heattext,""); sprintf(tempstring,"");
+		heattext[0] = '\0';
+		tempstring[0] = '\0';
 		if (cr)
 		{
 			if (currentHud[10])
@@ -138,7 +139,7 @@ void SetRightHudText(int x, int y)
 				sprintf(nametext, "%s, ", wallTypes[wl].name.c_str());
 			}
 			else
-				sprintf(nametext,"");
+				nametext[0] = '\0';
 			strncpy(heattext,nametext,50);
 			if (currentHud[15])
 			{
@@ -287,12 +288,12 @@ void SetLeftHudText(float FPSB2)
 		sprintf(uitext, "Build %d ", BUILD_NUM);
 #endif
 	else
-		sprintf(uitext,"");
+		uitext[0] = '\0';
 	if (currentHud[36] || currentHud[37] || currentHud[38])
 	{
 		time_t time2 = time(0);
-		char time[256], *timestr = "";
-		sprintf(time,"%i",time2);
+		char time[256], *timestr = NULL;
+		sprintf(time,"%li",time2);
 
 		if (strlen(uitext))
 		{

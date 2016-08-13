@@ -654,7 +654,7 @@ int MOVS_update(UPDATE_FUNC_ARGS);
 
 bool Simulation::UpdateParticle(int i)
 {
-	int t = parts[i].type;
+	unsigned int t = (unsigned int)parts[i].type;
 	int x = (int)(parts[i].x+0.5f);
 	int y = (int)(parts[i].y+0.5f);
 	float pGravX, pGravY, pGravD;
@@ -885,7 +885,7 @@ bool Simulation::UpdateParticle(int i)
 #ifdef LUACONSOLE
 	if (lua_el_mode[parts[i].type] == 3)
 	{
-		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != parts[i].type)
+		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != (unsigned int)parts[i].type)
 			return true;
 		// Need to update variables, in case they've been changed by Lua
 		x = (int)(parts[i].x+0.5f);
@@ -936,7 +936,7 @@ bool Simulation::UpdateParticle(int i)
 
 	if (lua_el_mode[parts[i].type] && lua_el_mode[parts[i].type] != 3)
 	{
-		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != parts[i].type)
+		if (luacon_part_update(t, i, x, y, surround_space, nt) || t != (unsigned int)parts[i].type)
 			return true;
 		// Need to update variables, in case they've been changed by Lua
 		x = (int)(parts[i].x+0.5f);
@@ -1634,18 +1634,18 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		// jmax is the largest y value that is still inside the brush
 
 		//For triangle brush, start at the very bottom
-		if (brush->GetShape() == TRI_BRUSH)
+		if (shape == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
-			while (brush->IsInside(i-x,tempy-y))
+			while (brush && brush->IsInside(i-x,tempy-y))
 				tempy = tempy - 1;
 			tempy = tempy + 1;
 			if (fill)
 			{
 				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
-				if (brush->GetShape() == TRI_BRUSH)
+				if (shape == TRI_BRUSH)
 					jmax = y + ry;
 				else
 					jmax = 2*y - tempy;
@@ -1661,12 +1661,12 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 			}
 			else
 			{
-				if ((oldy != tempy && brush->GetShape() != SQUARE_BRUSH) || i == x-rx)
+				if ((oldy != tempy && shape != SQUARE_BRUSH) || i == x-rx)
 					oldy--;
 				for (j = oldy+1; j >= tempy; j--)
 				{
 					int i2 = 2*x-i, j2 = 2*y-j;
-					if (brush->GetShape() == TRI_BRUSH)
+					if (shape == TRI_BRUSH)
 						j2 = y+ry;
 					if (CreatePartFlags(i, j, c, flags))
 						f = 1;
@@ -1688,7 +1688,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	//specific delete
 	if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
 	{
-		if ((pmap[y][x]&0xFF)== ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
+		if ((int)(pmap[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
 			part_delete(x, y);
 	}
 	//delete
@@ -1701,7 +1701,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	{
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if (((ElementTool*)activeTools[2])->GetID() > 0 && (pmap[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID() && (photons[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID())
+		if (((ElementTool*)activeTools[2])->GetID() > 0 && (int)(pmap[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID() && (int)(photons[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID())
 			return 0;
 		if (pmap[y][x])
 		{

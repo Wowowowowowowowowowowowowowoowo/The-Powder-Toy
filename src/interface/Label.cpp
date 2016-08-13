@@ -110,7 +110,8 @@ bool Label::CheckPlaceCursor(bool updateCursor, unsigned int position, int posX,
 // all-in-one function that updates displayText with \r, updates cursor position, and cuts string where needed
 void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 {
-	int posX = 0, posY = 12, wordStart = 0, cursorOffset = 0;
+	int posX = 0, posY = 12, cursorOffset = 0;
+	unsigned int wordStart = 0;
 	bool updatedCursor = false;
 
 	//get back the original string by removing the inserted newlines
@@ -121,7 +122,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 	{
 		//find end of word/line chars
 		int wordlen = text.substr(i).find_first_of(" .,!?\n");
-		if (wordlen == text.npos)
+		if (wordlen == (int)text.npos)
 			wordlen = text.length();
 
 		//if a word starts in the last 1/3 of the line, it will get put on the next line if it's too long

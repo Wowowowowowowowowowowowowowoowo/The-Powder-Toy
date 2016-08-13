@@ -1246,7 +1246,6 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 {
 	int sx = x;
 	int rh = 12;
-	int rw = 0;
 	int cw = x;
 	int wordlen;
 	int charspace;
@@ -1259,7 +1258,6 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 		if (charspace<wordlen && wordlen && w-(x-cw)<w/3)
 		{
 			x = sx;
-			rw = 0;
 			y += FONT_H+2;
 			rh += FONT_H+2;
 		}
@@ -1270,7 +1268,6 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 			if (*s == '\n')
 			{
 				x = sx;
-				rw = 0;
 				y += FONT_H+2;
 				rh += FONT_H+2;
 			}
@@ -1346,7 +1343,6 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 				if (x-cw>=w)
 				{
 					x = sx;
-					rw = 0;
 					y+=FONT_H+2;
 					rh+=FONT_H+2;
 					if (*s==' ')
@@ -1370,7 +1366,6 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 {
 	int sx = x;
 	int rh = 12;
-	int rw = 0;
 	int cw = x;
 	int wordlen;
 	int charspace;
@@ -1382,7 +1377,6 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 		if (charspace<wordlen && wordlen && w-(x-cw)<w/3)
 		{
 			x = sx;
-			rw = 0;
 			y += FONT_H+2;
 			rh += FONT_H+2;
 		}
@@ -1393,7 +1387,6 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 			if (*s == '\n')
 			{
 				x = sx;
-				rw = 0;
 				y += FONT_H+2;
 			}
 			else if (*s == '\x0F')
@@ -1420,7 +1413,6 @@ int drawhighlightwrap(pixel *vid, int x, int y, int w, int h, const char *s, int
 				if (x-cw>=w)
 				{
 					x = sx;
-					rw = 0;
 					y+=FONT_H+2;
 					rh+=FONT_H+2;
 					if (*s==' ')
@@ -1501,7 +1493,7 @@ void drawcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 
 void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, int a)
 {
-	int tempy = y, i, j, oldy, jmax;
+	int tempy = y, i, j, jmax;
 	if (!rx)
 	{
 		for (j = -ry; j <= ry; j++)
@@ -1510,7 +1502,6 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 	}
 	for (i = x - rx; i <= x; i++)
 	{
-		oldy = tempy;
 		while (pow(i-x, 2.0)*pow(ry, 2.0)+pow(tempy-y, 2.0)*pow(rx, 2.0) <= pow(rx, 2.0)*pow(ry, 2.0))
 			tempy = tempy - 1;
 		tempy = tempy + 1;
@@ -2453,8 +2444,9 @@ void render_parts(pixel *vid, Point mousePos)
 	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
-	float gradv, flicker, fnx, fny;
+	float gradv, flicker;
 #ifdef OGLR
+	int fnx, fny;
 	int cfireV = 0, cfireC = 0, cfire = 0;
 	int csmokeV = 0, csmokeC = 0, csmoke = 0;
 	int cblobV = 0, cblobC = 0, cblob = 0;
@@ -2496,13 +2488,13 @@ void render_parts(pixel *vid, Point mousePos)
 			ny = (int)(parts[i].y+0.5f);
 			if (nx < 0 || nx > XRES || ny < 0 || ny > YRES)
 				continue;
-			fnx = parts[i].x;
-			fny = parts[i].y;
 #ifndef NOMOD
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
 #endif
 #ifdef OGLR
+			fnx = parts[i].x;
+			fny = parts[i].y;
 			float flx = parts[i].lastX;
 			float fly = parts[i].lastY;
 #endif
@@ -3349,7 +3341,7 @@ void render_parts(pixel *vid, Point mousePos)
 				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
 				{
 					// draw lines connecting wifi/portal channels
-					if (mousePos.X == nx && mousePos.Y == ny && (i == pmap[ny][nx]>>8))
+					if (mousePos.X == nx && mousePos.Y == ny && ((unsigned int)i == pmap[ny][nx]>>8))
 					{
 						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
 						int type2 = parts[i].type;

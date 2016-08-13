@@ -226,7 +226,7 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 	int startX = x;
 	bool highlight = false, modifiedColor = false;
 	int oldR = r, oldG = g, oldB = b;
-	for (int i = 0; i < s.length(); i++)
+	for (size_t i = 0; i < s.length(); i++)
 	{
 		switch (s[i])
 		{
@@ -310,7 +310,7 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 			x = DrawChar(x, y, s[i], r, g, b, a, modifiedColor);
 			if (highlight)
 			{
-				FillRect(oldX, y-2, font_data[font_ptrs[s[i]]], FONT_H+2, 0, 0, 255, 127);
+				FillRect(oldX, y-2, font_data[font_ptrs[(unsigned char)s[i]]], FONT_H+2, 0, 0, 255, 127);
 			}
 		}
 	}
@@ -330,7 +330,7 @@ Point VideoBuffer::TextSize(std::string s)
 	int x = 0;
 	int width = 0;
 	int height = FONT_H;
-	for (int i = 0; i < s.length(); i++)
+	for (size_t i = 0; i < s.length(); i++)
 	{
 		switch (s[i])
 		{

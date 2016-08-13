@@ -17,7 +17,7 @@
 
 int ARAY_update(UPDATE_FUNC_ARGS)
 {
-	int r, nxx, nyy, docontinue, nxi, nyi, rx, ry, ry1, rx1;
+	int nxx, nyy, docontinue, nxi, nyi;
 	if (!parts[i].life)
 	{
 		for (int rx=-1; rx <= 1; rx++)

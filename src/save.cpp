@@ -355,7 +355,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	//Incompatible cell size
 	if(inputData[5] != CELL)
 	{
-		fprintf(stderr, "Cell size mismatch: expected %i but got %i\n", inputData[5]);
+		fprintf(stderr, "Cell size mismatch: expected %i but got %i\n", CELL, inputData[5]);
 		goto fail;
 	}
 		
@@ -453,7 +453,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 			}
 			else
 			{
-				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
+				fprintf(stderr, "Wrong type for element palette: %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "Jacob1's_Mod"))
@@ -1732,7 +1732,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 			else
 			{
-				fprintf(stderr, "Wrong type for element palette: %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
+				fprintf(stderr, "Wrong type for element palette: %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_ARRAY);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "minimumVersion"))
@@ -2642,16 +2642,13 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 {
 	unsigned char *d,*c=(unsigned char*)save,*m=NULL;
 	int i,j,k,x,y,rx,ry,p=0, pc, gc;
-	int bw,bh,w,h,new_format = 0;
+	int bw,bh,w,h;
 	pixel *fb;
 
 	if (size<16)
 		return NULL;
 	if (!(c[2]==0x43 && c[1]==0x75 && c[0]==0x66) && !(c[2]==0x76 && c[1]==0x53 && c[0]==0x50))
 		return NULL;
-	if (c[2]==0x43 && c[1]==0x75 && c[0]==0x66) {
-		new_format = 1;
-	}
 	//if (c[4]>SAVE_VERSION)
 	//	return NULL;
 

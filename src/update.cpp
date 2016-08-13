@@ -42,7 +42,7 @@
 
 bool do_update(std::string file)
 {
-	int len;
+	unsigned int len;
 	char *tmp = download_ui(vid_buf, file.c_str(), &len);
 
 	if (tmp)
@@ -60,7 +60,7 @@ bool do_update(std::string file)
 	return true;
 }
 
-int update_start(char *data, int len)
+int update_start(char *data, unsigned int len)
 {
 	char *self=Platform::ExecutableName(), *temp;
 #ifdef WIN

@@ -62,7 +62,7 @@ AddSconsOption('renderer', False, False, "Build the save renderer")
 AddSconsOption('nomod', False, False, "Don't include elements and some other features from jacob1's mod")
 
 AddSconsOption('wall', False, False, "Error on all warnings")
-AddSconsOption('no-warnings', True, False, "Disable all compiler warnings (default)")
+AddSconsOption('no-warnings', False, False, "Disable all compiler warnings (default)")
 AddSconsOption('nolua', False, False, "Disable Lua")
 AddSconsOption('luajit', False, False, "Enable LuaJIT")
 AddSconsOption('lua52', False, False, "Compile using lua 5.2")

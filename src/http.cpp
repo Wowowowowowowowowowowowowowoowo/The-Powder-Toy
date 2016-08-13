@@ -752,7 +752,6 @@ void http_auth_headers(void *ctx, const char *user, const char *pass, const char
 	char *tmp;
 	int i;
 	unsigned char hash[16];
-	unsigned int m;
 	struct md5_context md5;
 
 	if (user && strlen(user))
@@ -762,7 +761,6 @@ void http_auth_headers(void *ctx, const char *user, const char *pass, const char
 			md5_init(&md5);
 			md5_update(&md5, (unsigned char *)user, strlen(user));
 			md5_update(&md5, (unsigned char *)"-", 1);
-			m = 0;
 
 			md5_update(&md5, (unsigned char *)pass, strlen(pass));
 			md5_final(hash, &md5);
@@ -969,7 +967,7 @@ std::string FindBoundary(std::map<std::string, std::string> parts, std::string b
 	for (std::map<std::string, std::string>::iterator iter = parts.begin(); iter != parts.end(); iter++)
 	{
 		// loop through every character in each part and search for the substring, adding 1 to map for every character found (character after the substring)
-		for (ssize_t j = 0; j < (ssize_t)((*iter).second.length())-blen; j++)
+		for (ssize_t j = 0; j < (ssize_t)((*iter).second.length()-blen); j++)
 			if (!blen || (*iter).second.substr(j, blen) == boundary)
 			{
 				unsigned char ch = (*iter).second[j+blen];

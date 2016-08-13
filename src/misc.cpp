@@ -366,7 +366,7 @@ void load_presets(void)
 			else
 				svf_user[0] = 0;
 			if ((tmpobj = cJSON_GetObjectItem(userobj, "ID")) && tmpobj->type == cJSON_Number)
-				sprintf(svf_user_id, "%i", tmpobj->valueint, 63);
+				snprintf(svf_user_id, 63, "%i", tmpobj->valueint);
 			else
 				svf_user_id[0] = 0;
 			if ((tmpobj = cJSON_GetObjectItem(userobj, "SessionID")) && tmpobj->type == cJSON_String)
@@ -410,11 +410,11 @@ void load_presets(void)
 		versionobj = cJSON_GetObjectItem(root, "version");
 		if (versionobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(versionobj, "major"))
+			if ((tmpobj = cJSON_GetObjectItem(versionobj, "major")))
 				last_major = (unsigned short)tmpobj->valueint;
-			if (tmpobj = cJSON_GetObjectItem(versionobj, "minor"))
+			if ((tmpobj = cJSON_GetObjectItem(versionobj, "minor")))
 				last_minor = (unsigned short)tmpobj->valueint;
-			if (tmpobj = cJSON_GetObjectItem(versionobj, "build"))
+			if ((tmpobj = cJSON_GetObjectItem(versionobj, "build")))
 				last_build = (unsigned short)tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(versionobj, "update")) && tmpobj->type == cJSON_True)
 				update_flag = 1;
@@ -455,15 +455,15 @@ void load_presets(void)
 		recobj = cJSON_GetObjectItem(root, "records");
 		if (recobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played"))
+			if ((tmpobj = cJSON_GetObjectItem(recobj, "Total Time Played")))
 				totaltime = (int)((tmpobj->valuedouble)*1000);
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Average FPS"))
+			if ((tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")))
 				totalfps = tmpobj->valuedouble;
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Number of frames"))
+			if ((tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")))
 				frames = tmpobj->valueint; totalfps = totalfps * frames;
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time"))
+			if ((tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")))
 				prevafktime = (int)((tmpobj->valuedouble)*1000);
-			if (tmpobj = cJSON_GetObjectItem(recobj, "Times Played"))
+			if ((tmpobj = cJSON_GetObjectItem(recobj, "Times Played")))
 				timesplayed = tmpobj->valueint;
 		}
 
@@ -471,9 +471,9 @@ void load_presets(void)
 		graphicsobj = cJSON_GetObjectItem(root, "Renderer");
 		if(graphicsobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode"))
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "ColourMode")))
 				colour_mode = tmpobj->valueint;
-			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes"))
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "DisplayModes")))
 			{
 				int count = cJSON_GetArraySize(tmpobj);
 				cJSON * tempRenderMode;
@@ -494,7 +494,7 @@ void load_presets(void)
 					display_modes[i] = mode;
 				}
 			}
-			if (tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes"))
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "RenderModes")))
 			{
 				int count = cJSON_GetArraySize(tmpobj);
 				cJSON * tempRenderMode;
@@ -530,18 +530,18 @@ void load_presets(void)
 		simulationobj = cJSON_GetObjectItem(root, "Simulation");
 		if (simulationobj)
 		{
-			if(tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode"))
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "EdgeMode")))
 			{
 				char edgeMode = (char)tmpobj->valueint;
 				if (edgeMode > 3)
 					edgeMode = 0;
 				globalSim->edgeMode = edgeMode;
 			}
-			if((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
-			if(tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat"))
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat")))
 				aheat_enable = tmpobj->valueint;
-			if(tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder"))
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder")))
 				pretty_powder = tmpobj->valueint;
 		}
 
@@ -549,7 +549,7 @@ void load_presets(void)
 		consoleobj = cJSON_GetObjectItem(root, "Console");
 		if (consoleobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(consoleobj, "History"))
+			if ((tmpobj = cJSON_GetObjectItem(consoleobj, "History")))
 			{
 				int size = cJSON_GetArraySize(tmpobj);
 				tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
@@ -572,7 +572,7 @@ void load_presets(void)
 		hudobj = cJSON_GetObjectItem(root, "HUD");
 		if (hudobj)
 		{
-			if (tmpobj = cJSON_GetObjectItem(hudobj, "normal"))
+			if ((tmpobj = cJSON_GetObjectItem(hudobj, "normal")))
 			{
 				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for (int i = 0; i < count; i++)
@@ -580,7 +580,7 @@ void load_presets(void)
 					normalHud[i] = cJSON_GetArrayItem(tmpobj, i)->valueint;
 				}
 			}
-			if (tmpobj = cJSON_GetObjectItem(hudobj, "debug"))
+			if ((tmpobj = cJSON_GetObjectItem(hudobj, "debug")))
 			{
 				int count = std::min(HUD_OPTIONS,cJSON_GetArraySize(tmpobj));
 				for (int i = 0; i < count; i++)
@@ -595,7 +595,7 @@ void load_presets(void)
 			strncpy(http_proxy_string, tmpobj->valuestring, 255);
 		else
 			http_proxy_string[0] = 0;
-		if (tmpobj = cJSON_GetObjectItem(root, "Scale"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "Scale")))
 		{
 			sdl_scale = tmpobj->valueint;
 			if (sdl_scale == 0)
@@ -603,41 +603,41 @@ void load_presets(void)
 			else if (sdl_scale < 0)
 				sdl_scale = 1;
 		}
-		if (tmpobj = cJSON_GetObjectItem(root, "Fullscreen"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "Fullscreen")))
 		{
 			kiosk_enable = tmpobj->valueint;
 			if (kiosk_enable)
 				set_scale(sdl_scale, kiosk_enable);
 		}
-		if (tmpobj = cJSON_GetObjectItem(root, "FastQuit"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
 			fastquit = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "WindowX"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "WindowX")))
 			savedWindowX = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "WindowY"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "WindowY")))
 			savedWindowY = tmpobj->valueint;
 
 		//Read some extra mod settings
-		if (tmpobj = cJSON_GetObjectItem(root, "heatmode"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "heatmode")))
 			heatmode = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "autosave"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "autosave")))
 			autosave = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "autosave"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "autosave")))
 			autosave = tmpobj->valueint;
-		/*if(tmpobj = cJSON_GetObjectItem(root, "realistic"))
+		/*if ((tmpobj = cJSON_GetObjectItem(root, "realistic")))
 		{
 			realistic = tmpobj->valueint;
 			if (realistic)
 				ptypes[PT_FIRE].hconduct = 1;
 		}*/
-		if (tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")))
 		{
 			unlockedstuff |= 0x01;
 			menuSections[SC_CRACKER]->enabled = true;
 		}
-		if (tmpobj = cJSON_GetObjectItem(root, "show_votes"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "show_votes")))
 			unlockedstuff |= 0x08;
 #ifndef NOMOD
-		if (tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")))
 		{
 			unlockedstuff |= 0x10;
 			ptypes[PT_EXPL].enabled = 1;
@@ -647,14 +647,14 @@ void load_presets(void)
 		}
 #endif
 /*#ifndef TOUCHUI
-		if (tmpobj = cJSON_GetObjectItem(root, "old_menu"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "old_menu")))
 			old_menu = 1;
 #endif*/
-		if (tmpobj = cJSON_GetObjectItem(root, "alt_find"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "alt_find")))
 			finding |= 0x8;
-		if (tmpobj = cJSON_GetObjectItem(root, "dateformat"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "dateformat")))
 			dateformat = tmpobj->valueint;
-		if (tmpobj = cJSON_GetObjectItem(root, "decobox_hidden"))
+		if ((tmpobj = cJSON_GetObjectItem(root, "decobox_hidden")))
 			decobox_hidden = tmpobj->valueint;
 
 		itemobj = cJSON_GetObjectItem(root, "SavePreview");
@@ -664,7 +664,7 @@ void load_presets(void)
 				scrollSpeed = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollDeceleration")) && tmpobj->valuedouble >= 0 && tmpobj->valuedouble <= 1)
 				scrollDeceleration = tmpobj->valuedouble;
-			if (tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs"))
+			if ((tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs")))
 				show_ids = tmpobj->valueint;
 		}
 
@@ -687,7 +687,7 @@ void load_presets(void)
 		firstRun = true;
 }
 
-int sregexp(const char *str, char *pattern)
+int sregexp(const char *str, const char *pattern)
 {
 	int result;
 	regex_t patternc;
@@ -1006,7 +1006,7 @@ char * clipboard_pull_text()
 		if(glbuffer!=NULL){
 			return mystrdup(glbuffer);
 		} //else {
-		//	return "";
+		//	return mystrdup("");
 		//}
 	}
 #elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
@@ -1068,7 +1068,7 @@ char * clipboard_pull_text()
 #endif
 	if (clipboardtext)
 		return mystrdup(clipboardtext);
-	return "";
+	return mystrdup("");
 }
 
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b)//convert 0-255(0-360 for H) HSV values to 0-255 RGB

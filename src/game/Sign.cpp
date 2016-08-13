@@ -34,7 +34,7 @@ void DeleteSignsInArea(Point topLeft, Point bottomRight)
 int InsideSign(int mx, int my, bool allsigns)
 {
 	int x, y, w, h;
-	for (int i = 0; i < signs.size(); i++)
+	for (int i = 0; i < (int)signs.size(); i++)
 	{
 		signs[i]->GetPos(x, y, w, h);
 		if (mx >= x && mx <= x+w && my >= y && my <= y+h)

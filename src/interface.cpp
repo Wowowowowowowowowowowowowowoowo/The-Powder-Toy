@@ -80,9 +80,6 @@
 unsigned short sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
-char *shift_0="`1234567890-=[]\\;',./";
-char *shift_1="~!@#$%^&*()_+{}|:\"<>?";
-
 int svf_messages = 0;
 int svf_login = 0;
 int svf_admin = 0;
@@ -144,7 +141,7 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->w = w;
 	ed->h = h;
 	ed->nx = 1;
-	ed->def = "";
+	ed->def[0] = '\0';
 	strcpy(ed->str, "");
 #ifdef TOUCHUI
 	ed->focus = 0;
@@ -462,12 +459,15 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='v')//paste
 			{
-				char* paste = clipboard_pull_text();
+				char *paste = clipboard_pull_text();
 				if (!paste)
 					return;
 				int pl = strlen(paste);
 				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
+				{
+					free(paste);
 					break;
+				}
 				if (ed->highlightlength)
 				{
 					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
@@ -477,6 +477,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				memcpy(ed->str+ed->cursor,paste,pl);
 				ed->cursor += pl;
 				ed->cursorstart = ed->cursor;
+				free(paste);
 				break;
 			}
 			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
@@ -1150,7 +1151,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 
 	ui_edit ed;
 	ui_edit_init(&ed, x0+12, y0+30, windowWidth - 20, 14);
-	ed.def = "[element name]";
+	strcpy(ed.def, "[element name]");
 
 
 	while (!sdl_poll())
@@ -1371,7 +1372,7 @@ char *input_ui(pixel *vid_buf, const char *title, const char *prompt, const char
 
 	ui_edit ed;
 	ui_edit_init(&ed, x0+12, y0+50, xsize-20, 14);
-	ed.def = mystrdup(shadow);
+	strncpy(ed.def, shadow, 32);
 	ed.focus = 0;
 	strncpy(ed.str, text, 254);
 
@@ -1425,7 +1426,6 @@ char *input_ui(pixel *vid_buf, const char *title, const char *prompt, const char
 		if (!b)
 			break;
 	}
-	free(ed.def);
 	return mystrdup(ed.str);
 }
 
@@ -1435,7 +1435,7 @@ void prop_edit_ui(pixel *vid_buf)
 {
 	pixel * o_vid_buf;
 	int format, propoffset = -1;
-	char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags", "pavg0", "pavg1"};
+	const char *listitems[] = {"type", "life", "ctype", "temp", "tmp", "tmp2", "vy", "vx", "x", "y", "dcolour", "flags", "pavg0", "pavg1"};
 	int listitemscount = 14;
 	int xsize = 244;
 	int ysize = 87;
@@ -1448,14 +1448,14 @@ void prop_edit_ui(pixel *vid_buf)
 	ed.y = y0+25;
 	ed.w = xsize - 16;
 	ed.h = 16;
-	ed.def = "[property]";
+	strcpy(ed.def, "[property]");
 	ed.selected = propSelected;
 	ed.items = listitems;
 	ed.count = listitemscount;
 	strncpy(ed.str, listitems[propSelected], 254);
 	
 	ui_edit_init(&ed2, x0+12, y0+50, xsize-20, 14);
-	ed2.def = "[value]";
+	strcpy(ed2.def, "[value]");
 	ed2.focus = 1;
 	strncpy(ed2.str, propValue, 254);
 	ed2.cursorstart = 0;
@@ -1669,7 +1669,7 @@ void info_ui(pixel *vid_buf, const char *top, const char *txt)
 	}
 }
 
-void info_box(pixel *vid_buf, char *msg)
+void info_box(pixel *vid_buf, const char *msg)
 {
 	int w = textwidth(msg)+16;
 	int x0=((XRES+BARSIZE)-w)/2,y0=((YRES+MENUSIZE)-24)/2;
@@ -1695,7 +1695,7 @@ void info_box_overlay(pixel *vid_buf, char *msg)
 	drawtext(vid_buf, x0+8, y0+8, msg, 192, 192, 240, 255);
 }
 
-void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt)
+void copytext_ui(pixel *vid_buf, const char *top, const char *txt, const char *copytxt)
 {
 	int xsize = 244;
 	int ysize = 90;
@@ -1850,14 +1850,14 @@ bool login_ui(pixel *vid_buf)
 	}
 
 	ui_edit_init(&ed1, x0+25, y0+25, 158, 14);
-	ed1.def = "[user name]";
+	strcpy(ed1.def, "[user name]");
 	ed1.cursor = ed1.cursorstart = strlen(svf_user);
 	strcpy(ed1.str, svf_user);
 	if (ed1.cursor)
 		ed1.focus = 0;
 
 	ui_edit_init(&ed2, x0+25, y0+45, 158, 14);
-	ed2.def = "[password]";
+	strcpy(ed2.def, "[password]");
 	ed2.hide = 1;
 	if (!ed1.cursor)
 		ed2.focus = 0;
@@ -1932,7 +1932,7 @@ bool login_ui(pixel *vid_buf)
 	//hashStream << username << "-" << passwordHash;
 	md5_ascii(totalHash, (const unsigned char *)hashStream, strlen(hashStream));
 	totalHash[32] = 0;
-	if (totalHash)
+	// new scope because of goto warning
 	{
 		int dataStatus, dataLength;
 		const char *const postNames[] = { "Username", "Hash", NULL };
@@ -1947,7 +1947,7 @@ bool login_ui(pixel *vid_buf)
 		if(dataStatus == 200 && data)
 		{
 			cJSON *root, *tmpobj;//, *notificationarray, *notificationobj;
-			if (root = cJSON_Parse((const char*)data))
+			if ((root = cJSON_Parse((const char*)data)))
 			{
 				tmpobj = cJSON_GetObjectItem(root, "Status");
 				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint == 1)
@@ -1987,7 +1987,7 @@ bool login_ui(pixel *vid_buf)
 								svf_messages++;
 						notificationobj = cJSON_GetArrayItem(notificationarray, i);
 					}*/
-
+	
 					svf_login = 1;
 					save_presets();
 				}
@@ -2211,7 +2211,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			if (directory != NULL)
 			{
 				std::string stampList = "";
-				while (entry = readdir(directory))
+				while ((entry = readdir(directory)))
 				{
 					if (strstr(entry->d_name, ".stm") && strlen(entry->d_name) == 14)
 						stampList.insert(0, entry->d_name, 10);
@@ -2265,12 +2265,13 @@ void tag_list_ui(pixel *vid_buf)
 {
 	int y,d,x0=(XRES-192)/2,y0=(YRES-256)/2,b=1,bq,mx,my,vp,vn;
 	char *p,*q,s;
-	char *tag=NULL, *op=NULL;
+	char *tag=NULL;
+	const char *op=NULL;
 	struct strlist *vote=NULL,*down=NULL;
 
 	ui_edit ed;
 	ui_edit_init(&ed, x0+25, y0+221, 158, 14);
-	ed.def = "[new tag]";
+	strcpy(ed.def, "[new tag]");
 	ed.focus = 0;
 
 	while (!sdl_poll())
@@ -2446,12 +2447,12 @@ int save_name_ui(pixel *vid_buf)
 	}
 
 	ui_edit_init(&ed, x0+25, y0+25, 158, 14);
-	ed.def = "[simulation name]";
+	strcpy(ed.def, "[simulation name]");
 	ed.cursor = ed.cursorstart = strlen(svf_name);
 	strcpy(ed.str, svf_name);
 
 	ui_edit_init(&ed2, x0+13, y0+45, 170, 115);
-	ed2.def = "[simulation description]";
+	strcpy(ed2.def, "[simulation description]");
 	ed2.focus = 0;
 	ed2.cursor = ed2.cursorstart = strlen(svf_description);
 	ed2.multiline = 1;
@@ -3769,12 +3770,13 @@ void set_cmode(int cm) // sets to given view mode
 	save_presets();
 }
 
-char *download_ui(pixel *vid_buf, const char *uri, int *len)
+char *download_ui(pixel *vid_buf, const char *uri, unsigned int *len)
 {
 	int dstate = 0;
 	void *http = http_async_req_start(NULL, uri, NULL, 0, 0);
 	int x0=(XRES-240)/2,y0=(YRES-MENUSIZE)/2;
-	int done, total, i, ret, zlen, ulen;
+	int done, total, i, ret, zlen;
+	unsigned int ulen;
 	char str[16], *tmp, *res;
 	
 	if (svf_login)
@@ -3875,11 +3877,12 @@ int search_ui(pixel *vid_buf)
 	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0, motdswap = rand()%2;
 #ifdef TOUCHUI
 	const int xOffset = 10;
+	int initialOffset = 0;
+	bool dragging = false;
 #else
 	const int xOffset = 0;
 #endif
-	int touchOffset = 0, initialOffset = 0;
-	bool dragging = false;
+	int touchOffset = 0;
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -3925,7 +3928,7 @@ int search_ui(pixel *vid_buf)
 	}
 
 	ui_edit_init(&ed, 65+xOffset, 13, XRES-200, 14);
-	ed.def = "[search terms]";
+	strcpy(ed.def, "[search terms]");
 	ed.cursor = ed.cursorstart = strlen(search_expr);
 	strcpy(ed.str, search_expr);
 
@@ -4687,7 +4690,7 @@ finish:
 		bthumb_rsdata = NULL;
 	}
 
-	search_results("", 0);
+	search_results((char*)"", 0);
 
 	free(v_buf);
 	return 0;
@@ -4697,7 +4700,7 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 {
 	int b=1,bq,mx,my,messageHeight;
 	ui_edit ed;
-	char *message;
+	const char *message;
 	if (bug)
 		message = "Report bugs and feedback here. Do not suggest new elements or features, or report bugs with downloaded scripts.";
 	else
@@ -4705,13 +4708,13 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 				  "\bw1) \bgWhen reporting stolen saves, please include the ID of the original save.\n"
 				  "\bw2) \bgDo not ask for saves to be removed from front page unless they break the rules.\n"
 				  "\bw3) \bgYou may report saves for comments and tags too (including your own saves)";
-	messageHeight = (int)(textwrapheight(message, XRES+BARSIZE-410)/2);
+	messageHeight = (int)(textwrapheight((char*)message, XRES+BARSIZE-410)/2);
 
 	ui_edit_init(&ed, 209, 159+messageHeight, (XRES+BARSIZE-400)-18, (YRES+MENUSIZE-300)-36);
 	if (bug)
-		ed.def = "Feedback";
+		strcpy(ed.def, "Feedback");
 	else
-		ed.def = "Report details";
+		strcpy(ed.def, "Report details");
 	ed.focus = 0;
 	ed.multiline = 1;
 
@@ -4799,7 +4802,7 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 	return 0;
 }
 
-void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time)
+void converttotime(const char *timestamp, char **timestring, int show_day, int show_year, int show_time)
 {
 	int curr_tm_year, curr_tm_yday;
 	char *tempstring = (char*)calloc(63,sizeof(char*));
@@ -4816,11 +4819,11 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 	}
 	else
 	{
-		if (show_day == 1 || show_day != 0 && (stamptime->tm_yday != curr_tm_yday || stamptime->tm_year != curr_tm_year)) //Different day or year, show date
+		if (show_day == 1 || (show_day != 0 && (stamptime->tm_yday != curr_tm_yday || stamptime->tm_year != curr_tm_year))) //Different day or year, show date
 		{
 			if (dateformat%6 < 3) //Show weekday
 			{
-				sprintf(tempstring,asctime(stamptime));
+				sprintf(tempstring, "%s", asctime(stamptime));
 				tempstring[4] = 0;
 				strappend(*timestring,tempstring);
 			}
@@ -4843,7 +4846,7 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 			}
 			strappend(*timestring,tempstring);
 		}
-		if (show_year == 1 || show_year != 0 && stamptime->tm_year != curr_tm_year) //Show year
+		if (show_year == 1 || (show_year != 0 && stamptime->tm_year != curr_tm_year)) //Show year
 		{
 			if (dateformat%3 != 0)
 			{
@@ -4857,10 +4860,10 @@ void converttotime(char *timestamp, char **timestring, int show_day, int show_ye
 			}
 		}
 	}
-	if (show_time == 1 || show_time != 0 && (dateformat < 6 || dateformat == 12 || (stamptime->tm_yday == curr_tm_yday && stamptime->tm_year == curr_tm_year))) //Show time
+	if (show_time == 1 || (show_time != 0 && (dateformat < 6 || dateformat == 12 || (stamptime->tm_yday == curr_tm_yday && stamptime->tm_year == curr_tm_year)))) //Show time
 	{
 		int hour = stamptime->tm_hour%12;
-		char *ampm = "AM";
+		const char *ampm = "AM";
 		if (stamptime->tm_hour > 11)
 			ampm = "PM";
 		if (hour == 0)
@@ -4885,9 +4888,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
-	int comment_scroll = 0, comment_page = 0, redraw_comments = 1, dofocus = 0, disable_scrolling = 0;
+	int comment_scroll = 0, comment_page = 0, dofocus = 0, disable_scrolling = 0;
+#ifdef TOUCHUI
 	int lastY = 0;
 	bool scrolling = false;
+#endif
 	bool clickOutOfBounds = false;
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
@@ -4919,7 +4924,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
 
 	ui_edit_init(&ed, 57+(XRES/2)+1, YRES+MENUSIZE-83, XRES+BARSIZE-114-((XRES/2)+1), 14);
-	ed.def = "Add comment";
+	strcpy(ed.def, "Add comment");
 #ifndef TOUCHUI
 	ed.focus = svf_login?1:0;
 #endif
@@ -5037,8 +5042,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		bq = b;
 		b = mouse_get_state(&mx, &my);
-		if (b == 1)
-			redraw_comments = 1;
 
 		if (saveDataDownload)
 		{
@@ -5082,7 +5085,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				infoDone = infoTotal;
 				if (status == 200 || !info_data)
 				{
-					info_ready = info_parse((char*)info_data, info);
+					info_ready = info_parse(info_data, info);
 					sprintf(viewcountbuffer, "%d", info->downloadcount);
 					if (info_ready <= 0)
 					{
@@ -5168,7 +5171,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						}
 					}
 					cJSON_Delete(root);
-					redraw_comments = 1;
 				}
 			}
 			if (comment_data)
@@ -5243,7 +5245,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				authoritah = svf_login && (!strcmp(info->author, svf_user) || svf_admin || svf_mod);
 				memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
-			if (info_ready)// && redraw_comments) // draw the comments
+			if (info_ready) // draw the comments
 			{
 				int commentNum = 0;
 				ccy = 0;
@@ -5282,6 +5284,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
 
 							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
+							{
 								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
 								{
 									/*char link[128];
@@ -5307,6 +5310,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 										dofocus = 1;
 									}
 								}
+							}
 						}
 
 						ccy += 12;
@@ -5371,7 +5375,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				drawtext(vid_buf, XRES+BARSIZE-190, YRES+MENUSIZE-43, pageText, 255, 255, 255, 255);
 
 				//memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
-				redraw_comments = 0;
 			}
 			//Render the comment box.
 			if (info_ready && svf_login)
@@ -5575,7 +5578,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					scroll_velocity += sdl_wheel;
 					if (comment_scroll > 0)
 						comment_scroll = 0;
-					redraw_comments = 1;
 				}
 			}
 			if (sdl_key=='[' && !ed.focus)
@@ -5583,12 +5585,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				comment_scroll += 10;
 				if (comment_scroll > 0)
 					comment_scroll = 0;
-				redraw_comments = 1;
 			}
 			if (sdl_key==']' && !ed.focus && !disable_scrolling)
 			{
 				comment_scroll -= 10;
-				redraw_comments = 1;
 			}
 #ifndef TOUCHUI
 			//If mouse was clicked outside of the window bounds.
@@ -5759,10 +5759,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	return retval;
 }
 
-int info_parse(char *info_data, save_info *info)
+int info_parse(const char *info_data, save_info *info)
 {
 	int i,j;
-	char *p,*q,*s;
+	char *p, *q;
 
 	if (info->title) free(info->title);
 	if (info->name) free(info->name);
@@ -5788,15 +5788,14 @@ int info_parse(char *info_data, save_info *info)
 
 	i = 0;
 	j = 0;
-	s = NULL;
 	do_open = 0;
 	while (1)
 	{
 		if (!*info_data)
 			break;
-		p = strchr(info_data, '\n');
+		p = (char*)strchr(info_data, '\n');
 		if (!p)
-			p = info_data + strlen(info_data);
+			p = (char*)(info_data + strlen(info_data));
 		else
 			*(p++) = 0;
 
@@ -5871,7 +5870,7 @@ int info_parse(char *info_data, save_info *info)
 				info_data = p;
 				continue;
 			} else {
-				q = strchr(info_data+8, ' ');
+				q = (char*)strchr(info_data+8, ' ');
 				*(q++) = 0;
 				info->commentauthors[info->comment_count] = mystrdup(info_data+8);
 				info->commentauthorsunformatted[info->comment_count] = mystrdup(info_data+8);
@@ -6179,7 +6178,7 @@ int search_results(char *str, int votes)
 	return i;
 }
 
-int execute_tagop(pixel *vid_buf, char *op, char *tag)
+int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 {
 	int status;
 	char *result;
@@ -6849,7 +6848,8 @@ command_history *last_command_result = NULL;
 int divideX = XRES/2-50;
 int console_ui(pixel *vid_buf)
 {
-	int i, mx, my, b = 0, bq, selectedCommand = -1, commandHeight = 12;
+	size_t i;
+	int mx, my, b = 0, bq, selectedCommand = -1, commandHeight = 12;
 	char *match = 0, laststr[1024] = "", draggingDivindingLine = 0;
 	pixel *old_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand = last_command;
@@ -7476,7 +7476,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		decobox_hidden = 1;
 	/*if(sdl_key=='b' || sdl_key==SDLK_ESCAPE)
 	{
-		/*for (i = 0; i <= parts_lastActiveIndex; i++)
+		/ *for (i = 0; i <= parts_lastActiveIndex; i++)
 			if (parts[i].type == PT_ANIM)
 			{
 				parts[i].tmp2 = 0;
@@ -7499,7 +7499,7 @@ struct savelist_e {
 	savelist_e *next;
 	savelist_e *prev;
 };
-savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
+savelist_e *get_local_saves(const char *folder, const char *search, int *results_ret)
 {
 	int results = 0;
 	savelist_e *new_savelist = NULL;
@@ -7513,7 +7513,7 @@ savelist_e *get_local_saves(char *folder, char *search, int *results_ret)
 		*results_ret = 0;
 		return NULL;
 	}
-	while(derp = readdir(directory))
+	while ((derp = readdir(directory)))
 	{
 		fname = derp->d_name;
 		if(strlen(fname)>4)
@@ -7632,7 +7632,7 @@ int save_filename_ui(pixel *vid_buf)
 	}
 
 	ui_edit_init(&ed, x0+11, y0+25, xsize-20, 0);
-	ed.def = "[filename]";
+	strcpy(ed.def, "[filename]");
 	ed.focus = 0;
 	ed.nx = 0;
 	
@@ -7640,7 +7640,7 @@ int save_filename_ui(pixel *vid_buf)
 	{
 		char * dotloc = NULL;
 		strncpy(ed.str, svf_filename, 255);
-		if(dotloc = strstr(ed.str, "."))
+		if ((dotloc = strstr(ed.str, ".")))
 		{
 			dotloc[0] = 0;
 		}
@@ -7737,7 +7737,7 @@ void catalogue_ui(pixel * vid_buf)
 	int xsize = 8+(XRES/CATALOGUE_S+8)*CATALOGUE_X;
 	int ysize = 48+(YRES/CATALOGUE_S+20)*CATALOGUE_Y;
 	int x0=(XRES+BARSIZE-xsize)/2,y0=(YRES+MENUSIZE-ysize)/2,b=1,bq,mx,my;
-	int rescount = 0, imageoncycle = 0, currentstart = 0, currentoffset = 0, thidden = 0, cactive = 0;
+	int rescount = 0, imageoncycle = 0, currentoffset = 0, thidden = 0, cactive = 0;
 	int listy = 0, listxc;
 	int listx = 0, listyc;
 	pixel * vid_buf2;
@@ -7752,7 +7752,7 @@ void catalogue_ui(pixel * vid_buf)
 		return;
 
 	ui_edit_init(&ed, x0+11, y0+29, xsize-20, 0);
-	ed.def = "[search]";
+	strcpy(ed.def, "[search]");
 	ed.focus = 0;
 	ed.nx = 0;
 
@@ -7780,7 +7780,6 @@ void catalogue_ui(pixel * vid_buf)
 		if(strcmp(ed.str, last)){
 			free(last);
 			last = mystrdup(ed.str);
-			currentstart = 0;
 			if(saves!=NULL) free_saveslist(saves);
 			saves = get_local_saves(LOCAL_SAVE_DIR PATH_SEP, last, &rescount);
 			cssave = saves;
@@ -7923,7 +7922,6 @@ void catalogue_ui(pixel * vid_buf)
 					if (b && !bq && confirm_ui(vid_buf, "Do you want to delete?", csave->name, "Delete"))
 					{
 						remove(csave->filename);
-						currentstart = 0;
 						if(saves!=NULL) free_saveslist(saves);
 						saves = get_local_saves(LOCAL_SAVE_DIR PATH_SEP, last, &rescount);
 						cssave = saves;
@@ -8370,13 +8368,13 @@ void simulation_ui(pixel * vid_buf)
 	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
 	int oldedgeMode = globalSim->GetEdgeMode();
 	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
-	char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
+	const char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
-	char * gravityModeList[] = {"Vertical", "Off", "Radial"};
+	const char * gravityModeList[] = {"Vertical", "Off", "Radial"};
 	int gravityModeListCount = 3;
-	char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
+	const char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
 	int edgeModeListCount = 3;
-	char * updateList[] = {"No Update Check", "Updates On (http://starcatcher.us/TPT)"};
+	const char * updateList[] = {"No Update Check", "Updates On (http://starcatcher.us/TPT)"};
 	int updateListCount = 2;
 	ui_list list;
 	ui_list list2;
@@ -8423,7 +8421,7 @@ void simulation_ui(pixel * vid_buf)
 	list.w = 72;
 	list.h = 16;
 	list.focus = 0;
-	list.def = "[air mode]";
+	strcpy(list.def, "[air mode]");
 	list.selected = airMode;
 	list.items = airModeList;
 	list.count = airModeListCount;
@@ -8433,7 +8431,7 @@ void simulation_ui(pixel * vid_buf)
 	list2.w = 72;
 	list2.h = 16;
 	list2.focus = 0;
-	list2.def = "[gravity mode]";
+	strcpy(list2.def, "[gravity mode]");
 	list2.selected = gravityMode;
 	list2.items = gravityModeList;
 	list2.count = gravityModeListCount;
@@ -8443,7 +8441,7 @@ void simulation_ui(pixel * vid_buf)
 	list3.w = 72;
 	list3.h = 16;
 	list3.focus = 0;
-	list3.def = "[edge mode]";
+	strcpy(list3.def, "[edge mode]");
 	list3.selected = globalSim->GetEdgeMode();
 	list3.items = edgeModeList;
 	list3.count = edgeModeListCount;
@@ -8452,7 +8450,7 @@ void simulation_ui(pixel * vid_buf)
 	listUpdate.y = y0+219;
 	listUpdate.w = 195;
 	listUpdate.h = 16;
-	listUpdate.def = "[update server]";
+	strcpy(listUpdate.def, "[update server]");
 	listUpdate.selected = doUpdates ? 1 : 0;
 	listUpdate.items = updateList;
 	listUpdate.count = updateListCount;

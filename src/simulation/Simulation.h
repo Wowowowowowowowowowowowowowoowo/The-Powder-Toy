@@ -171,7 +171,7 @@ public:
 		if ((pmap[y][x]>>8)==i)
 			pmap[y][x] = 0;
 #ifndef NOMOD
-		else if ((pmap[y][x]&0xFF)==PT_PINV && (parts[pmap[y][x]>>8].tmp2>>8)==i)
+		else if ((pmap[y][x]&0xFF)==PT_PINV && (unsigned int)(parts[pmap[y][x]>>8].tmp2>>8)==i)
 			parts[pmap[y][x]>>8].tmp2 = 0;
 #endif
 		else if ((photons[y][x]>>8)==i)

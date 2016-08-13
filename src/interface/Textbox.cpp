@@ -103,8 +103,12 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			break;
 		case 'v':
 		{
-			std::string clipboard = clipboard_pull_text();
-			InsertText(clipboard);
+			char *clipboard = clipboard_pull_text();
+			if (clipboard)
+			{
+				InsertText(clipboard);
+				free(clipboard);
+			}
 			break;
 		}
 		case 'x':

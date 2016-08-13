@@ -930,11 +930,11 @@ int main(int argc, char *argv[])
 }
 #else
 
-void BlueScreen(char * detailMessage)
+void BlueScreen(const char * detailMessage)
 {
 	//std::string errorDetails = "Details: " + std::string(detailMessage);
 	SDL_Event event;
-	char * errorHelp = "An unrecoverable fault has occurred, please report this to jacob1:\n"
+	const char * errorHelp = "An unrecoverable fault has occurred, please report this to jacob1:\n"
 		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
 		" OR the built in bug reporter.\n\n"
 		"Note: TPT will now restart and reload your work";
@@ -1131,13 +1131,6 @@ int main(int argc, char *argv[])
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
-
-	for (int i = 0; i < PT_NUM; i++)
-		if (!ptypes[i].name)
-		{
-			ptypes[i].name = "";
-			ptypes[i].descs = "";
-		}
 
 	HudDefaults();
 	memcpy(currentHud,normalHud,sizeof(currentHud));
@@ -1484,10 +1477,12 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			}
 			if (drawState != PowderToy::RECT || !isMouseDown)
+			{
 				if (isMouseDown && (sdl_mod & KMOD_ALT))
 					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[activeToolID], currentBrush);
 				else if ((x < XRES && y < YRES) || isMouseDown)
 					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush);
+			}
 
 			if (isMouseDown)
 			{
@@ -2272,6 +2267,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					break;
 				case Sign::SearchLink:
 					tooltip << "Search for " << signs[signID]->GetLinkText();
+					break;
+				default:
 					break;
 				}
 				UpdateToolTip(tooltip.str(), Point(16, YRES-24), TOOLTIP, -1);

@@ -9,6 +9,7 @@ class TextboxAction
 {
 public:
 	TextboxAction() { }
+	virtual ~TextboxAction() { }
 	virtual void TextChangedCallback(Textbox *textbox) { }
 };
 

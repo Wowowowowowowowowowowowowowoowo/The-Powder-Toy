@@ -223,7 +223,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						}
 						if ((fileread[i] == ' ' || fileread[i] == '\n') && i-j<400)
 						{
-							if (sregexp(tokens,"^x.\\{0,1\\}[0-9]*,y.\\{0,1\\}[0-9]*")==0)
+							if (sregexp(tokens, "^x.\\{0,1\\}[0-9]*,y.\\{0,1\\}[0-9]*")==0)
 							{
 								int starty = 0;
 								tokensize = strlen(tokens);

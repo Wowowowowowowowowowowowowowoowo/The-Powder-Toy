@@ -51,7 +51,7 @@ extern pixel* tabThumbnails[10];
 struct ui_edit
 {
 	int x, y, w, nx, h, limit, focus, alwaysFocus, hide, overDelete;
-	char str[1024],*def;
+	char str[1024], def[33];
 	int multiline, resizable, resizespeed;
 	int cursor, cursorstart, highlightstart, highlightlength, lastClick, numClicks, clickPosition;
 };
@@ -68,7 +68,8 @@ typedef struct ui_label ui_label;
 struct ui_list
 {
 	int x, y, w, h;
-	char str[256],*def,**items;
+	char str[256], def[33];
+	const char **items;
 	int selected, focus, count;
 };
 typedef struct ui_list ui_list;
@@ -140,8 +141,6 @@ extern command_history *last_command_result;
 extern unsigned short sdl_mod;
 extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
-extern char *shift_0;
-extern char *shift_1;
 extern int svf_messages;
 extern int svf_login;
 extern int svf_admin;
@@ -242,9 +241,9 @@ void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
 void info_ui(pixel *vid_buf, const char *top, const char *txt);
 
-void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt);
+void copytext_ui(pixel *vid_buf, const char *top, const char *txt, const char *copytxt);
 
-void info_box(pixel *vid_buf, char *msg);
+void info_box(pixel *vid_buf, const char *msg);
 
 void info_box_overlay(pixel *vid_buf, char *msg);
 
@@ -280,7 +279,7 @@ void limit_fps();
 
 void set_cmode(int cm);
 
-char *download_ui(pixel *vid_buf, const char *uri, int *len);
+char *download_ui(pixel *vid_buf, const char *uri, unsigned int *len);
 
 int search_ui(pixel *vid_buf);
 
@@ -288,11 +287,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open);
 
 void catalogue_ui(pixel * vid_buf);
 
-int info_parse(char *info_data, save_info *info);
+int info_parse(const char *info_data, save_info *info);
 
 int search_results(char *str, int votes);
 
-int execute_tagop(pixel *vid_buf, char *op, char *tag);
+int execute_tagop(pixel *vid_buf, const char *op, char *tag);
 
 int execute_save(pixel *vid_buf);
 
@@ -324,7 +323,7 @@ void simulation_ui(pixel *vid_buf);
 
 int mouse_get_state(int *x, int *y);
 
-void converttotime(char *timestamp, char **timestring, int show_day, int show_year, int show_time);
+void converttotime(const char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 
 #endif
 

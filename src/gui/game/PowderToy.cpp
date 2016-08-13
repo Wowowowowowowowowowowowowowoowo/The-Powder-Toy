@@ -958,7 +958,7 @@ void PowderToy::OnTick(uint32_t ticks)
 					}
 				};
 				Json::Value notifications = root["Notifications"];
-				for (int i = 0; i < notifications.size(); i++)
+				for (int i = 0; i < (int)notifications.size(); i++)
 				{
 					std::string message = notifications[i]["Text"].asString();
 					std::string link = notifications[i]["Link"].asString();
@@ -1027,7 +1027,7 @@ void PowderToy::OnTick(uint32_t ticks)
 					}
 				};
 				Json::Value notifications = root["Notifications"];
-				for (int i = 0; i < notifications.size(); i++)
+				for (int i = 0; i < (int)notifications.size(); i++)
 				{
 					std::string message = notifications[i]["Text"].asString();
 					std::string link = notifications[i]["Link"].asString();
@@ -1363,7 +1363,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 	}
 
 	// moving sign, update coordinates here
-	if (MSIGN >= 0 && MSIGN < signs.size())
+	if (MSIGN >= 0 && MSIGN < (int)signs.size())
 	{
 		signs[MSIGN]->SetPos(cursor);
 	}
@@ -1607,6 +1607,8 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			case SAVE:
 				// function returns the stamp name which we don't want, so free it
 				free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
+				break;
+			default:
 				break;
 			}
 		}
@@ -1944,7 +1946,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case SDLK_LEFTBRACKET:
 		if (PlacingZoomWindow())
 		{
-			zoomSize = std::max(2, std::min(--zoomSize, 60));
+			int temp = std::min(--zoomSize, 60);
+			zoomSize = std::max(2, temp);
 			zoomFactor = 256/zoomSize;
 			UpdateZoomCoordinates(zoomMousePosition);
 		}
@@ -1952,7 +1955,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case SDLK_RIGHTBRACKET:
 		if (PlacingZoomWindow())
 		{
-			zoomSize = std::max(2, std::min(++zoomSize, 60));
+			int temp = std::min(++zoomSize, 60);
+			zoomSize = std::max(2, temp);
 			zoomFactor = 256/zoomSize;
 			UpdateZoomCoordinates(zoomMousePosition);
 		}

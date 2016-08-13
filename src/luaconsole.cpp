@@ -1009,7 +1009,7 @@ void luacon_log(char *log)
 
 char *lastCode = NULL;
 char *logs = NULL; //logs from tpt.log are temporarily stored here
-int luacon_eval(char *command, char **result)
+int luacon_eval(const char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
 	char *text = NULL, *tmp;
@@ -1094,16 +1094,17 @@ int luacon_eval(char *command, char **result)
 				free(logs);
 				logs = NULL;
 			}
-			if(text)
-				if(*result)
+			if (text)
+			{
+				if (*result)
 				{
 					char *tmp2 = (char*)malloc(strlen(*result)+strlen(text)+3);
-					sprintf(tmp2, "%s; %s", result, text);
+					sprintf(tmp2, "%s; %s", *result, text);
 					*result = tmp2;
 				}
 				else
 					*result = mystrdup(text);
-
+			}
 		}
 	}
 	return ret;
@@ -1119,7 +1120,7 @@ void lua_hook(lua_State *L, lua_Debug *ar)
 	}
 }
 
-int luacon_part_update(int t, int i, int x, int y, int surround_space, int nt)
+int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, int nt)
 {
 	int retval = 0, callret;
 	if(lua_el_func[t]){
@@ -1668,7 +1669,7 @@ int luatpt_set_property(lua_State* l)
 	const char *prop, *name;
 	int r, i, x, y, w, h, t = 0, format, nx, ny, partsel = 0, acount;
 	float f = 0.0f;
-	size_t offset;
+	int offset;
 	acount = lua_gettop(l);
 	prop = luaL_optstring(l, 1, "");
 

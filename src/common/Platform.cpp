@@ -301,7 +301,7 @@ bool RegisterExtension()
 	return returnval;
 #elif LIN
 	std::string filename = Platform::ExecutableName(), pathname = filename.substr(0, filename.rfind('/'));
-	for (int i = 0; i < filename.size(); i++)
+	for (size_t i = 0; i < filename.size(); i++)
 	{
 		if (filename[i] == '\'')
 		{
@@ -312,7 +312,7 @@ bool RegisterExtension()
 	filename.insert(filename.size(), "'");
 	filename.insert(0, "'");
 	FILE *f;
-	char *mimedata =
+	const char *mimedata =
 "<?xml version=\"1.0\"?>\n"
 "	<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>\n"
 "	<mime-type type=\"application/vnd.powdertoy.save\">\n"
@@ -327,7 +327,7 @@ bool RegisterExtension()
 	fwrite(mimedata, 1, strlen(mimedata), f);
 	fclose(f);
 
-	char *protocolfiledata_tmp =
+	const char *protocolfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
 "Name=Powder Toy\n"
@@ -344,7 +344,7 @@ bool RegisterExtension()
 	fclose(f);
 	system("xdg-desktop-menu install powdertoy-tpt-ptsave.desktop");
 
-	char *desktopfiledata_tmp =
+	const char *desktopfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
 "Name=Powder Toy\n"
