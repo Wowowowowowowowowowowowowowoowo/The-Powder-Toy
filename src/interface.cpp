@@ -3873,7 +3873,7 @@ corrupt:
 
 int search_ui(pixel *vid_buf)
 {
-	int nmp=-1,uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
+	int uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
 	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0, motdswap = rand()%2;
 #ifdef TOUCHUI
 	const int xOffset = 10;
@@ -3881,6 +3881,7 @@ int search_ui(pixel *vid_buf)
 	bool dragging = false;
 #else
 	const int xOffset = 0;
+	int nmp = -1;
 #endif
 	int touchOffset = 0;
 	int thumb_drawn[GRID_X*GRID_Y];
@@ -4528,7 +4529,9 @@ int search_ui(pixel *vid_buf)
 				page_count = search_results(results, last_own||svf_admin||svf_mod||(unlockedstuff&0x08));
 				memset(thumb_drawn, 0, sizeof(thumb_drawn));
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
+#ifndef TOUCHUI
 				nmp = -1;
+#endif
 				
 				if (is_p1)
 				{
@@ -4888,12 +4891,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
-	int comment_scroll = 0, comment_page = 0, dofocus = 0, disable_scrolling = 0;
+	int comment_scroll = 0, comment_page = 0, disable_scrolling = 0;
 #ifdef TOUCHUI
 	int lastY = 0;
 	bool scrolling = false;
-#endif
+#else
+	int dofocus = 0;
 	bool clickOutOfBounds = false;
+#endif
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
@@ -5307,7 +5312,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									{
 										strappend(ed.str, info->commentauthorsunformatted[cc]);
 										strappend(ed.str, ": ");
+#ifndef TOUCHUI
 										dofocus = 1;
+#endif
 									}
 								}
 							}
