@@ -26,20 +26,6 @@
 #include <SDL/SDL_screenkeyboard.h>
 #endif
 
-#ifdef OGLR
-#ifdef MACOSX
-#include <OpenGL/gl3.h>
-#include <OpenGL/glu.h>
-#elif WIN
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-#endif
-
 #include "defines.h"
 #include "air.h"
 #include "gravity.h"
@@ -88,113 +74,6 @@ Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
 #endif
 SDL_Surface *sdl_scrn;
 int sdl_scale = 1;
-
-#ifdef OGLR
-GLuint zoomTex, vidBuf, airBuf, fireAlpha, glowAlpha, blurAlpha, partsFboTex, partsFbo, partsTFX, partsTFY, airPV, airVY, airVX;
-GLuint fireProg, airProg_Pressure, airProg_Velocity, airProg_Cracker, lensProg;
-
-const char * fireFragment = "#version 120\n\
-uniform sampler2D fireAlpha;\
-void main () {\
-    vec4 texColor = texture2D(fireAlpha, gl_PointCoord);\
-    gl_FragColor = vec4(gl_Color.rgb, texColor.a*gl_Color.a);\
-}";
-const char * fireVertex = "#version 120\n\
-void main(void)\
-{\
-   gl_Position = ftransform();;\
-   gl_FrontColor = gl_Color;\
-}";
-const char * lensFragment = "#version 120\n\
-uniform sampler2D pTex;\
-uniform sampler2D tfX;\
-uniform sampler2D tfY;\
-uniform float xres;\
-uniform float yres;\
-void main () {\
-	vec4 transformX = texture2D(tfX, vec2(gl_TexCoord[0].s, gl_TexCoord[0].t));\
-	vec4 transformY = texture2D(tfY, vec2(gl_TexCoord[0].s, gl_TexCoord[0].t));\
-	transformX.r /= xres/4.0;\
-	transformY.g /= yres/4.0;\
-    vec4 texColor1 = vec4(\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.90, transformY.g*0.90)).r,\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.80, transformY.g*0.80)).g,\
-    	texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.70, transformY.g*0.70)).b,\
-    	1.0\
-    );\
-	vec4 texColor2 = vec4(\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.95, transformY.g*0.95)).r,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.85, transformY.g*0.85)).g,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.75, transformY.g*0.75)).b,\
-		1.0\
-	);\
-	vec4 texColor3 = vec4(\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.85, transformY.g*0.85)).r,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.75, transformY.g*0.75)).g,\
-		texture2D(pTex, gl_TexCoord[0].st-vec2(transformX.r*0.65, transformY.g*0.65)).b,\
-		1.0\
-	);\
-	vec4 texColor = texColor1*0.6 + texColor2*0.2 + texColor3*0.2;\
-    gl_FragColor = texColor;\
-}";
-const char * lensVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airVFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texX = texture2D(airX, gl_TexCoord[0].st);\
-	vec4 texY = texture2D(airY, gl_TexCoord[0].st);\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-	gl_FragColor = vec4(abs(texX.r)/2.0, texP.b/2.0, abs(texY.g)/2.0, 1.0);\
-}";
-const char * airVVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airPFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-    gl_FragColor = vec4(max(texP.b/2.0, 0), 0, abs(min(texP.b/2.0, 0)), 1.0);\
-}";
-const char * airPVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-const char * airCFragment = "#version 120\n\
-uniform sampler2D airX;\
-uniform sampler2D airY;\
-uniform sampler2D airP;\
-void main () {\
-	vec4 texX = texture2D(airX, gl_TexCoord[0].st);\
-	vec4 texY = texture2D(airY, gl_TexCoord[0].st);\
-	vec4 texP = texture2D(airP, gl_TexCoord[0].st);\
-    gl_FragColor = vec4(max(texP.b/2.0, 0), 0, abs(min(texP.b/2.0, 0)), 1.0) + vec4(abs(texX.r)/8.0, abs(texX.r)/8.0, abs(texX.r)/8.0, 1.0) + vec4(abs(texY.g)/8.0, abs(texY.g)/8.0, abs(texY.g)/8.0, 1.0);\
-}";
-const char * airCVertex = "#version 120\n\
-void main(void)\
-{\
-	gl_TexCoord[0]  = gl_MultiTexCoord0;\
-	gl_Position = ftransform();;\
-	gl_FrontColor = gl_Color;\
-}";
-
-#endif
 
 pixel sampleColor = 0;
 
@@ -249,67 +128,6 @@ void update_display_modes()
 		i++;
 	}
 }
-
-#ifdef OGLR
-void clearScreen(float alpha)
-{
-	if(alpha > 0.999f)
-	{
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    }
-    else
-    {
-		glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-		glColor4f(1.0f, 1.0f, 1.0f, alpha);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-		glBegin(GL_QUADS);
-		glVertex2f(0, 0);
-		glVertex2f(XRES, 0);
-		glVertex2f(XRES, YRES);
-		glVertex2f(0, YRES);
-		glEnd();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlendEquation(GL_FUNC_ADD);
-    }
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void clearScreenNP(float alpha)
-{
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale)
-{
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDrawPixels(w,h,GL_BGRA,GL_UNSIGNED_BYTE,src); //Why does this still think it's ABGR?
-    glEnable( GL_TEXTURE_2D );
-    glBindTexture(GL_TEXTURE_2D, vidBuf);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES+BARSIZE, YRES+MENUSIZE, GL_BGRA, GL_UNSIGNED_BYTE, src);
-	glBegin(GL_QUADS);
-    glTexCoord2d(1, 0);
-    glVertex3f((XRES+BARSIZE)*sdl_scale, (YRES+MENUSIZE)*sdl_scale, 1.0);
-    glTexCoord2d(0, 0);
-    glVertex3f(0, (YRES+MENUSIZE)*sdl_scale, 1.0);
-    glTexCoord2d(0, 1);
-    glVertex3f(0, 0, 1.0);
-    glTexCoord2d(1, 1);
-    glVertex3f((XRES+BARSIZE)*sdl_scale, 0, 1.0);
-    glEnd();
-
-    glDisable( GL_TEXTURE_2D );
-	glBlendFunc(GL_ONE, GL_ONE);
-    glFlush();
-    SDL_GL_SwapBuffers ();
-}
-#endif
 
 void DrawPixel(pixel * vid, pixel color, int x, int y)
 {
@@ -577,14 +395,10 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 
 void sdl_blit(int x, int y, int w, int h, pixel *src, int pitch)
 {
-#if defined(OGLR)
-        ogl_blit(x, y, w, h, src, pitch, sdl_scale);
-#else
 	if (sdl_scale == 2)
 		sdl_blit_2(x, y, w, h, src, pitch);
 	else
 		sdl_blit_1(x, y, w, h, src, pitch);
-#endif
 }
 
 //an easy way to draw a blob
@@ -1598,9 +1412,6 @@ void fillcircle(pixel* vid, int x, int y, int rx, int ry, int r, int g, int b, i
 
 void clearrect(pixel *vid, int x, int y, int w, int h)
 {
-#ifdef OGLR
-	fillrect(vid, x, y, w, h, 0, 0, 0, 255);
-#else
 	int i;
 
 	if (x+w > XRES+BARSIZE) w = XRES+BARSIZE-x;
@@ -1620,7 +1431,6 @@ void clearrect(pixel *vid, int x, int y, int w, int h)
 
 	for (i=0; i<h; i++)
 		memset(vid+(x+(XRES+BARSIZE)*(y+i)), 0, PIXELSIZE*w);
-#endif
 }
 //draws a line of dots, where h is the height. (why is this even here)
 void drawdots(pixel *vid, int x, int y, int h, int r, int g, int b, int a)
@@ -1997,7 +1807,6 @@ void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag)
 }
 void draw_air(pixel *vid)
 {
-#ifndef OGLR
 	int x, y, i, j;
 	pixel c;
 	for (y=0; y<YRES/CELL; y++)
@@ -2067,61 +1876,6 @@ void draw_air(pixel *vid)
 				for (i=0; i<CELL; i++)
 					vid[(x*CELL+i) + (y*CELL+j)*(XRES+BARSIZE)] = c;
 		}
-#else
-	GLuint airProg;
-	if(display_mode & DISPLAY_AIRC)
-	{
-		airProg = airProg_Cracker;
-	}
-	else if(display_mode & DISPLAY_AIRV)
-	{
-		airProg = airProg_Velocity;
-	}
-	else if(display_mode & DISPLAY_AIRP)
-	{
-		airProg = airProg_Pressure;
-	}
-	else
-	{
-		return;
-	}
-
-    glEnable( GL_TEXTURE_2D );
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-    
-	glUseProgram(airProg);
-	
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, airVX);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES/CELL, YRES/CELL, GL_RED, GL_FLOAT, vx);
-    glUniform1i(glGetUniformLocation(airProg, "airX"), 0);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, airVY);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES/CELL, YRES/CELL, GL_GREEN, GL_FLOAT, vy);
-    glUniform1i(glGetUniformLocation(airProg, "airY"), 1);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, airPV);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES/CELL, YRES/CELL, GL_BLUE, GL_FLOAT, pv);
-    glUniform1i(glGetUniformLocation(airProg, "airP"), 2);
-    glActiveTexture(GL_TEXTURE0);
-    
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-    glTexCoord2d(1, 1);
-    glVertex3f(XRES*sdl_scale, YRES*sdl_scale, 1.0);
-    glTexCoord2d(0, 1);
-    glVertex3f(0, YRES*sdl_scale, 1.0);
-    glTexCoord2d(0, 0);
-    glVertex3f(0, 0, 1.0);
-    glTexCoord2d(1, 0);
-    glVertex3f(XRES*sdl_scale, 0, 1.0);
-    glEnd();
-    
-    glUseProgram(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glDisable( GL_TEXTURE_2D );
-#endif
 }
 
 void draw_grav_zones(pixel * vid)
@@ -2380,22 +2134,6 @@ void draw_other(pixel *vid) // EMP effect
 	int emp_decor = ((EMP_ElementDataContainer*)globalSim->elementData[PT_EMP])->emp_decor;
 	if (emp_decor)
 	{
-#ifdef OGLR
-		float femp_decor = ((float)emp_decor)/255.0f;
-		/*int r=emp_decor*2.5, g=100+emp_decor*1.5, b=255;
-		int a=(1.0*emp_decor/110)*255;
-		if (r>255) r=255;
-		if (g>255) g=255;
-		if (b>255) g=255;
-		if (a>255) a=255;*/
-		glBegin(GL_QUADS);
-		glColor4f(femp_decor*2.5f, 0.4f+femp_decor*1.5f, 1.0f+femp_decor*1.5f, femp_decor/0.44f);
-		glVertex2f(0, MENUSIZE);
-		glVertex2f(XRES, MENUSIZE);
-		glVertex2f(XRES, YRES+MENUSIZE);
-		glVertex2f(0, YRES+MENUSIZE);
-		glEnd();
-#else
 		int r=(int)(emp_decor*2.5), g=(int)(100+emp_decor*1.5), b=255;
 		int a=(int)((1.0*emp_decor/110)*255);
 		if (r>255) r=255;
@@ -2407,7 +2145,6 @@ void draw_other(pixel *vid) // EMP effect
 			{
 				drawpixel(vid, i, j, r, g, b, a);
 			}
-#endif
 	}
 }
 
@@ -2416,54 +2153,13 @@ void prepare_graphicscache()
 	graphicscache = (gcache_item*)malloc(sizeof(gcache_item)*PT_NUM);
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 }
-//New function for drawing particles
-#ifdef OGLR
-GLuint fireV[(YRES*XRES)*2];
-GLfloat fireC[(YRES*XRES)*4];
-GLuint smokeV[(YRES*XRES)*2];
-GLfloat smokeC[(YRES*XRES)*4];
-GLuint blobV[(YRES*XRES)*2];
-GLfloat blobC[(YRES*XRES)*4];
-GLuint blurV[(YRES*XRES)*2];
-GLfloat blurC[(YRES*XRES)*4];
-GLuint glowV[(YRES*XRES)*2];
-GLfloat glowC[(YRES*XRES)*4];
-GLuint flatV[(YRES*XRES)*2];
-GLfloat flatC[(YRES*XRES)*4];
-GLuint addV[(YRES*XRES)*2];
-GLfloat addC[(YRES*XRES)*4];
-GLfloat lineV[(((YRES*XRES)*2)*6)];
-GLfloat lineC[(((YRES*XRES)*2)*6)];
-GLfloat blurLineV[(((YRES*XRES)*2))];
-GLfloat blurLineC[(((YRES*XRES)*2)*4)];
-GLfloat ablurLineV[(((YRES*XRES)*2))];
-GLfloat ablurLineC[(((YRES*XRES)*2)*4)];
-#endif
+
 void render_parts(pixel *vid, Point mousePos)
 {
 	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker;
-#ifdef OGLR
-	int fnx, fny;
-	int cfireV = 0, cfireC = 0, cfire = 0;
-	int csmokeV = 0, csmokeC = 0, csmoke = 0;
-	int cblobV = 0, cblobC = 0, cblob = 0;
-	int cblurV = 0, cblurC = 0, cblur = 0;
-	int cglowV = 0, cglowC = 0, cglow = 0;
-	int cflatV = 0, cflatC = 0, cflat = 0;
-	int caddV = 0, caddC = 0, cadd = 0;
-	int clineV = 0, clineC = 0, cline = 0;
-	int cblurLineV = 0, cblurLineC = 0, cblurLine = 0;
-	int cablurLineV = 0, cablurLineC = 0, cablurLine = 0;
-	GLuint origBlendSrc, origBlendDst;
-	
-	glGetIntegerv(GL_BLEND_SRC, &origBlendSrc);
-	glGetIntegerv(GL_BLEND_DST, &origBlendDst);
-	//Render to the particle FBO
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-#else
 	if (GRID_MODE)//draws the grid
 	{
 		for (ny=0; ny<YRES; ny++)
@@ -2475,7 +2171,6 @@ void render_parts(pixel *vid, Point mousePos)
 					blendpixel(vid, nx, ny, 100, 100, 100, 80);
 			}
 	}
-#endif
 	for(i = 0; i <= globalSim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
@@ -2491,12 +2186,6 @@ void render_parts(pixel *vid, Point mousePos)
 #ifndef NOMOD
 			if ((pmap[ny][nx]&0xFF) == PT_PINV)
 				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
-#endif
-#ifdef OGLR
-			fnx = parts[i].x;
-			fny = parts[i].y;
-			float flx = parts[i].lastX;
-			float fly = parts[i].lastY;
 #endif
 
 			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
@@ -2523,17 +2212,7 @@ void render_parts(pixel *vid, Point mousePos)
 					colg = (deca*decg + (255-deca)*colg) >> 8;
 					colb = (deca*decb + (255-deca)*colb) >> 8;
 				}
-#ifdef OGLR
-		        flatV[cflatV++] = nx;
-		        flatV[cflatV++] = ny;
-		        flatC[cflatC++] = ((float)colr)/255.0f;
-		        flatC[cflatC++] = ((float)colg)/255.0f;
-		        flatC[cflatC++] = ((float)colb)/255.0f;
-		        flatC[cflatC++] = 1.0f;
-		        cflat++;
-#else
 		        vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(colr,colg,colb);
-#endif
 			}
 			else*/
 			{	
@@ -2728,7 +2407,6 @@ void render_parts(pixel *vid, Point mousePos)
 					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
 				}
 
-	#ifndef OGLR
 				//All colours are now set, check ranges
 				if(colr>255) colr = 255;
 				else if(colr<0) colr = 0;
@@ -2747,7 +2425,6 @@ void render_parts(pixel *vid, Point mousePos)
 				else if(fireb<0) fireb = 0;
 				if(firea>255) firea = 255;
 				else if(firea<0) firea = 0;
-	#endif
 
 				//Pixel rendering
 				if (t==PT_SOAP) //pixel_mode & EFFECT_LINES, pointless to check if only soap has it ...
@@ -2791,49 +2468,6 @@ void render_parts(pixel *vid, Point mousePos)
 							colb = 0xFF;
 						}
 					}
-#ifdef OGLR
-					glColor4f(((float)colr)/255.0f, ((float)colg)/255.0f, ((float)colb)/255.0f, 1.0f);
-					glBegin(GL_LINE_STRIP);
-					if(t==PT_FIGH)
-					{
-						glVertex2f(fnx, fny+2);
-						glVertex2f(fnx+2, fny);
-						glVertex2f(fnx, fny-2);
-						glVertex2f(fnx-2, fny);
-						glVertex2f(fnx, fny+2);
-					}
-					else
-					{
-						glVertex2f(fnx-2, fny-2);
-						glVertex2f(fnx+2, fny-2);
-						glVertex2f(fnx+2, fny+2);
-						glVertex2f(fnx-2, fny+2);
-						glVertex2f(fnx-2, fny-2);
-					}
-					glEnd();
-					glBegin(GL_LINES);
-
-					if (colour_mode!=COLOUR_HEAT)
-					{
-						if (t==PT_STKM2)
-							glColor4f(100.0f/255.0f, 100.0f/255.0f, 1.0f, 1.0f);
-						else
-							glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-					}
-
-					glVertex2f(nx, ny+3);
-					glVertex2f(cplayer->legs[0], cplayer->legs[1]);
-					
-					glVertex2f(cplayer->legs[0], cplayer->legs[1]);
-					glVertex2f(cplayer->legs[4], cplayer->legs[5]);
-					
-					glVertex2f(nx, ny+3);
-					glVertex2f(cplayer->legs[8], cplayer->legs[9]);
-					
-					glVertex2f(cplayer->legs[8], cplayer->legs[9]);
-					glVertex2f(cplayer->legs[12], cplayer->legs[13]);
-					glEnd();
-#else
 					s = XRES+BARSIZE;
 
 					if (t==PT_STKM2)
@@ -2898,120 +2532,21 @@ void render_parts(pixel *vid, Point mousePos)
 							blendpixel(vid, nx-1, ny+1, colr, colg, colb, 112);
 						}
 					}
-#endif
 				}
-#ifdef OGLR
-				if((display_mode & DISPLAY_EFFE) && (fabs(fnx-flx)>1.5f || fabs(fny-fly)>1.5f))
-				{
-					if(pixel_mode & PMODE_FLAT)
-					{
-						blurLineV[cblurLineV++] = nx;
-						blurLineV[cblurLineV++] = ny;
-						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
-						blurLineC[cblurLineC++] = 1.0f;
-						cblurLine++;
-						
-						blurLineV[cblurLineV++] = flx;
-						blurLineV[cblurLineV++] = fly;
-						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
-						blurLineC[cblurLineC++] = 0.0f;
-						cblurLine++;
-					}
-					else if(pixel_mode & PMODE_BLEND)
-					{
-						blurLineV[cblurLineV++] = nx;
-						blurLineV[cblurLineV++] = ny;
-						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
-						blurLineC[cblurLineC++] = ((float)cola)/255.0f;
-						cblurLine++;
-						
-						blurLineV[cblurLineV++] = flx;
-						blurLineV[cblurLineV++] = fly;
-						blurLineC[cblurLineC++] = ((float)colr)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colg)/255.0f;
-						blurLineC[cblurLineC++] = ((float)colb)/255.0f;
-						blurLineC[cblurLineC++] = 0.0f;
-						cblurLine++;
-					}
-					else if(pixel_mode & PMODE_ADD)
-					{
-						ablurLineV[cablurLineV++] = nx;
-						ablurLineV[cablurLineV++] = ny;
-						ablurLineC[cablurLineC++] = ((float)colr)/255.0f;
-						ablurLineC[cablurLineC++] = ((float)colg)/255.0f;
-						ablurLineC[cablurLineC++] = ((float)colb)/255.0f;
-						ablurLineC[cablurLineC++] = ((float)cola)/255.0f;
-						cablurLine++;
-						
-						ablurLineV[cablurLineV++] = flx;
-						ablurLineV[cablurLineV++] = fly;
-						ablurLineC[cablurLineC++] = ((float)colr)/255.0f;
-						ablurLineC[cablurLineC++] = ((float)colg)/255.0f;
-						ablurLineC[cablurLineC++] = ((float)colb)/255.0f;
-						ablurLineC[cablurLineC++] = 0.0f;
-						cablurLine++;
-					}
-				}
-#endif
 				if(pixel_mode & PMODE_FLAT)
 				{
-#ifdef OGLR
-                    flatV[cflatV++] = nx;
-                    flatV[cflatV++] = ny;
-                    flatC[cflatC++] = ((float)colr)/255.0f;
-                    flatC[cflatC++] = ((float)colg)/255.0f;
-                    flatC[cflatC++] = ((float)colb)/255.0f;
-                    flatC[cflatC++] = 1.0f;
-                    cflat++;
-#else
 					vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(colr,colg,colb);
-#endif
 				}
 				if(pixel_mode & PMODE_BLEND)
 				{
-#ifdef OGLR
-                    flatV[cflatV++] = nx;
-                    flatV[cflatV++] = ny;
-                    flatC[cflatC++] = ((float)colr)/255.0f;
-                    flatC[cflatC++] = ((float)colg)/255.0f;
-                    flatC[cflatC++] = ((float)colb)/255.0f;
-                    flatC[cflatC++] = ((float)cola)/255.0f;
-                    cflat++;
-#else
 					blendpixel(vid, nx, ny, colr, colg, colb, cola);
-#endif
 				}
 				if(pixel_mode & PMODE_ADD)
 				{
-#ifdef OGLR
-                    addV[caddV++] = nx;
-                    addV[caddV++] = ny;
-                    addC[caddC++] = ((float)colr)/255.0f;
-                    addC[caddC++] = ((float)colg)/255.0f;
-                    addC[caddC++] = ((float)colb)/255.0f;
-                    addC[caddC++] = ((float)cola)/255.0f;
-                    cadd++;
-#else
 					addpixel(vid, nx, ny, colr, colg, colb, cola);
-#endif
 				}
 				if(pixel_mode & PMODE_BLOB)
 				{
-#ifdef OGLR
-                    blobV[cblobV++] = nx;
-                    blobV[cblobV++] = ny;
-                    blobC[cblobC++] = ((float)colr)/255.0f;
-                    blobC[cblobC++] = ((float)colg)/255.0f;
-                    blobC[cblobC++] = ((float)colb)/255.0f;
-                    blobC[cblobC++] = 1.0f;
-                    cblob++;
-#else
 					vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(colr,colg,colb);
 
 					blendpixel(vid, nx+1, ny, colr, colg, colb, 223);
@@ -3023,20 +2558,10 @@ void render_parts(pixel *vid, Point mousePos)
 					blendpixel(vid, nx-1, ny-1, colr, colg, colb, 112);
 					blendpixel(vid, nx+1, ny+1, colr, colg, colb, 112);
 					blendpixel(vid, nx-1, ny+1, colr, colg, colb, 112);
-#endif
 				}
 				if(pixel_mode & PMODE_GLOW)
 				{
 					int cola1 = (5*cola)/255;
-#ifdef OGLR
-                    glowV[cglowV++] = nx;
-                    glowV[cglowV++] = ny;
-                    glowC[cglowC++] = ((float)colr)/255.0f;
-                    glowC[cglowC++] = ((float)colg)/255.0f;
-                    glowC[cglowC++] = ((float)colb)/255.0f;
-                    glowC[cglowC++] = 1.0f;
-                    cglow++;
-#else
 					addpixel(vid, nx, ny, colr, colg, colb, (192*cola)/255);
 					addpixel(vid, nx+1, ny, colr, colg, colb, (96*cola)/255);
 					addpixel(vid, nx-1, ny, colr, colg, colb, (96*cola)/255);
@@ -3057,19 +2582,9 @@ void render_parts(pixel *vid, Point mousePos)
 							addpixel(vid, nx-x, ny-y, colr, colg, colb, cola1);
 						}
 					}
-#endif
 				}
 				if(pixel_mode & PMODE_BLUR)
 				{
-#ifdef OGLR
-                    blurV[cblurV++] = nx;
-                    blurV[cblurV++] = ny;
-                    blurC[cblurC++] = ((float)colr)/255.0f;
-                    blurC[cblurC++] = ((float)colg)/255.0f;
-                    blurC[cblurC++] = ((float)colb)/255.0f;
-                    blurC[cblurC++] = 1.0f;
-                    cblur++;
-#else
 					for (x=-3; x<4; x++)
 					{
 						for (y=-3; y<4; y++)
@@ -3082,61 +2597,10 @@ void render_parts(pixel *vid, Point mousePos)
 								blendpixel(vid, x+nx, y+ny, colr, colg, colb, 10);
 						}
 					}
-#endif
 				}
 				if(pixel_mode & PMODE_SPARK)
 				{
 					flicker = (float)(rand()%20);
-#ifdef OGLR
-					//Oh god, this is awful
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx-5;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/30;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx+5;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny-5;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/30;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny+5;
-				    cline++;
-#else
 					gradv = 4*parts[i].life + flicker;
 					for (x = 0; gradv>0.5; x++) {
 						addpixel(vid, nx+x, ny, colr, colg, colb, (int)gradv);
@@ -3146,61 +2610,10 @@ void render_parts(pixel *vid, Point mousePos)
 						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.5f;
 					}
-#endif
 				}
 				if(pixel_mode & PMODE_FLARE)
 				{
 					flicker = (float)(rand()%20);
-#ifdef OGLR
-					//Oh god, this is awful
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx-10;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/40;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx+10;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny-10;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/30;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny+10;
-				    cline++;
-#else
 					gradv = flicker + fabs(parts[i].vx)*17 + fabs(parts[i].vy)*17;
 					blendpixel(vid, nx, ny, colr, colg, colb, (int)((gradv*4)>255?255:(gradv*4)));
 					blendpixel(vid, nx+1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
@@ -3219,61 +2632,10 @@ void render_parts(pixel *vid, Point mousePos)
 						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.2f;
 					}
-#endif
 				}
 				if(pixel_mode & PMODE_LFLARE)
 				{
 					flicker = (float)(rand()%20);
-#ifdef OGLR
-					//Oh god, this is awful
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx-70;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/30;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx+70;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny-70;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 1.0f - ((float)flicker)/50;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny;
-				    cline++;
-				    
-				    lineC[clineC++] = ((float)colr)/255.0f;
-				    lineC[clineC++] = ((float)colg)/255.0f;
-				    lineC[clineC++] = ((float)colb)/255.0f;
-				    lineC[clineC++] = 0.0f;
-				    lineV[clineV++] = fnx;
-				    lineV[clineV++] = fny+70;
-				    cline++;
-#else
 					gradv = flicker + fabs(parts[i].vx)*17 + fabs(parts[i].vy)*17;
 					blendpixel(vid, nx, ny, colr, colg, colb, (int)((gradv*4)>255?255:(gradv*4)));
 					blendpixel(vid, nx+1, ny, colr, colg, colb, (int)((gradv*2)>255?255:(gradv*2)));
@@ -3292,7 +2654,6 @@ void render_parts(pixel *vid, Point mousePos)
 						addpixel(vid, nx, ny-x, colr, colg, colb, (int)gradv);
 						gradv = gradv/1.01f;
 					}
-#endif
 				}
 				if (pixel_mode & EFFECT_GRAVIN)
 				{
@@ -3376,32 +2737,13 @@ void render_parts(pixel *vid, Point mousePos)
 				//Fire effects
 				if(firea && (pixel_mode & FIRE_BLEND))
 				{
-#ifdef OGLR
-                    smokeV[csmokeV++] = nx;
-                    smokeV[csmokeV++] = ny;
-                    smokeC[csmokeC++] = ((float)firer)/255.0f;
-                    smokeC[csmokeC++] = ((float)fireg)/255.0f;
-                    smokeC[csmokeC++] = ((float)fireb)/255.0f;
-                    smokeC[csmokeC++] = ((float)firea)/255.0f;
-                    csmoke++;
-#else
 					firea /= 2;
 					fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
 					fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
 					fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
-#endif
 				}
 				if(firea && (pixel_mode & FIRE_ADD))
 				{
-#ifdef OGLR
-                    fireV[cfireV++] = nx;
-                    fireV[cfireV++] = ny;
-                    fireC[cfireC++] = ((float)firer)/255.0f;
-                    fireC[cfireC++] = ((float)fireg)/255.0f;
-                    fireC[cfireC++] = ((float)fireb)/255.0f;
-                    fireC[cfireC++] = ((float)firea)/255.0f;
-                    cfire++;
-#else
 					firea /= 8;
 					firer = ((firea*firer) >> 8) + fire_r[ny/CELL][nx/CELL];
 					fireg = ((firea*fireg) >> 8) + fire_g[ny/CELL][nx/CELL];
@@ -3417,310 +2759,22 @@ void render_parts(pixel *vid, Point mousePos)
 					fire_r[ny/CELL][nx/CELL] = firer;
 					fire_g[ny/CELL][nx/CELL] = fireg;
 					fire_b[ny/CELL][nx/CELL] = fireb;
-#endif
 				}
 				if(firea && (pixel_mode & FIRE_SPARK))
 				{
-#ifdef OGLR
-					smokeV[csmokeV++] = nx;
-					smokeV[csmokeV++] = ny;
-					smokeC[csmokeC++] = ((float)firer)/255.0f;
-					smokeC[csmokeC++] = ((float)fireg)/255.0f;
-					smokeC[csmokeC++] = ((float)fireb)/255.0f;
-					smokeC[csmokeC++] = ((float)firea)/255.0f;
-					csmoke++;
-#else
 					firea /= 4;
 					fire_r[ny/CELL][nx/CELL] = (firea*firer + (255-firea)*fire_r[ny/CELL][nx/CELL]) >> 8;
 					fire_g[ny/CELL][nx/CELL] = (firea*fireg + (255-firea)*fire_g[ny/CELL][nx/CELL]) >> 8;
 					fire_b[ny/CELL][nx/CELL] = (firea*fireb + (255-firea)*fire_b[ny/CELL][nx/CELL]) >> 8;
-#endif
 				}
 			}
 		}
 	}
-#ifdef OGLR		
-        
-        //Go into array mode
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      
-
-		if(cablurLine)
-		{
-			// -- BEGIN LINES -- //
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			glEnable( GL_LINE_SMOOTH );
-			glColorPointer(4, GL_FLOAT, 0, &ablurLineC[0]);
-			glVertexPointer(2, GL_FLOAT, 0, &ablurLineV[0]);
-			
-			glDrawArrays(GL_LINES, 0, cablurLine);
-			
-			//Clear some stuff we set
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glDisable(GL_LINE_SMOOTH);
-			// -- END LINES -- //
-		}
-		if(cblurLine)
-		{
-			// -- BEGIN LINES -- //
-			glEnable( GL_LINE_SMOOTH );
-			glColorPointer(4, GL_FLOAT, 0, &blurLineC[0]);
-			glVertexPointer(2, GL_FLOAT, 0, &blurLineV[0]);
-			
-			glDrawArrays(GL_LINES, 0, cblurLine);
-			
-			//Clear some stuff we set
-			glDisable(GL_LINE_SMOOTH);
-			// -- END LINES -- //
-		}
-	
- 		if(cflat)
-		{
-			// -- BEGIN FLAT -- //
-			//Set point size (size of fire texture)
-			glPointSize(1.0f);
-
-		    glColorPointer(4, GL_FLOAT, 0, &flatC[0]);
-		    glVertexPointer(2, GL_INT, 0, &flatV[0]);
-
-		    glDrawArrays(GL_POINTS, 0, cflat);
-		    
-		    //Clear some stuff we set
-		    // -- END FLAT -- //
-        }
-        
-        if(cblob)
-		{
-		    // -- BEGIN BLOB -- //
-			glEnable( GL_POINT_SMOOTH ); //Blobs!
-			glPointSize(2.5f);
-
-		    glColorPointer(4, GL_FLOAT, 0, &blobC[0]);
-		    glVertexPointer(2, GL_INT, 0, &blobV[0]);
-
-		    glDrawArrays(GL_POINTS, 0, cblob);
-		    
-		    //Clear some stuff we set
-		    glDisable( GL_POINT_SMOOTH );
-		    // -- END BLOB -- //
-		}
-        
-        if(cglow || cblur)
-        {
-        	// -- BEGIN GLOW -- //
-			//Start and prepare fire program
-			glEnable(GL_TEXTURE_2D);
-			glUseProgram(fireProg);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, glowAlpha);
-			glUniform1i(glGetUniformLocation(fireProg, "fireAlpha"), 0);
-			
-			glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
-		
-			//Make sure we can use texture coords on points
-			glEnable(GL_POINT_SPRITE);
-			glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-			glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-		
-			//Set point size (size of fire texture)
-			glPointSize(11.0f);
-			
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-			if(cglow)
-			{
-				glColorPointer(4, GL_FLOAT, 0, &glowC[0]);
-				glVertexPointer(2, GL_INT, 0, &glowV[0]);
-	
-				glDrawArrays(GL_POINTS, 0, cglow);
-			}
-			
-			glPointSize(7.0f);
-			
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
-			if(cblur)
-			{
-				glBindTexture(GL_TEXTURE_2D, blurAlpha);
-			
-				glColorPointer(4, GL_FLOAT, 0, &blurC[0]);
-				glVertexPointer(2, GL_INT, 0, &blurV[0]);
-
-				glDrawArrays(GL_POINTS, 0, cblur);
-			}
-		    
-		    //Clear some stuff we set
-		    glDisable(GL_POINT_SPRITE);
-			glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-			glUseProgram(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
-		    // -- END GLOW -- //
-        }
-        
- 		if(cadd)
-		{
-			// -- BEGIN ADD -- //
-			//Set point size (size of fire texture)
-			glPointSize(1.0f);
-
-		    glColorPointer(4, GL_FLOAT, 0, &addC[0]);
-		    glVertexPointer(2, GL_INT, 0, &addV[0]);
-
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		    glDrawArrays(GL_POINTS, 0, cadd);
-		    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		    //Clear some stuff we set
-		    // -- END ADD -- //
-        }
-        
-        if(cline)
-		{
-			// -- BEGIN LINES -- //
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			glEnable( GL_LINE_SMOOTH );
-		    glColorPointer(4, GL_FLOAT, 0, &lineC[0]);
-		    glVertexPointer(2, GL_FLOAT, 0, &lineV[0]);
-
-		    glDrawArrays(GL_LINE_STRIP, 0, cline);
-		    
-		    //Clear some stuff we set
-		    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		    glDisable(GL_LINE_SMOOTH);
-		    // -- END LINES -- //
-        }
-		
-		if(cfire || csmoke)
-		{
-			// -- BEGIN FIRE -- //
-			//Start and prepare fire program
-			glEnable(GL_TEXTURE_2D);
-			glUseProgram(fireProg);
-			//glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, fireAlpha);
-			glUniform1i(glGetUniformLocation(fireProg, "fireAlpha"), 0);
-		
-			//Make sure we can use texture coords on points
-			glEnable(GL_POINT_SPRITE);
-			glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-			glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-		
-			//Set point size (size of fire texture)
-			glPointSize(CELL*3);
-			
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-			if(cfire)
-			{
-				glColorPointer(4, GL_FLOAT, 0, &fireC[0]);
-				glVertexPointer(2, GL_INT, 0, &fireV[0]);
-
-				glDrawArrays(GL_POINTS, 0, cfire);
-			}
-			
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
-			if(csmoke)
-			{
-				glColorPointer(4, GL_FLOAT, 0, &smokeC[0]);
-				glVertexPointer(2, GL_INT, 0, &smokeV[0]);
-
-				glDrawArrays(GL_POINTS, 0, csmoke);
-			}
-		    
-		    //Clear some stuff we set
-		    glDisable(GL_POINT_SPRITE);
-			glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-			glUseProgram(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
-		    // -- END FIRE -- //
-        }
-
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);     
-        
-        //Reset FBO
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        
-        //Drawing the FBO onto the screen sounds like a cool idea now
-        
-        glBlendFunc(origBlendSrc, origBlendDst);
-#endif
 }
-
-#ifdef OGLR
-void draw_parts_fbo()
-{
-	glEnable( GL_TEXTURE_2D );
-	if(display_mode & DISPLAY_WARP)
-	{
-		float xres = XRES, yres = YRES;
-		glUseProgram(lensProg);
-		glActiveTexture(GL_TEXTURE0);			
-		glBindTexture(GL_TEXTURE_2D, partsFboTex);
-		glUniform1i(glGetUniformLocation(lensProg, "pTex"), 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, partsTFX);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES/CELL, YRES/CELL, GL_RED, GL_FLOAT, gravx);
-		glUniform1i(glGetUniformLocation(lensProg, "tfX"), 1);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, partsTFY);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, XRES/CELL, YRES/CELL, GL_GREEN, GL_FLOAT, gravy);
-		glUniform1i(glGetUniformLocation(lensProg, "tfY"), 2);
-		glActiveTexture(GL_TEXTURE0);
-		glUniform1fv(glGetUniformLocation(lensProg, "xres"), 1, &xres);
-		glUniform1fv(glGetUniformLocation(lensProg, "yres"), 1, &yres);
-	}
-	else
-	{	
-		glBindTexture(GL_TEXTURE_2D, partsFboTex);
-		glBlendFunc(GL_ONE, GL_ONE);
-	}
-	
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-	glTexCoord2d(1, 0);
-	glVertex3f(XRES*sdl_scale, (YRES+MENUSIZE)*sdl_scale, 1.0);
-	glTexCoord2d(0, 0);
-	glVertex3f(0, (YRES+MENUSIZE)*sdl_scale, 1.0);
-	glTexCoord2d(0, 1);
-	glVertex3f(0, MENUSIZE*sdl_scale, 1.0);
-	glTexCoord2d(1, 1);
-	glVertex3f(XRES*sdl_scale, MENUSIZE*sdl_scale, 1.0);
-	glEnd();
-	
-	if(display_mode & DISPLAY_WARP)
-	{
-		glUseProgram(0);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	glDisable( GL_TEXTURE_2D );
-}
-#endif
 
 // draw the graphics that appear before update_particles is called
 void render_before(pixel *part_vbuf)
 {
-#ifdef OGLR
-		if (display_mode & DISPLAY_PERS)//save background for persistent, then clear
-		{
-			clearScreen(0.01f);
-			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-		}
-		else //clear screen every frame
-		{
-			clearScreen(1.0f);
-			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-			if (display_mode & DISPLAY_AIR)//air only gets drawn in these modes
-			{
-				draw_air(part_vbuf);
-			}
-		}
-#else
 		if (display_mode & DISPLAY_AIR)//air only gets drawn in these modes
 		{
 			draw_air(part_vbuf);
@@ -3734,7 +2788,6 @@ void render_before(pixel *part_vbuf)
 		{
 			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		}
-#endif
 		if(ngrav_enable && drawgrav_enable)
 			draw_grav(part_vbuf);
 		draw_walls(part_vbuf);
@@ -3757,10 +2810,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 		}
 		persist_counter = (persist_counter+1) % 3;
 	}
-#ifndef OGLR
-	if (render_mode & FIREMODE)
-		render_fire(part_vbuf);
-#endif
+
 	draw_other(part_vbuf);
 #ifndef RENDERER
 	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
@@ -3769,10 +2819,6 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 
 	render_signs(part_vbuf);
 
-#ifndef OGLR
-	if(vid_buf && ngrav_enable && (display_mode & DISPLAY_WARP))
-		render_gravlensing(part_vbuf, vid_buf);
-#endif
 	if (finding & 0x8)
 		draw_find();
 	sampleColor = vid_buf[(mousePos.Y)*(XRES + BARSIZE) + (mousePos.X)];
@@ -4175,9 +3221,8 @@ void render_fire(pixel *vid)
 		}
 }
 
-void prepare_alpha(int size, float intensity)
+void prepare_alpha(float intensity)
 {
-	//TODO: implement size
 	int x,y,i,j;
 	float multiplier = 255.0f*intensity;
 	float temp[CELL*3][CELL*3];
@@ -4190,73 +3235,6 @@ void prepare_alpha(int size, float intensity)
 	for (x=0; x<CELL*3; x++)
 		for (y=0; y<CELL*3; y++)
 			fire_alpha[y][x] = (int)(multiplier*temp[y][x]/(CELL*CELL));
-			
-#ifdef OGLR
-	float fire_alphaf[CELL * 3][CELL * 3];
-	float glow_alphaf[11][11];
-	float blur_alphaf[7][7];
-	for (x=0; x<CELL*3; x++)
-		for (y=0; y<CELL*3; y++)
-		{
-			fire_alphaf[y][x] = (intensity*temp[y][x]/((float)(CELL*CELL)))/2.0f;
-		}
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, fireAlpha);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CELL*3, CELL*3, GL_ALPHA, GL_FLOAT, fire_alphaf);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-	
-	memset(glow_alphaf, 0, sizeof(glow_alphaf));
-	
-	int c = 5;
-	
-	glow_alphaf[c][c] = 0.8f;
-	glow_alphaf[c][c-1] = 0.4f;
-	glow_alphaf[c][c+1] = 0.4f;
-	glow_alphaf[c-1][c] = 0.4f;
-	glow_alphaf[c+1][c] = 0.4f;
-	for (x = 1; x < 6; x++) {
-		glow_alphaf[c][c-x] += 0.02f;
-		glow_alphaf[c][c+x] += 0.02f;
-		glow_alphaf[c-x][c] += 0.02f;
-		glow_alphaf[c+x][c] += 0.02f;
-		for (y = 1; y < 6; y++) {
-			if(x + y > 7)
-				continue;
-			glow_alphaf[c+x][c-y] += 0.02f;
-			glow_alphaf[c-x][c+y] += 0.02f;
-			glow_alphaf[c+x][c+y] += 0.02f;
-			glow_alphaf[c-x][c-y] += 0.02f;
-		}
-	}
-	
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, glowAlpha);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 11, 11, GL_ALPHA, GL_FLOAT, glow_alphaf);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-	
-	c = 3;
-	
-	for (x=-3; x<4; x++)
-	{
-		for (y=-3; y<4; y++)
-		{
-			if (abs(x)+abs(y) <2 && !(abs(x)==2||abs(y)==2))
-				blur_alphaf[c+x][c-y] = 0.11f;
-			if (abs(x)+abs(y) <=3 && abs(x)+abs(y))
-				blur_alphaf[c+x][c-y] = 0.08f;
-			if (abs(x)+abs(y) == 2)
-				blur_alphaf[c+x][c-y] = 0.04f;
-		}
-	}
-	
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, blurAlpha);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 7, 7, GL_ALPHA, GL_FLOAT, blur_alphaf);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-#endif
 }
 
 pixel *render_packed_rgb(void *image, int width, int height, int cmp_size)
@@ -4488,47 +3466,6 @@ corrupt:
 void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 {
 	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
-#ifdef OGLR
-	int i;
-	if (tool->GetType() == ELEMENT_TOOL || tool->GetType() == GOL_TOOL || tool->GetType() == TOOL_TOOL || tool->GetType() == DECO_TOOL)
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-		glEnable(GL_COLOR_LOGIC_OP);
-		glLogicOp(GL_XOR);
-		glBegin(GL_LINE_LOOP);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		y *= sdl_scale;
-		x *= sdl_scale;
-		ry *= sdl_scale;
-		rx *= sdl_scale;
-		if (brush->GetShape() == SQUARE_BRUSH)
-		{
-			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
-			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
-			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
-			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry+1);
-			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry+1);
-		}
-		else if (brush->GetShape() == CIRCLE_BRUSH)
-		{
-			for (i = 0; i < 360; i++)
-			{
-			  float degInRad = i*(M_PI/180.0f);
-			  glVertex2f((cos(degInRad)*rx)+x, (sin(degInRad)*ry)+/*(YRES+MENUSIZE)*sdl_scale-*/y);
-			}
-		}
-		else if (brush->GetShape() == TRI_BRUSH)
-		{
-			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
-			glVertex2f(x+rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
-			glVertex2f(x-rx+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)+ry-1);
-			glVertex2f(x+1, (/*(YRES+MENUSIZE)*sdl_scale-*/y)-ry-1);
-		}
-		glEnd();
-		glDisable(GL_COLOR_LOGIC_OP);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	}
-#else
 	int i,j;
 	if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && (tool->GetType() != TOOL_TOOL || ((ToolTool*)tool)->GetID() == TOOL_PROP))
 	{
@@ -4585,7 +3522,6 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 			}
 		}
 	}
-#endif
 }
 
 int savedWindowX = INT_MAX;
@@ -4776,188 +3712,8 @@ int sdl_open()
 	atexit(SDL_Quit);
 
 	LoadWindowPosition(sdl_scale);
-#if defined(OGLR)
-	sdl_scrn=SDL_SetVideoMode(XRES*sdl_scale + BARSIZE*sdl_scale,YRES*sdl_scale + MENUSIZE*sdl_scale,32,SDL_OPENGL);
-	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-
-	if(sdl_opened)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		glOrtho(0, (XRES+BARSIZE)*sdl_scale, 0, (YRES+MENUSIZE)*sdl_scale, -1, 1);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-	else
-	{
-#ifdef WIN
-		int status = glewInit();
-		if(status != GLEW_OK)
-		{
-			fprintf(stderr, "Initializing Glew: %d\n", status);
-			return 0;
-		}
-#endif
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		glOrtho(0, (XRES+BARSIZE)*sdl_scale, 0, (YRES+MENUSIZE)*sdl_scale, -1, 1);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		glRasterPos2i(0, (YRES+MENUSIZE));
-		glPixelZoom(1, -1);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		//FBO Texture
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &partsFboTex);
-		glBindTexture(GL_TEXTURE_2D, partsFboTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, XRES, YRES, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		 
-		//FBO
-		glGenFramebuffers(1, &partsFbo);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, partsFbo);
-		glEnable(GL_BLEND);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, partsFboTex, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Reset framebuffer binding
-		glDisable(GL_TEXTURE_2D);
-
-		//Texture for main UI
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &vidBuf);
-		glBindTexture(GL_TEXTURE_2D, vidBuf);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, XRES+BARSIZE, YRES+MENUSIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Texture for air to be drawn
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &airBuf);
-		glBindTexture(GL_TEXTURE_2D, airBuf);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Zoom texture
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &zoomTex);
-		glBindTexture(GL_TEXTURE_2D, zoomTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Texture for velocity maps for gravity
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &partsTFX);
-		glBindTexture(GL_TEXTURE_2D, partsTFX);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glGenTextures(1, &partsTFY);
-		glBindTexture(GL_TEXTURE_2D, partsTFY);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Texture for velocity maps for air
-		//TODO: Combine all air maps into 3D array or structs
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &airVX);
-		glBindTexture(GL_TEXTURE_2D, airVX);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glGenTextures(1, &airVY);
-		glBindTexture(GL_TEXTURE_2D, airVY);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glGenTextures(1, &airPV);
-		glBindTexture(GL_TEXTURE_2D, airPV);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, XRES/CELL, YRES/CELL, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Fire alpha texture
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &fireAlpha);
-		glBindTexture(GL_TEXTURE_2D, fireAlpha);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, CELL*3, CELL*3, 0, GL_ALPHA, GL_FLOAT, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		//Glow alpha texture
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &glowAlpha);
-		glBindTexture(GL_TEXTURE_2D, glowAlpha);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 11, 11, 0, GL_ALPHA, GL_FLOAT, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-
-		//Blur Alpha texture
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &blurAlpha);
-		glBindTexture(GL_TEXTURE_2D, blurAlpha);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 7, 7, 0, GL_ALPHA, GL_FLOAT, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_TEXTURE_2D);
-
-		loadShaders();
-	}
-#else
 	SetSDLVideoMode((XRES + BARSIZE) * sdl_scale, (YRES + MENUSIZE) * sdl_scale);
-#endif
+
 	if (!sdl_scrn)
 	{
 		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
@@ -5022,129 +3778,6 @@ int set_scale(int scale, int kiosk){
 	}
 	return 1;
 }
-
-#ifdef OGLR
-void checkShader(GLuint shader, char * shname)
-{
-	GLuint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		char errorBuf[ GL_INFO_LOG_LENGTH];
-		int errLen;
-		glGetShaderInfoLog(shader, GL_INFO_LOG_LENGTH, &errLen, errorBuf);
-		fprintf(stderr, "Failed to compile %s shader:\n%s\n", shname, errorBuf);
-		exit(1);
-	}
-}
-void checkProgram(GLuint program, char * progname)
-{
-	GLuint status;
-	glGetProgramiv(program, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		char errorBuf[ GL_INFO_LOG_LENGTH];
-		int errLen;
-		glGetShaderInfoLog(program, GL_INFO_LOG_LENGTH, &errLen, errorBuf);
-		fprintf(stderr, "Failed to link %s program:\n%s\n", progname, errorBuf);
-		exit(1);
-	}
-}
-void loadShaders()
-{
-	GLuint vertexShader, fragmentShader;
-
-	//Particle texture
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource( vertexShader, 1, &fireVertex, NULL);
-	glShaderSource( fragmentShader, 1, &fireFragment, NULL);
-
-	glCompileShader( vertexShader );
-	checkShader(vertexShader, "FV");
-	glCompileShader( fragmentShader );
-	checkShader(fragmentShader, "FF");
-
-	fireProg = glCreateProgram();
-	glAttachShader( fireProg, vertexShader );
-	glAttachShader( fireProg, fragmentShader );
-	glLinkProgram( fireProg );
-	checkProgram(fireProg, "F");
-	
-	//Lensing
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource( vertexShader, 1, &lensVertex, NULL);
-	glShaderSource( fragmentShader, 1, &lensFragment, NULL);
-
-	glCompileShader( vertexShader );
-	checkShader(vertexShader, "LV");
-	glCompileShader( fragmentShader );
-	checkShader(fragmentShader, "LF");
-
-	lensProg = glCreateProgram();
-	glAttachShader( lensProg, vertexShader );
-	glAttachShader( lensProg, fragmentShader );
-	glLinkProgram( lensProg );
-	checkProgram(lensProg, "L");
-	
-	//Air Velocity
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource( vertexShader, 1, &airVVertex, NULL);
-	glShaderSource( fragmentShader, 1, &airVFragment, NULL);
-
-	glCompileShader( vertexShader );
-	checkShader(vertexShader, "AVX");
-	glCompileShader( fragmentShader );
-	checkShader(fragmentShader, "AVF");
-
-	airProg_Velocity = glCreateProgram();
-	glAttachShader( airProg_Velocity, vertexShader );
-	glAttachShader( airProg_Velocity, fragmentShader );
-	glLinkProgram( airProg_Velocity );
-	checkProgram(airProg_Velocity, "AV");
-	
-	//Air Pressure
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource( vertexShader, 1, &airPVertex, NULL);
-	glShaderSource( fragmentShader, 1, &airPFragment, NULL);
-
-	glCompileShader( vertexShader );
-	checkShader(vertexShader, "APV");
-	glCompileShader( fragmentShader );
-	checkShader(fragmentShader, "APF");
-
-	airProg_Pressure = glCreateProgram();
-	glAttachShader( airProg_Pressure, vertexShader );
-	glAttachShader( airProg_Pressure, fragmentShader );
-	glLinkProgram( airProg_Pressure );
-	checkProgram(airProg_Pressure, "AP");
-	
-	//Air cracker
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource( vertexShader, 1, &airCVertex, NULL);
-	glShaderSource( fragmentShader, 1, &airCFragment, NULL);
-
-	glCompileShader( vertexShader );
-	checkShader(vertexShader, "ACV");
-	glCompileShader( fragmentShader );
-	checkShader(fragmentShader, "ACF");
-
-	airProg_Cracker = glCreateProgram();
-	glAttachShader( airProg_Cracker, vertexShader );
-	glAttachShader( airProg_Cracker, fragmentShader );
-	glLinkProgram( airProg_Cracker );
-	checkProgram(airProg_Cracker, "AC");
-}
-#endif
 
 float maxAverage = 0.0f; //for debug mode
 int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y)

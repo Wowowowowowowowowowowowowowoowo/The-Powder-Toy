@@ -276,10 +276,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	parts[i].type = t;
 	parts[i].x = (float)x;
 	parts[i].y = (float)y;
-#ifdef OGLR
-	parts[i].lastX = (float)x;
-	parts[i].lastY = (float)y;
-#endif
 
 	// Fancy dust effects for powder types
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)

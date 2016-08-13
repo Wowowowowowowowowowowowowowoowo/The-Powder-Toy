@@ -2402,9 +2402,8 @@ int luatpt_cmode_set(lua_State* l)
 
 int luatpt_setfire(lua_State* l)
 {
-	int firesize = luaL_optint(l, 2, 4);
 	float fireintensity = (float)luaL_optnumber(l, 1, 1.0f);
-	prepare_alpha(firesize, fireintensity);
+	prepare_alpha(fireintensity);
 	return 0;
 }
 

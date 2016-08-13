@@ -1637,7 +1637,8 @@ void initRendererAPI(lua_State * l)
 	SETCONST(l, DISPLAY_AIR);
 	SETCONST(l, DISPLAY_WARP);
 	SETCONST(l, DISPLAY_PERS);
-	SETCONST(l, DISPLAY_EFFE);
+	lua_pushinteger(l, 0);
+	lua_setfield(l, -2, "DISPLAY_EFFE");
 }
 
 //get/set render modes list

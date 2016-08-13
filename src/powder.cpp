@@ -234,10 +234,6 @@ void decrease_life(int i)
 	int t;
 	unsigned int elem_properties;
 	t = parts[i].type;
-#ifdef OGLR
-	parts[i].lastX = parts[i].x;
-	parts[i].lastY = parts[i].y;
-#endif
 	if (t<0 || t>=PT_NUM)
 	{
 		kill_part(i);

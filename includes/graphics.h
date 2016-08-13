@@ -165,10 +165,6 @@ void render_before(pixel *part_vbuf);
 
 void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos);
 
-#ifdef OGLR
-void draw_parts_fbo();
-#endif
-
 void draw_parts(pixel *vid);
 
 void draw_walls(pixel *vid);
@@ -179,7 +175,7 @@ void render_signs(pixel *vid_buf);
 
 void render_fire(pixel *dst);
 
-void prepare_alpha(int size, float intensity);
+void prepare_alpha(float intensity);
 
 void draw_image(pixel *vid, pixel *img, int x, int y, int w, int h, int a);
 
@@ -207,12 +203,6 @@ int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int 
 
 void init_display_modes();
 void update_display_modes();
-
-#ifdef OGLR
-void clearScreen(float alpha);
-void ogl_blit(int x, int y, int w, int h, pixel *src, int pitch, int scale);
-void loadShaders();
-#endif
 
 #endif
 

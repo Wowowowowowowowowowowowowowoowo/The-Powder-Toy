@@ -361,7 +361,7 @@ void clear_sim()
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
 	memset(fire_alpha, 0, sizeof(fire_alpha));
-	prepare_alpha(CELL, 1.0f);
+	prepare_alpha(1.0f);
 	if(gravmask)
 		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 	if(gravy)
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
 	save_presets();
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
-	prepare_alpha(CELL, 1.0f);
+	prepare_alpha(1.0f);
 	prepare_graphicscache();
 	flm_data = generate_gradient(flm_data_colours, flm_data_pos, flm_data_points, 200);
 	plasma_data = generate_gradient(plasma_data_colours, plasma_data_pos, plasma_data_points, 200);
@@ -1403,9 +1403,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
 			tmpMouseInZoom = (x != mx || y != my);
 
-#ifdef OGLR
-		part_vbuf = vid_buf;
-#else
 		if(ngrav_enable && (display_mode & DISPLAY_WARP))
 		{
 			part_vbuf = part_vbuf_store;
@@ -1413,7 +1410,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		} else {
 			part_vbuf = vid_buf;
 		}
-#endif
+
 		render_before(part_vbuf);
 		globalSim->Tick(); //update everything
 		render_after(part_vbuf, vid_buf, Point(mx, my));
@@ -2453,10 +2450,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			lb = 0;*/
 		}
 		mouseInZoom = tmpMouseInZoom;
-
-#ifdef OGLR
-		draw_parts_fbo();
-#endif
 
 		if (elapsedTime != currentTime && main_loop == 2)
 		{

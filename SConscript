@@ -57,7 +57,6 @@ AddSconsOption('release', True, False, "Enable loop / compiling optimizations (d
 AddSconsOption('debugging', False, False, "Compile with debug symbols")
 AddSconsOption('symbols', False, False, "Preserve (don't strip) symbols")
 AddSconsOption('static', False, False, "Compile statically")
-AddSconsOption('opengl', False, False, "Build with OpenGL interface support")
 AddSconsOption('renderer', False, False, "Build the save renderer")
 AddSconsOption('nomod', False, False, "Don't include elements and some other features from jacob1's mod")
 
@@ -330,25 +329,6 @@ def findLibs(env, conf):
 		if not conf.CheckLib('m'):
 			FatalError("libm not found or not installed")
 
-	#Look for OpenGL libraries
-	if GetOption('opengl'):
-		if platform == "Linux":
-			if not conf.CheckLib('GL'):
-				FatalError("libGL not found or not installed")
-			try:
-				env.ParseConfig('pkg-config --libs glew gl glu')
-			except:
-				FatalError(sys.exc_info()[0])
-
-		elif platform == "Windows":
-			if not conf.CheckLib('opengl32'):
-				FatalError("opengl32 not found or not installed")
-			if not conf.CheckLib('glew32'):
-				FatalError("glew32 not found or not installed")
-		elif platform == "Darwin":
-			if not conf.CheckFramework("OpenGL"):
-				FatalError("OpenGL framework not found or not installed")
-
 	if platform == "Linux":
 		if not conf.CheckLib('X11'):
 			FatalError("X11 development library not found or not installed")
@@ -466,8 +446,6 @@ if not GetOption('nofft'):
 if not GetOption('nolua') and not GetOption('renderer'):
 	env.Append(CPPDEFINES=['LUACONSOLE'])
 
-if GetOption('opengl'):
-	env.Append(CPPDEFINES=['OGLR', 'PIX32OGL', 'PIXALPHA'])
 if GetOption('renderer'):
 	env.Append(CPPDEFINES=['RENDERER'])
 
