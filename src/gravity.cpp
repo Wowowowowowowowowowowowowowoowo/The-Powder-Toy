@@ -484,6 +484,9 @@ void mask_free(mask_el *c_mask_el){
 }
 void gravity_mask()
 {
+#ifdef ANDROID
+	return;
+#endif
 	char checkmap[YRES/CELL][XRES/CELL];
 	int x = 0, y = 0;
 	unsigned maskvalue;
