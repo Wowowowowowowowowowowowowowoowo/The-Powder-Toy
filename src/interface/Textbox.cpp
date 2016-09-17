@@ -10,6 +10,7 @@ Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
 	Label(position, size_, text, multiline),
 	sizeLimit(Point(NOSIZELIMIT, NOSIZELIMIT)),
 	characterLimit(10000),
+	autoCorrect(true),
 	callback(NULL),
 	type(TEXT)
 {
@@ -280,7 +281,7 @@ void Textbox::OnFocus()
 #ifdef TOUCHUI
 	char buffer[1024];
 	memcpy(buffer, text.c_str(), 1024);
-	Platform::GetOnScreenKeyboardInput(buffer, 1024);
+	Platform::GetOnScreenKeyboardInput(buffer, 1024, autoCorrect);
 	SetText(buffer);
 #endif
 }

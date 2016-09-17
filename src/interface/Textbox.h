@@ -30,11 +30,13 @@ public:
 
 	void SetAutoSize(bool X, bool Y, Point limit);
 	void SetCharacterLimit(int characterLimit_) { characterLimit = characterLimit_; }
+	void SetAutoCorrect(bool autoCorrect_) { autoCorrect = autoCorrect_; }
 	void SetType(texttype type_) { type = type_; }
 
 private:
 	Point sizeLimit;
 	unsigned int characterLimit;
+	bool autoCorrect;
 	TextboxAction *callback;
 	texttype type;
 
