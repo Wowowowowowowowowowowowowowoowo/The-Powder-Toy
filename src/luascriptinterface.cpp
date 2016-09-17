@@ -2976,20 +2976,35 @@ int platform_clipboardPaste(lua_State * l)
 int platform_showOnScreenKeyboard(lua_State * l)
 {
 	const char *startText = luaL_optstring(l, 1, "");
-	Platform::ShowOnScreenKeyboard(startText);
+	int acount = lua_gettop(l);
+	bool autoCorrect = false;
+	if (acount > 1)
+	{
+		luaL_checktype(l, 2, LUA_TBOOLEAN);
+		autoCorrect = lua_toboolean(l, 2);
+	}
+	Platform::ShowOnScreenKeyboard(startText, autoCorrect);
 	return 0;
 }
 
 int platform_getOnScreenKeyboardInput(lua_State * l)
 {
-	luaL_checktype(l, 1, LUA_TSTRING);
+	int acount = lua_gettop(l);
+	if (acount)
+		luaL_checktype(l, 1, LUA_TSTRING);
 	int limit = luaL_optint(l, 2, 1024);
 	if (limit < 0 || limit > 2048)
 		luaL_error(l, "Error, string size too long");
 	const char *startText = luaL_optstring(l, 1, "");
 	char *buff = (char*)calloc(limit+1, sizeof(char));
 	strncpy(buff, startText, limit);
-	Platform::GetOnScreenKeyboardInput(buff, limit);
+	bool autoCorrect = false;
+	if (acount > 2)
+	{
+		luaL_checktype(l, 3, LUA_TBOOLEAN);
+		autoCorrect = lua_toboolean(l, 3);
+	}
+	Platform::GetOnScreenKeyboardInput(buff, limit, autoCorrect);
 	lua_pushstring(l, buff);
 	free(buff);
 	return 1;

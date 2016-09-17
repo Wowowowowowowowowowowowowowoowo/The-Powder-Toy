@@ -390,7 +390,7 @@ bool RegisterExtension()
 // brings up an on screen keyboard and sends one key input for every key pressed
 // the tiny keyboard designed to do this doesn't work, so this will bring up a blocking keyboard
 // key presses are still sent one at a time when it is done (also seems to overflow every 90 characters, which seems to be the max)
-bool ShowOnScreenKeyboard(const char *str)
+bool ShowOnScreenKeyboard(const char *str, bool autoCorrect)
 {
 #ifdef ANDROID
 	// keyboard without text input is a lot nicer
@@ -399,7 +399,7 @@ bool ShowOnScreenKeyboard(const char *str)
 	//SDL_ANDROID_ToggleScreenKeyboardWithoutTextInput();
 
 	// blocking fullscreen keyboard
-	SDL_ANDROID_ToggleScreenKeyboardTextInput(str);
+	SDL_ANDROID_ToggleScreenKeyboardTextInput(str, autoCorrect);
 	return true;
 #endif
 	return false;
@@ -407,10 +407,10 @@ bool ShowOnScreenKeyboard(const char *str)
 
 // takes a buffer (which can have existing text), and the buffer size
 // The user then types the text, which is placed in the buffer for use
-void GetOnScreenKeyboardInput(char * buff, int buffSize)
+void GetOnScreenKeyboardInput(char * buff, int buffSize, bool autoCorrect)
 {
 #ifdef ANDROID
-	SDL_ANDROID_GetScreenKeyboardTextInput(buff, buffSize);
+	SDL_ANDROID_GetScreenKeyboardTextInput(buff, buffSize, autoCorrect);
 #endif
 }
 

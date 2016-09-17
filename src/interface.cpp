@@ -157,6 +157,7 @@ void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 	ed->resizable = ed->resizespeed = 0;
 	ed->lastClick = ed->numClicks = 0;
 	ed->overDelete = 0;
+	ed->autoCorrect = 1;
 }
 
 int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
@@ -302,7 +303,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		{
 			char buffer[1024];
 			memcpy(buffer, ed->str, 1024);
-			Platform::GetOnScreenKeyboardInput(buffer, 1024);
+			Platform::GetOnScreenKeyboardInput(buffer, 1024, ed->autoCorrect);
 			if (!(!ed->multiline && textwidth(buffer) > ed->w-14) && !((int)strlen(buffer)>ed->limit) && !(ed->multiline && ed->limit != 1023 && ((textwidth(buffer))/(ed->w-14)*12) > ed->h))
 				memcpy(ed->str, buffer, 1024);
 		}
@@ -1145,6 +1146,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 
 	ui_edit ed;
 	ui_edit_init(&ed, x0+12, y0+30, windowWidth - 20, 14);
+	ed.autoCorrect = 0;
 	strcpy(ed.def, "[element name]");
 
 
@@ -6816,6 +6818,7 @@ int console_ui(pixel *vid_buf)
 	ed.multiline = 1;
 	ed.limit = 1023;
 	ed.resizable = 1;
+	ed.autoCorrect = 0;
 
 	if (!old_buf)
 		return 0;

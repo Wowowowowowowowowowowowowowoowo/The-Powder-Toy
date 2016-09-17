@@ -10,8 +10,8 @@ namespace Platform
 	void OpenLink(std::string uri);
 	void Millisleep(long int t);
 	bool RegisterExtension();
-	bool ShowOnScreenKeyboard(const char *str);
-	void GetOnScreenKeyboardInput(char * buff, int buffSize);
+	bool ShowOnScreenKeyboard(const char *str, bool autoCorrect = true);
+	void GetOnScreenKeyboardInput(char * buff, int buffSize, bool autoCorrect = true);
 	bool IsOnScreenKeyboardShown();
 }
 

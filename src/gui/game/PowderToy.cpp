@@ -556,7 +556,7 @@ void PowderToy::ToggleErase(bool alt)
 void PowderToy::OpenConsole(bool alt)
 {
 	if (alt)
-		Platform::ShowOnScreenKeyboard("");
+		Platform::ShowOnScreenKeyboard("", false);
 	else
 		console_mode = 1;
 }

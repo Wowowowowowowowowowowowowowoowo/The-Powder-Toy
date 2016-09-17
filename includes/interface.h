@@ -52,7 +52,7 @@ struct ui_edit
 {
 	int x, y, w, nx, h, limit, focus, alwaysFocus, hide, overDelete;
 	char str[1024], def[33];
-	int multiline, resizable, resizespeed;
+	int multiline, resizable, resizespeed, autoCorrect;
 	int cursor, cursorstart, highlightstart, highlightlength, lastClick, numClicks, clickPosition;
 };
 typedef struct ui_edit ui_edit;
