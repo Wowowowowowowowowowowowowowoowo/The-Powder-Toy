@@ -18,10 +18,12 @@
 #include <cmath>
 #include <cstring>
 #include <sys/types.h>
+#include <iostream>
 #include "common/tpt-thread.h"
 #include "defines.h"
 #include "gravity.h"
 #include "powder.h"
+#include "simulation/CoordStack.h"
 #include "simulation/WallNumbers.h"
 
 #ifdef GRAVFFT
@@ -206,9 +208,6 @@ TH_ENTRY_POINT void* update_grav_async(void* unused)
 
 void start_grav_async()
 {
-#ifdef ANDROID
-	return;
-#else
 	if(!ngrav_enable){
 		gravthread_done = 0;
 		grav_ready = 0;
@@ -220,14 +219,10 @@ void start_grav_async()
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-#endif
 }
 
 void stop_grav_async()
 {
-#ifdef ANDROID
-	return;
-#else
 	if(ngrav_enable){
 		pthread_mutex_lock(&gravmutex);
 		gravthread_done = 1;
@@ -241,7 +236,6 @@ void stop_grav_async()
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-#endif
 }
 
 #ifdef GRAVFFT
@@ -448,25 +442,71 @@ fin:
 #endif
 
 
-
-void grav_mask_r(int x, int y, char checkmap[YRES/CELL][XRES/CELL], char shape[YRES/CELL][XRES/CELL], char *shapeout)
+bool grav_mask_r(int x, int y, char checkmap[YRES/CELL][XRES/CELL], char shape[YRES/CELL][XRES/CELL])
 {
-	if(x < 0 || x >= XRES/CELL || y < 0 || y >= YRES/CELL)
-		return;
-	if(x == 0 || y ==0 || y == (YRES/CELL)-1 || x == (XRES/CELL)-1)
-		*shapeout = 1;
-	checkmap[y][x] = 1;
-	shape[y][x] = 1;
-	if(x-1 >= 0 && !checkmap[y][x-1] && bmap[y][x-1]!=WL_GRAV)
-		grav_mask_r(x-1, y, checkmap, shape, shapeout);
-	if(y-1 >= 0 && !checkmap[y-1][x] && bmap[y-1][x]!=WL_GRAV)
-		grav_mask_r(x, y-1, checkmap, shape, shapeout);
-	if(x+1 < XRES/CELL && !checkmap[y][x+1] && bmap[y][x+1]!=WL_GRAV)
-		grav_mask_r(x+1, y, checkmap, shape, shapeout);
-	if(y+1 < YRES/CELL && !checkmap[y+1][x] && bmap[y+1][x]!=WL_GRAV)
-		grav_mask_r(x, y+1, checkmap, shape, shapeout);
-	return;
+	int x1, x2;
+	bool ret = false;
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			while (x1 >= 0)
+			{
+				if (x1 == 0)
+				{
+					ret = true;
+					break;
+				}
+				else if (checkmap[y][x1-1] || bmap[y][x1-1] == WL_GRAV)
+					break;
+				x1--;
+			}
+			while (x2 <= XRES/CELL-1)
+			{
+				if (x2 == XRES/CELL-1)
+				{
+					ret = true;
+					break;
+				}
+				else if (checkmap[y][x2+1] || bmap[y][x2+1] == WL_GRAV)
+					break;
+				x2++;
+			}
+			for (x = x1; x <= x2; x++)
+			{
+				shape[y][x] = 1;
+				checkmap[y][x] = 1;
+			}
+			if (y >= 1)
+				for (x=x1; x<=x2; x++)
+					if (!checkmap[y-1][x] && bmap[y-1][x] != WL_GRAV)
+					{
+						if (y-1 == 0)
+							ret = true;
+						cs.push(x, y-1);
+					}
+			if (y < YRES/CELL-1)
+				for (x=x1; x<=x2; x++)
+					if (!checkmap[y+1][x] && bmap[y+1][x] != WL_GRAV)
+					{
+						if (y+1 == YRES/CELL-1)
+							ret = true;
+						cs.push(x, y+1);
+					}
+		} while (cs.getSize()>0);
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		ret = false;
+	}
+	return ret;
 }
+
 struct mask_el;
 typedef struct mask_el mask_el;
 struct mask_el {
@@ -484,9 +524,6 @@ void mask_free(mask_el *c_mask_el){
 }
 void gravity_mask()
 {
-#ifdef ANDROID
-	return;
-#endif
 	char checkmap[YRES/CELL][XRES/CELL];
 	int x = 0, y = 0;
 	unsigned maskvalue;
@@ -518,7 +555,8 @@ void gravity_mask()
 					c_mask_el->next = NULL;
 				}
 				//Fill the shape
-				grav_mask_r(x, y, checkmap, (char(*)[XRES/CELL])c_mask_el->shape, &c_mask_el->shapeout);
+				if (grav_mask_r(x, y, checkmap, (char(*)[XRES/CELL])c_mask_el->shape))
+					c_mask_el->shapeout = 1;
 			}
 		}
 	}
