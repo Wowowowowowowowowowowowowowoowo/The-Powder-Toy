@@ -385,10 +385,11 @@ void update_grav()
 
 void update_grav(void)
 {
-	int x, y, i, j, changed = 0;
+	int x, y, i, j;
 	float val, distance;
 	th_gravchanged = 0;
 #ifndef GRAV_DIFF
+	int changed = 0;
 	//Find any changed cells
 	for (i=0; i<YRES/CELL; i++)
 	{
@@ -436,7 +437,9 @@ void update_grav(void)
 			}
 		}
 	}
+#ifndef GRAV_DIFF
 fin:
+#endif
 	memcpy(th_ogravmap, th_gravmap, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 }
 #endif
