@@ -14,9 +14,10 @@
 #include "misc.h"
 
 ProfileViewer::ProfileViewer(std::string profileName):
-	ScrollWindow(Point(CENTERED, CENTERED), Point(260, 350)),
+	Window_(Point(CENTERED, CENTERED), Point(260, 350)),
 	name(profileName),
 	avatar(NULL),
+	scrollArea(NULL),
 	ageLabel(NULL),
 	locationLabel(NULL),
 	websiteLabel(NULL),
@@ -31,9 +32,12 @@ ProfileViewer::ProfileViewer(std::string profileName):
 
 	avatarDownload = new Download("http://" STATICSERVER "/avatars/" + name + ".pti");
 	avatarDownload->Start();
+	
+	scrollArea = new ScrollWindow(Point(0, 0), this->size - Point(0, 16));
+	this->AddSubwindow(scrollArea);
 
 	usernameLabel = new Label(Point(7, 6), Point(Label::AUTOSIZE, Label::AUTOSIZE), name);
-	this->AddComponent(usernameLabel);
+	scrollArea->AddComponent(usernameLabel);
 
 	bool ownProfile = std::string(svf_user) == name;
 	if (ownProfile)
@@ -49,7 +53,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 			}
 		};
 		avatarUploadButton->SetCallback(new UploadAvatarAction());
-		this->AddComponent(avatarUploadButton);
+		scrollArea->AddComponent(avatarUploadButton);
 
 		// Enable editing when this button is clicked
 		class EnableEditingAction : public ButtonAction
@@ -139,10 +143,10 @@ void ProfileViewer::OnTick(uint32_t ticks)
 					biographyLabel->SetEnabled(false);
 				}
 
-				this->AddComponent(ageLabel);
-				this->AddComponent(locationLabel);
-				this->AddComponent(websiteLabel);
-				this->AddComponent(biographyLabel);
+				scrollArea->AddComponent(ageLabel);
+				scrollArea->AddComponent(locationLabel);
+				scrollArea->AddComponent(websiteLabel);
+				scrollArea->AddComponent(biographyLabel);
 
 				// If we don't do this average score will have a ton of decimal points, round to 2 here
 				float average = root["User"]["Saves"]["AverageScore"].asFloat();
@@ -153,9 +157,9 @@ void ProfileViewer::OnTick(uint32_t ticks)
 				saveCountLabel = new Label(Point(42,76), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Saves"]["Count"].asString());
 				saveAverageLabel = new Label(Point(83,90), Point(Label::AUTOSIZE, Label::AUTOSIZE), averageScore.str());
 				highestVoteLabel = new Label(Point(82,104), Point(Label::AUTOSIZE, Label::AUTOSIZE), root["User"]["Saves"]["HighestScore"].asString());
-				this->AddComponent(saveCountLabel);
-				this->AddComponent(saveAverageLabel);
-				this->AddComponent(highestVoteLabel);
+				scrollArea->AddComponent(saveCountLabel);
+				scrollArea->AddComponent(saveAverageLabel);
+				scrollArea->AddComponent(highestVoteLabel);
 
 				if (enableEditingButton)
 					enableEditingButton->SetEnabled(true);
@@ -165,14 +169,14 @@ void ProfileViewer::OnTick(uint32_t ticks)
 			{
 				// TODO: make a new version of error_ui because this is bad
 				biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brError parsing data from server", true);
-				this->AddComponent(biographyLabel);
+				scrollArea->AddComponent(biographyLabel);
 			}
 		}
 		else
 		{
 			// TODO: make a new version of error_ui because this is bad
 			biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brServer returned error", true);
-			this->AddComponent(biographyLabel);
+			scrollArea->AddComponent(biographyLabel);
 		}
 
 		free(data);
@@ -201,18 +205,18 @@ void ProfileViewer::OnTick(uint32_t ticks)
 
 void ProfileViewer::EnableEditing()
 {
-	RemoveComponent(locationLabel);
-	locationLabel = new Textbox(locationLabel->GetPosition(), Point(size.X-110, locationLabel->GetSize().Y), locationLabel->IsEnabled() ? locationLabel->GetText() : "");
-	AddComponent(locationLabel);
+	scrollArea->RemoveComponent(locationLabel);
+	locationLabel = new Textbox(locationLabel->GetPosition(), Point(scrollArea->GetSize().X-110, locationLabel->GetSize().Y), locationLabel->IsEnabled() ? locationLabel->GetText() : "");
+	scrollArea->AddComponent(locationLabel);
 
-	/*RemoveComponent(websiteLabel);
-	websiteLabel = new Textbox(websiteLabel->GetPosition(), Point(size.X-110, websiteLabel->GetSize().Y), websiteLabel->IsEnabled() ? websiteLabel->GetText() : "");
-	AddComponent(websiteLabel);*/
+	/*scrollArea->RemoveComponent(websiteLabel);
+	websiteLabel = new Textbox(websiteLabel->GetPosition(), Point(scrollArea->GetSize().X-110, websiteLabel->GetSize().Y), websiteLabel->IsEnabled() ? websiteLabel->GetText() : "");
+	scrollArea->AddComponent(websiteLabel);*/
 
-	RemoveComponent(biographyLabel);
+	scrollArea->RemoveComponent(biographyLabel);
 	biographyLabel = new Textbox(biographyLabel->GetPosition(), biographyLabel->GetSize(), biographyLabel->IsEnabled() ? biographyLabel->GetText() : "", true);
 	dynamic_cast<Textbox*>(biographyLabel)->SetAutoSize(false, true, Point(Textbox::NOSIZELIMIT,Textbox::NOSIZELIMIT));
-	AddComponent(biographyLabel);
+	scrollArea->AddComponent(biographyLabel);
 
 	// Enable editing when this button is clicked
 	class BiographyChangedAction : public TextboxAction
@@ -285,38 +289,30 @@ void ProfileViewer::UploadAvatar()
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
 {
 	int yPos = 149+biographyLabelHeight;
-	if (yPos < this->size.Y-openProfileButton->GetSize().Y)
-		yPos = this->size.Y-openProfileButton->GetSize().Y;
-	if (enableEditingButton)
-	{
-		enableEditingButton->SetPosition(Point(0, yPos-GetScrollPosition()));
-		openProfileButton->SetPosition(Point(size.X/2, yPos-GetScrollPosition()));
-	}
-	else
-		openProfileButton->SetPosition(Point(0, yPos-GetScrollPosition()));
-
-	int maxScroll = yPos+openProfileButton->GetSize().Y-this->size.Y;
+	if (yPos < scrollArea->GetSize().Y)
+		yPos = scrollArea->GetSize().Y;
+	int maxScroll = yPos-scrollArea->GetSize().Y;
 	if (maxScroll >= 0)
 	{
-		int oldMaxScroll = this->GetMaxScrollSize();
-		this->SetScrollable(true, maxScroll);
-		if (this->GetScrollPosition() == oldMaxScroll)
-			this->SetScrollPosition(maxScroll);
+		int oldMaxScroll = scrollArea->GetMaxScrollSize();
+		scrollArea->SetScrollable(true, maxScroll);
+		if (scrollArea->GetScrollPosition() == oldMaxScroll)
+			scrollArea->SetScrollPosition(maxScroll);
 	}
 	else
-		this->SetScrollable(false, 0);
+		scrollArea->SetScrollable(false, 0);
 }
 
 void ProfileViewer::OnDraw(VideoBuffer *buf)
 {
 	if (avatar)
-		buf->DrawImage(avatar, 210, 10-GetScrollPosition(), 40, 40);
-	buf->DrawText(10, 24-GetScrollPosition(), "Age:", 175, 175, 175, 255);
-	buf->DrawText(10, 38-GetScrollPosition(), "Location:", 175, 175, 175, 255);
-	buf->DrawText(10, 52-GetScrollPosition(), "Website:", 175, 175, 175, 255);
-	buf->DrawText(10, 66-GetScrollPosition(), "Saves:", 175, 175, 175, 255);
-	buf->DrawText(15, 80-GetScrollPosition(), "Count:", 175, 175, 175, 255);
-	buf->DrawText(15, 94-GetScrollPosition(), "Average Score:", 175, 175, 175, 255);
-	buf->DrawText(15, 108-GetScrollPosition(), "Highest Score:", 175, 175, 175, 255);
-	buf->DrawText(10, 122-GetScrollPosition(), "Biography:", 175, 175, 175, 255);
+		buf->DrawImage(avatar, 210, 10-scrollArea->GetScrollPosition(), 40, 40);
+	buf->DrawText(10, 24-scrollArea->GetScrollPosition(), "Age:", 175, 175, 175, 255);
+	buf->DrawText(10, 38-scrollArea->GetScrollPosition(), "Location:", 175, 175, 175, 255);
+	buf->DrawText(10, 52-scrollArea->GetScrollPosition(), "Website:", 175, 175, 175, 255);
+	buf->DrawText(10, 66-scrollArea->GetScrollPosition(), "Saves:", 175, 175, 175, 255);
+	buf->DrawText(15, 80-scrollArea->GetScrollPosition(), "Count:", 175, 175, 175, 255);
+	buf->DrawText(15, 94-scrollArea->GetScrollPosition(), "Average Score:", 175, 175, 175, 255);
+	buf->DrawText(15, 108-scrollArea->GetScrollPosition(), "Highest Score:", 175, 175, 175, 255);
+	buf->DrawText(10, 122-scrollArea->GetScrollPosition(), "Biography:", 175, 175, 175, 255);
 }

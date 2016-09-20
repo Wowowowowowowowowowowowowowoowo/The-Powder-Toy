@@ -7,6 +7,7 @@ class ConfirmAction
 {
 public:
 	virtual void Action(bool isConfirmed) = 0;
+	virtual ~ConfirmAction() {}
 };
 
 class ConfirmPrompt : public Window_

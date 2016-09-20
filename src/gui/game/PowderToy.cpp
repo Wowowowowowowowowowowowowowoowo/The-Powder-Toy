@@ -94,6 +94,7 @@ PowderToy::PowderToy():
 	ignoreMouseUp(false)
 {
 	ignoreQuits = true;
+	hasBorder = false;
 
 	if (doUpdates)
 	{

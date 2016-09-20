@@ -47,4 +47,5 @@ void ConfirmPrompt::OnKeyPress(int key, unsigned short character, unsigned short
 ConfirmPrompt::~ConfirmPrompt()
 {
 	confirmAction->Action(wasConfirmed);
+	delete confirmAction;
 }

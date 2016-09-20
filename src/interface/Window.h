@@ -5,6 +5,7 @@
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
 #include "common/SDL_keysym.h"
+#include "graphics/Pixel.h"
 #include "Component.h"
 
 class VideoBuffer;
@@ -15,6 +16,8 @@ public:
 	virtual ~Window_();
 	void Resize(Point position, Point size);
 
+	void AddSubwindow(Window_ *other);
+	void RemoveSubwindow(Window_ *other);
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);
 	void FocusComponent(Component *toFocus);
@@ -26,7 +29,7 @@ public:
 	void DoFocus();
 	void DoDefocus();
 	void DoTick(uint32_t ticks);
-	void DoDraw();
+	void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 
 	virtual void DoMouseMove(int x, int y, int dx, int dy);
 	virtual void DoMouseDown(int x, int y, unsigned char button);
@@ -40,6 +43,7 @@ public:
 	VideoBuffer* GetVid() { return videoBuffer; }
 	bool IsMouseDown() { return isMouseDown; }
 	bool CanQuit() { return !ignoreQuits; }
+	void HasBorder(bool border) { hasBorder = border; }
 
 	bool toDelete;
 
@@ -49,8 +53,10 @@ protected:
 	Point position;
 	Point size;
 	std::vector<Component*> Components;
+	std::vector<Window_*> Subwindows;
 	bool isMouseDown; // need to keep track of this for some things like buttons
 	bool ignoreQuits;
+	bool hasBorder;
 
 	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }

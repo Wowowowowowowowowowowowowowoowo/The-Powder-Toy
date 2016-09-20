@@ -220,7 +220,7 @@ void Engine::MainLoop()
 		top->DoTick(currentTick-lastTick);
 		lastTick = currentTick;
 
-		top->DoDraw();
+		top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf /*potato->GetVid()->GetVid()*/, XRES+BARSIZE);
 		//memset(vid_buf, 0, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
 		limit_fps();

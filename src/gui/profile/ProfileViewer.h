@@ -9,13 +9,15 @@ class Download;
 class Label;
 class Button;
 class Textbox;
-class ProfileViewer : public ScrollWindow
+class ProfileViewer : public Window_
 {
 	std::string name;
 	Download *profileInfoDownload;
 	Download *avatarDownload;
 	Download *profileSaveDownload;
 	pixel *avatar;
+
+	ScrollWindow *scrollArea;
 
 	Label *usernameLabel, *ageLabel, *locationLabel, *websiteLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;

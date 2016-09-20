@@ -10,8 +10,10 @@ Window_::Window_(Point position_, Point size_):
 	position(position_),
 	size(size_),
 	Components(std::vector<Component*>()),
+	Subwindows(std::vector<Window_*>()),
 	isMouseDown(false),
 	ignoreQuits(false),
+	hasBorder(true),
 	mouseDownOutside(false),
 	focused(NULL),
 	clicked(NULL)
@@ -28,7 +30,10 @@ Window_::~Window_()
 	delete videoBuffer;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 		delete *iter;
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+		delete *iter;
 	Components.clear();
+	Subwindows.clear();
 }
 
 void Window_::Resize(Point position_, Point size_)
@@ -59,6 +64,20 @@ void Window_::AddComponent(Component *other)
 	other->toAdd = true;
 }
 
+void Window_::AddSubwindow(Window_ *other)
+{
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		// this component is already part of the window
+		if ((*iter) == other)
+		{
+			return;
+		}
+	}
+	Subwindows.push_back(other);
+	other->HasBorder(false);
+}
+
 void Window_::RemoveComponent(Component *other)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -72,6 +91,17 @@ void Window_::RemoveComponent(Component *other)
 		FocusComponent(NULL);
 	if (other == clicked)
 		clicked = NULL;
+}
+
+void Window_::RemoveSubwindow(Window_ *other)
+{
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		if ((*iter) == other)
+		{
+			(*iter)->toDelete = true;
+		}
+	}
 }
 
 void Window_::FocusComponent(Component *toFocus)
@@ -101,6 +131,15 @@ void Window_::UpdateComponents()
 			Components[i]->SetVisible(true);
 		}
 	}
+	for (int i = Subwindows.size()-1; i >= 0; i--)
+	{
+		Subwindows[i]->UpdateComponents();
+		if (Subwindows[i]->toDelete)
+		{
+			delete Subwindows[i];
+			Subwindows.erase(Subwindows.begin()+i);
+		}
+	}
 }
 
 void Window_::DoExit()
@@ -120,6 +159,10 @@ void Window_::DoDefocus()
 
 void Window_::DoTick(uint32_t ticks)
 {
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoTick(ticks);
+	}
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible())
@@ -129,11 +172,15 @@ void Window_::DoTick(uint32_t ticks)
 	OnTick(ticks);
 }
 
-void Window_::DoDraw()
+void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 {
 	// too lazy to create another variable which is temporary anyway
 	if (!ignoreQuits)
 		videoBuffer->Clear();
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoDraw(videoBuffer->GetVid(), size, Point(0, 0));
+	}
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible() && !IsFocused(*iter))
@@ -145,15 +192,21 @@ void Window_::DoDraw()
 
 	OnDraw(videoBuffer);
 
-	if (position.X > 0 || position.Y > 0 || size.X < XRES+BARSIZE || size.Y < YRES+MENUSIZE)
+	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
-	videoBuffer->CopyVideoBuffer(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, position.X, position.Y);
+	if (copyBuf)
+		videoBuffer->CopyVideoBuffer(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
 }
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
 {
 	if (!BeforeMouseMove(x, y, Point(dx, dy)))
 		return;
+	
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoMouseMove(x-position.X, y-position.Y, dx, dy);
+	}
 
 	bool alreadyInside = false;
 	if (dx || dy)
@@ -189,13 +242,19 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseDown(x, y, button))
 		return;
+	
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoMouseDown(x-position.X, y-position.Y, button);
+	}
 
-#ifndef TOUCHUI
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
+#ifndef TOUCHUI
 		mouseDownOutside = true;
-	}
 #endif
+		return;
+	}
 	isMouseDown = true;
 
 	bool focusedSomething = false;
@@ -226,12 +285,17 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseUp(x, y, button))
 		return;
+	
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoMouseUp(x-position.X, y-position.Y, button);
+	}
 
 #ifndef TOUCHUI
 	if (mouseDownOutside)
 	{
 		mouseDownOutside = false;
-		if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
+		if (hasBorder && (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y))
 		{
 			toDelete = true;
 		}
@@ -259,6 +323,11 @@ void Window_::DoMouseWheel(int x, int y, int d)
 {
 	if (!BeforeMouseWheel(x, y, d))
 		return;
+	
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoMouseWheel(x-position.X, y-position.Y, d);
+	}
 
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -274,6 +343,11 @@ void Window_::DoKeyPress(int key, unsigned short character, unsigned short modif
 	if (!BeforeKeyPress(key, character, modifiers))
 		return;
 
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoKeyPress(key, character, modifiers);
+	}
+	
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
@@ -287,6 +361,11 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned short mod
 {
 	if (!BeforeKeyRelease(key, character, modifiers))
 		return;
+	
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoKeyRelease(key, character, modifiers);
+	}
 
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
