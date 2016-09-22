@@ -57,7 +57,8 @@ void ScrollWindow::SetScrollPosition(int pos)
 		// update isMouseInside for this component
 		if (!alreadyInside && posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y)
 		{
-			temp->SetMouseInside(true);
+			if (!InsideSubwindow(lastMouseX, lastMouseY))
+				temp->SetMouseInside(true);
 			alreadyInside = true;
 		}
 		else

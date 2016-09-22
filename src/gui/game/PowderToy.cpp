@@ -31,6 +31,7 @@
 #include "gui/dialogs/ErrorPrompt.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
+#include "gui/rendermodes/RenderModesUI.h"
 
 PowderToy::~PowderToy()
 {
@@ -91,7 +92,8 @@ PowderToy::PowderToy():
 	clipboardSize(0),
 	loginCheckTicks(0),
 	loginFinished(0),
-	ignoreMouseUp(false)
+	ignoreMouseUp(false),
+	insideRenderOptions(false)
 {
 	ignoreQuits = true;
 	hasBorder = false;
@@ -519,7 +521,11 @@ void PowderToy::LoginButton()
 
 void PowderToy::RenderOptions()
 {
-	render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
+	//render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
+	RenderModesUI *test = new RenderModesUI();
+	this->AddSubwindow(test);
+	test->HasBorder(true);
+	insideRenderOptions = true;
 }
 
 void PowderToy::TogglePause()
@@ -1252,11 +1258,19 @@ void PowderToy::OnTick(uint32_t ticks)
 	else if (state == CUT)
 		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 #endif
+	if (insideRenderOptions && this->Subwindows.size() == 0)
+		insideRenderOptions = false;
 	VideoBufferHack();
 }
 
 void PowderToy::OnDraw(VideoBuffer *buf)
 {
+#ifdef LUACONSOLE
+	luacon_step(mouse.X, mouse.Y);
+	ExecuteEmbededLuaCode();
+#endif
+	if (insideRenderOptions)
+		return;
 	ARGBColour dotColor = 0;
 	if (svf_fileopen && svf_login && ctrlHeld)
 		dotColor = COLPACK(0x000000);
@@ -1297,10 +1311,6 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 			buf->DrawText(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
 		}*/
 	}
-#ifdef LUACONSOLE
-	luacon_step(mouse.X, mouse.Y);
-	ExecuteEmbededLuaCode();
-#endif
 }
 
 void PowderToy::OnMouseMove(int x, int y, Point difference)

@@ -48,6 +48,7 @@
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
+#include "graphics/Renderer.h"
 #include "interface/Engine.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
@@ -60,11 +61,7 @@
 
 #include "gui/game/PowderToy.h"
 
-//unsigned cmode = CM_FIRE;
-unsigned int *render_modes;
 unsigned int render_mode;
-unsigned int colour_mode;
-unsigned int *display_modes;
 unsigned int display_mode;
 gcache_item *graphicscache;
 
@@ -93,41 +90,6 @@ char * plasma_data;
 int plasma_data_points = 5;
 pixel plasma_data_colours[] = {PIXPACK(0xAFFFFF), PIXPACK(0xAFFFFF), PIXPACK(0x301060), PIXPACK(0x301040), PIXPACK(0x000000)};
 float plasma_data_pos[] = {1.0f, 0.9f, 0.5f, 0.25, 0.0f};
-
-void init_display_modes()
-{
-	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
-	render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
-	
-	display_modes[0] = 0;
-	render_modes[0] = RENDER_FIRE;
-	render_modes[1] = RENDER_SPRK;
-	render_modes[2] = RENDER_EFFE;
-	render_modes[3] = RENDER_BASC;
-	render_modes[4] = 0;
-	
-	update_display_modes();
-}
-
-// Combine all elements of the display_modes and render_modes arrays into single variables using bitwise or
-void update_display_modes()
-{
-	int i;
-	display_mode = 0;
-	i = 0;
-	while(display_modes[i])
-	{
-		display_mode |= display_modes[i];
-		i++;
-	}
-	render_mode = 0;
-	i = 0;
-	while(render_modes[i])
-	{
-		render_mode |= render_modes[i];
-		i++;
-	}
-}
 
 void DrawPixel(pixel * vid, pixel color, int x, int y)
 {
@@ -2160,6 +2122,7 @@ void render_parts(pixel *vid, Point mousePos)
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker;
+	unsigned int color_mode = Renderer::Ref().GetColorMode();
 	if (GRID_MODE)//draws the grid
 	{
 		for (ny=0; ny<YRES; ny++)
@@ -2228,7 +2191,7 @@ void render_parts(pixel *vid, Point mousePos)
 					fireg = graphicscache[t].fireg;
 					fireb = graphicscache[t].fireb;
 				}
-				else if(!(colour_mode & COLOUR_BASC))	//Don't get special effects for BASIC colour mode
+				else if(!(color_mode & COLOR_BASC))	//Don't get special effects for BASIC colour mode
 				{
 #ifdef LUACONSOLE
 					if (lua_gr_func[t])
@@ -2311,7 +2274,7 @@ void render_parts(pixel *vid, Point mousePos)
 				pixel_mode &= render_mode;
 				
 				//Alter colour based on display mode
-				if(colour_mode & COLOUR_HEAT)
+				if(color_mode & COLOR_HEAT)
 				{
 					if (heatmode == 0)
 						caddress = (int)restrict_flt((int)( restrict_flt((float)(parts[i].temp+(-MIN_TEMP)), 0.0f, MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3); //Not having that second (float) might be a bug, and is definetely needed if min&max temps are less than 1024 apart
@@ -2327,7 +2290,7 @@ void render_parts(pixel *vid, Point mousePos)
 					else if (!pixel_mode)
 						pixel_mode |= PMODE_FLAT;
 				}
-				else if(colour_mode & COLOUR_LIFE)
+				else if(color_mode & COLOR_LIFE)
 				{
 					gradv = 0.4f;
 					if (!(parts[i].life<5))
@@ -2341,7 +2304,7 @@ void render_parts(pixel *vid, Point mousePos)
 					else if (!pixel_mode)
 						pixel_mode |= PMODE_FLAT;
 				}
-				else if (colour_mode & COLOUR_BASC)
+				else if (color_mode & COLOR_BASC)
 				{
 					colr = COLR(globalSim->elements[t].Colour);
 					colg = COLG(globalSim->elements[t].Colour);
@@ -2349,7 +2312,7 @@ void render_parts(pixel *vid, Point mousePos)
 					pixel_mode = PMODE_FLAT;
 				}
 
-				if(!(colour_mode & ~COLOUR_GRAD))
+				if(!(color_mode & ~COLOR_GRAD))
 				{
 					if(!(pixel_mode & NO_DECO) && decorations_enable)
 					{
@@ -2397,7 +2360,7 @@ void render_parts(pixel *vid, Point mousePos)
 					}
 				}
 
-				if (colour_mode & COLOUR_GRAD)
+				if (color_mode & COLOR_GRAD)
 				{
 					float frequency = 0.05f;
 					int q = (int)parts[i].temp-40;
@@ -2453,7 +2416,7 @@ void render_parts(pixel *vid, Point mousePos)
 						drawtext(vid, mousePos.X-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousePos.Y-12, buff, 255, 255, 255, 255);
 					}
 
-					if (colour_mode!=COLOUR_HEAT && !(finding & ~0x8))
+					if (color_mode!=COLOR_HEAT && !(finding & ~0x8))
 					{
 						if (cplayer->elem<PT_NUM)
 						{
@@ -2483,7 +2446,7 @@ void render_parts(pixel *vid, Point mousePos)
 						legb = 255;
 					}
 
-					if (colour_mode==COLOUR_HEAT || (finding & ~0x8))
+					if (color_mode==COLOR_HEAT || (finding & ~0x8))
 					{
 						legr = colr;
 						legg = colg;
@@ -2810,7 +2773,10 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 		}
 		persist_counter = (persist_counter+1) % 3;
 	}
-
+#ifndef OGLR
+	if (render_mode & FIREMODE)
+		render_fire(part_vbuf);
+#endif
 	draw_other(part_vbuf);
 #ifndef RENDERER
 	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
@@ -2818,6 +2784,11 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #endif
 
 	render_signs(part_vbuf);
+
+#ifndef OGLR
+	if(vid_buf && ngrav_enable && (display_mode & DISPLAY_WARP))
+		render_gravlensing(part_vbuf, vid_buf);
+#endif
 
 	if (finding & 0x8)
 		draw_find();

@@ -104,6 +104,7 @@ private:
 	Button *stampButton;
 #endif
 	bool ignoreMouseUp;
+	bool insideRenderOptions;
 
 public:
 	PowderToy();
@@ -173,6 +174,8 @@ public:
 	void LoginButton();
 	void RenderOptions();
 	void TogglePause();
+	
+	bool IsinsideRenderOptions() { return insideRenderOptions; }
 
 #ifdef TOUCHUI
 	void ToggleErase(bool alt);

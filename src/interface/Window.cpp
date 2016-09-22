@@ -177,10 +177,6 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	// too lazy to create another variable which is temporary anyway
 	if (!ignoreQuits)
 		videoBuffer->Clear();
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
-	{
-		(*iter)->DoDraw(videoBuffer->GetVid(), size, Point(0, 0));
-	}
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible() && !IsFocused(*iter))
@@ -189,6 +185,10 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	// draw the focused component on top
 	if (focused)
 		focused->OnDraw(videoBuffer);
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoDraw(videoBuffer->GetVid(), size, (*iter)->GetPosition());
+	}
 
 	OnDraw(videoBuffer);
 
@@ -221,7 +221,8 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 				// update isMouseInside for this component
 				if (!alreadyInside && posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y)
 				{
-					temp->SetMouseInside(true);
+					if (!InsideSubwindow(x, y))
+						temp->SetMouseInside(true);
 					alreadyInside = true;
 				}
 				else
@@ -248,6 +249,8 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 		(*iter)->DoMouseDown(x-position.X, y-position.Y, button);
 	}
 
+	if (InsideSubwindow(x, y))
+		return;
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
 #ifndef TOUCHUI
@@ -379,4 +382,17 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned short mod
 void Window_::VideoBufferHack()
 {
 	std::copy(&vid_buf[0], &vid_buf[(XRES+BARSIZE)*(YRES+MENUSIZE)], &videoBuffer->GetVid()[0]);
+}
+
+bool Window_::InsideSubwindow(int x, int y)
+{
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		Window_* wind = (*iter);
+		if (Point(x, y).IsInside(wind->GetPosition(), wind->GetPosition()+wind->GetSize()))
+		{
+			return true;
+		}
+	}
+	return false;
 }

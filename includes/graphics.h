@@ -23,10 +23,7 @@
 
 extern pixel sampleColor;
 
-extern unsigned int *render_modes;
 extern unsigned int render_mode;
-extern unsigned int colour_mode;
-extern unsigned int *display_modes;
 extern unsigned int display_mode;
 
 #if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
@@ -200,9 +197,6 @@ void SetSDLVideoMode(int width, int height);
 int set_scale(int scale, int kiosk);
 
 int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y);
-
-void init_display_modes();
-void update_display_modes();
 
 #endif
 

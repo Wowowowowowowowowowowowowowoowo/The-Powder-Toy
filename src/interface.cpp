@@ -67,6 +67,7 @@
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
+#include "graphics/Renderer.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -2876,6 +2877,8 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 
 void menu_draw_text(Tool* over, int y)
 {
+	if (the_game->IsinsideRenderOptions())
+		return;
 	std::stringstream toolTip;
 	int toolID = over->GetID();
 	if (over->GetType() == ELEMENT_TOOL)
@@ -2954,6 +2957,8 @@ void menu_draw_text(Tool* over, int y)
 
 void menu_select_element(int b, Tool* over)
 {
+	if (the_game->IsinsideRenderOptions())
+		return;
 	int toolID = over->GetID();
 	if (b==1 && over)
 	{
@@ -3590,66 +3595,36 @@ void set_cmode(int cm) // sets to given view mode
 {
 	int cmode = cm;
 	std::string toolTip = "Error: Incorrect Display Number";
-	colour_mode = COLOUR_DEFAULT;
-	
-	free(render_modes);
-	render_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-	render_modes[0] = RENDER_BASC;
-	render_modes[1] = 0;
-	
-	free(display_modes);
-	display_modes = (unsigned int*)calloc(1, sizeof(unsigned int));
-	display_modes[0] = 0;
+
+	Renderer::Ref().ClearRenderModes();
+	Renderer::Ref().AddRenderMode(RENDER_BASC);
+	Renderer::Ref().ClearDisplayModes();
+	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
 
 	if (cmode==CM_VEL)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
-		render_modes[0] = RENDER_EFFE;
-		render_modes[1] = RENDER_BASC;
-		render_modes[2] = 0;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_AIRV;
-		display_modes[1] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddDisplayMode(DISPLAY_AIRV);
 		toolTip = "Velocity Display";
 	}
 	else if (cmode==CM_PRESS)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
-		render_modes[0] = RENDER_EFFE;
-		render_modes[1] = RENDER_BASC;
-		render_modes[2] = 0;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_AIRP;
-		display_modes[1] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddDisplayMode(DISPLAY_AIRP);
 		toolTip = "Pressure Display";
 	}
 	else if (cmode==CM_PERS)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
-		render_modes[0] = RENDER_EFFE;
-		render_modes[1] = RENDER_BASC;
-		render_modes[2] = 0;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_PERS;
-		display_modes[1] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddDisplayMode(DISPLAY_PERS);
 		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		toolTip = "Persistent Display";
 	}
 	else if (cmode==CM_FIRE)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
-		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_SPRK;
-		render_modes[2] = RENDER_EFFE;
-		render_modes[3] = RENDER_BASC;
-		render_modes[4] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_FIRE);
+		Renderer::Ref().AddRenderMode(RENDER_SPRK);
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3657,13 +3632,10 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_BLOB)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(5, sizeof(unsigned int));
-		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_SPRK;
-		render_modes[2] = RENDER_EFFE;
-		render_modes[3] = RENDER_BLOB;
-		render_modes[4] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_FIRE);
+		Renderer::Ref().AddRenderMode(RENDER_SPRK);
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddRenderMode(RENDER_BLOB);
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3671,29 +3643,18 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_HEAT)
 	{
-		colour_mode = COLOUR_HEAT;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_mode |= DISPLAY_AIRH;
-		display_modes[0] = DISPLAY_AIRH;
-		display_modes[1] = 0;
+		Renderer::Ref().AddDisplayMode(DISPLAY_AIRH);
+		Renderer::Ref().SetColorMode(COLOR_HEAT);
 		toolTip = "Heat Display";
 	}
 	else if (cmode==CM_FANCY)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(7, sizeof(unsigned int));
-		render_modes[0] = RENDER_FIRE;
-		render_modes[1] = RENDER_SPRK;
-		render_modes[2] = RENDER_GLOW;
-		render_modes[3] = RENDER_BLUR;
-		render_modes[4] = RENDER_EFFE;
-		render_modes[5] = RENDER_BASC;
-		render_modes[6] = 0;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_WARP;
-		display_modes[1] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_FIRE);
+		Renderer::Ref().AddRenderMode(RENDER_SPRK);
+		Renderer::Ref().AddRenderMode(RENDER_GLOW);
+		Renderer::Ref().AddRenderMode(RENDER_BLUR);
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddDisplayMode(DISPLAY_WARP);
 		memset(fire_r, 0, sizeof(fire_r));
 		memset(fire_g, 0, sizeof(fire_g));
 		memset(fire_b, 0, sizeof(fire_b));
@@ -3705,30 +3666,25 @@ void set_cmode(int cm) // sets to given view mode
 	}
 	else if (cmode==CM_GRAD)
 	{
-		colour_mode = COLOUR_GRAD;
+		Renderer::Ref().SetColorMode(COLOR_GRAD);
 		toolTip = "Heat Gradient Display";
 	}
 	else if (cmode==CM_LIFE)
 	{
-		colour_mode = COLOUR_LIFE;
+		Renderer::Ref().SetColorMode(COLOR_LIFE);
 		toolTip = "Life Gradient Display";
 	}
 	else if (cmode==CM_CRACK)
 	{
-		free(render_modes);
-		render_modes = (unsigned int*)calloc(3, sizeof(unsigned int));
-		render_modes[0] = RENDER_EFFE;
-		render_modes[1] = RENDER_BASC;
-		render_modes[2] = 0;
-		free(display_modes);
-		display_modes = (unsigned int*)calloc(2, sizeof(unsigned int));
-		display_modes[0] = DISPLAY_AIRC;
-		display_modes[1] = 0;
+		Renderer::Ref().AddRenderMode(RENDER_EFFE);
+		Renderer::Ref().AddDisplayMode(DISPLAY_AIRC);
 		toolTip = "Alternate Velocity Display";
 	}
+	render_mode = Renderer::Ref().GetRenderModesRaw();
+	display_mode = Renderer::Ref().GetDisplayModesRaw();
+
 	UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 
-	update_display_modes();// Update render_mode and display_mode from the relevant arrays
 	save_presets();
 }
 
@@ -7984,319 +7940,6 @@ void drawIcon(pixel * vid_buf, int x, int y, int cmode)
 		drawtext(vid_buf, x, y, "\xD5", 55, 255, 55, 255);
 		break;
 	}
-}
-
-void render_ui(pixel * vid_buf, int xcoord, int ycoord, int orientation)
-{
-	pixel * o_vid_buf;
-	pixel *part_vbuf; //Extra video buffer
-	pixel *part_vbuf_store;
-	int i, j, count, changed, temp;
-	int xsize;
-	int ysize;
-	int yoffset;
-	int xoffset;
-	int xcoffset;
-	int b, bq, mx, my;
-	ui_checkbox *render_cb;
-	ui_checkbox *display_cb;
-	ui_checkbox *colour_cb;
-
-	int render_optioncount = 8;
-	const unsigned int render_options[] = {RENDER_EFFE, RENDER_GLOW, RENDER_FIRE, RENDER_BLUR, RENDER_BASC, RENDER_BLOB, RENDER_SPRK, RENDER_NONE};
-	const unsigned int render_optionicons[] = {0xE1, 0xDF, 0x9B, 0xC4, 0xDB, 0xBF, 0xDF, 0xDB};
-	const char * render_desc[] = {"Effects", "Glow", "Fire", "Blur", "Basic", "Blob", "Spark", "None"};
-
-	int display_optioncount = 6;
-	const unsigned int display_options[] = {DISPLAY_AIRC, DISPLAY_AIRP, DISPLAY_AIRV, DISPLAY_AIRH, DISPLAY_WARP, DISPLAY_PERS};
-	const unsigned int display_optionicons[] = {0xD4, 0x99, 0x98, 0xBE, 0xDE, 0x9A};
-	const char * display_desc[] = {"Air: Cracker", "Air: Pressure", "Air: Velocity", "Air: Heat", "Warp effect", "Persistent"};
-
-	int colour_optioncount = 4;
-	const unsigned int colour_options[] = {COLOUR_BASC, COLOUR_LIFE, COLOUR_HEAT, COLOUR_GRAD};
-	const unsigned int colour_optionicons[] = {0xDB, 0xE0, 0xBE, 0xD3};
-	const char * colour_desc[] = {"Basic", "Life", "Heat", "Heat Gradient"};
-
-	yoffset = 16;
-	xoffset = 0;
-	
-	xcoffset = 35;
-	
-	xsize = xcoffset*3;
-	ysize = render_optioncount * yoffset + 6;
-	
-	ycoord -= ysize;
-	xcoord -= xsize;
-	
-	colour_cb = (ui_checkbox*)calloc(colour_optioncount, sizeof(ui_checkbox));
-	for(i = 0; i < colour_optioncount; i++)
-	{
-		colour_cb[i].x = (xcoffset * 0) + xcoord + (i * xoffset) + 5;
-		colour_cb[i].y = ycoord + (i * yoffset) + 5;
-		colour_cb[i].focus = 0;
-		colour_cb[i].checked = 0;
-		j = 0;
-		if(colour_mode == colour_options[i])
-		{
-			colour_cb[i].checked = 1;
-		}
-	}
-	
-	render_cb = (ui_checkbox*)calloc(render_optioncount, sizeof(ui_checkbox));
-	for(i = 0; i < render_optioncount; i++)
-	{
-		render_cb[i].x = (xcoffset * 1) + xcoord + (i * xoffset) + 5;
-		render_cb[i].y = ycoord + (i * yoffset) + 5;
-		render_cb[i].focus = 0;
-		render_cb[i].checked = 0;
-		j = 0;
-		while(render_modes[j])
-		{
-			if(render_modes[j] == render_options[i])
-			{
-				render_cb[i].checked = 1;
-				break;
-			}
-			j++;
-		}
-	}
-	
-	display_cb = (ui_checkbox*)calloc(display_optioncount, sizeof(ui_checkbox));
-	for(i = 0; i < display_optioncount; i++)
-	{
-		display_cb[i].x = (xcoffset * 2) + xcoord + (i * xoffset) + 5;
-		display_cb[i].y = ycoord + (i * yoffset) + 5;
-		display_cb[i].focus = 0;
-		display_cb[i].checked = 0;
-		j = 0;
-		while(display_modes[j])
-		{
-			if(display_modes[j] == display_options[i])
-			{
-				display_cb[i].checked = 1;
-				break;
-			}
-			j++;
-		}
-	}
-	
-	o_vid_buf = (pixel*)calloc((YRES+MENUSIZE) * (XRES+BARSIZE), PIXELSIZE);
-	//memcpy(o_vid_buf, vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
-	
-	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
-	part_vbuf_store = part_vbuf;
-	
-	if (!o_vid_buf || !part_vbuf || !display_cb || !colour_cb || !render_cb)
-	{
-		if(o_vid_buf)
-			free(o_vid_buf);
-		if(part_vbuf)
-			free(part_vbuf);
-		if (display_cb)
-			free(display_cb);
-		if (colour_cb)
-			free(colour_cb);
-		if (render_cb)
-			free(render_cb);
-		return;
-	}
-	while (!sdl_poll())
-	{
-		b = mouse_get_state(&mx, &my);
-		if (!b)
-			break;
-	}
-	
-	while (!sdl_poll())
-	{
-		bq = b;
-		b = mouse_get_state(&mx, &my);
-		
-		memcpy(vid_buf, o_vid_buf, ((YRES+MENUSIZE) * (XRES+BARSIZE)) * PIXELSIZE);
-
-		if(ngrav_enable && (display_mode & DISPLAY_WARP))
-		{
-			part_vbuf = part_vbuf_store;
-			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-		} else {
-			part_vbuf = vid_buf;
-		}
-
-		render_before(part_vbuf);
-		render_after(part_vbuf, vid_buf, Point(0,0));
-		if (old_menu)
-		{
-			for (i=0; i<SC_TOTAL; i++)
-			{
-				if (i < SC_FAV)
-					drawchar(vid_buf, XRES+1, /*(12*i)+2*/((YRES/GetNumMenus())*i)+((YRES/GetNumMenus())/2)+5, menuSections[i]->icon, 255, 255, 255, 255);
-			}
-		}
-		else
-		{
-			QuickoptionsMenu(vid_buf, b, bq, mx, my);
-#ifdef TOUCHUI
-				DrawMenusTouch(vid_buf, 0, 0, 0, 0);
-#else
-				DrawMenus(vid_buf, active_menu, my);
-#endif
-		}
-		
-		clearrect(vid_buf, xcoord-1, ycoord-1, xsize+3, ysize+3);
-		drawrect(vid_buf, xcoord, ycoord, xsize, ysize, 192, 192, 192, 255);
-		
-		changed = 0;
-		for(i = 0; i < render_optioncount; i++)
-		{
-			temp = render_cb[i].checked;
-			drawIcon(vid_buf, render_cb[i].x + 16, render_cb[i].y+2, render_optionicons[i]);
-			ui_checkbox_draw(vid_buf, &(render_cb[i]));
-			ui_checkbox_process(mx, my, b, bq, &(render_cb[i]));
-			if(render_cb[i].focus)
-				drawtext(vid_buf, xcoord - textwidth(render_desc[i]) - 10, render_cb[i].y+2, render_desc[i], 255, 255, 255, 255);
-			if(temp != render_cb[i].checked)
-				changed = 1;
-		}
-		if(changed)
-		{
-			//Compile render options
-			count = 1;
-			for(i = 0; i < render_optioncount; i++)
-			{
-				if(render_cb[i].checked)
-					count++;
-			}
-			free(render_modes);
-			render_mode = 0;
-			render_modes = (unsigned int*)calloc(count, sizeof(unsigned int));
-			count = 0;
-			for(i = 0; i < render_optioncount; i++)
-			{
-				if(render_cb[i].checked)
-				{
-					render_modes[count] = render_options[i];
-					render_mode |= render_options[i];
-					count++;
-				}
-			}
-		}
-		
-		changed = 0;
-		for(i = 0; i < display_optioncount; i++)
-		{
-			temp = display_cb[i].checked;
-			drawIcon(vid_buf, display_cb[i].x + 16, display_cb[i].y+2, display_optionicons[i]);
-
-			if(display_options[i] & DISPLAY_AIR)
-			{
-				ui_radio_draw(vid_buf, &(display_cb[i]));
-				ui_radio_process(mx, my, b, bq, &(display_cb[i]));
-			}
-			else
-			{
-				ui_checkbox_draw(vid_buf, &(display_cb[i]));
-				ui_checkbox_process(mx, my, b, bq, &(display_cb[i]));
-			}
-			if(display_cb[i].checked && (display_options[i] & DISPLAY_AIR))	//One air type only
-			{
-				for(j = 0; j < display_optioncount; j++)
-				{
-					if((display_options[j] & DISPLAY_AIR) && j!=i)
-					{
-						display_cb[j].checked = 0;
-					}
-				}
-			}
-			if(display_cb[i].focus)
-				drawtext(vid_buf, xcoord - textwidth(display_desc[i]) - 10, display_cb[i].y+2, display_desc[i], 255, 255, 255, 255);
-			if(temp != display_cb[i].checked)
-				changed = 1;
-		}
-		if(changed)
-		{
-			//Compile display options
-			count = 1;
-			for(i = 0; i < display_optioncount; i++)
-			{
-				if(display_cb[i].checked)
-					count++;
-			}
-			free(display_modes);
-			display_mode = 0;
-			display_modes = (unsigned int*)calloc(count, sizeof(unsigned int));
-			count = 0;
-			for(i = 0; i < display_optioncount; i++)
-			{
-				if(display_cb[i].checked)
-				{
-					display_modes[count] = display_options[i];
-					display_mode |= display_options[i];
-					count++;
-				}
-			}
-		}
-		
-		changed = 0;
-		for(i = 0; i < colour_optioncount; i++)
-		{
-			temp = colour_cb[i].checked;
-			drawIcon(vid_buf, colour_cb[i].x + 16, colour_cb[i].y+2, colour_optionicons[i]);
-			ui_radio_draw(vid_buf, &(colour_cb[i]));
-			ui_radio_process(mx, my, b, bq, &(colour_cb[i]));
-			if(colour_cb[i].checked)	//One colour only
-			{
-				for(j = 0; j < colour_optioncount; j++)
-				{
-					if(j!=i)
-					{
-						colour_cb[j].checked = 0;
-					}
-				}
-			}
-			if(colour_cb[i].focus)
-				drawtext(vid_buf, xcoord - textwidth(colour_desc[i]) - 10, colour_cb[i].y+2, colour_desc[i], 255, 255, 255, 255);
-			if(temp != colour_cb[i].checked)
-				changed = 1;
-		}
-		if(changed)
-		{
-			//Compile colour options
-			colour_mode = 0;
-			for(i = 0; i < colour_optioncount; i++)
-			{
-				if(colour_cb[i].checked)
-				{
-					colour_mode |= colour_options[i];
-				}
-			}
-		}
-
-		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-		
-		if (sdl_key==SDLK_RETURN)
-			break;
-		if (sdl_key==SDLK_ESCAPE)
-			break;
-		if (b && !bq && (mx < xcoord || mx > xcoord+xsize || my < ycoord || my > ycoord+ysize))
-			break;
-	}
-	
-	free(colour_cb);
-	
-	free(render_cb);
-	
-	free(display_cb);
-	
-	while (!sdl_poll())
-	{
-		b = mouse_get_state(&mx, &my);
-		if (!b)
-			break;
-	}
-	
-	free(part_vbuf_store);
-	
-	free(o_vid_buf);
 }
 
 void simulation_ui(pixel * vid_buf)

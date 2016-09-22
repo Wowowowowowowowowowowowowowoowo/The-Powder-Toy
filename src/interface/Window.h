@@ -80,6 +80,7 @@ protected:
 	virtual bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers) { return true; }
 
 	void VideoBufferHack();
+	bool InsideSubwindow(int x, int y);
 private:
 	bool mouseDownOutside;
 	VideoBuffer* videoBuffer;

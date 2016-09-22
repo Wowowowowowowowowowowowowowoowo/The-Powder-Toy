@@ -317,8 +317,6 @@ void init_color_boxes();
 
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);
 
-void render_ui(pixel *vid_buf, int xcoord, int ycoord, int orientation);
-
 void simulation_ui(pixel *vid_buf);
 
 int mouse_get_state(int *x, int *y);

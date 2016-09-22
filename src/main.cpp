@@ -83,6 +83,7 @@
 #include "simulation/elements/STKM.h"
 
 // new interface stuff
+#include "graphics/Renderer.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
 #include "gui/dialogs/ErrorPrompt.h"
@@ -842,7 +843,9 @@ int main(int argc, char *argv[])
 	mainSim->InitElements();
 	globalSim = mainSim;
 
-	colour_mode = COLOUR_DEFAULT;
+	render_mode = Renderer::Ref().GetRenderModesRaw();
+	display_mode = Renderer::Ref().GetDisplayModesRaw();
+	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
 	init_display_modes();
 	TRON_init_graphics();
 
@@ -1158,8 +1161,9 @@ int main(int argc, char *argv[])
 	luacon_open();
 #endif
 	
-	colour_mode = COLOUR_DEFAULT;
-	init_display_modes();
+	render_mode = Renderer::Ref().GetRenderModesRaw();
+	display_mode = Renderer::Ref().GetDisplayModesRaw();
+	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
 	TRON_init_graphics();
 	init_color_boxes();
 
@@ -1759,7 +1763,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='6')
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					colour_mode = colour_mode == COLOUR_HEAT ? 0:COLOUR_HEAT;
+					Renderer::Ref().XORColorMode(COLOR_HEAT);
 				else
 					set_cmode(CM_HEAT);
 			}
@@ -1777,7 +1781,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='9')
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					colour_mode = colour_mode == COLOUR_GRAD ? 0:COLOUR_GRAD;
+					Renderer::Ref().XORColorMode(COLOR_GRAD);
 				else
 					set_cmode(CM_GRAD);
 			}
@@ -1791,7 +1795,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					colour_mode = colour_mode == COLOUR_LIFE ? 0:COLOUR_LIFE;
+					Renderer::Ref().XORColorMode(COLOR_LIFE);
 				else
 					set_cmode(CM_LIFE);
 			}

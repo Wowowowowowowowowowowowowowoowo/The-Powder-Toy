@@ -32,6 +32,7 @@
 #include "common/Platform.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
+#include "graphics/Renderer.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -1288,7 +1289,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_bool(&b, "aheat_enable", aheat_enable);
 	bson_append_int(&b, "render_mode", render_mode);
 	bson_append_int(&b, "display_mode", display_mode);
-	bson_append_int(&b, "color_mode", colour_mode);
+	bson_append_int(&b, "color_mode", Renderer::Ref().GetColorMode());
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
 	bson_append_int(&b, "edgeMode", globalSim->GetEdgeMode());
 	
@@ -1958,7 +1959,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		{
 			if(bson_iterator_type(&iter)==BSON_INT)
 			{
-				colour_mode = bson_iterator_int(&iter);
+				Renderer::Ref().SetColorMode(bson_iterator_int(&iter));
 			}
 			else
 			{
