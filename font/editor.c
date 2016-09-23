@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 		}
 		else if (sdl_key == SDLK_RETURN)
 		{
-			int val = (x > 255) ? 255 : x;
+			int val = (x/2 > 255) ? 255 : x/2;
 			switch (inputColor)
 			{
 				case 1:
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
 		{
 			char temptext[64];
 			//drawtext(vid_buf, 64, 192+40*CELLH, "Due to extreme laziness, you must move the mouse and press enter to set the color of this icon", 255, 255, 255);
-			sprintf(temptext, "Press enter to set %s color to: %i", inputColor == 1 ? "red" : (inputColor == 2 ? "green" : "blue"), (x > 255) ? 255 : x);
+			sprintf(temptext, "Press enter to set %s color to: %i", inputColor == 1 ? "red" : (inputColor == 2 ? "green" : "blue"), (x*SCALE/2 > 255) ? 255 : x*SCALE/2);
 			drawtext(vid_buf, 64, 192+40*CELLH, temptext, 255, 255, 255);
 		}
 #endif
