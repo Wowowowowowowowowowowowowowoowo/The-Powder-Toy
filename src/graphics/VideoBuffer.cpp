@@ -216,7 +216,9 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 			ba >>= 2;
 			bn -= 2;
 		}
-	return x + (flags&0x1 ? 0 : w);
+	if (flags&0x1)
+		return std::max(x+w, DrawChar(x, y, c+1, r, g, b, a, modifiedColor));
+	return x + w;
 }
 
 int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int a)
@@ -321,6 +323,8 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 signed char VideoBuffer::CharSize(unsigned char c)
 {
 	short font_ptr = font_ptrs[static_cast<int>(c)];
+	if (font_data[font_ptr+1]&0x40)
+		return std::max((signed char)font_data[font_ptr], CharSize(c+1));
 	return (font_data[font_ptr+1]&0x40) ? 0 : font_data[font_ptr];
 }
 

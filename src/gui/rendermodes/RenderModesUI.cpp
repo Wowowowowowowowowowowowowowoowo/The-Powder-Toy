@@ -123,9 +123,9 @@ void RenderModesUI::InitializeCheckboxes()
 
 	Checkbox *glowCheckbox = new Checkbox(effectsCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xDF");
 	InitializeRenderCheckbox(glowCheckbox, RENDER_GLOW);
-	SetCheckboxToolTip(effectsCheckbox, "Glow effect on some elements");
+	SetCheckboxToolTip(glowCheckbox, "Glow effect on some elements");
 
-	Checkbox *fireCheckbox = new Checkbox(effectsCheckbox->Right(Point(4, 0)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\x98");
+	Checkbox *fireCheckbox = new Checkbox(effectsCheckbox->Right(Point(4, 0)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\x9B");
 	InitializeRenderCheckbox(fireCheckbox, RENDER_FIRE);
 	SetCheckboxToolTip(fireCheckbox, "Fire effect for gasses");
 
@@ -163,7 +163,7 @@ void RenderModesUI::InitializeCheckboxes()
 	InitializeDisplayCheckbox(airVelocityCheckbox, DISPLAY_AIRV);
 	SetCheckboxToolTip(airVelocityCheckbox, "Displays velocity and positive pressure: up/down adds blue, right/left adds red, still pressure adds green");
 
-	Checkbox *airHeatCheckbox = new Checkbox(airVelocityCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xBE");
+	Checkbox *airHeatCheckbox = new Checkbox(airVelocityCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xBD");
 	InitializeDisplayCheckbox(airHeatCheckbox, DISPLAY_AIRH);
 	SetCheckboxToolTip(airHeatCheckbox, "Displays the temperature of the air like heat display does");
 
@@ -185,11 +185,11 @@ void RenderModesUI::InitializeCheckboxes()
 	InitializeColorCheckbox(lifeCheckbox, COLOR_LIFE);
 	SetCheckboxToolTip(lifeCheckbox, "Displays the life value of elements in greyscale gradients");
 
-	Checkbox *heatCheckbox = new Checkbox(basic2Checkbox->Right(Point(4, 0)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xDB");
+	Checkbox *heatCheckbox = new Checkbox(basic2Checkbox->Right(Point(4, 0)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xBD");
 	InitializeColorCheckbox(heatCheckbox, COLOR_HEAT);
 	SetCheckboxToolTip(heatCheckbox, "Displays temperatures of the elements, dark blue is coldest, pink is hottest");
 
-	Checkbox *heatGradientCheckbox = new Checkbox(heatCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xE0");
+	Checkbox *heatGradientCheckbox = new Checkbox(heatCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xD3");
 	InitializeColorCheckbox(heatGradientCheckbox, COLOR_GRAD);
 	SetCheckboxToolTip(heatGradientCheckbox, "Changes colors of elements slightly to show heat diffusing through them");
 }

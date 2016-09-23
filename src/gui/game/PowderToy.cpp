@@ -227,7 +227,7 @@ PowderToy::PowderToy():
 			dynamic_cast<PowderToy*>(button->GetParent())->RenderOptions();
 		}
 	};
-	renderOptionsButton = new Button(pauseButton->Left(Point(18, 0)), Point(17, ySize), "\x0F\xFF\x01\x01\xD8\x0F\x01\xFF\x01\xD9\x0F\x01\x01\xFF\xDA");
+	renderOptionsButton = new Button(pauseButton->Left(Point(18, 0)), Point(17, ySize), "\xD8");
 	renderOptionsButton->SetCallback(new RenderOptionsAction());
 	renderOptionsButton->SetTooltip(new ToolTip("Renderer options", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(renderOptionsButton);
@@ -521,10 +521,9 @@ void PowderToy::LoginButton()
 
 void PowderToy::RenderOptions()
 {
-	//render_ui(vid_buf, XRES+BARSIZE-(510-491)+1, YRES+22, 3);
-	RenderModesUI *test = new RenderModesUI();
-	this->AddSubwindow(test);
-	test->HasBorder(true);
+	RenderModesUI *renderModes = new RenderModesUI();
+	this->AddSubwindow(renderModes);
+	renderModes->HasBorder(true);
 	insideRenderOptions = true;
 }
 
