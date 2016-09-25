@@ -176,6 +176,7 @@ public:
 	void TogglePause();
 	
 	bool IsinsideRenderOptions() { return insideRenderOptions; }
+	void LoadRenderPreset(int preset);
 
 #ifdef TOUCHUI
 	void ToggleErase(bool alt);

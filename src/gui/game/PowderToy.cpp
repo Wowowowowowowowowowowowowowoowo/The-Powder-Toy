@@ -9,6 +9,7 @@
 #include "gravity.h"
 #include "luaconsole.h"
 #include "powder.h"
+#include "powdergraphics.h"
 #include "misc.h"
 #include "save.h"
 #include "update.h"
@@ -19,6 +20,7 @@
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
+#include "graphics/Renderer.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
 #include "interface/Engine.h"
@@ -835,6 +837,16 @@ Button * PowderToy::AddNotification(std::string message)
 	AddComponent(notificationButton);
 	numNotifications++;
 	return notificationButton;
+}
+
+void PowderToy::LoadRenderPreset(int preset)
+{
+	if (Renderer::Ref().LoadRenderPreset(preset))
+	{
+		std::string tooltip = Renderer::Ref().GetRenderPresetToolTip(preset);
+		UpdateToolTip(tooltip, Point(XCNTR-VideoBuffer::TextSize(tooltip).X/2, YCNTR-10), INFOTIP, 255);
+		save_presets();
+	}
 }
 
 // Engine events
@@ -1970,6 +1982,70 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			zoomFactor = 256/zoomSize;
 			UpdateZoomCoordinates(zoomMousePosition);
 		}
+		break;
+	case SDLK_1:
+		if (shiftHeld && DEBUG_MODE)
+		{
+			if (ctrlHeld)
+				Renderer::Ref().XORColorMode(COLOR_LIFE);
+			else
+				LoadRenderPreset(CM_LIFE);
+		}
+		else if (ctrlHeld)
+			Renderer::Ref().ToggleDisplayMode(DISPLAY_AIRV);
+		else
+			LoadRenderPreset(CM_VEL);
+		break;
+	case SDLK_2:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleDisplayMode(DISPLAY_AIRP);
+		else
+			LoadRenderPreset(CM_PRESS);
+		break;
+	case SDLK_3:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleDisplayMode(DISPLAY_PERS);
+		else
+			LoadRenderPreset(CM_PERS);
+		break;
+	case SDLK_4:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleRenderMode(FIREMODE);
+		else
+			LoadRenderPreset(CM_FIRE);
+		break;
+	case SDLK_5:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleRenderMode(PMODE_BLOB);
+		else
+			LoadRenderPreset(CM_BLOB);
+		break;
+	case SDLK_6:
+		if (ctrlHeld)
+			Renderer::Ref().XORColorMode(COLOR_HEAT);
+		else
+			LoadRenderPreset(CM_HEAT);
+		break;
+	case SDLK_7:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleDisplayMode(DISPLAY_WARP);
+		else
+			LoadRenderPreset(CM_FANCY);
+		break;
+	case SDLK_8:
+		LoadRenderPreset(CM_NOTHING);
+		break;
+	case SDLK_9:
+		if (ctrlHeld)
+			Renderer::Ref().XORColorMode(COLOR_GRAD);
+		else
+			LoadRenderPreset(CM_GRAD);
+		break;
+	case SDLK_0:
+		if (ctrlHeld)
+			Renderer::Ref().ToggleDisplayMode(DISPLAY_AIRC);
+		else
+			LoadRenderPreset(CM_CRACK);
 		break;
 	}
 }

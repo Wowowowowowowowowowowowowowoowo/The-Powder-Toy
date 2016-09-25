@@ -48,6 +48,7 @@ extern "C"
 #include "common/SDL_keysym.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "graphics/Renderer.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -2396,7 +2397,7 @@ int luatpt_heat(lua_State* l)
 int luatpt_cmode_set(lua_State* l)
 {
 	int cmode = luaL_optint(l, 1, CM_FIRE);
-	set_cmode(cmode);
+	Renderer::Ref().LoadRenderPreset(cmode);
 	return 0;
 }
 

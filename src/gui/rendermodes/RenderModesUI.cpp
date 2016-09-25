@@ -1,6 +1,7 @@
 #include "RenderModesUI.h"
 #include "defines.h"
 #include "graphics.h"
+#include "misc.h"
 #include "powdergraphics.h"
 #include "common/Point.h"
 #include "game/ToolTip.h"
@@ -21,7 +22,7 @@ RenderModesUI::RenderModesUI():
 	colorCheckboxes(std::vector<std::pair<Checkbox*, unsigned int> >())
 {
 	InitializeCheckboxes();
-
+	InitializeButtons();
 }
 
 class ToggleRenderModeAction : public CheckboxAction
@@ -40,7 +41,6 @@ public:
 			Renderer::Ref().AddRenderMode(render_md);
 		else
 			Renderer::Ref().RemoveRenderMode(render_md);
-		render_mode = Renderer::Ref().GetRenderModesRaw();
 	}
 };
 
@@ -192,6 +192,87 @@ void RenderModesUI::InitializeCheckboxes()
 	Checkbox *heatGradientCheckbox = new Checkbox(heatCheckbox->Below(Point(0, 2)), Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE), "\xD3");
 	InitializeColorCheckbox(heatGradientCheckbox, COLOR_GRAD);
 	SetCheckboxToolTip(heatGradientCheckbox, "Changes colors of elements slightly to show heat diffusing through them");
+}
+
+void RenderModesUI::InitializeButtons()
+{
+	class ToggleDisplayPresetAction : public ButtonAction
+	{
+		int display_preset;
+	public:
+		ToggleDisplayPresetAction(int display_preset):
+			display_preset(display_preset)
+		{
+
+		}
+
+		virtual void ButtionActionCallback(Button *button, unsigned char b)
+		{
+			if (Renderer::Ref().LoadRenderPreset(display_preset))
+			{
+				std::string tooltip = Renderer::Ref().GetRenderPresetToolTip(display_preset);
+				UpdateToolTip(tooltip, Point(XCNTR-textwidth(tooltip.c_str())/2, YCNTR-10), INFOTIP, 255);
+				save_presets();
+			}
+		}
+	};
+
+	Point buttonSize = Point(31, 16);
+
+	Button *pressureButton = new Button(Point(XRES-34, 3), buttonSize, "\x99");
+	pressureButton->SetTooltip(new ToolTip("Pressure display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	pressureButton->SetCallback(new ToggleDisplayPresetAction(CM_PRESS));
+	this->AddComponent(pressureButton);
+
+	Button *velocityButton = new Button(pressureButton->Below(Point(0, 2)), buttonSize, "\x98");
+	velocityButton->SetTooltip(new ToolTip("Velocity display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	velocityButton->SetCallback(new ToggleDisplayPresetAction(CM_VEL));
+	this->AddComponent(velocityButton);
+
+	Button *persistentButton = new Button(pressureButton->Left(Point(35, 0)), buttonSize, "\x9A");
+	persistentButton->SetTooltip(new ToolTip("Persistent display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	persistentButton->SetCallback(new ToggleDisplayPresetAction(CM_PERS));
+	this->AddComponent(persistentButton);
+
+	Button *fireButton = new Button(persistentButton->Below(Point(0, 2)), buttonSize, "\x9B");
+	fireButton->SetTooltip(new ToolTip("Fire display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	fireButton->SetCallback(new ToggleDisplayPresetAction(CM_FIRE));
+	this->AddComponent(fireButton);
+
+	Button *blobButton = new Button(persistentButton->Left(Point(35, 0)),buttonSize, "\xBF");
+	blobButton->SetTooltip(new ToolTip("Blob display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	blobButton->SetCallback(new ToggleDisplayPresetAction(CM_BLOB));
+	this->AddComponent(blobButton);
+
+	Button *heatButton = new Button(blobButton->Below(Point(0, 2)), buttonSize, "\xBD");
+	heatButton->SetTooltip(new ToolTip("Heat display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	heatButton->SetCallback(new ToggleDisplayPresetAction(CM_HEAT));
+	this->AddComponent(heatButton);
+
+	Button *fancyButton = new Button(blobButton->Left(Point(35, 0)), buttonSize, "\xC4");
+	fancyButton->SetTooltip(new ToolTip("Fancy display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	fancyButton->SetCallback(new ToggleDisplayPresetAction(CM_FANCY));
+	this->AddComponent(fancyButton);
+
+	Button *nothingButton = new Button(fancyButton->Below(Point(0, 2)), buttonSize, "\xDB");
+	nothingButton->SetTooltip(new ToolTip("Nothing display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	nothingButton->SetCallback(new ToggleDisplayPresetAction(CM_NOTHING));
+	this->AddComponent(nothingButton);
+
+	Button *heatGradientButton = new Button(fancyButton->Left(Point(35, 0)), buttonSize, "\xD3");
+	heatGradientButton->SetTooltip(new ToolTip("Heat gradient display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	heatGradientButton->SetCallback(new ToggleDisplayPresetAction(CM_GRAD));
+	this->AddComponent(heatGradientButton);
+
+	Button *alternateVelocityButton = new Button(heatGradientButton->Below(Point(0, 2)), buttonSize, "\xD4");
+	alternateVelocityButton->SetTooltip(new ToolTip("Alternate Velocity display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	alternateVelocityButton->SetCallback(new ToggleDisplayPresetAction(CM_CRACK));
+	this->AddComponent(alternateVelocityButton);
+
+	Button *lifeButton = new Button(heatGradientButton->Left(Point(35, 0)), buttonSize, "\xE0");
+	lifeButton->SetTooltip(new ToolTip("Life display mode preset", Point(16, YRES-24), TOOLTIP, 255));
+	lifeButton->SetCallback(new ToggleDisplayPresetAction(CM_LIFE));
+	this->AddComponent(lifeButton);
 }
 
 void RenderModesUI::OnTick(uint32_t ticks)

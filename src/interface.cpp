@@ -67,7 +67,6 @@
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
-#include "graphics/Renderer.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -3589,103 +3588,6 @@ void limit_fps()
 		pastFPS = currentTime;
 	}
 	currentTime = SDL_GetTicks();
-}
-
-void set_cmode(int cm) // sets to given view mode
-{
-	int cmode = cm;
-	std::string toolTip = "Error: Incorrect Display Number";
-
-	Renderer::Ref().ClearRenderModes();
-	Renderer::Ref().AddRenderMode(RENDER_BASC);
-	Renderer::Ref().ClearDisplayModes();
-	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
-
-	if (cmode==CM_VEL)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddDisplayMode(DISPLAY_AIRV);
-		toolTip = "Velocity Display";
-	}
-	else if (cmode==CM_PRESS)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddDisplayMode(DISPLAY_AIRP);
-		toolTip = "Pressure Display";
-	}
-	else if (cmode==CM_PERS)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddDisplayMode(DISPLAY_PERS);
-		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-		toolTip = "Persistent Display";
-	}
-	else if (cmode==CM_FIRE)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_FIRE);
-		Renderer::Ref().AddRenderMode(RENDER_SPRK);
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		memset(fire_r, 0, sizeof(fire_r));
-		memset(fire_g, 0, sizeof(fire_g));
-		memset(fire_b, 0, sizeof(fire_b));
-		toolTip = "Fire Display";
-	}
-	else if (cmode==CM_BLOB)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_FIRE);
-		Renderer::Ref().AddRenderMode(RENDER_SPRK);
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddRenderMode(RENDER_BLOB);
-		memset(fire_r, 0, sizeof(fire_r));
-		memset(fire_g, 0, sizeof(fire_g));
-		memset(fire_b, 0, sizeof(fire_b));
-		toolTip = "Blob Display";
-	}
-	else if (cmode==CM_HEAT)
-	{
-		Renderer::Ref().AddDisplayMode(DISPLAY_AIRH);
-		Renderer::Ref().SetColorMode(COLOR_HEAT);
-		toolTip = "Heat Display";
-	}
-	else if (cmode==CM_FANCY)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_FIRE);
-		Renderer::Ref().AddRenderMode(RENDER_SPRK);
-		Renderer::Ref().AddRenderMode(RENDER_GLOW);
-		Renderer::Ref().AddRenderMode(RENDER_BLUR);
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddDisplayMode(DISPLAY_WARP);
-		memset(fire_r, 0, sizeof(fire_r));
-		memset(fire_g, 0, sizeof(fire_g));
-		memset(fire_b, 0, sizeof(fire_b));
-		toolTip = "Fancy Display";
-	}
-	else if (cmode==CM_NOTHING)
-	{
-		toolTip = "Nothing Display";
-	}
-	else if (cmode==CM_GRAD)
-	{
-		Renderer::Ref().SetColorMode(COLOR_GRAD);
-		toolTip = "Heat Gradient Display";
-	}
-	else if (cmode==CM_LIFE)
-	{
-		Renderer::Ref().SetColorMode(COLOR_LIFE);
-		toolTip = "Life Gradient Display";
-	}
-	else if (cmode==CM_CRACK)
-	{
-		Renderer::Ref().AddRenderMode(RENDER_EFFE);
-		Renderer::Ref().AddDisplayMode(DISPLAY_AIRC);
-		toolTip = "Alternate Velocity Display";
-	}
-	render_mode = Renderer::Ref().GetRenderModesRaw();
-	display_mode = Renderer::Ref().GetDisplayModesRaw();
-
-	UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
-
-	save_presets();
 }
 
 char *download_ui(pixel *vid_buf, const char *uri, unsigned int *len)
@@ -7888,58 +7790,6 @@ openfin:
 		free_saveslist(saves);
 	free(vid_buf2);
 	return;
-}
-
-void drawIcon(pixel * vid_buf, int x, int y, int cmode)
-{
-	switch (cmode)
-	{
-	case 0x98:
-		drawtext(vid_buf, x, y, "\x98", 128, 160, 255, 255);
-		break;
-	case 0x99:
-		drawtext(vid_buf, x, y, "\x99", 255, 212, 32, 255);
-		break;
-	case 0x9A:
-		drawtext(vid_buf, x, y, "\x9A", 212, 212, 212, 255);
-		break;
-	case 0x9B:
-		drawtext(vid_buf, x+1, y, "\x9B", 255, 0, 0, 255);
-		drawtext(vid_buf, x+1, y, "\x9C", 255, 255, 64, 255);
-		break;
-	case 0xBF:
-		drawtext(vid_buf, x, y, "\xBF", 55, 255, 55, 255);
-		break;
-	case 0xBE:
-		drawtext(vid_buf, x+2, y, "\xBE", 255, 0, 0, 255);
-		drawtext(vid_buf, x+2, y, "\xBD", 255, 255, 255, 255);
-		break;
-	case 0xC4:
-		drawtext(vid_buf, x, y, "\xC4", 100, 150, 255, 255);
-		break;
-	case 0xD3:
-		drawtext(vid_buf, x, y, "\xD3", 255, 50, 255, 255);
-		break;
-	case 0xE0:
-		drawtext(vid_buf, x, y, "\xE0", 255, 255, 255, 255);
-		break;
-	case 0xE1:
-		drawtext(vid_buf, x, y, "\xE1", 255, 255, 160, 255);
-		break;
-	case 0xDF:
-		drawtext(vid_buf, x, y, "\xDF", 200, 255, 255, 255);
-		break;
-	case 0xDE:
-		drawtext(vid_buf, x, y, "\xDE", 255, 255, 255, 255);
-		break;
-	case 0xDB:
-		drawtext(vid_buf, x, y, "\xDB", 255, 255, 200, 255);
-		break;
-	case 0xD4:
-		drawtext(vid_buf, x, y, "\xD4", 255, 55, 55, 255);
-		drawtext(vid_buf, x, y, "\xD5", 55, 255, 55, 255);
-		break;
-	}
 }
 
 void simulation_ui(pixel * vid_buf)

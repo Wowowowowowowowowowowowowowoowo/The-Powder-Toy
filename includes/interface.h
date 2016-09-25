@@ -277,8 +277,6 @@ int sdl_poll(void);
 
 void limit_fps();
 
-void set_cmode(int cm);
-
 char *download_ui(pixel *vid_buf, const char *uri, unsigned int *len);
 
 int search_ui(pixel *vid_buf);

@@ -21,19 +21,6 @@
 #include "defines.h"
 #include "misc.h"
 
-#define CM_COUNT 11
-#define CM_CRACK 10
-#define CM_LIFE 9
-#define CM_GRAD 8
-#define CM_NOTHING 7
-#define CM_FANCY 6
-#define CM_HEAT 5
-#define CM_BLOB 4
-#define CM_FIRE 3
-#define CM_PERS 2
-#define CM_PRESS 1
-#define CM_VEL 0
-
 #define BRUSH_REPLACEMODE 0x1
 #define BRUSH_SPECIFIC_DELETE 0x2
 
