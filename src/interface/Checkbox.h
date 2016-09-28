@@ -23,6 +23,8 @@ class Checkbox : public Component
 	ToolTip *tooltip;
 	CheckboxAction *callback;
 
+	bool textInside;
+
 public:
 	Checkbox(Point position, Point size, std::string text_);
 	virtual ~Checkbox();
@@ -40,6 +42,7 @@ public:
 	virtual void OnTick(uint32_t ticks);
 
 	static const int AUTOSIZE = -1;
+	static const int TEXTINSIDE = -2;
 };
 
 #endif

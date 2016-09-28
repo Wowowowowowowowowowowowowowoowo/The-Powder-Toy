@@ -8,7 +8,8 @@ Checkbox::Checkbox(Point position, Point size_, std::string text_):
 	Component(position, size_),
 	checked(false),
 	tooltip(NULL),
-	callback(NULL)
+	callback(NULL),
+	textInside(false)
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
 	{
@@ -17,6 +18,11 @@ Checkbox::Checkbox(Point position, Point size_, std::string text_):
 			size.Y = 16;
 		if (size.X == AUTOSIZE)
 			size.X = checkboxSize.X + size.Y + 3;
+	}
+	if (size.X == TEXTINSIDE)
+	{
+		size.X = size.Y;
+		textInside = true;
 	}
 	SetText(text_);
 }
@@ -31,10 +37,10 @@ void Checkbox::SetText(std::string text_)
 {
 	text = text_;
 	// ensure text isn't too big for button, maybe not too efficient
-	if (VideoBuffer::TextSize(text).X+size.Y+2 >= size.X)
+	if (VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
 	{
 		text += "...";
-		while (text.length() > 3 && VideoBuffer::TextSize(text).X+size.Y+2 >= size.X)
+		while (text.length() > 3 && VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
 		{
 			text.erase(text.length()-4, 1);
 		}
@@ -82,28 +88,28 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 	else
 		vid->DrawRect(position.X, position.Y, size.Y, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
 
-	ARGBColour realTextColor = 0;
-	ARGBColour backgroundColor = 0;
+	ARGBColour textColor = 0;
+	ARGBColour innerColor = 0;
 	if (!enabled)
 	{
-		realTextColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
+		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
 	}
 #ifdef TOUCHUI
-	// Mouse not inside button, Mouse not down, or over button but click did not start on button
+	// Mouse not inside checkbox, Mouse not down, or over checkbox but click did not start on checkbox
 	else if (!isMouseInside || !IsMouseDown() || (IsMouseDown() && !IsClicked()))
 #else
-	// Mouse not inside button, or over button but click did not start on button
+	// Mouse not inside checkbox, or over checkbox but click did not start on checkbox
 	else if (!isMouseInside || (IsMouseDown() && !IsClicked()))
 #endif
 	{
 		if (checked)
 		{
-			backgroundColor = color;
-			realTextColor = color;
+			innerColor = color;
+			textColor = color;
 		}
 		else
 		{
-			realTextColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
+			textColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
 		}
 	}
 	else
@@ -113,12 +119,12 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 		{
 			if (checked)
 			{
-				realTextColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
+				textColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
 			}
 			else
 			{
-				backgroundColor = color;
-				realTextColor = color;
+				innerColor = color;
+				textColor = color;
 			}
 		}
 		// Mouse over button, not held down
@@ -126,24 +132,22 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 		{
 			if (checked)
 			{
-				backgroundColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
-				realTextColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
+				innerColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
+				textColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
 			}
 			else
 			{
-				backgroundColor = COLARGB(125, COLR(color), COLG(color), COLB(color));
-				realTextColor = COLARGB(225, COLR(color), COLG(color), COLB(color));
+				innerColor = COLARGB(125, COLR(color), COLG(color), COLB(color));
+				textColor = COLARGB(225, COLR(color), COLG(color), COLB(color));
 			}
 		}
 	}
-	// background color (if required)
-	if (backgroundColor)
-	{
-		vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
-	}
+	// inner checkbox color
+	if (innerColor)
+		vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
 
 	Point textSize = VideoBuffer::TextSize(text);
-	vid->DrawText(position.X+size.Y+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
+	vid->DrawText((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 }
 
 void Checkbox::OnTick(uint32_t ticks)
