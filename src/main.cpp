@@ -1932,8 +1932,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			if (sdl_key=='t')
 				show_tabs = !show_tabs;
-			if (sdl_key==SDLK_SPACE)
-				sys_pause = !sys_pause;
 			if (sdl_key=='u')
 			{
 				if (sdl_mod & (KMOD_CTRL|KMOD_META))

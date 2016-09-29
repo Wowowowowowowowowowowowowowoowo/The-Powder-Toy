@@ -105,6 +105,8 @@ private:
 #endif
 	bool ignoreMouseUp;
 	bool insideRenderOptions;
+	bool previousPause;
+	bool restorePreviousPause;
 
 public:
 	PowderToy();

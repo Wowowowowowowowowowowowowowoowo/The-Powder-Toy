@@ -95,7 +95,9 @@ PowderToy::PowderToy():
 	loginCheckTicks(0),
 	loginFinished(0),
 	ignoreMouseUp(false),
-	insideRenderOptions(false)
+	insideRenderOptions(false),
+	previousPause(false),
+	restorePreviousPause(false)
 {
 	ignoreQuits = true;
 	hasBorder = false;
@@ -527,11 +529,15 @@ void PowderToy::RenderOptions()
 	this->AddSubwindow(renderModes);
 	renderModes->HasBorder(true);
 	insideRenderOptions = true;
+	previousPause = sys_pause;
+	restorePreviousPause = true;
+	sys_pause = 1;
 }
 
 void PowderToy::TogglePause()
 {
 	sys_pause = !sys_pause;
+	restorePreviousPause = false;
 }
 
 // functions called by touch interface buttons are here
@@ -1270,7 +1276,14 @@ void PowderToy::OnTick(uint32_t ticks)
 		UpdateToolTip("\x0F\xEF\xEF\020Click-and-drag to specify a rectangle to copy and then cut (right click = cancel)", Point(16, YRES-24), TOOLTIP, 255);
 #endif
 	if (insideRenderOptions && this->Subwindows.size() == 0)
+	{
 		insideRenderOptions = false;
+		if (restorePreviousPause)
+		{
+			sys_pause = previousPause;
+			restorePreviousPause = false;
+		}
+	}
 	VideoBufferHack();
 }
 
@@ -1464,6 +1477,10 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	else if (InsideSign(cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
 	{
 		// do nothing
+	}
+	else if (insideRenderOptions)
+	{
+
 	}
 	else if (globalSim->InBounds(mouse.X, mouse.Y))
 	{
@@ -1964,6 +1981,9 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 				}
 			}
 		}
+		break;
+	case SDLK_SPACE:
+		TogglePause();
 		break;
 	case SDLK_LEFTBRACKET:
 		if (PlacingZoomWindow())
