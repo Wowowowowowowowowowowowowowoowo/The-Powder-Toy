@@ -2690,9 +2690,9 @@ void menu_ui_v3(pixel *vid_buf, int i, int b, int bq, int mx, int my)
 #ifdef TOUCHUI
 void scrollbar(int fwidth, int scroll, int y)
 {
-	int scrollSize = (int)((float)(menuStartPosition-menuIconWidth)/fwidth * (menuStartPosition-menuIconWidth));
+	/*int scrollSize = (int)((float)(menuStartPosition-menuIconWidth)/fwidth * (menuStartPosition-menuIconWidth));
 	int scrollbarx = (int)((float)scroll*XRES/(XRES-8-fwidth)/menuStartPosition * (scrollSize-menuStartPosition));
-	fillrect(vid_buf, scrollbarx+(menuStartPosition-scrollSize), y+19, scrollSize, 3, 200, 200, 200, 255);
+	fillrect(vid_buf, scrollbarx+(menuStartPosition-scrollSize), y+19, scrollSize, 3, 200, 200, 200, 255);*/
 }
 
 #else
