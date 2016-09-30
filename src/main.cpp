@@ -242,8 +242,6 @@ int num_tabs = 1;
 int show_tabs = 0;
 Brush* currentBrush;
 Tool* activeTools[3];
-Tool* regularTools[3];
-Tool* decoTools[3];
 int activeToolID = 0;
 float toolStrength = 1.0f;
 int autosave = 0;
@@ -1145,13 +1143,6 @@ int main(int argc, char *argv[])
 #endif
 	InitMenusections();
 	FillMenus();
-	activeTools[0] = GetToolFromIdentifier("DEFAULT_PT_DUST");
-	activeTools[1] = GetToolFromIdentifier("DEFAULT_PT_NONE");
-	activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
-	decoTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
-	decoTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
-	decoTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
-	*regularTools = *activeTools;
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
 	cb_parts = (particle*)calloc(sizeof(particle), NPART);
@@ -1805,34 +1796,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				console_mode = !console_mode;
 				//hud_enable = !console_mode;
 			}
-			if (sdl_key=='b')
-			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-				{
-					decorations_enable = !decorations_enable;
-					if (decorations_enable)
-						UpdateToolTip("Decorations layer: On", Point(XCNTR-textwidth("Decorations layer: On")/2, YCNTR-10), INFOTIP, 255);
-					else
-						UpdateToolTip("Decorations layer: Off", Point(XCNTR-textwidth("Decorations layer: Off")/2, YCNTR-10), INFOTIP, 255);
-				}
-				else if (active_menu == SC_DECO)
-				{
-					active_menu = last_active_menu;
-					memcpy(decoTools, activeTools, sizeof(decoTools));
-					memcpy(activeTools, regularTools, sizeof(decoTools));
-				}
-				else
-				{
-					last_active_menu = active_menu;
-					decorations_enable = 1;
-					sys_pause = 1;
-					active_menu = SC_DECO;
-
-					memcpy(regularTools, activeTools, sizeof(decoTools));
-					memcpy(activeTools, decoTools, sizeof(decoTools));
-					activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
-				}
-			}
 			if (sdl_key=='g')
 			{
 				if(sdl_mod & (KMOD_CTRL|KMOD_META))
@@ -2138,16 +2101,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		//TODO: only when entering / exiting menu
 		if (active_menu == SC_DECO && activeTools[0]->GetType() != DECO_TOOL)
 		{
-			memcpy(regularTools, activeTools, sizeof(decoTools));
-			memcpy(activeTools, decoTools, sizeof(decoTools));
-
-			activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
+			the_game->SwapToDecoToolset();
 		}
 		else if (active_menu != SC_DECO && activeTools[0]->GetType() == DECO_TOOL)
 		{
-			memcpy(decoTools, activeTools, sizeof(decoTools));
-			memcpy(activeTools, regularTools, sizeof(decoTools));
-
+			the_game->SwapToRegularToolset();
 			deco_disablestuff = 0;
 		}
 		if (deco_disablestuff)

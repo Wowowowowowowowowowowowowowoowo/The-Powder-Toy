@@ -1132,7 +1132,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v)//convert 0-255 RGB value
 	}
 }
 
-Tool* GetToolFromIdentifier(std::string identifier)
+Tool* GetToolFromIdentifier(std::string identifier, std::string def)
 {
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
@@ -1142,6 +1142,8 @@ Tool* GetToolFromIdentifier(std::string identifier)
 				return menuSections[i]->tools[j];
 		}
 	}
+	if (def.size())
+		return GetToolFromIdentifier(def);
 	return NULL;
 }
 

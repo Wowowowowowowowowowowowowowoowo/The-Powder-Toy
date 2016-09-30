@@ -89,14 +89,11 @@ int GetMenuSection(Tool *tool)
 //fills all the menus with Tool*s
 void FillMenus()
 {
-	std::string tempActiveTools[3], decoActiveTools[3];
-	//active tools might not have been initialized at the start
+	std::string tempActiveTools[3];
 	if (activeTools[0])
 	{
 		for (int i = 0; i < 3; i++)
 			tempActiveTools[i] = activeTools[i]->GetIdentifier();
-		for (int i = 0; i < 3; i++)
-			decoActiveTools[i] = decoTools[i]->GetIdentifier();
 	}
 	//Clear all menusections
 	for (int i = 0; i < SC_TOTAL; i++)
@@ -186,17 +183,8 @@ void FillMenus()
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Tool* temp = GetToolFromIdentifier(tempActiveTools[i]);
-			if (!temp)
-				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
+			Tool* temp = GetToolFromIdentifier(tempActiveTools[i], "DEFAULT_PT_NONE");
 			activeTools[i] = temp;
-		}
-		for (int i = 0; i < 3; i++)
-		{
-			Tool* temp = GetToolFromIdentifier(decoActiveTools[i]);
-			if (!temp)
-				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
-			decoTools[i] = temp;
 		}
 	}
 }

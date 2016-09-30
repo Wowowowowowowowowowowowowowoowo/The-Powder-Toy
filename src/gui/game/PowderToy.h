@@ -46,6 +46,9 @@ private:
 	bool mouseInZoom; // mouse drawing is canceled when moving in / out of the zoom window, need state
 	bool skipDraw; // when mouse moves, don't attempt an extra draw the next tick as normal
 
+	std::string decoTools[3];
+	std::string regularTools[3]; // used to store backups of what was selected before entering/exiting deco menu
+
 	// zoom
 	bool placingZoom;
 	bool placingZoomTouch; // clicked the zoom button, zoom window won't be drawn until user clicks
@@ -128,6 +131,9 @@ public:
 	Point GetInitialDrawPoint() { return initialDrawPoint; }
 	Point LineSnapCoords(Point point1, Point point2);
 	Point RectSnapCoords(Point point1, Point point2);
+
+	void SwapToDecoToolset();
+	void SwapToRegularToolset();
 
 	// zoom window stuff
 	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }

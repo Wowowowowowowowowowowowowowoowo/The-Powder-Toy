@@ -201,8 +201,6 @@ extern int show_tabs;
 #ifdef __cplusplus
 class Tool;
 extern Tool* activeTools[3];
-extern Tool* regularTools[3];
-extern Tool* decoTools[3];
 #endif
 extern int activeToolID;
 extern float toolStrength;

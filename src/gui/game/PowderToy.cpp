@@ -102,6 +102,16 @@ PowderToy::PowderToy():
 	ignoreQuits = true;
 	hasBorder = false;
 
+	regularTools[0] = "DEFAULT_PT_DUST";
+	regularTools[1] = "DEFAULT_PT_NONE";
+	regularTools[2] = "DEFAULT_PT_NONE";
+	decoTools[0] = "DEFAULT_DECOR_SET";
+	decoTools[1] = "DEFAULT_DECOR_CLR";
+	decoTools[2] = "DEFAULT_PT_NONE";
+	activeTools[0] = GetToolFromIdentifier(regularTools[0]);
+	activeTools[1] = GetToolFromIdentifier(regularTools[1]);
+	activeTools[2] = GetToolFromIdentifier(regularTools[2]);
+
 	if (doUpdates)
 	{
 		versionCheck = new Download("http://" UPDATESERVER "/Startup.json");
@@ -769,6 +779,26 @@ Point PowderToy::RectSnapCoords(Point point1, Point point2)
 		return point1 + Point((diff.X + diff.Y)/2, (diff.X + diff.Y)/2);
 	else // SW-NE
 		return point1 + Point((diff.X - diff.Y)/2, (diff.Y - diff.X)/2);
+}
+
+void PowderToy::SwapToDecoToolset()
+{
+	regularTools[0] = activeTools[0]->GetIdentifier();
+	regularTools[1] = activeTools[1]->GetIdentifier();
+	regularTools[2] = activeTools[2]->GetIdentifier();
+	activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
+	activeTools[1] = GetToolFromIdentifier(decoTools[1], "DEFAULT_DECOR_CLR");
+	activeTools[2] = GetToolFromIdentifier(decoTools[2], "DEFAULT_PT_NONE");
+}
+
+void PowderToy::SwapToRegularToolset()
+{
+	decoTools[0] = activeTools[0]->GetIdentifier();
+	decoTools[1] = activeTools[1]->GetIdentifier();
+	decoTools[2] = activeTools[2]->GetIdentifier();
+	activeTools[0] = GetToolFromIdentifier(regularTools[0], "DEFAULT_PT_DUST");
+	activeTools[1] = GetToolFromIdentifier(regularTools[1], "DEFAULT_PT_NONE");
+	activeTools[2] = GetToolFromIdentifier(regularTools[2], "DEFAULT_PT_NONE");
 }
 
 bool PowderToy::MouseClicksIgnored()
@@ -2002,6 +2032,32 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 					stampData = NULL;
 				}
 			}
+		}
+		break;
+	case 'b':
+		if (sdl_mod & (KMOD_CTRL|KMOD_META))
+		{
+			decorations_enable = !decorations_enable;
+			std::string tooltip;
+			if (decorations_enable)
+				tooltip = "Decorations layer: On";
+			else
+				tooltip = "Decorations layer: Off";
+			UpdateToolTip(tooltip, Point(XCNTR-VideoBuffer::TextSize(tooltip).X/2, YCNTR-10), INFOTIP, 255);
+		}
+		else if (active_menu == SC_DECO)
+		{
+			active_menu = last_active_menu;
+			SwapToRegularToolset();
+		}
+		else
+		{
+			last_active_menu = active_menu;
+			decorations_enable = 1;
+			sys_pause = 1;
+			active_menu = SC_DECO;
+
+			SwapToDecoToolset();
 		}
 		break;
 	case SDLK_SPACE:
