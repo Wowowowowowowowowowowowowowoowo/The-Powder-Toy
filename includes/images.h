@@ -19,13 +19,15 @@
 
 #include <stdlib.h>
 
-extern unsigned char app_icon[];
-extern unsigned char app_icon_bitmap[];
-extern unsigned char icon_doc_32_png[];
+extern const unsigned char app_icon[];
+extern const unsigned char app_icon_bitmap[];
+extern const unsigned char icon_doc_32_png[];
 extern size_t icon_doc_32_png_size;
-extern unsigned char icon_doc_16_png[];
+extern const unsigned char icon_doc_16_png[];
 extern size_t icon_doc_16_png_size;
-extern unsigned char save_to_server_image[];
-extern unsigned char save_to_disk_image[];
+extern const unsigned char icon_desktop_48_png[];
+extern size_t icon_desktop_48_png_size;
+extern const unsigned char save_to_server_image[];
+extern const unsigned char save_to_disk_image[];
 
 #endif

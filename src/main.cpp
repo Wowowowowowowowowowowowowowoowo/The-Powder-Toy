@@ -1609,20 +1609,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
 			if (the_game->GetStampState() != PowderToy::LOAD)
 				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
-			if (sdl_key=='i' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
-			{
-				if(confirm_ui(vid_buf, "Install Powder Toy", "You are about to install The Powder Toy", "Install"))
-				{
-					if (Platform::RegisterExtension())
-					{
-						info_ui(vid_buf, "Install success", "Powder Toy has been installed!");
-					}
-					else
-					{
-						error_ui(vid_buf, 0, "Install failed - You may not have permission or you may be on a platform that does not support installation");
-					}
-				}
-			}
 			if (sdl_key=='f')
 			{
 				if (debug_flags & DEBUG_PARTICLE_UPDATES)
@@ -1768,17 +1754,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
-			}
-			if (sdl_key=='i')
-			{
-				int nx, ny;
-				for (nx = 0; nx<XRES/CELL; nx++)
-					for (ny = 0; ny<YRES/CELL; ny++)
-					{
-						pv[ny][nx] = -pv[ny][nx];
-						vx[ny][nx] = -vx[ny][nx];
-						vy[ny][nx] = -vy[ny][nx];
-					}
 			}
 			if (sdl_key==SDLK_INSERT)
 				REPLACE_MODE = !REPLACE_MODE;

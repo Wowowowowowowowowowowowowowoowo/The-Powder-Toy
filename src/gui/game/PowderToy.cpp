@@ -30,6 +30,7 @@
 #include "simulation/ToolNumbers.h"
 
 #include "gui/dialogs/ConfirmPrompt.h"
+#include "gui/dialogs/InfoPrompt.h"
 #include "gui/dialogs/ErrorPrompt.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
@@ -1942,6 +1943,43 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		Engine::Ref().ShowWindow(confirm);
 		break;
 	}
+	case 'i':
+		if (!ctrlHeld)
+		{
+			for (int nx = 0; nx < XRES/CELL; nx++)
+				for (int ny = 0; ny < YRES/CELL; ny++)
+				{
+					pv[ny][nx] = -pv[ny][nx];
+					vx[ny][nx] = -vx[ny][nx];
+					vy[ny][nx] = -vy[ny][nx];
+				}
+		}
+		else
+		{
+			class ConfirmInstall : public ConfirmAction
+			{
+			public:
+				virtual void Action(bool isConfirmed)
+				{
+					if (isConfirmed)
+					{
+						if (Platform::RegisterExtension())
+						{
+							InfoPrompt *info = new InfoPrompt("Install Success", "Powder Toy has been installed!");
+							Engine::Ref().ShowWindow(info);
+						}
+						else
+						{
+							ErrorPrompt *error = new ErrorPrompt("Install failed - You may not have permission or you may be on a platform that does not support installation");
+							Engine::Ref().ShowWindow(error);
+						}
+					}
+				}
+			};
+			ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmInstall(), "Install Powder Toy", "You are about to install The Powder Toy", "Install");
+			Engine::Ref().ShowWindow(confirm);
+		}
+		break;
 	case 's':
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
 		if (globalSim->elementCount[PT_STKM2] > 0 ? (modifiers&(KMOD_LCTRL|KMOD_LMETA)) : !(sdl_mod&(KMOD_CTRL|KMOD_META)))
