@@ -560,10 +560,10 @@ void PowderToy::RenderOptions()
 	RenderModesUI *renderModes = new RenderModesUI();
 	this->AddSubwindow(renderModes);
 	renderModes->HasBorder(true);
+	previousPause = sys_pause;
 	SetPause(1);
 	insideRenderOptions = true;
 	deletingRenderOptions = false;
-	previousPause = sys_pause;
 	restorePreviousPause = true;
 }
 
@@ -1350,6 +1350,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	if (insideRenderOptions && this->Subwindows.size() == 0)
 	{
 		insideRenderOptions = false;
+		deletingRenderOptions = false;
 		if (restorePreviousPause)
 		{
 			sys_pause = previousPause;
@@ -1950,7 +1951,6 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		if (this->Subwindows.size() && insideRenderOptions)
 		{
 			deletingRenderOptions = false;
-			insideRenderOptions = false;
 			this->Subwindows[0]->toDelete = true;
 			break;
 		}
