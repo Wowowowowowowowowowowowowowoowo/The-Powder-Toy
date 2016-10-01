@@ -629,7 +629,7 @@ void PowderToy::ToggleSetting(bool alt)
 		simulation_ui(vid_buf);
 	else
 	{
-		//if (active_menu == SC_DECO)
+		if (active_menu == SC_DECO)
 		{
 			decorations_enable = !decorations_enable;
 			if (decorations_enable)
@@ -637,7 +637,7 @@ void PowderToy::ToggleSetting(bool alt)
 			else
 				SetInfoTip("Decorations disabled");
 		}
-		/*else
+		else
 		{
 			if (!ngrav_enable)
 			{
@@ -649,7 +649,7 @@ void PowderToy::ToggleSetting(bool alt)
 				stop_grav_async();
 				SetInfoTip("Newtonian Gravity disabled");
 			}
-		}*/
+		}
 	}
 }
 
