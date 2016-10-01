@@ -1631,7 +1631,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 					else
 					{
-						the_game->SetPause(1);
 						framerender = 1;
 					}
 				}

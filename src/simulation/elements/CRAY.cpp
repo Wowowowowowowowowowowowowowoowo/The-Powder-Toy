@@ -61,8 +61,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	// only fire when life is 0, but nothing sets the life right now
-	else if (parts[i].life == 0)
+	else
 	{
 		for (int rx = -1; rx <= 1; rx++)
 			for (int ry = -1; ry <= 1; ry++)
@@ -92,6 +91,8 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 									if (colored)
 										parts[nr].dcolour = colored;
 									parts[nr].temp = parts[i].temp;
+									if (parts[i].life>0)
+										parts[nr].life = parts[i].life;
 									if(!--partsRemaining)
 										docontinue = 0;
 								}
@@ -154,7 +155,7 @@ void CRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Particle Ray Emitter. Creates a beam of particles set by its ctype, with a range set by tmp.";
 
-	elem->Properties = TYPE_SOLID|PROP_LIFE_DEC;
+	elem->Properties = TYPE_SOLID;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
