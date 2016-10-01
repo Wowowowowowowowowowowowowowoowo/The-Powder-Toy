@@ -1830,12 +1830,14 @@ bool login_ui(pixel *vid_buf)
 	strcpy(ed1.str, svf_user);
 	if (ed1.cursor)
 		ed1.focus = 0;
+	ed1.autoCorrect = false;
 
 	ui_edit_init(&ed2, x0+25, y0+45, 158, 14);
 	strcpy(ed2.def, "[password]");
 	ed2.hide = 1;
 	if (!ed1.cursor)
 		ed2.focus = 0;
+	ed2.autoCorrect = false;
 
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 192);
 	while (!sdl_poll())
