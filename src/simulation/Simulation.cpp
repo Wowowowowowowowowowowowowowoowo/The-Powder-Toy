@@ -1021,8 +1021,8 @@ bool Simulation::UpdateParticle(int i)
 			fin_y = (int)(fin_yf+0.5f);
 			if (GetEdgeMode() == 2)
 			{
-				bool x_ok = (fin_x >= CELL-.5f && fin_x < XRES-CELL-.5f);
-				bool y_ok = (fin_y >= CELL-.5f && fin_y < YRES-CELL-.5f);
+				bool x_ok = (fin_xf >= CELL-.5f && fin_xf < XRES-CELL-.5f);
+				bool y_ok = (fin_yf >= CELL-.5f && fin_yf < YRES-CELL-.5f);
 				if (!x_ok)
 					fin_xf = remainder_p(fin_xf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
 				if (!y_ok)
@@ -1035,6 +1035,15 @@ bool Simulation::UpdateParticle(int i)
 				// nothing found
 				fin_xf = parts[i].x + parts[i].vx;
 				fin_yf = parts[i].y + parts[i].vy;
+				if (GetEdgeMode() == 2)
+				{
+					bool x_ok = (fin_xf >= CELL-.5f && fin_xf < XRES-CELL-.5f);
+					bool y_ok = (fin_yf >= CELL-.5f && fin_yf < YRES-CELL-.5f);
+					if (!x_ok)
+						fin_xf = remainder_p(fin_xf-CELL+.5f, XRES-CELL*2.0f)+CELL-.5f;
+					if (!y_ok)
+						fin_yf = remainder_p(fin_yf-CELL+.5f, YRES-CELL*2.0f)+CELL-.5f;
+				}
 				fin_x = (int)(fin_xf+0.5f);
 				fin_y = (int)(fin_yf+0.5f);
 				clear_xf = fin_xf-dx;
