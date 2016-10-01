@@ -34,12 +34,15 @@ namespace Platform
 
 char *ExecutableName()
 {
+#ifdef ANDROID
+	return SDL_ANDROID_GetAppName();
+#else
 #ifdef WIN
 	char *name= (char *)malloc(64);
 	DWORD max=64, res;
 	while ((res = GetModuleFileName(NULL, name, max)) >= max)
 	{
-#elif defined MACOSX
+#elif MACOSX
 	char *fn=(char*)malloc(64),*name=(char*)malloc(PATH_MAX);
 	uint32_t max=64, res;
 	if (_NSGetExecutablePath(fn, &max) != 0)
@@ -67,13 +70,14 @@ char *ExecutableName()
 		name = (char*)realloc(name, max);
 		memset(name, 0, max);
 	}
-#endif
+#endif //not MACOSX
 	if (res <= 0)
 	{
 		free(name);
 		return NULL;
 	}
 	return name;
+#endif //ANDROID
 }
 
 void DoRestart(bool saveTab)
