@@ -97,6 +97,7 @@ PowderToy::PowderToy():
 	loginFinished(0),
 	ignoreMouseUp(false),
 	insideRenderOptions(false),
+	deletingRenderOptions(false),
 	previousPause(false),
 	restorePreviousPause(false)
 {
@@ -561,13 +562,14 @@ void PowderToy::RenderOptions()
 	renderModes->HasBorder(true);
 	SetPause(1);
 	insideRenderOptions = true;
+	deletingRenderOptions = false;
 	previousPause = sys_pause;
 	restorePreviousPause = true;
 }
 
 void PowderToy::TogglePause()
 {
-	if (sys_pause)
+	if (sys_pause && globalSim->debug_currentParticle)
 	{
 #ifdef LUACONSOLE
 		std::stringstream logmessage;
@@ -1489,6 +1491,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	mouse = Point(x, y);
 	cursor = AdjustCoordinates(mouse);
 	mouseInZoom = IsMouseInZoom(mouse);
+	deletingRenderOptions = false;
 	if (deco_disablestuff)
 	{
 
@@ -1550,7 +1553,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	}
 	else if (insideRenderOptions)
 	{
-
+		deletingRenderOptions = true;
 	}
 	else if (globalSim->InBounds(mouse.X, mouse.Y))
 	{
@@ -1726,6 +1729,11 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	}
 	else if (MSIGN != -1)
 		MSIGN = -1;
+	else if (insideRenderOptions)
+	{
+		if (this->Subwindows.size() && deletingRenderOptions)
+			this->Subwindows[0]->toDelete = true;
+	}
 	else if (isMouseDown)
 	{
 		if (drawState == POINTS)
@@ -1802,6 +1810,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	// update the drawing mode for the next line
 	// since ctrl/shift state may have changed since we started drawing
 	UpdateDrawMode();
+	deletingRenderOptions = false;
 }
 
 bool PowderToy::BeforeMouseWheel(int x, int y, int d)
@@ -1938,6 +1947,14 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	case 'q':
 	case SDLK_ESCAPE:
 	{
+		if (this->Subwindows.size() && insideRenderOptions)
+		{
+			deletingRenderOptions = false;
+			insideRenderOptions = false;
+			this->Subwindows[0]->toDelete = true;
+			break;
+		}
+
 		class ConfirmQuit : public ConfirmAction
 		{
 			PowderToy *you_just_lost;

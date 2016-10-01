@@ -108,6 +108,7 @@ private:
 #endif
 	bool ignoreMouseUp;
 	bool insideRenderOptions;
+	bool deletingRenderOptions;
 	bool previousPause;
 	bool restorePreviousPause;
 
