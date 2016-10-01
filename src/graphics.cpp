@@ -3695,13 +3695,21 @@ int sdl_open()
 #if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	SDL_VERSION(&sdl_wminfo.version);
-	SDL_GetWMInfo(&sdl_wminfo);
-	sdl_wminfo.info.x11.lock_func();
-	XA_CLIPBOARD = XInternAtom(sdl_wminfo.info.x11.display, "CLIPBOARD", 1);
-	XA_TARGETS = XInternAtom(sdl_wminfo.info.x11.display, "TARGETS", 1);
-	XA_UTF8_STRING = XInternAtom(sdl_wminfo.info.x11.display, "UTF8_STRING", 1);
-	XA_NET_FRAME_EXTENTS = XInternAtom(sdl_wminfo.info.x11.display, "_NET_FRAME_EXTENTS", 0);
-	sdl_wminfo.info.x11.unlock_func();
+	if(SDL_GetWMInfo(&sdl_wminfo) > 0)
+	{
+		SDL_GetWMInfo(&sdl_wminfo);
+		sdl_wminfo.info.x11.lock_func();
+		XA_CLIPBOARD = XInternAtom(sdl_wminfo.info.x11.display, "CLIPBOARD", 1);
+		XA_TARGETS = XInternAtom(sdl_wminfo.info.x11.display, "TARGETS", 1);
+		XA_UTF8_STRING = XInternAtom(sdl_wminfo.info.x11.display, "UTF8_STRING", 1);
+		XA_NET_FRAME_EXTENTS = XInternAtom(sdl_wminfo.info.x11.display, "_NET_FRAME_EXTENTS", 0);
+		sdl_wminfo.info.x11.unlock_func();
+	}
+	else
+	{
+		fprintf(stderr, "X11 setup failed, X11 window info not found");
+		exit(-1);
+	}
 #elif WIN
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 #endif
