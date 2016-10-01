@@ -75,7 +75,7 @@ void BRMT_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
 	elem->HeatConduct = 211;
 	elem->Latent = 0;
-	elem->Description = "Broken metal. Created when iron rusts or when when metals break from pressure.";
+	elem->Description = "Broken metal. Created when iron rusts or when metals break from pressure.";
 
 	elem->Properties = TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 
