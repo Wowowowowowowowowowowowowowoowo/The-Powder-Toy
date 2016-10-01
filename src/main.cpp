@@ -1613,7 +1613,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				if (debug_flags & DEBUG_PARTICLE_UPDATES)
 				{
-					sys_pause = 1;
+					the_game->SetPause(1);
 					if (sdl_mod & (KMOD_ALT))
 					{
 						ParticleDebug(0, 0, 0);
@@ -1631,7 +1631,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 					else
 					{
-						sys_pause = 1;
+						the_game->SetPause(1);
 						framerender = 1;
 					}
 				}
@@ -1646,7 +1646,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 					else
 					{
-						sys_pause = 1;
+						the_game->SetPause(1);
 						framerender = 1;
 					}
 				}

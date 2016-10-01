@@ -559,16 +559,33 @@ void PowderToy::RenderOptions()
 	RenderModesUI *renderModes = new RenderModesUI();
 	this->AddSubwindow(renderModes);
 	renderModes->HasBorder(true);
+	SetPause(1);
 	insideRenderOptions = true;
 	previousPause = sys_pause;
 	restorePreviousPause = true;
-	sys_pause = 1;
 }
 
 void PowderToy::TogglePause()
 {
+	if (sys_pause)
+	{
+#ifdef LUACONSOLE
+		std::stringstream logmessage;
+		logmessage << "Updated particles from #" << globalSim->debug_currentParticle << " to end due to unpause";
+		luacon_log(mystrdup(logmessage.str().c_str()));
+#endif
+		globalSim->UpdateParticles(globalSim->debug_currentParticle, NPART);
+		globalSim->UpdateAfter();
+		globalSim->debug_currentParticle = 0;
+	}
 	sys_pause = !sys_pause;
 	restorePreviousPause = false;
+}
+
+void PowderToy::SetPause(bool pause)
+{
+	if (pause != sys_pause)
+		TogglePause();
 }
 
 // functions called by touch interface buttons are here
@@ -2092,7 +2109,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		{
 			last_active_menu = active_menu;
 			decorations_enable = 1;
-			sys_pause = 1;
+			SetPause(1);
 			active_menu = SC_DECO;
 
 			SwapToDecoToolset();

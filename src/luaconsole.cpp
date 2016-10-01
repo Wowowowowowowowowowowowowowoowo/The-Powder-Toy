@@ -49,6 +49,7 @@ extern "C"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
+#include "gui/game/PowderToy.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -1418,13 +1419,13 @@ int luatpt_setpause(lua_State* l)
 		return 1;
 	}
 	int pausestate = luaL_checkinteger(l, 1);
-	sys_pause = (pausestate==0?0:1);
+	the_game->SetPause(pausestate==0?0:1);
 	return 0;
 }
 
 int luatpt_togglepause(lua_State* l)
 {
-	sys_pause = !sys_pause;
+	the_game->TogglePause();
 	lua_pushnumber(l, sys_pause);
 	return 1;
 }

@@ -182,6 +182,7 @@ public:
 	void LoginButton();
 	void RenderOptions();
 	void TogglePause();
+	void SetPause(bool pause);
 	
 	bool IsinsideRenderOptions() { return insideRenderOptions; }
 	void LoadRenderPreset(int preset);
