@@ -299,6 +299,8 @@ bool RegisterExtension()
 	if(protocolcommand) free(protocolcommand);
 
 	return returnval;
+#elif ANDROID
+	return false;
 #elif LIN
 	std::string filename = Platform::ExecutableName(), pathname = filename.substr(0, filename.rfind('/'));
 	for (size_t i = 0; i < filename.size(); i++)
