@@ -50,8 +50,8 @@ public:
 	bool forceStackingCheck;
 
 	// settings
-	char edgeMode;
-	char saveEdgeMode;
+	signed char edgeMode;
+	signed char saveEdgeMode;
 	bool msRotation; //for moving solids
 	int maxFrames;   //for animated LCRY
 	bool instantActivation; //electronics are instantly activated
