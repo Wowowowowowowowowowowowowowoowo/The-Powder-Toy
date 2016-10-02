@@ -188,6 +188,7 @@ extern int hud_enable;
 extern int pretty_powder;
 extern int drawgrav_enable;
 extern int ngrav_enable;
+extern int ngrav_completedisable;
 extern int limitFPS;
 extern int water_equal_test;
 extern int finding;

@@ -632,7 +632,7 @@ void PowderToy::ToggleSetting(bool alt)
 		simulation_ui(vid_buf);
 	else
 	{
-		if (active_menu == SC_DECO)
+		if (active_menu == SC_DECO || ngrav_completedisable)
 		{
 			decorations_enable = !decorations_enable;
 			if (decorations_enable)

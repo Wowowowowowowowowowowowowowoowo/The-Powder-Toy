@@ -216,6 +216,10 @@ void save_presets()
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(simulationobj, "EdgeMode", globalSim->edgeMode);
 	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", ngrav_enable);
+#ifndef ANDROID
+	if (ngrav_completedisable)
+#endif
+		cJSON_AddNumberToObject(simulationobj, "NewtonianGravityDisable", ngrav_completedisable);
 	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
 
@@ -526,10 +530,10 @@ void load_presets(void)
 					edgeMode = 0;
 				globalSim->edgeMode = edgeMode;
 			}
-#ifndef ANDROID
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
-#endif
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravityDisable")))
+				ngrav_completedisable = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat")))
 				aheat_enable = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder")))

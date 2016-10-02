@@ -7803,7 +7803,10 @@ void simulation_ui(pixel * vid_buf)
 	int ysize = 340;
 	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
 	int oldedgeMode = globalSim->GetEdgeMode();
-	ui_checkbox cb, cb2, cb3, cb4, cb5, cb6, cb7;
+	ui_checkbox cb, cb2, cb3, cb5, cb6, cb7;
+#ifndef ANDROID
+	ui_checkbox cb4;
+#endif
 	const char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
 	int airModeListCount = 5;
 	const char * gravityModeList[] = {"Vertical", "Off", "Radial"};
@@ -7830,12 +7833,18 @@ void simulation_ui(pixel * vid_buf)
 	cb3.x = x0+xsize-16;	//Large window
 	cb3.y = y0+255;
 	cb3.focus = 0;
+#ifdef ANDROID
+	cb3.checked = (ngrav_completedisable)?1:0;
+#else
 	cb3.checked = (sdl_scale==2)?1:0;
+#endif
 	
+#ifndef ANDROID
 	cb4.x = x0+xsize-16;	//Fullscreen
 	cb4.y = y0+269;
 	cb4.focus = 0;
 	cb4.checked = (kiosk_enable==1)?1:0;
+#endif
 	
 	cb5.x = x0+xsize-16;	//Ambient heat
 	cb5.y = y0+51;
@@ -7943,6 +7952,10 @@ void simulation_ui(pixel * vid_buf)
 		
 		drawtext(vid_buf, x0+8, y0+270, "Fullscreen", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "\bg- Fill the entire screen", 255, 255, 255, 180);
+#else
+		drawtext(vid_buf, x0+8, y0+256, "Ngrav Disable", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12+textwidth("Ngrav Disable"), y0+256, "\bg- Completely disable Newtonian Gravity", 255, 255, 255, 180);
+		drawtext(vid_buf, x0-2, y0+270, "\bg  Might fix crashes on startup or opening saves", 255, 255, 255, 180);
 #endif
 
 		drawtext(vid_buf, x0+8, y0+284, "Fast Quit", 255, 255, 255, 255);
@@ -7959,8 +7972,8 @@ void simulation_ui(pixel * vid_buf)
 
 		ui_checkbox_draw(vid_buf, &cb);
 		ui_checkbox_draw(vid_buf, &cb2);
-#ifndef ANDROID
 		ui_checkbox_draw(vid_buf, &cb3);
+#ifndef ANDROID
 		ui_checkbox_draw(vid_buf, &cb4);
 #endif
 		ui_checkbox_draw(vid_buf, &cb5);
@@ -7973,8 +7986,8 @@ void simulation_ui(pixel * vid_buf)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		ui_checkbox_process(mx, my, b, bq, &cb);
 		ui_checkbox_process(mx, my, b, bq, &cb2);
-#ifndef ANDROID
 		ui_checkbox_process(mx, my, b, bq, &cb3);
+#ifndef ANDROID
 		ui_checkbox_process(mx, my, b, bq, &cb4);
 #endif
 		ui_checkbox_process(mx, my, b, bq, &cb5);
@@ -7990,6 +8003,10 @@ void simulation_ui(pixel * vid_buf)
 		{
 			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
 		}
+#else
+		ngrav_completedisable = cb3.checked;
+		if (ngrav_completedisable)
+			cb2.checked = false;
 #endif
 
 		if (b && !bq)

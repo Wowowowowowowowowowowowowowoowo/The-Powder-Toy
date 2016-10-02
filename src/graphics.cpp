@@ -2779,7 +2779,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 #endif
 	draw_other(part_vbuf);
 #ifndef RENDERER
-	if (((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
+	if (!ngrav_completedisable && ((WallTool*)activeTools[activeToolID])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
 #endif
 

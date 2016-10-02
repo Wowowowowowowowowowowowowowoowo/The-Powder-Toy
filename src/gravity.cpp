@@ -50,6 +50,11 @@ float *th_gravp = NULL;
 int gravwl_timeout = 0;
 int gravityMode = 0; // starts enabled in "vertical" mode...
 int ngrav_enable = 0; //Newtonian gravity
+#ifdef ANDROID
+int ngrav_completedisable = 1;
+#else
+int ngrav_completedisable = 0;
+#endif
 int th_gravchanged = 0;
 
 pthread_t gravthread;
@@ -208,6 +213,8 @@ TH_ENTRY_POINT void* update_grav_async(void* unused)
 
 void start_grav_async()
 {
+	if (ngrav_completedisable)
+		return;
 	if(!ngrav_enable){
 		gravthread_done = 0;
 		grav_ready = 0;
@@ -223,6 +230,8 @@ void start_grav_async()
 
 void stop_grav_async()
 {
+	if (ngrav_completedisable)
+		return;
 	if(ngrav_enable){
 		pthread_mutex_lock(&gravmutex);
 		gravthread_done = 1;
@@ -532,7 +541,7 @@ void gravity_mask()
 	unsigned maskvalue;
 	mask_el *t_mask_el = NULL;
 	mask_el *c_mask_el = NULL;
-	if(!gravmask)
+	if(!gravmask || ngrav_completedisable)
 		return;
 	memset(checkmap, 0, sizeof(checkmap));
 	for(x = 0; x < XRES/CELL; x++)
