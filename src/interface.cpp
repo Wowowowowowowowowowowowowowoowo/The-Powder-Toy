@@ -3047,6 +3047,7 @@ void menu_select_element(int b, Tool* over)
 			{
 				HudDefaults();
 				SetCurrentHud();
+				save_presets();
 			}
 			else if (toolID < HUD_REALSTART)
 			{
@@ -3064,6 +3065,7 @@ void menu_select_element(int b, Tool* over)
 					memcpy(debugHud,currentHud,sizeof(debugHud));
 				else
 					memcpy(normalHud,currentHud,sizeof(normalHud));
+				save_presets();
 			}
 		}
 		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
