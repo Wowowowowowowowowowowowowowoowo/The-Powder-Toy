@@ -5,6 +5,7 @@
 #include "interface/Label.h"
 #include "interface/Textbox.h"
 #include "interface/Button.h"
+#include "interface/ScrollWindow.h"
 #include "graphics/VideoBuffer.h"
 #include "common/Point.h"
 #include "common/Platform.h"

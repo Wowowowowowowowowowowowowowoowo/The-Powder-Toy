@@ -23,6 +23,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gui/profile/ProfileViewer.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -89,7 +91,6 @@
 #include "gui/dialogs/ErrorPrompt.h"
 #include "gui/dialogs/InfoPrompt.h"
 #include "gui/game/PowderToy.h"
-#include "gui/profile/ProfileViewer.h"
 
 pixel *vid_buf;
 pixel *vid3d = NULL;

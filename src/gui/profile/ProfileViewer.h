@@ -2,13 +2,14 @@
 #define PROFILEVIEWER_H
 
 #include <string>
-#include "interface/ScrollWindow.h"
+#include "interface/Window.h"
 #include "graphics/Pixel.h"
 
 class Download;
 class Label;
 class Button;
 class Textbox;
+class ScrollWindow;
 class ProfileViewer : public Window_
 {
 	std::string name;

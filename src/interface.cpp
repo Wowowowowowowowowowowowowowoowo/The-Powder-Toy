@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gui/profile/ProfileViewer.h"
+
 #include "common/tpt-minmax.h"
 #include "SDLCompat.h"
 
@@ -75,7 +77,6 @@
 #include "interface/Engine.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
-#include "gui/profile/ProfileViewer.h"
 
 unsigned short sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
