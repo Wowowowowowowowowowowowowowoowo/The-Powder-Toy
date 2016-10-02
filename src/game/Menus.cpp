@@ -95,13 +95,15 @@ void FillMenus()
 		for (int i = 0; i < 3; i++)
 			tempActiveTools[i] = activeTools[i]->GetIdentifier();
 	}
+#ifndef NOMOD
+	delete GetToolFromIdentifier("DEFAULT_FAV_MORE");
+#endif
 	//Clear all menusections
 	for (int i = 0; i < SC_TOTAL; i++)
 	{
 		if (i != SC_FAV)
 			menuSections[i]->ClearTools();
 	}
-	delete GetToolFromIdentifier("DEFAULT_FAV_MORE");
 	menuSections[SC_FAV]->tools.clear();
 
 	//Add all generic elements to menus
