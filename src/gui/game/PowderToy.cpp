@@ -530,6 +530,7 @@ void PowderToy::ReportBug()
 void PowderToy::OpenOptions()
 {
 	simulation_ui(vid_buf);
+	save_presets();
 }
 
 void PowderToy::LoginButton()
