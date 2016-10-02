@@ -336,7 +336,7 @@ bool RegisterExtension()
 	const char *protocolfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
-"Name=Powder Toy\n"
+"Name=Jacob1's Mod\n"
 "Comment=Physics sandbox game\n"
 "MimeType=x-scheme-handler/ptsave;\n"
 "NoDisplay=true\n"
@@ -354,7 +354,7 @@ bool RegisterExtension()
 	const char *desktopopenfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
-"Name=Powder Toy\n"
+"Name=Jacob1's Mod\n"
 "Comment=Physics sandbox game\n"
 "MimeType=application/vnd.powdertoy.save;\n"
 "NoDisplay=true\n"
@@ -374,19 +374,19 @@ bool RegisterExtension()
 "[Desktop Entry]\n"
 "Version=1.0\n"
 "Encoding=UTF-8\n"
-"Name=Powder Toy\n"
+"Name=Jacob1's Mod\n"
 "Type=Application\n"
 "Comment=Physics sandbox game\n"
 "Categories=Game;Simulation\n"
 "Icon=powdertoy.png\n";
 	std::stringstream desktopfiledata;
 	desktopfiledata << desktopfiledata_tmp << "Exec=" << filename << "\nPath=" << pathname << "\n";
-	f = fopen("powdertoy-tpt.desktop", "wb");
+	f = fopen("powdertoy-jacobsmod.desktop", "wb");
 	if (!f)
 		return false;
 	fwrite(desktopfiledata.str().c_str(), 1, strlen(desktopfiledata.str().c_str()), f);
 	fclose(f);
-	system("xdg-desktop-menu install powdertoy-tpt.desktop");
+	system("xdg-desktop-menu install powdertoy-jacobsmod.desktop");
 
 	f = fopen("powdertoy-save-32.png", "wb");
 	if (!f)
@@ -413,7 +413,7 @@ bool RegisterExtension()
 	unlink("powdertoy-save-32.png");
 	unlink("powdertoy-save-16.png");
 	unlink("powdertoy-save.xml");
-	unlink("powdertoy-tpt.desktop");
+	unlink("powdertoy-jacobsmod.desktop");
 	unlink("powdertoy-tpt-open.desktop");
 	unlink("powdertoy-tpt-ptsave.desktop");
 	return true;
