@@ -1911,6 +1911,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
+#ifndef TOUCHUI
 		else if (!strcmp(bson_iterator_key(&iter), "hud_enable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
@@ -1922,6 +1923,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
+#endif
 		else if (!strcmp(bson_iterator_key(&iter), "aheat_enable") && replace > 0)
 		{
 			if(bson_iterator_type(&iter)==BSON_BOOL)
