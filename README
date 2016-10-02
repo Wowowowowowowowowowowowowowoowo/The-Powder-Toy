@@ -1033,6 +1033,14 @@ uses the same powder.pref location as default tpt. Recently used elements
 are no longer prebuilt or saved on exit, and can be removed the same way as 
 favorites elements can be. Fix submenus in old menu interface ('o' key).
 
+Version 35.0 10/2/16
+Redo render modes interface to more closely match tpt and be easier to use. It
+is also able to run while the simulation is running. The profile viewer now
+looks better on profiles that require scrolling. Fix exiting the deco menu
+sometimes changing which tools you had selected (or crashing?). Updates from
+tpt++. Installing (ctrl+i) on Linux now leaves a desktop entry for Jacob1's
+Mod. Ensure powder.pref is updated when changing HUD presets.
+
 
 
 
