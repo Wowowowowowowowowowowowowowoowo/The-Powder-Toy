@@ -1357,6 +1357,7 @@ void PowderToy::OnTick(uint32_t ticks)
 			sys_pause = previousPause;
 			restorePreviousPause = false;
 		}
+		save_presets();
 	}
 	VideoBufferHack();
 }

@@ -2374,9 +2374,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 void main_end_hack()
 {
 	SaveWindowPosition();
+	save_presets();
 	DownloadManager::Ref().Shutdown();
 	http_done();
-	save_presets();
 	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();
