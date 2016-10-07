@@ -38,9 +38,9 @@
 #define RELEASE_VERSION 91
 #define RELEASE_MINOR_VER 5
 
-#define MOBILE_MAJOR 0
-#define MOBILE_MINOR 4
-#define MOBILE_BUILD 103
+#define MOBILE_MAJOR 1
+#define MOBILE_MINOR 0
+#define MOBILE_BUILD 105
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
