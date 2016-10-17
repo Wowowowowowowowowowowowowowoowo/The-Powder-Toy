@@ -16,6 +16,8 @@ public:
 	virtual ~Window_();
 	void Resize(Point position, Point size);
 
+	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
+	Window_* GetParent() { return parent; }
 	void AddSubwindow(Window_ *other);
 	void RemoveSubwindow(Window_ *other);
 	void AddComponent(Component *other);
@@ -81,11 +83,13 @@ protected:
 
 	void VideoBufferHack();
 	bool InsideSubwindow(int x, int y);
+
 private:
+	Window_ *parent;
 	bool mouseDownOutside;
-	VideoBuffer* videoBuffer;
-	Component* focused;
-	Component* clicked;
+	VideoBuffer *videoBuffer;
+	Component *focused;
+	Component *clicked;
 };
 
 #endif

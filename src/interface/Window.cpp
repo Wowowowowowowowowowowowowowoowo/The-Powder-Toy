@@ -14,6 +14,7 @@ Window_::Window_(Point position_, Point size_):
 	isMouseDown(false),
 	ignoreQuits(false),
 	hasBorder(true),
+	parent(NULL),
 	mouseDownOutside(false),
 	focused(NULL),
 	clicked(NULL)
@@ -76,6 +77,7 @@ void Window_::AddSubwindow(Window_ *other)
 	}
 	Subwindows.push_back(other);
 	other->HasBorder(false);
+	other->SetParent(this);
 }
 
 void Window_::RemoveComponent(Component *other)

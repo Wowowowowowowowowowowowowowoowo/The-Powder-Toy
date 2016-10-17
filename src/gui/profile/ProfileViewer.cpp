@@ -50,7 +50,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 		public:
 			virtual void ButtionActionCallback(Button *button, unsigned char b)
 			{
-				dynamic_cast<ProfileViewer*>(button->GetParent())->UploadAvatar();
+				dynamic_cast<ProfileViewer*>(button->GetParent()->GetParent())->UploadAvatar();
 			}
 		};
 		avatarUploadButton->SetCallback(new UploadAvatarAction());
@@ -225,7 +225,7 @@ void ProfileViewer::EnableEditing()
 	public:
 		virtual void TextChangedCallback(Textbox *textbox)
 		{
-			dynamic_cast<ProfileViewer*>(textbox->GetParent())->ResizeArea(textbox->GetSize().Y);
+			dynamic_cast<ProfileViewer*>(textbox->GetParent()->GetParent())->ResizeArea(textbox->GetSize().Y);
 		}
 	};
 	dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
