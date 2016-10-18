@@ -477,6 +477,7 @@ void load_presets(void)
 				int count = cJSON_GetArraySize(tmpobj);
 				cJSON * tempDisplayMode;
 				display_mode = 0;
+				Renderer::Ref().ClearDisplayModes();
 				for (int i = 0; i < count; i++)
 				{
 					tempDisplayMode = cJSON_GetArrayItem(tmpobj, i);
@@ -495,6 +496,7 @@ void load_presets(void)
 				int count = cJSON_GetArraySize(tmpobj);
 				cJSON * tempRenderMode;
 				render_mode = 0;
+				Renderer::Ref().ClearRenderModes();
 				for (int i = 0; i < count; i++)
 				{
 					tempRenderMode = cJSON_GetArrayItem(tmpobj, i);
