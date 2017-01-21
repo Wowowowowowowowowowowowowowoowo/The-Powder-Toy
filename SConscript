@@ -48,7 +48,7 @@ AddSconsOption('64bit', False, False, "Compile a 64 bit binary")
 AddSconsOption('32bit', False, False, "Compile a 32 bit binary")
 AddSconsOption("universal", False, False, "compile universal binaries on Mac OS X")
 AddSconsOption('no-sse', False, False, "Disable SSE optimizations")
-AddSconsOption('sse', True, False, "Enable SSE optimizations (default)")
+AddSconsOption('sse', False, False, "Enable SSE optimizations")
 AddSconsOption('sse2', True, False, "Enable SSE2 optimizations (default)")
 AddSconsOption('sse3', False, False, "Enable SSE3 optimizations")
 AddSconsOption('native', False, False, "Enable optimizations specific to your cpu")
@@ -395,13 +395,13 @@ if not GetOption('no-sse'):
 		else:
 			env.Append(CCFLAGS=['-msse'])
 		env.Append(CPPDEFINES=['X86_SSE'])
-	if GetOption('sse2'):
+	elif GetOption('sse2'):
 		if msvc:
 			env.Append(CCFLAGS=['/arch:SSE2'])
 		else:
 			env.Append(CCFLAGS=['-msse2'])
 		env.Append(CPPDEFINES=['X86_SSE2'])
-	if GetOption('sse3'):
+	elif GetOption('sse3'):
 		if msvc:
 			env.Append(CCFLAGS=['/arch:SSE3'])
 		else:
