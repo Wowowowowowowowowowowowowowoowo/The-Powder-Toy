@@ -48,7 +48,7 @@ AddSconsOption('64bit', False, False, "Compile a 64 bit binary")
 AddSconsOption('32bit', False, False, "Compile a 32 bit binary")
 AddSconsOption("universal", False, False, "compile universal binaries on Mac OS X")
 AddSconsOption('no-sse', False, False, "Disable SSE optimizations")
-AddSconsOption('sse', False, False, "Enable SSE optimizations")
+AddSconsOption('sse', True, False, "Enable SSE optimizations (default)")
 AddSconsOption('sse2', True, False, "Enable SSE2 optimizations (default)")
 AddSconsOption('sse3', False, False, "Enable SSE3 optimizations")
 AddSconsOption('native', False, False, "Enable optimizations specific to your cpu")
@@ -373,7 +373,6 @@ if platform == "Windows":
 		env.Append(CCFLAGS=['/GS']) #enable security check
 		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS,"5.01"', '/OPT:REF', '/OPT:ICF'])
 		if GetOption('static'):
-			env.Append(CCFLAGS=['/GL']) #whole program optimization (linker may freeze indefinitely without this)
 			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrt.lib', '/LTCG'])
 		elif not GetOption('debugging'):
 			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrtd.lib'])
@@ -392,17 +391,18 @@ if isX86:
 if not GetOption('no-sse'):
 	if GetOption('sse'):
 		if msvc:
-			env.Append(CCFLAGS=['/arch:SSE'])
+			if not GetOption('sse2'):
+				env.Append(CCFLAGS=['/arch:SSE'])
 		else:
 			env.Append(CCFLAGS=['-msse'])
 		env.Append(CPPDEFINES=['X86_SSE'])
-	elif GetOption('sse2'):
+	if GetOption('sse2'):
 		if msvc:
 			env.Append(CCFLAGS=['/arch:SSE2'])
 		else:
 			env.Append(CCFLAGS=['-msse2'])
 		env.Append(CPPDEFINES=['X86_SSE2'])
-	elif GetOption('sse3'):
+	if GetOption('sse3'):
 		if msvc:
 			env.Append(CCFLAGS=['/arch:SSE3'])
 		else:
