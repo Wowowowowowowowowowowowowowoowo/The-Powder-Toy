@@ -2,6 +2,7 @@
 #include "VideoBuffer.h"
 #define INCLUDE_FONTDATA
 #include "font.h"
+#include "common/tpt-minmax.h"
 
 VideoBuffer::VideoBuffer(int width, int height):
 	width(width),

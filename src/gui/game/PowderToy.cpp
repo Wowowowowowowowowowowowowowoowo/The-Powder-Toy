@@ -587,7 +587,7 @@ void PowderToy::TogglePause()
 
 void PowderToy::SetPause(bool pause)
 {
-	if (pause != sys_pause)
+	if ((pause ? 1 : 0) != sys_pause)
 		TogglePause();
 }
 

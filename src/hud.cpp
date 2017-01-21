@@ -293,7 +293,7 @@ void SetLeftHudText(float FPSB2)
 	{
 		time_t time2 = time(0);
 		char time[256], *timestr = NULL;
-		sprintf(time,"%li",time2);
+		sprintf(time,"%li", (long)time2);
 
 		if (strlen(uitext))
 		{

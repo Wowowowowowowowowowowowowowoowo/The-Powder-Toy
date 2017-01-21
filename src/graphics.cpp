@@ -3665,7 +3665,7 @@ int sdl_open()
 #ifdef WIN
 	SDL_VERSION(&SysInfo.version);
 	if(SDL_GetWMInfo(&SysInfo) <= 0) {
-	    printf("%s : %d\n", SDL_GetError(), SysInfo.window);
+	    printf("%s : %d\n", SDL_GetError(), (int)SysInfo.window);
 	    exit(-1);
 	}
 	WindowHandle = SysInfo.window;
