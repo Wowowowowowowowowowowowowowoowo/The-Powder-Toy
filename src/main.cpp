@@ -794,7 +794,7 @@ void ParticleDebug(int mode, int x, int y)
 	// update all particles up to particle under mouse (or to end of sim)
 	else if (mode == 1)
 	{
-		if (x < 0 || x >= XRES || y < 0 || y >= YRES || !(i = (pmap[y][x]>>8)) || i < debug_currentParticle)
+		if (x < 0 || x >= XRES || y < 0 || y >= YRES || !pmap[y][x] || (i = (pmap[y][x]>>8)) < debug_currentParticle)
 		{
 			i = NPART;
 			logmessage << "Updated particles from #" << debug_currentParticle << " to end, updated sim";
