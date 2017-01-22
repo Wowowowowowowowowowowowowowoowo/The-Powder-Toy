@@ -485,7 +485,7 @@ void load_presets(void)
 					if (mode == 0)
 					{
 						char * strMode = tempDisplayMode->valuestring;
-						if (strlen(strMode))
+						if (strMode && strlen(strMode))
 							mode = atoi(strMode);
 					}
 					Renderer::Ref().AddDisplayMode(mode);
@@ -504,7 +504,7 @@ void load_presets(void)
 					if (mode == 0)
 					{
 						char * strMode = tempRenderMode->valuestring;
-						if (strlen(strMode))
+						if (strMode && strlen(strMode))
 							mode = atoi(strMode);
 					}
 					// temporary hack until I update the json library (first for loading current modes, second only needed for loading with valuestring)
