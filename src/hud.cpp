@@ -94,8 +94,8 @@ void SetRightHudText(int x, int y)
 				}
 				else if (currentHud[50] && currentHud[11] && (cr&0xFF)==PT_FILT)
 				{
-					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter" };
-					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=9)
+					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter", "variable red shift", "variable blue shift" };
+					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=11)
 						sprintf(nametext, "FILT (%s), ", filtModes[parts[cr>>8].tmp]);
 					else
 						sprintf(nametext, "FILT (unknown mode), ");
