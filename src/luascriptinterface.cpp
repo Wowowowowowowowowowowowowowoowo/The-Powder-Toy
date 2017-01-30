@@ -243,6 +243,7 @@ void initSimulationAPI(lua_State * l)
 		{"elementCount", simulation_elementCount},
 		{"can_move", simulation_canMove},
 		{"parts", simulation_parts},
+		{"brush", simulation_brush},
 		{"pmap", simulation_pmap},
 		{"photons", simulation_photons},
 		{"neighbors", simulation_neighbours},
@@ -1355,6 +1356,74 @@ int simulation_parts(lua_State * l)
 {
 	lua_pushnumber(l, -1);
 	lua_pushcclosure(l, PartsClosure, 1);
+	return 1;
+}
+
+int BrushClosure(lua_State * l)
+{
+	// see Simulation::ToolBrush
+	int positionX = lua_tointeger(l, lua_upvalueindex(1));
+	int positionY = lua_tointeger(l, lua_upvalueindex(2));
+	int radiusX = lua_tointeger(l, lua_upvalueindex(3));
+	int radiusY = lua_tointeger(l, lua_upvalueindex(4));
+	int x = lua_tointeger(l, lua_upvalueindex(5));
+	int y = lua_tointeger(l, lua_upvalueindex(6));
+	float strength = lua_tonumber(l, lua_upvalueindex(7));
+	bool *bitmap = (bool *)lua_touserdata(l, lua_upvalueindex(8));
+
+
+	int yield_x, yield_y;
+	while (true)
+	{
+		if (!(y < radiusY+radiusY+1)) return 0;
+		if (x < radiusX+radiusX+1)
+		{
+			bool yield_coords = false;
+			std::cout << y << "," << x<< "\n";
+			if (bitmap[(y*(radiusX+radiusX+1))+x] && (positionX+(x-radiusX) >= 0 && positionY+(y-radiusY) >= 0 && positionX+(x-radiusX) < XRES && positionY+(y-radiusY) < YRES))
+			{
+				yield_coords = true;
+				yield_x = positionX+(x-radiusX);
+				yield_y = positionY+(y-radiusY);
+			}
+			x++;
+			if (yield_coords)
+				break;
+		}
+		else
+		{
+			x = 0;
+			y++;
+		}
+	}
+
+	lua_pushnumber(l, x);
+	lua_replace(l, lua_upvalueindex(5));
+	lua_pushnumber(l, y);
+	lua_replace(l, lua_upvalueindex(6));
+
+	lua_pushnumber(l, yield_x);
+	lua_pushnumber(l, yield_y);
+	lua_pushnumber(l, strength);
+	return 3;
+}
+
+int simulation_brush(lua_State * l)
+{
+	int positionX = luaL_checkint(l, 1);
+	int positionY = luaL_checkint(l, 2);
+	Brush * cBrush = currentBrush;
+	int radiusX = cBrush->GetRadius().X, radiusY = cBrush->GetRadius().Y;
+	lua_pushnumber(l, positionX);
+	lua_pushnumber(l, positionY);
+	lua_pushnumber(l, radiusX);
+	lua_pushnumber(l, radiusY);
+	lua_pushnumber(l, 0);
+	lua_pushnumber(l, 0);
+	lua_pushnumber(l, the_game->GetToolStrength());
+	bool * asdf = cBrush->GetBitmap();
+	lua_pushlightuserdata(l, asdf);
+	lua_pushcclosure(l, BrushClosure, 8);
 	return 1;
 }
 
