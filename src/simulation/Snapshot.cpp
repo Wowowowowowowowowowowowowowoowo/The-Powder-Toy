@@ -61,7 +61,7 @@ Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 	snap->FanVelocityX.insert(snap->FanVelocityX.begin(), &fvx[0][0], &fvx[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->FanVelocityY.insert(snap->FanVelocityY.begin(), &fvy[0][0], &fvy[0][0]+((XRES/CELL)*(YRES/CELL)));
 	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
-		snap->Signs.push_back(new Sign(*(Sign*)*iter));
+		snap->Signs.push_back(new Sign(**iter));
 
 	sim->RecountElements();
 	for (int i = 0; i < PT_NUM; i++)
@@ -98,7 +98,7 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 	std::copy(snap.FanVelocityY.begin(), snap.FanVelocityY.end(), &fvy[0][0]);
 	ClearSigns();
 	for (std::vector<Sign*>::const_iterator iter = snap.Signs.begin(), end = snap.Signs.end(); iter != end; ++iter)
-		signs.push_back(new Sign(*(Sign*)*iter));
+		signs.push_back(new Sign(**iter));
 
 	for (int i = 0; i < PT_NUM; i++)
 	{

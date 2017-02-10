@@ -226,9 +226,8 @@ int nearest_part(int ci, int t, int max_d)
 
 void decrease_life(int i)
 {
-	int t;
 	unsigned int elem_properties;
-	t = parts[i].type;
+	int t = parts[i].type;
 	if (t<0 || t>=PT_NUM)
 	{
 		kill_part(i);

@@ -1902,12 +1902,12 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		{
 		case 'r':
 			// vertical invert
-			if ((modifiers & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT))
+			if (ctrlHeld && shiftHeld)
 			{
 				transform = m2d_new(1, 0, 0, -1);
 			}
 			// horizontal invert
-			else if (modifiers & KMOD_SHIFT)
+			else if (shiftHeld)
 			{
 				transform = m2d_new(-1, 0, 0, 1);
 			}
@@ -2020,7 +2020,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		break;
 	case 's':
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-		if (globalSim->elementCount[PT_STKM2] > 0 ? (modifiers&(KMOD_LCTRL|KMOD_LMETA)) : !(sdl_mod&(KMOD_CTRL|KMOD_META)))
+		if (globalSim->elementCount[PT_STKM2] > 0 ? ctrlHeld : !ctrlHeld)
 		{
 			ResetStampState();
 			state = SAVE;
@@ -2064,7 +2064,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		break;
 	case 'z':
 		// ctrl + z
-		if (modifiers & (KMOD_CTRL|KMOD_META))
+		if (ctrlHeld)
 		{
 			Snapshot::RestoreSnapshot(globalSim);
 		}
@@ -2079,21 +2079,21 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		break;
 	case 'x':
-		if (modifiers & (KMOD_CTRL|KMOD_META))
+		if (ctrlHeld)
 		{
 			ResetStampState();
 			state = CUT;
 		}
 		break;
 	case 'c':
-		if (modifiers & (KMOD_CTRL|KMOD_META))
+		if (ctrlHeld)
 		{
 			ResetStampState();
 			state = COPY;
 		}
 		break;
 	case 'v':
-		if ((modifiers & (KMOD_CTRL|KMOD_META)) && clipboardData)
+		if (ctrlHeld && clipboardData)
 		{
 			ResetStampState();
 			stampData = malloc(clipboardSize);

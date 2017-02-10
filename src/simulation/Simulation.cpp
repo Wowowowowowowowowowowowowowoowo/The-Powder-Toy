@@ -426,7 +426,8 @@ void Simulation::RecalcFreeParticles()
 	std::fill_n(&photons[0][0], XRES*YRES, 0);
 
 	NUM_PARTS = 0;
-	for (int i = 0; i <= parts_lastActiveIndex; i++)//the particle loop that resets the pmap/photon maps every frame, to update them.
+	//the particle loop that resets the pmap/photon maps every frame, to update them.
+	for (int i = 0; i <= parts_lastActiveIndex; i++)
 	{
 		if (parts[i].type)
 		{
@@ -468,8 +469,9 @@ void Simulation::RecalcFreeParticles()
 			}
 			lastPartUsed = i;
 			NUM_PARTS++;
+			//decrease the life of certain elements by 1 every frame
 			if (!sys_pause || framerender)
-				decrease_life(i); //decrease the life of certain elements by 1 every frame
+				decrease_life(i);
 		}
 		else
 		{
