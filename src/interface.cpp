@@ -69,6 +69,7 @@
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
+#include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -5479,7 +5480,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
 					retval = 1;
-					ctrlzSnapshot();
+					Snapshot::TakeSnapshot(globalSim);
 
 					memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 					memset(fire_r, 0, sizeof(fire_r));
@@ -7692,7 +7693,7 @@ void catalogue_ui(pixel * vid_buf)
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
-								ctrlzSnapshot();
+								Snapshot::TakeSnapshot(globalSim);
 								goto openfin;
 							} else {
 								error_ui(vid_buf, 0, "Save data corrupt");

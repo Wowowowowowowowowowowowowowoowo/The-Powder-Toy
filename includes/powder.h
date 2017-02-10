@@ -122,16 +122,11 @@ extern const particle emptyparticle;
 extern int airMode;
 
 extern particle *parts;
-extern particle *cb_parts;
 
 extern unsigned char bmap[YRES/CELL][XRES/CELL];
 extern unsigned char emap[YRES/CELL][XRES/CELL];
 
-extern unsigned char cb_bmap[YRES/CELL][XRES/CELL];
-extern unsigned char cb_emap[YRES/CELL][XRES/CELL];
-
 extern unsigned pmap[YRES][XRES];
-extern unsigned cb_pmap[YRES][XRES];
 extern int pmap_count[YRES][XRES];
 
 extern unsigned photons[YRES][XRES];

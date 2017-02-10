@@ -15,6 +15,8 @@ public:
 		emp_trigger_count = 0;
 	}
 
+	virtual ElementDataContainer * Clone() { return new EMP_ElementDataContainer(*this); }
+
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
 		emp_decor = 0;

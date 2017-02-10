@@ -59,6 +59,8 @@ public:
 			movingSolids[i].Simulation_Cleared();
 	}
 
+	virtual ElementDataContainer * Clone() { return new MOVS_ElementDataContainer(*this); }
+
 	MovingSolid* GetMovingSolid(int bn)
 	{
 		if (bn >= 0 && bn < MAX_MOVING_SOLIDS)

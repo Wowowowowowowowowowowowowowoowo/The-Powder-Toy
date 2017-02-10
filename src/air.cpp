@@ -31,11 +31,6 @@ float pv[YRES/CELL][XRES/CELL], opv[YRES/CELL][XRES/CELL];
 unsigned char bmap_blockair[YRES/CELL][XRES/CELL];
 unsigned char bmap_blockairh[YRES/CELL][XRES/CELL];
 
-float cb_vx[YRES/CELL][XRES/CELL];
-float cb_vy[YRES/CELL][XRES/CELL];
-float cb_pv[YRES/CELL][XRES/CELL];
-float cb_hv[YRES/CELL][XRES/CELL];
-
 float fvx[YRES/CELL][XRES/CELL], fvy[YRES/CELL][XRES/CELL];
 
 float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL]; // For Ambient Heat

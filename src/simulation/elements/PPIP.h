@@ -12,6 +12,9 @@ public:
 	{
 		ppip_changed = false;
 	}
+
+	virtual ElementDataContainer * Clone() { return new PPIP_ElementDataContainer(*this); }
+
 	virtual void Simulation_BeforeUpdate(Simulation *sim)
 	{
 		if (ppip_changed)

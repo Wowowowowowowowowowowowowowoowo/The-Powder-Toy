@@ -26,6 +26,7 @@
 #include "interface/Engine.h"
 #include "interface/Window.h"
 #include "simulation/Simulation.h"
+#include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 
@@ -38,6 +39,7 @@
 
 PowderToy::~PowderToy()
 {
+	Snapshot::ClearSnapshots();
 	main_end_hack();
 	free(clipboardData);
 }
@@ -433,7 +435,7 @@ void PowderToy::ReloadSave(unsigned char b)
 	if (b == 1 || !strncmp(svf_id, "", 8))
 	{
 		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-		ctrlzSnapshot();
+		Snapshot::TakeSnapshot(globalSim);
 	}
 	else
 		open_ui(vid_buf, svf_id, NULL, 0);
@@ -1580,13 +1582,13 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		}
 		else if (drawState == POINTS)
 		{
-			ctrlzSnapshot();
+			Snapshot::TakeSnapshot(globalSim);
 			lastDrawPoint = cursor;
 			activeTools[toolIndex]->DrawPoint(globalSim, currentBrush, cursor, toolStrength);
 		}
 		else if (drawState == FILL)
 		{
-			ctrlzSnapshot();
+			Snapshot::TakeSnapshot(globalSim);
 			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
 		}
 	}
@@ -1676,7 +1678,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			return;
 		stampMoving = false;
 #endif
-		ctrlzSnapshot();
+		Snapshot::TakeSnapshot(globalSim);
 		parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		ResetStampState();
 		return;
@@ -1748,14 +1750,14 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			if (altHeld)
 				cursor = LineSnapCoords(initialDrawPoint, cursor);
-			ctrlzSnapshot();
+			Snapshot::TakeSnapshot(globalSim);
 			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
 		}
 		else if (drawState == RECT)
 		{
 			if (altHeld)
 				cursor = RectSnapCoords(initialDrawPoint, cursor);
-			ctrlzSnapshot();
+			Snapshot::TakeSnapshot(globalSim);
 			activeTools[toolIndex]->DrawRect(globalSim, currentBrush, initialDrawPoint, cursor);
 		}
 		else if (drawState == FILL)
@@ -2060,6 +2062,22 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			}
 		}
 		break;
+	case 'z':
+		// ctrl + z
+		if (modifiers & (KMOD_CTRL|KMOD_META))
+		{
+			Snapshot::RestoreSnapshot(globalSim);
+		}
+		// zoom window
+		else
+		{
+			if (isStampMouseDown)
+				break;
+			placingZoom = true;
+			isMouseDown = false;
+			UpdateZoomCoordinates(mouse);
+		}
+		break;
 	case 'x':
 		if (modifiers & (KMOD_CTRL|KMOD_META))
 		{
@@ -2073,16 +2091,6 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			ResetStampState();
 			state = COPY;
 		}
-		break;
-	case 'z':
-		// don't do anything if this is a ctrl+z (undo)
-		if (modifiers & (KMOD_CTRL|KMOD_META))
-			break;
-		if (isStampMouseDown)
-			break;
-		placingZoom = true;
-		isMouseDown = false;
-		UpdateZoomCoordinates(mouse);
 		break;
 	case 'v':
 		if ((modifiers & (KMOD_CTRL|KMOD_META)) && clipboardData)

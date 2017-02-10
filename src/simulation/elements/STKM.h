@@ -34,6 +34,8 @@ public:
 		player2.elem = PT_DUST;
 	}
 
+	virtual ElementDataContainer * Clone() { return new STKM_ElementDataContainer(*this); }
+
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
 		InitLegs(&player, -1);

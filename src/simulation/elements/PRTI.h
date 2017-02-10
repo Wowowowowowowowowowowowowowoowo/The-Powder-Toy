@@ -92,10 +92,14 @@ public:
 		for (int i=0; i<CHANNELS; i++)
 			channels[i].Simulation_Cleared();
 	}
+
+	virtual ElementDataContainer * Clone() { return new PRTI_ElementDataContainer(*this); }
+
 	PortalChannel* GetChannel(int i)
 	{
 		return channels+i;
 	}
+
 	PortalChannel* GetParticleChannel(Simulation *sim, int i)
 	{
 		sim->parts[i].tmp = (int)((sim->parts[i].temp-73.15f)/100+1);
@@ -103,6 +107,7 @@ public:
 		else if (sim->parts[i].tmp<0) sim->parts[i].tmp = 0;
 		return channels+parts[i].tmp;
 	}
+
 	static int GetSlot(int rx, int ry)
 	{
 		if (rx>1 || ry>1 || rx<-1 || ry<-1)
@@ -119,6 +124,7 @@ public:
 		}
 		return 1; // Dunno, put it in the top of the portal
 	}
+
 	virtual void Simulation_Cleared(Simulation *sim)
 	{
 		for (int i=0; i<CHANNELS; i++)

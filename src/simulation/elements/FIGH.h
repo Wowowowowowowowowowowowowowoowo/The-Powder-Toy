@@ -34,6 +34,8 @@ public:
 		memset(fighters, 0, sizeof(fighters));
 	}
 
+	virtual ElementDataContainer * Clone() { return new FIGH_ElementDataContainer(*this); }
+
 	Stickman * Get(unsigned char i)
 	{
 		return fighters+i;

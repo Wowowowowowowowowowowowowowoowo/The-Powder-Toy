@@ -35,7 +35,6 @@ part_transition ptransitions[PT_NUM];
 unsigned int platent[PT_NUM];
 
 particle *parts;
-particle *cb_parts;
 
 int airMode = 0;
 int water_equal_test = 0;
@@ -43,12 +42,8 @@ int water_equal_test = 0;
 unsigned char bmap[YRES/CELL][XRES/CELL];
 unsigned char emap[YRES/CELL][XRES/CELL];
 
-unsigned char cb_bmap[YRES/CELL][XRES/CELL];
-unsigned char cb_emap[YRES/CELL][XRES/CELL];
-
 unsigned pmap[YRES][XRES];
 int pmap_count[YRES][XRES];
-unsigned cb_pmap[YRES][XRES];
 unsigned photons[YRES][XRES];
 int NUM_PARTS = 0;
 

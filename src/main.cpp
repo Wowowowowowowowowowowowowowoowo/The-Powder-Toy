@@ -79,6 +79,7 @@
 #include "game/Download.h"
 #include "game/DownloadManager.h"
 #include "simulation/Simulation.h"
+#include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
@@ -625,7 +626,7 @@ int tab_load(int tabNum, bool del)
 		if (del)
 			remove(fileName); //prevent crash loops on startup
 		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-		ctrlzSnapshot();
+		Snapshot::TakeSnapshot(globalSim);
 		if (!svf_last) //only free if reload button isn't active
 		{
 			free(saveData);
@@ -747,29 +748,6 @@ bool thumb_cache_find(char *id, void **thumb, int *size)
 char http_proxy_string[256] = "";
 
 unsigned short last_major=0, last_minor=0, last_build=0, update_flag=0;
-
-void ctrlzSnapshot()
-{
-	int cbx, cby, cbi;
-
-	for (cbi=0; cbi<NPART; cbi++)
-		cb_parts[cbi] = parts[cbi];
-
-	for (cby = 0; cby<YRES; cby++)
-		for (cbx = 0; cbx<XRES; cbx++)
-			cb_pmap[cby][cbx] = pmap[cby][cbx];
-
-	for (cby = 0; cby<(YRES/CELL); cby++)
-		for (cbx = 0; cbx<(XRES/CELL); cbx++)
-		{
-			cb_vx[cby][cbx] = vx[cby][cbx];
-			cb_vy[cby][cbx] = vy[cby][cbx];
-			cb_pv[cby][cbx] = pv[cby][cbx];
-			cb_hv[cby][cbx] = hv[cby][cbx];
-			cb_bmap[cby][cbx] = bmap[cby][cbx];
-			cb_emap[cby][cbx] = emap[cby][cbx];
-		}
-}
 
 // Particle debugging function
 void ParticleDebug(int mode, int x, int y)
@@ -1146,7 +1124,6 @@ int main(int argc, char *argv[])
 	FillMenus();
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
 
-	cb_parts = (particle*)calloc(sizeof(particle), NPART);
 	mainSim->InitCanMove();
 
 #ifdef LUACONSOLE
@@ -1670,7 +1647,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
 						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-						ctrlzSnapshot();
+						Snapshot::TakeSnapshot(globalSim);
 					}
 					else if (!(sdl_mod & (KMOD_CTRL|KMOD_META|KMOD_SHIFT)))
 						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
@@ -1681,7 +1658,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
 					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-					ctrlzSnapshot();
+					Snapshot::TakeSnapshot(globalSim);
 				}
 			}
 			if (sdl_key=='o')
@@ -1929,36 +1906,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				if (it > 50)
 					it = 50;
 			}*/
-			if (sdl_key=='z') // Undo
-			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-				{
-					int cbx, cby, cbi;
-
-					for (cbi=0; cbi<NPART; cbi++)
-						parts[cbi] = cb_parts[cbi];
-					globalSim->parts_lastActiveIndex = NPART-1;
-
-					for (cby = 0; cby<YRES; cby++)
-						for (cbx = 0; cbx<XRES; cbx++)
-							pmap[cby][cbx] = cb_pmap[cby][cbx];
-
-					for (cby = 0; cby<(YRES/CELL); cby++)
-						for (cbx = 0; cbx<(XRES/CELL); cbx++)
-						{
-							vx[cby][cbx] = cb_vx[cby][cbx];
-							vy[cby][cbx] = cb_vy[cby][cbx];
-							pv[cby][cbx] = cb_pv[cby][cbx];
-							hv[cby][cbx] = cb_hv[cby][cbx];
-							bmap[cby][cbx] = cb_bmap[cby][cbx];
-							emap[cby][cbx] = cb_emap[cby][cbx];
-						}
-
-					//check for excessive stacking of particles next time UpdateParticles is run
-					globalSim->forceStackingCheck = true;
-					globalSim->RecountElements();
-				}
-			}
 			if (!the_game->MouseClicksIgnored())
 			{
 				if (sdl_key == SDLK_UP && (sdl_mod & KMOD_CTRL) && tab_num > 1)

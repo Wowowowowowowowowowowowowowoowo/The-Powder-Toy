@@ -37,6 +37,8 @@ public:
 		initDeltaPos();
 	}
 
+	virtual ElementDataContainer * Clone() { return new ETRD_ElementDataContainer(*this); }
+
 	void invalidate()
 	{
 		isValid = false;

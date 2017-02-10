@@ -37,6 +37,9 @@ public:
 	{
 		std::fill_n(&lolz[0][0], (XRES/9)*(YRES/9), false);
 	}
+
+	virtual ElementDataContainer * Clone() { return new LOLZ_ElementDataContainer(*this); }
+
 	virtual void Simulation_BeforeUpdate(Simulation *sim)
 	{
 		if (sim->elementCount[PT_LOLZ] <= 0)
