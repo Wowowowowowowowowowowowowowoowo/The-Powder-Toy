@@ -20,10 +20,13 @@ class Brush
 public:
 	Brush(Point radius_, int shape_) :
 		radius(radius_),
-		shape(shape_)
+		shape(shape_),
+		bitmap(NULL)
 	{
 		GenerateBitmap();
 	}
+
+	~Brush() { if (bitmap) delete[] bitmap; }
 
 	void SetRadius(Point radius_);
 	void ChangeRadius(Point change);
