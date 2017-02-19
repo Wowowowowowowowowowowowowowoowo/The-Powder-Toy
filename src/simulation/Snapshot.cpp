@@ -43,6 +43,8 @@ void Snapshot::TakeSnapshot(Simulation * sim)
 
 void Snapshot::RestoreSnapshot(Simulation * sim)
 {
+	if (!snapshots.size())
+		return;
 	if (historyPosition == snapshots.size())
 	{
 		Snapshot *newSnap = CreateSnapshot(sim);
