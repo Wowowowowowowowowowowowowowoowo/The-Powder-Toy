@@ -7,7 +7,9 @@
 #include "elements/PRTI.h"
 #include "game/Sign.h"
 
-std::vector<Snapshot*> snapshots = std::vector<Snapshot*>();
+unsigned int Snapshot::historyPosition = 0;
+std::deque<Snapshot*> Snapshot::snapshots = std::deque<Snapshot*>();
+Snapshot *Snapshot::redoHistory = NULL;
 
 Snapshot::~Snapshot()
 {
@@ -20,19 +22,50 @@ Snapshot::~Snapshot()
 
 void Snapshot::TakeSnapshot(Simulation * sim)
 {
-	while (snapshots.size())
+	Snapshot *snap = CreateSnapshot(sim);
+	if (!snap)
+		return;
+	while (historyPosition < snapshots.size())
 	{
 		delete snapshots.back();
 		snapshots.pop_back();
 	}
-	snapshots.push_back(CreateSnapshot(sim));
+	if (snapshots.size() >= 5)
+	{
+		delete snapshots.front();
+		snapshots.pop_front();
+		if (historyPosition > snapshots.size())
+			historyPosition--;
+	}
+	snapshots.push_back(snap);
+	historyPosition = std::min((size_t)historyPosition+1, snapshots.size());
 }
 
 void Snapshot::RestoreSnapshot(Simulation * sim)
 {
-	if (!snapshots.size())
+	if (historyPosition == snapshots.size())
+	{
+		Snapshot *newSnap = CreateSnapshot(sim);
+		delete redoHistory;
+		redoHistory = newSnap;
+	}
+	Snapshot *snap = snapshots[std::max((int)historyPosition-1, 0)];
+	Restore(sim, *snap);
+	historyPosition = std::max((int)historyPosition-1, 0);
+}
+
+void Snapshot::RestoreRedoSnapshot(Simulation *sim)
+{
+	Snapshot *snap;
+	unsigned int newHistoryPosition = std::min((size_t)historyPosition+1, snapshots.size());
+	if (newHistoryPosition == snapshots.size())
+		snap = redoHistory;
+	else
+		snap = snapshots[newHistoryPosition];
+	if (!snap)
 		return;
-	Restore(sim, *snapshots[0]);
+	Restore(sim, *snap);
+	historyPosition = newHistoryPosition;
 }
 
 void Snapshot::ClearSnapshots()

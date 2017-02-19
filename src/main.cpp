@@ -1823,7 +1823,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
-			if (sdl_key=='y')
+			if (sdl_key=='y' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				++airMode;
 

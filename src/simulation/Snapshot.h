@@ -1,6 +1,7 @@
 #ifndef SNAPSHOT
 #define SNAPSHOT
 
+#include <deque>
 #include <vector>
 
 #include "ElementNumbers.h"
@@ -58,14 +59,17 @@ public:
 	// manage snapshots list
 	static void TakeSnapshot(Simulation * sim);
 	static void RestoreSnapshot(Simulation * sim);
+	static void RestoreRedoSnapshot(Simulation *sim);
 	static void ClearSnapshots();
 
 private:
+	static unsigned int historyPosition;
+	static std::deque<Snapshot*> snapshots;
+	static Snapshot* redoHistory;
+
 	// actual creation / restoration of snapshots
 	static Snapshot * CreateSnapshot(Simulation * sim);
 	static void Restore(Simulation * sim, const Snapshot &snap);
 };
-
-extern std::vector<Snapshot*> snapshots;
 
 #endif // SNAPSHOT

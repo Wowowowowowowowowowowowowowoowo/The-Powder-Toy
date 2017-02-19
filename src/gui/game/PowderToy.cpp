@@ -1981,6 +1981,13 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		Engine::Ref().ShowWindow(confirm);
 		break;
 	}
+	case 'y':
+		// ctrl + y
+		if (ctrlHeld)
+		{
+			Snapshot::RestoreRedoSnapshot(globalSim);
+		}
+		break;
 	case 'i':
 		if (!ctrlHeld)
 		{
@@ -2066,7 +2073,10 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		// ctrl + z
 		if (ctrlHeld)
 		{
-			Snapshot::RestoreSnapshot(globalSim);
+			if (shiftHeld)
+				Snapshot::RestoreRedoSnapshot(globalSim);
+			else
+				Snapshot::RestoreSnapshot(globalSim);
 		}
 		// zoom window
 		else
