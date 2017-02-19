@@ -193,7 +193,8 @@ void RenderModesUI::InitializeCheckboxes()
 	Point pos = Point(42, (MENUSIZE-size.Y)/2);
 #else
 	Point size = Point(Checkbox::AUTOSIZE, Checkbox::AUTOSIZE);
-	Point pos = Point(3, 3);
+	// hardcoded checkbox length (34)
+	Point pos = Point(34*9, 3);
 #endif
 
 	Checkbox *effectsCheckbox = new Checkbox(pos, size, "\xE1");
@@ -282,7 +283,7 @@ Point RenderModesUI::ButtonPos(Button *prev1, Button *prev2)
 	if (!prev2)
 		return prev1->Below(Point(0, 2));
 	else if (prev1->GetPosition().Y > MENUSIZE/2)
-		return prev2->Left(Point(35, 0));
+		return prev2->Right(Point(4, 0));
 	else
 		return prev1->Below(Point(0, 2));
 #endif
@@ -329,7 +330,7 @@ void RenderModesUI::InitializeButtons()
 	Point pos = Point(XRES-40, 3);
 #else
 	Point size = Point(31, 16);
-	Point pos = Point(XRES-34, 3);
+	Point pos = Point(3, 3);
 #endif
 
 	Button *velocityButton = new Button(pos, size, "\x98");
