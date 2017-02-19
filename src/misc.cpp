@@ -47,6 +47,7 @@
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
 #include "simulation/Simulation.h"
+#include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 
 #ifdef MACOSX
@@ -222,6 +223,7 @@ void save_presets()
 		cJSON_AddNumberToObject(simulationobj, "NewtonianGravityDisable", ngrav_completedisable);
 	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
+	cJSON_AddNumberToObject(simulationobj, "UndoHistoryLimit", Snapshot::GetUndoHistoryLimit());
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -517,7 +519,7 @@ void load_presets(void)
 				decorations_enable = true;
 			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "GravityField")) && tmpobj->type == cJSON_True)
 				drawgrav_enable = tmpobj->valueint;
-			if((tmpobj = cJSON_GetObjectItem(graphicsobj, "DebugMode")) && tmpobj->type == cJSON_True)
+			if ((tmpobj = cJSON_GetObjectItem(graphicsobj, "DebugMode")) && tmpobj->type == cJSON_True)
 				DEBUG_MODE = tmpobj->valueint;
 		}
 
@@ -540,6 +542,8 @@ void load_presets(void)
 				aheat_enable = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder")))
 				pretty_powder = tmpobj->valueint;
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "UndoHistoryLimit")))
+				Snapshot::SetUndoHistoryLimit(tmpobj->valueint);
 		}
 
 		//read console history

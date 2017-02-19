@@ -7,6 +7,7 @@
 #include "elements/PRTI.h"
 #include "game/Sign.h"
 
+unsigned int Snapshot::undoHistoryLimit = 5;
 unsigned int Snapshot::historyPosition = 0;
 std::deque<Snapshot*> Snapshot::snapshots = std::deque<Snapshot*>();
 Snapshot *Snapshot::redoHistory = NULL;
@@ -30,7 +31,7 @@ void Snapshot::TakeSnapshot(Simulation * sim)
 		delete snapshots.back();
 		snapshots.pop_back();
 	}
-	if (snapshots.size() >= 5)
+	if (snapshots.size() >= undoHistoryLimit)
 	{
 		delete snapshots.front();
 		snapshots.pop_front();
@@ -45,6 +46,8 @@ void Snapshot::RestoreSnapshot(Simulation * sim)
 {
 	if (!snapshots.size())
 		return;
+	// When undoing, save the current state as a final redo
+	// This way ctrl+y will always bring you back to the point right before your last ctrl+z
 	if (historyPosition == snapshots.size())
 	{
 		Snapshot *newSnap = CreateSnapshot(sim);

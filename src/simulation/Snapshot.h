@@ -62,7 +62,11 @@ public:
 	static void RestoreRedoSnapshot(Simulation *sim);
 	static void ClearSnapshots();
 
+	static void SetUndoHistoryLimit(unsigned int newLimit) { undoHistoryLimit = std::min(newLimit, (unsigned int)200); }
+	static unsigned int GetUndoHistoryLimit() { return undoHistoryLimit; }
+
 private:
+	static unsigned int undoHistoryLimit;
 	static unsigned int historyPosition;
 	static std::deque<Snapshot*> snapshots;
 	static Snapshot* redoHistory;
