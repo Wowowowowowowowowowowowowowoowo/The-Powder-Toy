@@ -48,6 +48,13 @@
 #include <unistd.h>
 #endif
 
+#ifdef X86_SSE
+#include <xmmintrin.h>
+#endif
+#ifdef X86_SSE3
+#include <pmmintrin.h>
+#endif
+
 #ifdef LIN
 #include "images.h"
 #endif
@@ -1104,6 +1111,13 @@ int main(int argc, char *argv[])
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_process_attach_np();
 	pthread_win32_thread_attach_np();
+#endif
+
+#ifdef X86_SSE
+	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+#endif
+#ifdef X86_SSE3
+	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
 	limitFPS = 60;
