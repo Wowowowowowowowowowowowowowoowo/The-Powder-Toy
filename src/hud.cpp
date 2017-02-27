@@ -493,54 +493,54 @@ void DrawRecordsInfo()
 			totalpressure += pv[y][x];
 		}
 
-		GetTimeString(currentTime-totalafktime-afktime, timeinfotext, 0);
-		sprintf(infotext,"Time Played: %s", timeinfotext);
-		fillrect(vid_buf, 12, ytop-4, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop, infotext, 255, 255, 255, 200);
-		GetTimeString(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
-		sprintf(infotext,"Total Time Played: %s", timeinfotext);
-		fillrect(vid_buf, 12, ytop+10, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+14, infotext, 255, 255, 255, 200);
-		GetTimeString(totalafktime+afktime+prevafktime, timeinfotext, 0);
-		sprintf(infotext,"Total AFK Time: %s", timeinfotext);
-		fillrect(vid_buf, 12, ytop+24, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+28, infotext, 255, 255, 255, 200);
-		if (frames)
-		{
-			sprintf(infotext,"Average FPS: %f", totalfps/frames);
-			fillrect(vid_buf, 12, ytop+38, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+42, infotext, 255, 255, 255, 200);
-		}
-		sprintf(infotext,"Number of Times Played: %i", timesplayed);
-		fillrect(vid_buf, 12, ytop+52, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+56, infotext, 255, 255, 255, 200);
-		if (timesplayed)
-		{
-			GetTimeString((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
-			sprintf(infotext,"Average Time Played: %s", timeinfotext);
-			fillrect(vid_buf, 12, ytop+66, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
-		}
-		if (num_parts)
-		{
-			sprintf(infotext,"Average Temp: %f C", totaltemp/num_parts-273.15f);
-			fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
-		}
-		sprintf(infotext,"Average Pressure: %f", totalpressure/(XRES*YRES/CELL/CELL));
-		fillrect(vid_buf, 12, ytop+94, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-		drawtext(vid_buf, 16, ytop+98, infotext, 255, 255, 255, 200);
-		if (num_parts)
-		{
-			if (activeTools[0]->GetType() == GOL_TOOL)
-				sprintf(infotext,"%%%s: %f", golTypes[activeTools[0]->GetID()].name.c_str(),(float)totalselected/num_parts*100);
-			else if (((ElementTool*)activeTools[0])->GetID() > 0)
-				sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
-			else
-				sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
-			fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
-			drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
-		}
+	GetTimeString(currentTime-totalafktime-afktime, timeinfotext, 0);
+	sprintf(infotext,"Time Played: %s", timeinfotext);
+	fillrect(vid_buf, 12, ytop-4, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+	drawtext(vid_buf, 16, ytop, infotext, 255, 255, 255, 200);
+	GetTimeString(totaltime+currentTime-totalafktime-afktime, timeinfotext, 0);
+	sprintf(infotext,"Total Time Played: %s", timeinfotext);
+	fillrect(vid_buf, 12, ytop+10, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+	drawtext(vid_buf, 16, ytop+14, infotext, 255, 255, 255, 200);
+	GetTimeString(totalafktime+afktime+prevafktime, timeinfotext, 0);
+	sprintf(infotext,"Total AFK Time: %s", timeinfotext);
+	fillrect(vid_buf, 12, ytop+24, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+	drawtext(vid_buf, 16, ytop+28, infotext, 255, 255, 255, 200);
+	if (frames)
+	{
+		sprintf(infotext,"Average FPS: %f", totalfps/frames);
+		fillrect(vid_buf, 12, ytop+38, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+		drawtext(vid_buf, 16, ytop+42, infotext, 255, 255, 255, 200);
+	}
+	sprintf(infotext,"Number of Times Played: %i", timesplayed);
+	fillrect(vid_buf, 12, ytop+52, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+	drawtext(vid_buf, 16, ytop+56, infotext, 255, 255, 255, 200);
+	if (timesplayed)
+	{
+		GetTimeString((totaltime+currentTime-totalafktime-afktime)/timesplayed, timeinfotext, 0);
+		sprintf(infotext,"Average Time Played: %s", timeinfotext);
+		fillrect(vid_buf, 12, ytop+66, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+		drawtext(vid_buf, 16, ytop+70, infotext, 255, 255, 255, 200);
+	}
+	if (num_parts)
+	{
+		sprintf(infotext,"Average Temp: %f C", totaltemp/num_parts-273.15f);
+		fillrect(vid_buf, 12, ytop+80, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+		drawtext(vid_buf, 16, ytop+84, infotext, 255, 255, 255, 200);
+	}
+	sprintf(infotext,"Average Pressure: %f", totalpressure/(XRES*YRES/CELL/CELL));
+	fillrect(vid_buf, 12, ytop+94, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+	drawtext(vid_buf, 16, ytop+98, infotext, 255, 255, 255, 200);
+	if (num_parts)
+	{
+		if (activeTools[0]->GetType() == GOL_TOOL)
+			sprintf(infotext,"%%%s: %f", golTypes[activeTools[0]->GetID()].name.c_str(),(float)totalselected/num_parts*100);
+		else if (((ElementTool*)activeTools[0])->GetID() > 0)
+			sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
+		else
+			sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
+		fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);
+		drawtext(vid_buf, 16, ytop+112, infotext, 255, 255, 255, 200);
+	}
 }
 
 void DrawLuaLogs()

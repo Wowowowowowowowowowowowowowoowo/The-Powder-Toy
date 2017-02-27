@@ -350,8 +350,8 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 						}
 						count++;
 					}
-					if(neighborcount == 1)
-						parts[lastneighbor].tmp |= 0x100;
+			if(neighborcount == 1)
+				parts[lastneighbor].tmp |= 0x100;
 		}
 		else
 		{

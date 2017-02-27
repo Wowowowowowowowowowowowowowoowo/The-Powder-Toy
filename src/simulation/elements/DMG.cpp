@@ -71,7 +71,7 @@ int DMG_update(UPDATE_FUNC_ARGS)
 									}
 								}
 							}
-							return 1;
+					return 1;
 				}
 			}
 	return 0;

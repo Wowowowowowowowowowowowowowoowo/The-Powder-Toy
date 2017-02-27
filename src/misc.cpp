@@ -461,7 +461,10 @@ void load_presets(void)
 			if ((tmpobj = cJSON_GetObjectItem(recobj, "Average FPS")))
 				totalfps = tmpobj->valuedouble;
 			if ((tmpobj = cJSON_GetObjectItem(recobj, "Number of frames")))
-				frames = tmpobj->valueint; totalfps = totalfps * frames;
+			{
+				frames = tmpobj->valueint;
+				totalfps = totalfps * frames;
+			}
 			if ((tmpobj = cJSON_GetObjectItem(recobj, "Total AFK Time")))
 				prevafktime = (int)((tmpobj->valuedouble)*1000);
 			if ((tmpobj = cJSON_GetObjectItem(recobj, "Times Played")))
