@@ -656,8 +656,8 @@ void stamp_init()
 		return;
 	for (i=0; i<STAMP_MAX; i++)
 	{
-		fread(stamps[i].name, 1, 10, f);
-		if (!stamps[i].name[0])
+		int readsize = fread(stamps[i].name, 1, 10, f);
+		if (readsize != 10 || !stamps[i].name[0])
 			break;
 		stamp_count++;
 		stamp_gen_thumb(i);

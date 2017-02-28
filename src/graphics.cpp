@@ -3357,8 +3357,8 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 			return 1;
 		if (c[3]!=0x74 || c[2]!=0x49 || c[1]!=0x68 || c[0]!=0x53)
 			return 1;
-		if (c[4]>PT_NUM)
-			return 2;
+		//if (c[4]>PT_NUM)
+		//	return 2;
 		if (c[5]!=CELL || c[6]!=XRES/CELL || c[7]!=YRES/CELL)
 			return 3;
 		i = XRES*YRES;
@@ -3665,7 +3665,7 @@ int sdl_open()
 #ifdef WIN
 	SDL_VERSION(&SysInfo.version);
 	if(SDL_GetWMInfo(&SysInfo) <= 0) {
-	    printf("%s : %d\n", SDL_GetError(), (int)SysInfo.window);
+		printf("%s : %p\n", SDL_GetError(), SysInfo.window);
 	    exit(-1);
 	}
 	WindowHandle = SysInfo.window;

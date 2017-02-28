@@ -1780,7 +1780,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			toolIndex = ((button&1) || button == 2) ? 0 : 1;
 			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
-			if (!signTool || button != -1)
+			if (!signTool)
 			{
 				int signID = InsideSign(cursor.X, cursor.Y, false);
 				if (signID != -1)

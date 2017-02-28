@@ -113,10 +113,10 @@ void OpenLink(std::string uri)
 	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
 #elif MACOSX
 	std::string command = "open " + uri;
-	system(command.c_str());
+	(void)system(command.c_str());
 #elif LIN
 	std::string command = "xdg-open " + uri;
-	system(command.c_str());
+	(void)system(command.c_str());
 #else
 	printf("Cannot open browser\n");
 #endif
@@ -306,6 +306,7 @@ bool RegisterExtension()
 #elif ANDROID
 	return false;
 #elif LIN
+	int success = 1;
 	std::string filename = Platform::ExecutableName(), pathname = filename.substr(0, filename.rfind('/'));
 	for (size_t i = 0; i < filename.size(); i++)
 	{
@@ -349,7 +350,7 @@ bool RegisterExtension()
 		return false;
 	fwrite(protocolfiledata.str().c_str(), 1, strlen(protocolfiledata.str().c_str()), f);
 	fclose(f);
-	system("xdg-desktop-menu install powdertoy-tpt-ptsave.desktop");
+	success = system("xdg-desktop-menu install powdertoy-tpt-ptsave.desktop") && success;
 
 	const char *desktopopenfiledata_tmp =
 "[Desktop Entry]\n"
@@ -367,8 +368,8 @@ bool RegisterExtension()
 		return false;
 	fwrite(desktopopenfiledata.str().c_str(), 1, strlen(desktopopenfiledata.str().c_str()), f);
 	fclose(f);
-	system("xdg-mime install powdertoy-save.xml");
-	system("xdg-desktop-menu install powdertoy-tpt-open.desktop");
+	success = system("xdg-mime install powdertoy-save.xml") && success;
+	success = system("xdg-desktop-menu install powdertoy-tpt-open.desktop") && success;
 
 	const char *desktopfiledata_tmp =
 "[Desktop Entry]\n"
@@ -386,7 +387,7 @@ bool RegisterExtension()
 		return false;
 	fwrite(desktopfiledata.str().c_str(), 1, strlen(desktopfiledata.str().c_str()), f);
 	fclose(f);
-	system("xdg-desktop-menu install powdertoy-jacobsmod.desktop");
+	success = system("xdg-desktop-menu install powdertoy-jacobsmod.desktop") && success;
 
 	f = fopen("powdertoy-save-32.png", "wb");
 	if (!f)
@@ -403,12 +404,12 @@ bool RegisterExtension()
 		return false;
 	fwrite(icon_desktop_48_png, 1, icon_desktop_48_png_size, f);
 	fclose(f);
-	system("xdg-icon-resource install --noupdate --context mimetypes --size 32 powdertoy-save-32.png application-vnd.powdertoy.save");
-	system("xdg-icon-resource install --noupdate --context mimetypes --size 16 powdertoy-save-16.png application-vnd.powdertoy.save");
-	system("xdg-icon-resource install --noupdate --novendor --size 48 powdertoy.png");
-	system("xdg-icon-resource forceupdate");
-	system("xdg-mime default powdertoy-tpt-open.desktop application/vnd.powdertoy.save");
-	system("xdg-mime default powdertoy-tpt-ptsave.desktop x-scheme-handler/ptsave");
+	success = system("xdg-icon-resource install --noupdate --context mimetypes --size 32 powdertoy-save-32.png application-vnd.powdertoy.save") && success;
+	success = system("xdg-icon-resource install --noupdate --context mimetypes --size 16 powdertoy-save-16.png application-vnd.powdertoy.save") && success;
+	success = system("xdg-icon-resource install --noupdate --novendor --size 48 powdertoy.png") && success;
+	success = system("xdg-icon-resource forceupdate") && success;
+	success = system("xdg-mime default powdertoy-tpt-open.desktop application/vnd.powdertoy.save") && success;
+	success = system("xdg-mime default powdertoy-tpt-ptsave.desktop x-scheme-handler/ptsave") && success;
 	unlink("powdertoy.png");
 	unlink("powdertoy-save-32.png");
 	unlink("powdertoy-save-16.png");
@@ -416,7 +417,7 @@ bool RegisterExtension()
 	unlink("powdertoy-jacobsmod.desktop");
 	unlink("powdertoy-tpt-open.desktop");
 	unlink("powdertoy-tpt-ptsave.desktop");
-	return true;
+	return !success;
 #elif defined MACOSX
 	return false;
 #endif

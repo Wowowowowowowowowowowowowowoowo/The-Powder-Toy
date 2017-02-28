@@ -702,22 +702,6 @@ int sregexp(const char *str, const char *pattern)
 	return result;
 }
 
-int load_string(FILE *f, char *str, int max)
-{
-	int li;
-	unsigned char lb[2];
-	fread(lb, 2, 1, f);
-	li = lb[0] | (lb[1] << 8);
-	if (li > max)
-	{
-		str[0] = 0;
-		return 1;
-	}
-	fread(str, li, 1, f);
-	str[li] = 0;
-	return 0;
-}
-
 void strcaturl(char *dst, char *src)
 {
 	char *d;
@@ -838,8 +822,13 @@ void *file_load(const char *fn, int *size)
 		fclose(f);
 		return NULL;
 	}
-	fread(s, *size, 1, f);
+	int readsize = fread(s, *size, 1, f);
 	fclose(f);
+	if (readsize != 1)
+	{
+		free(s);
+		return NULL;
+	}
 	return s;
 }
 

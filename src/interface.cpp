@@ -1548,7 +1548,7 @@ void prop_edit_ui(pixel *vid_buf)
 				goto exit;
 			}
 		}
-		if (format == 2 && (value < 0 || value > PT_NUM || !ptypes[value].enabled))
+		if (format == 2 && (value > PT_NUM || !ptypes[value].enabled))
 		{
 			error_ui(vid_buf, 0, "Invalid element number");
 			goto exit;
@@ -8028,7 +8028,7 @@ void simulation_ui(pixel * vid_buf)
 #endif
 				char* workingDirectory = new char[FILENAME_MAX+strlen(openCommand)];
 				sprintf(workingDirectory, "%s\"%s\"", openCommand, getcwd(NULL, 0));
-				system(workingDirectory);
+				(void)system(workingDirectory);
 				delete workingDirectory;
 			}
 			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)

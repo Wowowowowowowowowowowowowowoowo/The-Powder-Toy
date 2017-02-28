@@ -2223,8 +2223,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					if (partsData[i] >= PT_NUM)
-						partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
+					//if (partsData[i] >= PT_NUM)
+					//	partsData[i] = PT_DMND;	//Replace all invalid elements with diamond
 					if (pmap[y][x] && posCount==0) // Check posCount to make sure an existing particle is not replaced twice if two particles are saved in that position
 					{
 						//Replace existing particle or allocated block
@@ -2867,11 +2867,11 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 				if (p >= size) {
 					goto corrupt;
 				}
-				if (m[j] <= NPART) {
+				//if (m[j] <= NPART) {
 					fb[j] |= PIXRGB(d[p++],0,0);
-				} else {
-					p++;
-				}
+				//} else {
+				//	p++;
+				//}
 			}
 		}
 		//Read GREEN component
@@ -2882,11 +2882,11 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 				if (p >= size) {
 					goto corrupt;
 				}
-				if (m[j] <= NPART) {
+				//if (m[j] <= NPART) {
 					fb[j] |= PIXRGB(0,d[p++],0);
-				} else {
-					p++;
-				}
+				//} else {
+				//	p++;
+				//}
 			}
 		}
 		//Read BLUE component
@@ -2897,11 +2897,11 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height)
 				if (p >= size) {
 					goto corrupt;
 				}
-				if (m[j] <= NPART) {
+				//if (m[j] <= NPART) {
 					fb[j] |= PIXRGB(0,0,d[p++]);
-				} else {
-					p++;
-				}
+				//} else {
+				//	p++;
+				//}
 			}
 		}
 	}
