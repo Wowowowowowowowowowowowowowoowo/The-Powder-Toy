@@ -1,6 +1,6 @@
 --Cracker64's Autorun Script Manager
 --The autorun to end all autoruns
---Version 3.7
+--Version 3.9
 
 --TODO:
 --manual file addition (that can be anywhere and any extension)
@@ -9,6 +9,8 @@
 --prettier, organize code
 
 --CHANGES:
+--Version 3.9: Minor icon fix for latest version of jacob1's mod
+--Version 3.8: Fix being unable to download scripts with / in the name, make sure tooltips don't go offscreen
 --Version 3.7: Account for extra menu in TPT 91.4
 --Version 3.6: Fix bug where it might delete your scripts after updating on windows
 --Version 3.5: Lua5.2 support, TPT 91.0 platform API support, [] can be used to scroll, misc fixes
@@ -32,8 +34,8 @@
 if not socket then error("TPT version not supported") end
 if MANAGER then error("manager is already running") end
 
-local scriptversion = 9
-MANAGER = {["version"] = "3.7", ["scriptversion"] = scriptversion, ["hidden"] = true}
+local scriptversion = 11
+MANAGER = {["version"] = "3.9", ["scriptversion"] = scriptversion, ["hidden"] = true}
 
 local type = type -- people like to overwrite this function with a global a lot
 local TPT_LUA_PATH = 'scripts'
@@ -467,6 +469,13 @@ new = function(x,y,w,text)
 			end
 		end
 		self.h = self.lines*12+2
+		if self.y + self.h > gfx.HEIGHT then
+			local movement = (gfx.HEIGHT-self.h-1)-self.y
+			if self.y+movement < 0 then
+				movement = -self.y
+			end
+			self:onmove(0, movement)
+		end
 		--self.w = tpt.textwidth(self.tooltip)+3
 		self.drawbox = tooltip ~= ""
 		self.drawbackground = tooltip ~= ""
@@ -536,13 +545,18 @@ new_button = function(x,y,w,h,splitx,f,f2,text,localscript)
 		end
 		self.t:draw()
 		if self.localscript then
+			local swapicon = tpt.version.jacob1s_mod_build and tpt.version.jacob1s_mod_build > 76
+			local offsetX = swapicon and 1 or 0
+			local offsetY = swapicon and 2 or 0
+			local innericon = swapicon and "\133" or "\134"
+			local outericon = swapicon and "\134" or "\133"
 			if self.deletealmostselected then
 				self.deletealmostselected = false
-				tpt.drawtext(self.x+1, self.y+1, "\134", 255, 48, 32, 255)
+				tpt.drawtext(self.x+1+offsetX, self.y+1+offsetY, innericon, 255, 48, 32, 255)
 			else
-				tpt.drawtext(self.x+1, self.y+1, "\134", 160, 48, 32, 255)
+				tpt.drawtext(self.x+1+offsetX, self.y+1+offsetY, innericon, 160, 48, 32, 255)
 			end
-			tpt.drawtext(self.x+1, self.y+1, "\133", 255, 255, 255, 255)
+			tpt.drawtext(self.x+1+offsetX, self.y+1+offsetY, outericon, 255, 255, 255, 255)
 		else
 			tpt.drawtext(self.x+1, self.y+1, "\147", 255, 200, 80, 255)
 		end
@@ -1020,7 +1034,7 @@ function ui_button.downloadpressed(self)
 			local displayName
 			local function get_script(butt)
 				local script = download_file("http://starcatcher.us/scripts/main.lua?get="..butt.ID)
-				displayName = "downloaded"..PATH_SEP..butt.ID.." "..onlinescripts[butt.ID].author.."-"..onlinescripts[butt.ID].name..".lua"
+				displayName = "downloaded"..PATH_SEP..butt.ID.." "..onlinescripts[butt.ID].author:gsub("[^%w _-]", "_").."-"..onlinescripts[butt.ID].name:gsub("[^%w _-]", "_")..".lua"
 				local name = TPT_LUA_PATH..PATH_SEP..displayName
 				if not fs.exists(TPT_LUA_PATH..PATH_SEP.."downloaded") then
 					fs.makeDirectory(TPT_LUA_PATH..PATH_SEP.."downloaded")
@@ -1075,7 +1089,7 @@ function ui_button.viewonline(self)
 end
 function ui_button.scriptcheck(self)
 	local oldpath = localscripts[self.ID]["path"]
-	local newpath = "downloaded"..PATH_SEP..self.ID.." "..onlinescripts[self.ID].author.."-"..onlinescripts[self.ID].name..".lua"
+	local newpath = "downloaded"..PATH_SEP..self.ID.." "..onlinescripts[self.ID].author:gsub("[^%w _-]", "_").."-"..onlinescripts[self.ID].name:gsub("[^%w _-]", "_")..".lua"
 	if download_script(self.ID,TPT_LUA_PATH..PATH_SEP..newpath) then
 		self.canupdate = false
 		localscripts[self.ID] = onlinescripts[self.ID]

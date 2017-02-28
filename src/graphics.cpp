@@ -2175,7 +2175,7 @@ void render_parts(pixel *vid, Point mousePos)
 					colg = (deca*decg + (255-deca)*colg) >> 8;
 					colb = (deca*decb + (255-deca)*colb) >> 8;
 				}
-		        vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(colr,colg,colb);
+				vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(colr,colg,colb);
 			}
 			else*/
 			{	
@@ -3666,7 +3666,7 @@ int sdl_open()
 	SDL_VERSION(&SysInfo.version);
 	if(SDL_GetWMInfo(&SysInfo) <= 0) {
 		printf("%s : %p\n", SDL_GetError(), SysInfo.window);
-	    exit(-1);
+		exit(-1);
 	}
 	WindowHandle = SysInfo.window;
 	hIconSmall = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
