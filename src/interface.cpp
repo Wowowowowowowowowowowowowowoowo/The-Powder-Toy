@@ -2072,7 +2072,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 						if (mx>=gx+XRES/GRID_S-4 && mx<(gx+XRES/GRID_S)+6 && my>=gy-6 && my<gy+4)
 							d = k;
 						drawrect(vid_buf, gx-2, gy-2, XRES/GRID_S+3, YRES/GRID_S+3, 128, 128, 128, 255);
-						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 48, 32, 255);
 					}
 					else
 					{
@@ -2085,10 +2085,10 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 						{
 							drawrect(vid_buf, gx-2, gy-2, XRES/GRID_S+3, YRES/GRID_S+3, 128, 128, 128, 255);
 						}
-						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 150, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 150, 48, 32, 255);
 					}
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-textwidth(stamps[k].name)/2, gy+YRES/GRID_S+7, stamps[k].name, 192, 192, 192, 255);
-					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 255, 255, 255);
+					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 255, 255, 255);
 				}
 				k++;
 			}
@@ -2275,8 +2275,8 @@ void tag_list_ui(pixel *vid_buf)
 			*q = 0;
 			if (svf_own || svf_admin || svf_mod)
 			{
-				drawtext(vid_buf, x0+21, y+1, "\x86", 160, 48, 32, 255);
-				drawtext(vid_buf, x0+21, y+1, "\x85", 255, 255, 255, 255);
+				drawtext(vid_buf, x0+21, y+1, "\x85", 160, 48, 32, 255);
+				drawtext(vid_buf, x0+21, y+1, "\x86", 255, 255, 255, 255);
 				d = 14;
 				if (b && !bq && mx>=x0+18 && mx<x0+32 && my>=y-2 && my<y+12)
 				{
@@ -2320,8 +2320,8 @@ void tag_list_ui(pixel *vid_buf)
 			y += 16;
 		}
 		
-		drawtext(vid_buf, x0+12, y0+221, "\x86", 32, 144, 32, 255);
-		drawtext(vid_buf, x0+11, y0+219, "\x89", 255, 255, 255, 255);
+		drawtext(vid_buf, x0+12, y0+221, "\xEE", 32, 144, 32, 255);
+		drawtext(vid_buf, x0+12, y0+221, "\xEF", 255, 255, 255, 255);
 		drawrect(vid_buf, x0+8, y0+216, 176, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed);
 		drawtext(vid_buf, x0+5, y0+245, "Close", 255, 255, 255, 255);
@@ -3215,7 +3215,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 			else if (i == num_tabs + 1)
 			{
 				fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 0, 0, 0, 255);
-				drawtext(vid_buf, (XRES+BARSIZE)-13, (i*16)+3, "\x89", 255, 255, 255, 255);
+				drawtext(vid_buf, (XRES+BARSIZE)-12, (i*16)+5, "\xEF", 255, 255, 255, 255);
 			}
 			else if(tab_num == i)
 			{
@@ -3885,9 +3885,9 @@ int search_ui(pixel *vid_buf)
 		else if (page_count > exp_res && !(search_own || search_fav || search_date))
 		{
 			if (p1_extra)
-				drawtext(vid_buf, 5+xOffset, YRES+MENUSIZE-15, "\x85", 255, 255, 255, 255);
+				drawtext(vid_buf, 5+xOffset, YRES+MENUSIZE-15, "\x86", 255, 255, 255, 255);
 			else
-				drawtext(vid_buf, 4+xOffset, YRES+MENUSIZE-17, "\x89", 255, 255, 255, 255);
+				drawtext(vid_buf, 5+xOffset, YRES+MENUSIZE-15, "\xEF", 255, 255, 255, 255);
 			drawrect(vid_buf, 1+xOffset, YRES+MENUSIZE-20, 15, 15, 255, 255, 255, 255);
 		}
 		if (page_count > exp_res)
@@ -4027,10 +4027,10 @@ int search_ui(pixel *vid_buf)
 				if (own || search_fav)
 				{
 					if (dp == pos)
-						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 48, 32, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 48, 32, 255);
 					else
-						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 160, 48, 32, 255);
-					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 255, 255, 255, 255);
+						drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x85", 160, 48, 32, 255);
+					drawtext(vid_buf, gx+XRES/GRID_S-3, gy-4, "\x86", 255, 255, 255, 255);
 				}
 				if (!search_publish[pos])
 				{
@@ -7750,11 +7750,11 @@ void catalogue_ui(pixel * vid_buf)
 							rmdir(LOCAL_SAVE_DIR PATH_SEP);
 						break;
 					}
-					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x86", 255, 48, 32, 255);
+					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x85", 255, 48, 32, 255);
 				}
 				else
-					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x86", 160, 48, 32, 255);
-				drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x85", 255, 255, 255, 255);
+					drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x85", 160, 48, 32, 255);
+				drawtext(vid_buf2, listxc+XRES/GRID_S-3, listyc-4, "\x86", 255, 255, 255, 255);
 				csave = csave->next;
 				if(++listx==CATALOGUE_X){
 					listx = 0;

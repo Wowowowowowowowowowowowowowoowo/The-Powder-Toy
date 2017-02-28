@@ -77,7 +77,7 @@ CreateSign::CreateSign(int signID, Point pos):
 			dynamic_cast<CreateSign*>(button->GetParent())->DeleteSign();
 		}
 	};
-	deleteButton = new Button(middleJuButton->Below(Point(0, 4)), middleJuButton->GetSize(), "\x86\x85 Delete");
+	deleteButton = new Button(middleJuButton->Below(Point(0, 4)), middleJuButton->GetSize(), "\x85 Delete");
 	deleteButton->SetCallback(new DeleteAction());
 	deleteButton->SetCloseButton(true);
 	this->AddComponent(deleteButton);
