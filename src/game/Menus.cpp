@@ -95,6 +95,9 @@ void FillMenus()
 		for (int i = 0; i < 3; i++)
 			tempActiveTools[i] = activeTools[i]->GetIdentifier();
 	}
+	PropTool* propTool = (PropTool*)GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
+	if (propTool)
+		propTool = new PropTool(*propTool);
 #ifndef NOMOD
 	delete GetToolFromIdentifier("DEFAULT_FAV_MORE");
 #endif
@@ -142,7 +145,12 @@ void FillMenus()
 	for (int i = 0; i < TOOLCOUNT; i++)
 	{
 		if (i == TOOL_PROP)
-			menuSections[SC_TOOL]->AddTool(new PropTool);
+		{
+			if (propTool)
+				menuSections[SC_TOOL]->AddTool(propTool);
+			else
+				menuSections[SC_TOOL]->AddTool(new PropTool());
+		}
 		else
 			menuSections[SC_TOOL]->AddTool(new ToolTool(i));
 	}

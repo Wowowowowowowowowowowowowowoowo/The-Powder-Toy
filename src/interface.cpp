@@ -1444,6 +1444,7 @@ void prop_edit_ui(pixel *vid_buf)
 	ed.selected = propSelected;
 	ed.items = listitems;
 	ed.count = listitemscount;
+	ed.focus = 0;
 	strncpy(ed.str, listitems[propSelected], 254);
 	
 	ui_edit_init(&ed2, x0+12, y0+50, xsize-20, 14);
@@ -1606,6 +1607,7 @@ void prop_edit_ui(pixel *vid_buf)
 	strncpy(propValue, ed2.str, 254);
 
 exit:
+	free(o_vid_buf);
 	while (!sdl_poll())
 	{
 		b = mouse_get_state(&mx, &my);
