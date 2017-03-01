@@ -1034,12 +1034,22 @@ are no longer prebuilt or saved on exit, and can be removed the same way as
 favorites elements can be. Fix submenus in old menu interface ('o' key).
 
 Version 35.0 10/3/16
-Redo render modes interface to more closely match tpt and be easier to use. It
-is also able to run while the simulation is running. The profile viewer now
-looks better on profiles that require scrolling. Fix exiting the deco menu
-sometimes changing which tools you had selected (or crashing?). Updates from
-tpt++. Installing (ctrl+i) on Linux now leaves a desktop entry for Jacob1's
-Mod. Ensure powder.pref is updated when changing settings and HUD presets.
+Redo render modes interface to more closely match tpt and be easier to use. It 
+is also able to run while the simulation is running. The profile viewer now 
+looks better on profiles that require scrolling. Fix exiting the deco menu 
+sometimes changing which tools you had selected (or crashing?). Updates from 
+tpt++. Installing (ctrl+i) on Linux now leaves a desktop entry for Jacob1's 
+Mod. Ensure powder.pref is updated when changing settings and HUD presets. 
+
+Version 35.1 2/28/17
+Fix crash when editing profile. Fix certain render modes always being forced 
+on at startup. Fix crash when loading certain invalid powder.prefs. Redo 
+ctrl+z, it now can restore all simulation state (including signs). Add ctrl+y 
+shortcut, you can now undo/redo up to 5 times, and edit powder.pref to 
+increase this limit up to 200. Move checkboxes to the right side of render UI. 
+Fix "delete" icon in sign UI. Fix PROP tool resetting to delete every time you 
+select an element. Update internal script manager to 3.9. Fixes from tpt++, 
+including lag fix when leaving certain saves open for 20+ minutes.
 
 
 
