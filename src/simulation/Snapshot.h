@@ -6,6 +6,7 @@
 
 #include "ElementNumbers.h"
 #include "Particle.h"
+#include "common/tpt-minmax.h"
 #include "game/Sign.h"
 
 class ElementDataContainer;
