@@ -1048,9 +1048,10 @@ ctrl+z, it now can restore all simulation state (including signs). Add ctrl+y
 shortcut, you can now undo/redo up to 5 times, and edit powder.pref to 
 increase this limit up to 200. Move checkboxes to the right side of render UI. 
 Fix "delete" icon in sign UI. Fix PROP tool resetting to delete every time you 
-select an element. Update internal script manager to 3.9. Fixes from tpt++, 
-including lag fix when leaving certain saves open for 20+ minutes. Massive speed 
-boost for the windows version, which now uses the MSVC compiler.
+select an element. Update internal script manager to 3.9. Fix potential crash 
+when creating BALL. Fixes from tpt++, including lag fix when leaving certain 
+saves open for 20+ minutes. Massive speed boost for the windows version, which 
+now uses the MSVC compiler.
 
 
 
