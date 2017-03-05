@@ -28,7 +28,7 @@ char console_more=0;
 int file_script = 0;
 
 // putting in here since it is only used in this file.
-#ifdef WIN
+#if defined(WIN) && !defined(strcasecmp)
 #ifdef _MSC_VER
 #define strcasecmp _stricmp //stricmp is deprecated in visual studio
 #else

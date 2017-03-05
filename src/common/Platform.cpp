@@ -138,8 +138,7 @@ void LoadFileInResource(int name, int type, unsigned int& size, const char*& dat
 {
 #ifdef _MSC_VER
 	HMODULE handle = ::GetModuleHandle(NULL);
-	HRSRC rc = ::FindResource(handle, MAKEINTRESOURCE(name),
-		MAKEINTRESOURCE(type));
+	HRSRC rc = ::FindResource(handle, MAKEINTRESOURCE(name), MAKEINTRESOURCE(type));
 	HGLOBAL rcData = ::LoadResource(handle, rc);
 	size = ::SizeofResource(handle, rc);
 	data = static_cast<const char*>(::LockResource(rcData));
