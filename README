@@ -1053,7 +1053,7 @@ when creating BALL. Fixes from tpt++, including lag fix when leaving certain
 saves open for 20+ minutes. Massive speed boost for the windows version, which 
 now uses the MSVC compiler.
 
-Version 35.2 2/5/17
+Version 35.2 3/5/17
 Fix crash when brush x radius is 0
 
 
