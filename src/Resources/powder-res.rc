@@ -1,4 +1,6 @@
-#define IDI_ICON1 101
-#define IDI_ICON2 102
+#include "resource.h"
+
 IDI_ICON1 ICON DISCARDABLE "powder.ico"
 IDI_ICON2 ICON DISCARDABLE "document.ico"
+IDI_TPTMP LUASCRIPT "../luascripts/multiplayer.lua"
+IDI_SCRIPTMANAGER LUASCRIPT "../luascripts/scriptmanager.lua"

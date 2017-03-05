@@ -41,6 +41,7 @@ config.log
 *.res
 *.db
 *.opendb
+*.aps
 
 /stamps/
 /Saves/

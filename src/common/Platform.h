@@ -9,6 +9,7 @@ namespace Platform
 	void DoRestart(bool saveTab);
 	void OpenLink(std::string uri);
 	void Millisleep(long int t);
+	void LoadFileInResource(int name, int type, unsigned int& size, const char*& data);
 	bool RegisterExtension();
 	bool ShowOnScreenKeyboard(const char *str, bool autoCorrect = true);
 	void GetOnScreenKeyboardInput(char * buff, int buffSize, bool autoCorrect = true);
