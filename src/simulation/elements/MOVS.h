@@ -111,7 +111,7 @@ public:
 	{
 		int bn = creatingSolid-1;
 		MovingSolid *movingSolid = GetMovingSolid(bn);
-		if (movingSolid)
+		if (movingSolid && movingSolid->index)
 		{
 			parts[i].tmp2 = bn;
 			parts[i].pavg[0] = x - parts[movingSolid->index-1].x;
