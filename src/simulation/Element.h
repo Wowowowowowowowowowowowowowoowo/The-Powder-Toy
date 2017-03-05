@@ -114,7 +114,7 @@ public:
 
 	void (*Init) (ELEMENT_INIT_FUNC_ARGS);
 	Element();
-	virtual ~Element() {}
+	~Element() {}
 
 };
 

@@ -454,8 +454,6 @@ if GetOption('renderer'):
 if GetOption('nomod'):
 	env.Append(CPPDEFINES=['NOMOD'])
 
-if not msvc:
-	env.Append(CXXFLAGS=['-Wno-invalid-offsetof'])
 if GetOption("wall"):
 	if msvc:
 		env.Append(CCFLAGS=['/WX'])
