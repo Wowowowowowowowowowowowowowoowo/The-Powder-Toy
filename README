@@ -1041,7 +1041,7 @@ sometimes changing which tools you had selected (or crashing?). Updates from
 tpt++. Installing (ctrl+i) on Linux now leaves a desktop entry for Jacob1's 
 Mod. Ensure powder.pref is updated when changing settings and HUD presets. 
 
-Version 35.1 2/28/17
+Version 35.1 3/5/17
 Fix crash when editing profile. Fix certain render modes always being forced 
 on at startup. Fix crash when loading certain invalid powder.prefs. Redo 
 ctrl+z, it now can restore all simulation state (including signs). Add ctrl+y 
@@ -1052,6 +1052,9 @@ select an element. Update internal script manager to 3.9. Fix potential crash
 when creating BALL. Fixes from tpt++, including lag fix when leaving certain 
 saves open for 20+ minutes. Massive speed boost for the windows version, which 
 now uses the MSVC compiler.
+
+Version 35.2 2/5/17
+Fix crash when brush x radius is 0
 
 
 

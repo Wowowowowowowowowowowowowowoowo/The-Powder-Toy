@@ -17,7 +17,7 @@ void Brush::GenerateBitmap()
 	if (rx <= 0) //workaround for rx == 0 crashing (does this still crash?)
 	{
 		for (int j = y - ry; j <= y + ry; j++)
-			bitmap[(j*ry)+x] = true;
+			bitmap[(j*rx)+x] = true;
 	}
 	else
 	{
