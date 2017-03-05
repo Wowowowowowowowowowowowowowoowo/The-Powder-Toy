@@ -1314,9 +1314,9 @@ int main(int argc, char *argv[])
 	}
 
 	the_game = new PowderToy(); // you just lost
-	lua_vid_buf = the_game->GetVid()->GetVid();
 
 #ifdef LUACONSOLE
+	lua_vid_buf = the_game->GetVid()->GetVid();
 	char *autorun_result = NULL;
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{

@@ -17,7 +17,8 @@
 
 #include "common/tpt-minmax.h"
 #include <bzlib.h>
-#include <math.h>
+#include <climits>
+#include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include "defines.h"
