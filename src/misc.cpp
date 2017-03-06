@@ -513,8 +513,8 @@ void load_presets(void)
 							mode = atoi(strMode);
 					}
 					// temporary hack until I update the json library (first for loading current modes, second only needed for loading with valuestring)
-					if (mode == 2147483648 || mode == 2147483647)
-						mode = 4278252144;
+					if (mode == 2147483648u || mode == 2147483647u)
+						mode = 4278252144u;
 					Renderer::Ref().AddRenderMode(mode);
 				}
 			}

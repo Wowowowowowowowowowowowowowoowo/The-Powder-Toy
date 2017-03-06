@@ -1154,7 +1154,9 @@ int main(int argc, char *argv[])
 	{
 		if (!strncmp(argv[i], "ddir", 5) && i+1<argc)
 		{
-			chdir(argv[i+1]);
+			int ret = chdir(argv[i+1]);
+			if (ret)
+				std::cout << "Error, could not change directory\n";
 			i++;
 		}
 		else if (!strncmp(argv[i], "ptsave", 7) && i+1<argc)
