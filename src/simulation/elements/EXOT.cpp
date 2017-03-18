@@ -43,7 +43,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				else if (rt == PT_LAVA)
 				{
 					//turn molten TTAN or molten GOLD to molten VIBR 
-					if (parts[r>>8].ctype == PT_TTAN || parts[r>>8].ctype == PT_TTAN)
+					if (parts[r>>8].ctype == PT_TTAN || parts[r>>8].ctype == PT_GOLD)
 					{
 						if (!(rand()%10))
 						{
