@@ -116,7 +116,7 @@ void OpenLink(std::string uri)
 	(void)system(command.c_str());
 #elif LIN
 	std::string command = "xdg-open " + uri;
-	int ignore = system(command.c_str());
+	system(command.c_str());
 #else
 	printf("Cannot open browser\n");
 #endif

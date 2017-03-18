@@ -2783,8 +2783,8 @@ int elements_element(lua_State * l)
 				int format;
 				int offset = elements_getProperty(propertyList[i], &format, &modifiedStuff);
 				elements_setProperty(l, id, format, offset);
-				lua_pop(l, 1);
 			}
+			lua_pop(l, 1);
 			i++;
 		}
 

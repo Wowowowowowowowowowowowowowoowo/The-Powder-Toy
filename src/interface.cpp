@@ -8030,7 +8030,7 @@ void simulation_ui(pixel * vid_buf)
 #endif
 				char* workingDirectory = new char[FILENAME_MAX+strlen(openCommand)];
 				sprintf(workingDirectory, "%s\"%s\"", openCommand, getcwd(NULL, 0));
-				int ignore = system(workingDirectory);
+				system(workingDirectory);
 				delete workingDirectory;
 			}
 			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
