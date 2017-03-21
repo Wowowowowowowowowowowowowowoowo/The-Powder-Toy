@@ -434,8 +434,8 @@ void PowderToy::ReloadSave(unsigned char b)
 {
 	if (b == 1 || !strncmp(svf_id, "", 8))
 	{
-		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		Snapshot::TakeSnapshot(globalSim);
+		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	}
 	else
 		open_ui(vid_buf, svf_id, NULL, 0);

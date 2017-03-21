@@ -5453,6 +5453,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		{
 			if (info_ready && data_ready)
 			{
+				Snapshot::TakeSnapshot(globalSim);
 				// Do Open!
 				int status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 				if (!status)
@@ -5482,7 +5483,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_filename[0] = 0;
 					svf_fileopen = 0;
 					retval = 1;
-					Snapshot::TakeSnapshot(globalSim);
 
 					memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 					memset(fire_r, 0, sizeof(fire_r));
@@ -7674,7 +7674,8 @@ void catalogue_ui(pixel * vid_buf)
 						int status, size;
 						void *data;
 						data = file_load(csave->filename, &size);
-						if(data){
+						if (data) {
+							Snapshot::TakeSnapshot(globalSim);
 							status = parse_save(data, size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 							if(!status)
 							{
@@ -7695,7 +7696,6 @@ void catalogue_ui(pixel * vid_buf)
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
-								Snapshot::TakeSnapshot(globalSim);
 								goto openfin;
 							} else {
 								error_ui(vid_buf, 0, "Save data corrupt");

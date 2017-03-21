@@ -632,8 +632,8 @@ int tab_load(int tabNum, bool del)
 	{
 		if (del)
 			remove(fileName); //prevent crash loops on startup
-		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		Snapshot::TakeSnapshot(globalSim);
+		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 		if (!svf_last) //only free if reload button isn't active
 		{
 			free(saveData);
@@ -1662,8 +1662,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				{
 					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
-						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 						Snapshot::TakeSnapshot(globalSim);
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					}
 					else if (!(sdl_mod & (KMOD_CTRL|KMOD_META|KMOD_SHIFT)))
 						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
@@ -1673,8 +1673,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
-					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 					Snapshot::TakeSnapshot(globalSim);
+					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 				}
 			}
 			if (sdl_key=='o')
