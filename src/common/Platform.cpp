@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -47,8 +48,9 @@ char *ExecutableName()
 	uint32_t max=64, res;
 	if (_NSGetExecutablePath(fn, &max) != 0)
 	{
-		fn = (char*)realloc(fn, max);
-		_NSGetExecutablePath(fn, &max);
+		char *realloced_fn = (char*)realloc(fn, max);
+		assert(realloced_fn != NULL);
+		fn = realloced_fn;
 	}
 	if (realpath(fn, name) == NULL)
 	{
@@ -67,7 +69,9 @@ char *ExecutableName()
 #endif
 #ifndef MACOSX
 		max *= 2;
-		name = (char*)realloc(name, max);
+		char* realloced_name = (char *)realloc(name, max);
+		assert(realloced_name != NULL);
+		name = realloced_name;
 		memset(name, 0, max);
 	}
 #endif //not MACOSX

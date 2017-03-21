@@ -2768,7 +2768,10 @@ void Simulation::FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColou
 	std::fill_n(&bitmap[0], XRES*YRES, 0);
 
 	if (!ColorCompare(vid, x, y, replace))
+	{
+		delete[] bitmap;
 		return;
+	}
 
 	try
 	{
