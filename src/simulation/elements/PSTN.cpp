@@ -15,6 +15,18 @@
 
 #include "simulation/ElementsCommon.h"
 
+struct StackData
+{
+	int pushed;
+	int spaces;
+	
+	StackData(int pushed, int spaces):
+		pushed(pushed),
+		spaces(spaces)
+	{
+	}
+};
+
 int tempParts[XRES];
 
 #define PISTON_INACTIVE	0x00
@@ -24,20 +36,19 @@ int tempParts[XRES];
 #define DEFAULT_LIMIT	0x1F
 #define DEFAULT_ARM_LIMIT	0xFF
 
-int CanMoveStack(Simulation *sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, int retract, int block)
+StackData CanMoveStack(Simulation * sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, bool retract, int block)
 {
 	int posX, posY, r, spaces = 0, currentPos = 0;
 	if (amount <= 0)
-		return 0;
+		return StackData(0, 0);
 	for (posX = stackX, posY = stackY; currentPos < maxSize + amount && currentPos < XRES-1; posX += directionX, posY += directionY)
 	{
 		if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0))
-		{
 			break;
-		}
+
 		r = pmap[posY][posX];
 		if (sim->IsWallBlocking(posX, posY, 0) || (block && (r&0xFF) == block))
-			return spaces;
+			return StackData(currentPos - spaces, spaces);
 		if (!r)
 		{
 			spaces++;
@@ -47,22 +58,18 @@ int CanMoveStack(Simulation *sim, int stackX, int stackY, int directionX, int di
 		}
 		else
 		{
-			if (spaces < maxSize && currentPos < maxSize && (!retract || (((r&0xFF) == PT_FRME) && posX == stackX && posY == stackY)))
+			if (currentPos - spaces < maxSize && (!retract || ((r&0xFF) == PT_FRME && posX == stackX && posY == stackY)))
 				tempParts[currentPos++] = r>>8;
 			else
-				return spaces;
+				return StackData(currentPos - spaces, spaces);
 		}
 	}
-	if (spaces)
-		return currentPos;
-	else
-		return 0;
+	return StackData(currentPos - spaces, spaces);
 }
 
 int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, int retract, int block, int sticky, int callDepth)
 {
-	int foundParts = 0;
-	int posX, posY, r, spaces = 0, currentPos = 0;
+	int posX, posY, r;
 	int c, j;
 	r = pmap[stackY][stackX];
 	if (!callDepth && (r&0xFF) == PT_FRME)
@@ -79,9 +86,9 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 			posX = stackX + (c*newX);
 			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME)
 			{
-				int val = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
-				if (val < amount)
-					amount = val;
+				int spaces = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block).spaces;
+				if (spaces < amount)
+					amount = spaces;
 			}
 			else
 			{
@@ -95,9 +102,9 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 			posX = stackX - (c*newX);
 			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME)
 			{
-				int val = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block);
-				if (val < amount)
-					amount = val;
+				int spaces = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block).spaces;
+				if (spaces < amount)
+					amount = spaces;
 			}
 			else
 			{
@@ -128,7 +135,8 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 	}
 	if (retract)
 	{
-		int foundEnd = 0;
+		bool foundParts = false;
+		int currentPos = 0;
 		//Remove arm section if retracting without FRME
 		if (!callDepth)
 			for (j = 1; j <= amount; j++)
@@ -146,7 +154,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 			}
 			else
 			{
-				foundParts = 1;
+				foundParts = true;
 				tempParts[currentPos++] = r>>8;
 			}
 		}
@@ -165,12 +173,11 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 			}
 			return amount;
 		}
-		if (!foundParts && foundEnd)
-			return amount;
 	}
 	else
 	{
-		currentPos = CanMoveStack(sim, stackX, stackY, directionX, directionY, maxSize, amount, retract, block);
+		StackData stackData = CanMoveStack(sim, stackX, stackY, directionX, directionY, maxSize, amount, retract, block);
+		int currentPos = stackData.pushed + stackData.spaces;
 		if (currentPos)
 		{
 			//Move particles
@@ -194,8 +201,6 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 			}
 			return possibleMovement;
 		}
-		if (!foundParts && spaces)
-			return spaces;
 	}
 	return 0;
 }
