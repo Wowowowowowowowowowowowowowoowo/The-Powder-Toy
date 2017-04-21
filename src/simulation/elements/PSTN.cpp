@@ -67,7 +67,7 @@ StackData CanMoveStack(Simulation * sim, int stackX, int stackY, int directionX,
 	return StackData(currentPos - spaces, spaces);
 }
 
-int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, int retract, int block, int sticky, int callDepth)
+int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, bool retract, int block, int sticky, int callDepth)
 {
 	int posX, posY, r;
 	int c, j;
@@ -295,7 +295,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 									pistonCount = armLimit-armCount;
 								if (pistonCount > 0)
 								{
-									newSpace = MoveStack(sim, pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 0, parts[i].ctype, 1, 0);
+									newSpace = MoveStack(sim, pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, false, parts[i].ctype, 1, 0);
 									if (newSpace)
 									{
 										//Create new piston section
@@ -322,7 +322,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 									pistonCount = armCount;
 								if (armCount && pistonCount > 0)
 								{
-									MoveStack(sim, pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, 1, parts[i].ctype, 1, 0);
+									MoveStack(sim, pistonEndX, pistonEndY, directionX, directionY, maxSize, pistonCount, true, parts[i].ctype, 1, 0);
 									movedPiston = 1;
 								}
 							}
