@@ -130,6 +130,6 @@ void C5_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &C5_update;
-	elem->Graphics = NULL;
+	elem->Graphics = &C5_graphics;
 	elem->Init = &C5_init_element;
 }

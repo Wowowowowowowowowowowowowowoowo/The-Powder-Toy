@@ -15,6 +15,17 @@
 
 #include "simulation/ElementsCommon.h"
 
+int GRAV_update(UPDATE_FUNC_ARGS)
+{
+	if (parts[i].vx*parts[i].vx + parts[i].vy*parts[i].vy >= 0.1f && (rand() % 512) == 0)
+	{
+		if (!parts[i].life)
+			parts[i].life = 48;
+	}
+
+	return 0;
+}
+
 int GRAV_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int GRAV_R = (int)std::abs(((int)sim->currentTick%120)-60.0f);
@@ -53,6 +64,19 @@ int GRAV_graphics(GRAPHICS_FUNC_ARGS)
 		*colg -= (int)(cpart->vy)*GRAV_G2;
 		*colb -= (int)(cpart->vy)*GRAV_B2;
 	}
+
+	if (cpart->life)
+	{
+		*pixel_mode = FIRE_ADD | PMODE_ADD | PMODE_GLOW | PMODE_FLARE;
+		*firer = std::min(*colr * 3, 255);
+		*fireg = std::min(*colg * 3, 255);
+		*fireb = std::min(*colb * 3, 255);
+		*firea = (cpart->life+15)*4;
+		*cola = (cpart->life+15)*4;
+	}
+	else
+		*pixel_mode = PMODE_ADD;
+
 	return 0;
 }
 
@@ -87,7 +111,7 @@ void GRAV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Very light dust. Changes colour based on velocity.";
 
-	elem->Properties = TYPE_PART;
+	elem->Properties = TYPE_PART | PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -98,7 +122,7 @@ void GRAV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &GRAV_update;
 	elem->Graphics = &GRAV_graphics;
 	elem->Init = &GRAV_init_element;
 }
