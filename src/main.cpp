@@ -360,6 +360,8 @@ void clear_sim()
 	memset(pv, 0, sizeof(pv));
 	memset(vx, 0, sizeof(vx));
 	memset(vy, 0, sizeof(vy));
+	std::fill(&bmap_blockair[0][0], &bmap_blockair[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
+	std::fill(&bmap_blockairh[0][0], &bmap_blockairh[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
 	memset(fvx, 0, sizeof(fvx));
 	memset(fvy, 0, sizeof(fvy));
 	make_kernel();
