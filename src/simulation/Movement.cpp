@@ -480,8 +480,16 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 		}
 		else if ((r&0xFF) == PT_INVIS)
 		{
-			if (pv[ny/CELL][nx/CELL]>4.0f || pv[ny/CELL][nx/CELL]<-4.0f) result = 2;
-			else result = 0;
+			float pressureResistance;
+			if (parts[r>>8].tmp > 0)
+				pressureResistance = (float)parts[r>>8].tmp;
+			else
+				pressureResistance = 4.0f;
+
+			if (pv[ny/CELL][nx/CELL] < -pressureResistance || pv[ny/CELL][nx/CELL] > pressureResistance)
+				result = 2;
+			else
+				result = 0;
 		}
 #ifndef NOMOD
 		else if ((r&0xFF) == PT_PINV)
@@ -664,7 +672,13 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			}
 			else if ((r&0xFF) == PT_INVIS)
 			{
-				if (pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f)
+				float pressureResistance;
+				if (parts[r>>8].tmp > 0)
+					pressureResistance = (float)parts[r>>8].tmp;
+				else
+					pressureResistance = 4.0f;
+
+				if (pv[ny/CELL][nx/CELL] >= -pressureResistance && pv[ny/CELL][nx/CELL] <= pressureResistance)
 				{
 					part_change_type(i, x, y, PT_NEUT);
 					parts[i].ctype = 0;

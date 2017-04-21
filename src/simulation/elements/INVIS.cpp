@@ -15,9 +15,24 @@
 
 #include "simulation/ElementsCommon.h"
 
+int INVS_update(UPDATE_FUNC_ARGS)
+{
+	float pressureResistance = 0.0f;
+	if (parts[i].tmp > 0)
+		pressureResistance = (float) parts[i].tmp;
+	else
+		pressureResistance = 4.0f;
+
+	if (pv[y/CELL][x/CELL] < -pressureResistance || pv[y/CELL][x/CELL] > pressureResistance)
+		parts[i].tmp2 = 1;
+	else
+		parts[i].tmp2 = 0;
+	return 0;
+}
+
 int INVS_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if(pv[ny/CELL][nx/CELL]>4.0f || pv[ny/CELL][nx/CELL]<-4.0f)
+	if (cpart->tmp2)
 	{
 		*cola = 100;
 		*colr = 15;
@@ -70,7 +85,7 @@ void INVIS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &INVS_update;
 	elem->Graphics = &INVS_graphics;
 	elem->Init = &INVIS_init_element;
 }
