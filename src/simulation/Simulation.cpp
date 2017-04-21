@@ -1137,7 +1137,9 @@ bool Simulation::UpdateParticle(int i)
 				int rt = pmap[fin_y][fin_x] & 0xFF;
 				int lt = pmap[y][x] & 0xFF;
 
-				if ((rt == PT_GLAS && lt != PT_GLAS) || (rt != PT_GLAS && lt == PT_GLAS))
+				bool rt_glas = (rt == PT_GLAS) || (rt == PT_BGLA);
+				bool lt_glas = (lt == PT_GLAS) || (lt == PT_BGLA);
+				if ((rt_glas && !lt_glas) || (lt_glas && !rt_glas))
 				{
 					float nrx, nry;
 					if (!GetNormalInterp(REFRACT|t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
@@ -1152,11 +1154,11 @@ bool Simulation::UpdateParticle(int i)
 						part_kill(i);
 						return true;
 					}
-					float nn = GLASS_IOR - GLASS_DISP*(r-15)/15.0f;
+					float nn = GLASS_IOR - GLASS_DISP*(r-30)/30.0f;
 					nn *= nn;
 					nrx = -nrx;
 					nry = -nry;
-					if (rt == PT_GLAS && lt != PT_GLAS)
+					if (rt_glas && !lt_glas)
 						nn = 1.0f/nn;
 					float ct1 = parts[i].vx*nrx + parts[i].vy*nry;
 					float ct2 = 1.0f - (nn*nn)*(1.0f-(ct1*ct1));
@@ -1221,9 +1223,23 @@ bool Simulation::UpdateParticle(int i)
 
 			if (GetNormalInterp(t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
 			{
-				float dp = nrx*parts[i].vx + nry*parts[i].vy;
-				parts[i].vx -= 2.0f*dp*nrx;
-				parts[i].vy -= 2.0f*dp*nry;
+				if ((r & 0xFF) == PT_CRMC)
+				{
+					float r = (rand() % 101 - 50) * 0.01f, rx, ry, anrx, anry;
+					r = r * r * r;
+					rx = cosf(r); ry = sinf(r);
+					anrx = rx * nrx + ry * nry;
+					anry = rx * nry - ry * nrx;
+					float dp = anrx*parts[i].vx + anry*parts[i].vy;
+					parts[i].vx -= 2.0f*dp*anrx;
+					parts[i].vy -= 2.0f*dp*anry;
+				}
+				else
+				{
+					float dp = nrx*parts[i].vx + nry*parts[i].vy;
+					parts[i].vx -= 2.0f*dp*nrx;
+					parts[i].vy -= 2.0f*dp*nry;
+				}
 				// leave the actual movement until next frame so that reflection of fast particles and refraction happen correctly
 			}
 			else

@@ -53,7 +53,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 					}
 				}
-				else if ((r&0xFF) == PT_QRTZ)
+				else if ((r&0xFF) == PT_QRTZ || (r&0xFF) == PT_PQRT)
 				{
 					if (!ry && !rx)
 					{
@@ -63,6 +63,18 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						if (parts[i].ctype == 0x3FFFFFFF)
 							parts[i].ctype = 0x1F<<(rand()%26);
 						parts[i].life++; //Delay death
+					}
+				}
+				else if ((r&0xFF) == PT_BGLA)
+				{
+					if (!ry && !rx)
+					{
+						float a = (rand()%101 - 50) * 0.001f;
+						float rx = cosf(a), ry = sinf(a), vx, vy;
+						vx = rx * parts[i].vx + ry * parts[i].vy;
+						vy = rx * parts[i].vy - ry * parts[i].vx;
+						parts[i].vx = vx;
+						parts[i].vy = vy;
 					}
 				}
 				else if ((r&0xFF) == PT_FILT)

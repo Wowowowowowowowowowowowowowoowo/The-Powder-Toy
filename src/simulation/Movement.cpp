@@ -80,7 +80,7 @@ void Simulation::CreateCherenkovPhoton(int pp)
 {
 	int nx = (int)(parts[pp].x + 0.5f);
 	int ny = (int)(parts[pp].y + 0.5f);
-	if ((pmap[ny][nx] & 0xFF) != PT_GLAS)
+	if ((pmap[ny][nx] & 0xFF) != PT_GLAS && (pmap[ny][nx] & 0xFF) != PT_BGLA)
 		return;
 
 	if (hypotf(parts[pp].vx, parts[pp].vy) < 1.44f)
@@ -166,7 +166,7 @@ bool Simulation::IsBlocking(int t, int x, int y)
 	if (t & REFRACT) {
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return false;
-		if ((pmap[y][x] & 0xFF) == PT_GLAS)
+		if ((pmap[y][x] & 0xFF) == PT_GLAS || (pmap[y][x] & 0xFF) == PT_BGLA)
 			return true;
 		return false;
 	}
@@ -381,7 +381,7 @@ void Simulation::InitCanMove()
 		if (destinationType == PT_GLAS || destinationType == PT_PHOT || destinationType == PT_FILT || destinationType == PT_H2
 		 || destinationType == PT_WATR || destinationType == PT_DSTW || destinationType == PT_SLTW || destinationType == PT_GLOW
 		 || destinationType == PT_ISOZ || destinationType == PT_ISZS || destinationType == PT_QRTZ || destinationType == PT_PQRT
-		 || destinationType == PT_INVIS
+		 || destinationType == PT_INVIS|| destinationType == PT_BGLA || destinationType == PT_C5
 #ifndef NOMOD
 		 || destinationType == PT_PINV
 #endif
@@ -634,6 +634,34 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			{
 				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
 			}
+			else if ((r&0xFF) == PT_C5)
+			{
+				if (parts[r>>8].life > 0 && (parts[r>>8].ctype & parts[i].ctype & 0xFFFFFFC0))
+				{
+					float vx = ((parts[r>>8].tmp << 16) >> 16) / 255.0f;
+					float vy = (parts[r>>8].tmp >> 16) / 255.0f;
+					float vn = parts[i].vx * parts[i].vx + parts[i].vy * parts[i].vy;
+					parts[i].ctype = (parts[r>>8].ctype & parts[i].ctype) >> 6;
+					parts[r>>8].life = 0;
+					parts[r>>8].ctype = 0;
+					// add momentum of photons to each other
+					parts[i].vx += vx;
+					parts[i].vy += vy;
+					// normalize velocity to original value
+					vn /= parts[i].vx * parts[i].vx + parts[i].vy * parts[i].vy;
+					vn = sqrtf(vn);
+					parts[i].vx *= vn;
+					parts[i].vy *= vn;
+				}
+				else if (!parts[r>>8].ctype && parts[i].ctype & 0xFFFFFFC0)
+				{
+					parts[r>>8].life = 1;
+					parts[r>>8].ctype = parts[i].ctype;
+					parts[r>>8].tmp = (0xFFFF & (int)(parts[i].vx * 255.0f)) | (0xFFFF0000 & (int)(parts[i].vy * 16711680.0f));
+					parts[r>>8].tmp2 = (0xFFFF & (int)((parts[i].x - x) * 255.0f)) | (0xFFFF0000 & (int)((parts[i].y - y) * 16711680.0f));
+					kill_part(i);
+				}
+			}
 			else if ((r&0xFF) == PT_INVIS)
 			{
 				if (pv[ny/CELL][nx/CELL]<=4.0f && pv[ny/CELL][nx/CELL]>=-4.0f)
@@ -677,7 +705,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		}
 		else if (parts[i].type == PT_NEUT)
 		{
-			if ((r&0xFF) == PT_GLAS)
+			if ((r&0xFF) == PT_GLAS || (r&0xFF) == PT_BGLA)
 			{
 				if (rand() < RAND_MAX/10)
 					CreateCherenkovPhoton(i);
