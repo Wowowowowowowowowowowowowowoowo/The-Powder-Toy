@@ -2686,7 +2686,7 @@ void render_parts(pixel *vid, Point mousePos)
 						else if (type == PT_PRTO)
 							type2 = PT_PPTO;
 #endif
-						for (int z = 0; z < sim->parts_lastActiveIndex; z++)
+						for (int z = 0; z <= sim->parts_lastActiveIndex; z++)
 						{
 							if (parts[z].type==type || parts[z].type==type2)
 							{
