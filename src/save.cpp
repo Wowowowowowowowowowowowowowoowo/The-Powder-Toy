@@ -804,7 +804,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	vyData = (unsigned char*)malloc((blockW*blockH)*2);
 	if (!pressData || !vxData || !vyData)
 	{
-	puts("Save Error, out of memory\n");
+		puts("Save Error, out of memory\n");
 		outputData = NULL;
 		goto fin;
 	}
@@ -815,7 +815,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		{
 			wallData[(y-blockY)*blockW+(x-blockX)] = bmap[y][x];
 			
-			//save pressure and x/y velocity grids (mod only)
+			// save pressure and x/y velocity grids
 			float pres = std::max(-255.0f,std::min(255.0f,pv[y][x]))+256.0f;
 			float velX = std::max(-255.0f,std::min(255.0f,vx[y][x]))+256.0f;
 			float velY = std::max(-255.0f,std::min(255.0f,vy[y][x]))+256.0f;
@@ -852,21 +852,6 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	{
 		free(wallData);
 		wallData = NULL;
-	}
-	if(!pressDataLen)
-	{
-		free(pressData);
-		pressData = NULL;
-	}
-	if(!vxDataLen)
-	{
-		free(vxData);
-		vxData = NULL;
-	}
-	if(!vyDataLen)
-	{
-		free(vyData);
-		vyData = NULL;
 	}
 	
 	//Index positions of all particles, using linked lists
@@ -1407,34 +1392,20 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	
 fin:
 	bson_destroy(&b);
-	if(partsData)
-		free(partsData);
-	if(wallData)
-		free(wallData);
-	if(fanData)
-		free(fanData);
-	if (pressData)
-		free(pressData);
-	if (vxData)
-		free(vxData);
-	if (vyData)
-		free(vyData);
-	if (elementCount)
-		free(elementCount);
-	if (partsSaveIndex)
-		free(partsSaveIndex);
-	if (soapLinkData)
-		free(soapLinkData);
-	if (partsPosData)
-		free(partsPosData);
-	if (partsPosLink)
-		free(partsPosLink);
-	if (partsPosCount)
-		free(partsPosCount);
-	if (partsPosFirstMap)
-		free(partsPosFirstMap);
-	if (partsPosLastMap)
-		free(partsPosLastMap);
+	free(partsData);
+	free(wallData);
+	free(fanData);
+	free(pressData);
+	free(vxData);
+	free(vyData);
+	free(elementCount);
+	free(partsSaveIndex);
+	free(soapLinkData);
+	free(partsPosData);
+	free(partsPosLink);
+	free(partsPosCount);
+	free(partsPosFirstMap);
+	free(partsPosLastMap);
 	
 	return outputData;
 }

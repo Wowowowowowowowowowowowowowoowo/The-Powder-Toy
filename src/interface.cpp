@@ -1539,7 +1539,13 @@ void prop_edit_ui(pixel *vid_buf)
 		}
 		if (isint)
 		{
-			sscanf(ed2.str, "%u", &value);
+			std::stringstream parser(ed2.str);
+			parser >> value;
+			if (!parser.eof())
+			{
+				error_ui(vid_buf, 0, "Invalid unsigned integer");
+				goto exit;
+			}
 		}
 		else
 		{
@@ -1560,45 +1566,78 @@ void prop_edit_ui(pixel *vid_buf)
 	else if (format == 0)
 	{
 		int value;
-		sscanf(ed2.str, "%d", &value);
+		std::stringstream parser(ed2.str);
+		parser >> value;
+		if (!parser.eof())
+		{
+			error_ui(vid_buf, 0, "Invalid signed integer");
+			goto exit;
+		}
 		propTool->propValue.Integer = value;
 		propTool->propType = Integer;
 	}
 	else if (format == 1)
 	{
 		float value;
-		sscanf(ed2.str, "%f", &value);
-		propTool->propValue.Float = value;
-		propTool->propType = Float;
+		bool isCelcius = false, isFahrenheit = false;
 		if (!strcmp(ed.str, "temp"))
 		{
-			char last = ed2.str[strlen(ed2.str)-1];
+			char last = toupper(ed2.str[strlen(ed2.str)-1]);
 			if (last == 'C')
-				propTool->propValue.Float += 273.15f;
+				isCelcius = true;
 			else if (last == 'F')
-				propTool->propValue.Float = (propTool->propValue.Float-32.0f)*5/9+273.15f;
+				isFahrenheit = true;
+			if (isCelcius || isFahrenheit)
+				ed2.str[strlen(ed2.str)-1] = '\0';
 		}
+		std::stringstream parser(ed2.str);
+		parser >> value;
+		if (!parser.eof())
+		{
+			error_ui(vid_buf, 0, "Invalid floating point number");
+			goto exit;
+		}
+		propTool->propValue.Float = value;
+		propTool->propType = Float;
+		if (isCelcius)
+			propTool->propValue.Float += 273.15f;
+		else if (isFahrenheit)
+			propTool->propValue.Float = (propTool->propValue.Float-32.0f)*5/9+273.15f;
 	}
 	else if (format == 3)
 	{
 		unsigned int value;
-		if (ed2.str[0] == '#') // #FFFFFFFF
+		if (ed2.str[0] == '#' && ed2.str[1]) // #FFFFFFFF
 		{
-			//Convert to lower case
-			for (unsigned int j = 0; j < strlen(ed2.str); j++)
-				ed2.str[j] = tolower(ed2.str[j]);
-			sscanf(ed2.str, "#%x", &value);
+			std::stringstream parser;
+			parser << std::hex << ed2.str+1;
+			parser >> value;
+			if (!parser.eof())
+			{
+				error_ui(vid_buf, 0, "Invalid unsigned integer");
+				goto exit;
+			}
 		}
-		else if (ed2.str[0] == '0' && ed2.str[1] == 'x') // 0xFFFFFFFF
+		else if (ed2.str[0] == '0' && ed2.str[1] == 'x' && ed2.str[2]) // 0xFFFFFFFF
 		{
-			//Convert to lower case
-			for (unsigned int j = 0; j < strlen(ed2.str); j++)
-				ed2.str[j] = tolower(ed2.str[j]);
-			sscanf(ed2.str, "0x%x", &value);
+			std::stringstream parser;
+			parser << std::hex << ed2.str+2;
+			parser >> value;
+			if (!parser.eof())
+			{
+				error_ui(vid_buf, 0, "Invalid unsigned integer");
+				goto exit;
+			}
 		}
 		else
 		{
-			sscanf(ed2.str, "%u", &value);
+			std::stringstream parser(ed2.str);
+			parser >> value;
+			if (!parser.eof())
+			{
+				error_ui(vid_buf, 0, "Invalid unsigned integer");
+				goto exit;
+			}
 		}
 		propTool->propValue.UInteger = value;
 		propTool->propType = UInteger;
