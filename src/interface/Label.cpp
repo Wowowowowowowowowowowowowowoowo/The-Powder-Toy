@@ -350,6 +350,12 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 			if (cursor < text.length())
 				MoveCursor(&cursor, 1);
 			break;
+		case SDLK_UP:
+			cursor = 0;
+			break;
+		case SDLK_DOWN:
+			cursor = text.length();
+			break;
 		}
 	}
 }

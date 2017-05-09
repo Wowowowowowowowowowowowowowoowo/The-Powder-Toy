@@ -116,12 +116,42 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 		case 'x':
 			DeleteHighlight(true);
 			break;
+		case SDLK_BACKSPACE:
+			if (!DeleteHighlight(true) && cursor > 0)
+			{
+				size_t stopChar;
+				stopChar = text.substr(0, cursor).find_last_not_of(" .,!?\r\n");
+				if (stopChar == text.npos)
+					stopChar = -1;
+				else
+					stopChar = text.substr(0, stopChar).find_last_of(" .,!?\r\n");
+				text.erase(stopChar+1, cursor-(stopChar+1));
+				cursor = cursorStart = stopChar+1;
+
+				UpdateDisplayText();
+				if (callback)
+					callback->TextChangedCallback(this);
+			}
+			break;
+		case SDLK_DELETE:
+			if (!DeleteHighlight(true) && cursor > 0)
+			{
+				size_t stopChar;
+				stopChar = text.find_first_not_of(" .,!?\n", cursor);
+				stopChar = text.find_first_of(" .,!?\n", stopChar);
+				text.erase(cursor, stopChar-cursor);
+
+				UpdateDisplayText();
+				if (callback)
+					callback->TextChangedCallback(this);
+			}
+			break;
 		}
 		return;
 	}
 	if (modifiers&KMOD_SHIFT)
 	{
-		if (key == SDLK_LEFT || key == SDLK_RIGHT)
+		if (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN)
 			return;
 	}
 	switch (key) //all of these do different things if any text is highlighted
