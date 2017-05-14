@@ -134,7 +134,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			}
 			break;
 		case SDLK_DELETE:
-			if (!DeleteHighlight(true) && cursor > 0)
+			if (!DeleteHighlight(true) && text.length() && cursor < text.length())
 			{
 				size_t stopChar;
 				stopChar = text.find_first_not_of(" .,!?\n", cursor);

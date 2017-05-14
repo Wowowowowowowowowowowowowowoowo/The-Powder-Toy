@@ -1780,34 +1780,31 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			toolIndex = ((button&1) || button == 2) ? 0 : 1;
 			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
-			if (!signTool)
+			int signID = InsideSign(cursor.X, cursor.Y, false);
+			if (signID != -1)
 			{
-				int signID = InsideSign(cursor.X, cursor.Y, false);
-				if (signID != -1)
+				// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
+				if (signTool)
+					openSign = true;
+				else if (signs[signID]->GetType() == Sign::Spark)
 				{
-					// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
-					if (signTool)
-						openSign = true;
-					else if (signs[signID]->GetType() == Sign::Spark)
-					{
-						Point realPos = signs[signID]->GetRealPos();
-						if (pmap[realPos.Y][realPos.X])
-							globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
-					}
-					else if (signs[signID]->GetType() == Sign::SaveLink)
-					{
-						open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
-					}
-					else if (signs[signID]->GetType() == Sign::ThreadLink)
-					{
-						Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
-					}
-					else if (signs[signID]->GetType() == Sign::SearchLink)
-					{
-						strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
-						search_own = 0;
-						search_ui(vid_buf);
-					}
+					Point realPos = signs[signID]->GetRealPos();
+					if (pmap[realPos.Y][realPos.X])
+						globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
+				}
+				else if (signs[signID]->GetType() == Sign::SaveLink)
+				{
+					open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
+				}
+				else if (signs[signID]->GetType() == Sign::ThreadLink)
+				{
+					Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+				}
+				else if (signs[signID]->GetType() == Sign::SearchLink)
+				{
+					strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
+					search_own = 0;
+					search_ui(vid_buf);
 				}
 			}
 		}
