@@ -380,7 +380,7 @@ bool transfer_heat(int i, int t, int surround[8])
 		}
 		if (realistic)
 		{
-			if (rt==PT_GEL)
+			if (t==PT_GEL)
 				gel_scale = parts[r>>8].tmp*2.55f;
 			else gel_scale = 1.0f;
 
