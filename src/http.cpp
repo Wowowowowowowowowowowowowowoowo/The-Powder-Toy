@@ -78,6 +78,9 @@ typedef SSIZE_T ssize_t;
 
 static int http_up = 0;
 static long http_timeout = 15;
+// timeout on reusing sockets is lower
+// TPT server won't respond if the socket has been idle more than 5 seconds
+static long http_timeout_reuse = 5;
 static int http_use_proxy = 0;
 static struct sockaddr_in http_proxy;
 
@@ -270,7 +273,7 @@ struct http_ctx
 void *http_async_req_start(void *ctx, const char *uri, const char *data, int dlen, int keep)
 {
 	struct http_ctx *cx = (struct http_ctx*)ctx;
-	if (cx && time(NULL) - cx->last > http_timeout)
+	if (cx && time(NULL) - cx->last > http_timeout_reuse)
 	{
 		http_force_close(ctx);
 		http_async_req_close(ctx);
