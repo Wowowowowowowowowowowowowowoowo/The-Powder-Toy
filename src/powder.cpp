@@ -394,11 +394,16 @@ bool transfer_heat(int i, int t, int surround[8])
 		}
 		else
 		{
-			pt = (c_heat+parts[i].temp)/(h_count+1);
-			pt = parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
-			for (j=0; j<8; j++)
+			if (h_count == 0)
+				pt = parts[i].temp;
+			else
 			{
-				parts[surround_hconduct[j]].temp = pt;
+				pt = (c_heat+parts[i].temp)/(h_count+1);
+				pt = parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
+				for (j=0; j<8; j++)
+				{
+					parts[surround_hconduct[j]].temp = pt;
+				}
 			}
 		}
 
