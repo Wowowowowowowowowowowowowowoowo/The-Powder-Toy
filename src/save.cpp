@@ -757,11 +757,13 @@ fin:
 void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
-	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
+	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
+	unsigned char *pressData = NULL, *vxData = NULL, *vyData = NULL, *ambientData = NULL;
 	unsigned *partsPosLink = NULL, *partsPosFirstMap = NULL, *partsPosCount = NULL, *partsPosLastMap = NULL;
 	unsigned partsCount = 0, *partsSaveIndex = NULL;
 	unsigned *elementCount = (unsigned*)calloc(PT_NUM, sizeof(unsigned));
-	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, finalDataLen, outputDataLen, soapLinkDataLen;
+	int partsDataLen, partsPosDataLen, fanDataLen = 0, wallDataLen, finalDataLen, outputDataLen, soapLinkDataLen;
+	int pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, ambientDataLen = 0;
 #ifndef NOMOD
 	unsigned char *movsData = NULL, *animData = NULL;
 	int movsDataLen = 0, animDataLen = 0;
@@ -808,6 +810,16 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		outputData = NULL;
 		goto fin;
 	}
+	if (aheat_enable)
+	{
+		ambientData = (unsigned char*)malloc((blockW*blockH)*2);
+		if (!ambientData)
+		{
+			puts("Save Error, out of memory\n");
+			outputData = NULL;
+			goto fin;
+		}
+	}
 	//Copy wall and fan data
 	for(x = blockX; x < blockX+blockW; x++)
 	{
@@ -827,6 +839,13 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)&0xFF);
 			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)>>8);
+
+			if (aheat_enable)
+			{
+				int tempTemp = (int)(hv[y][x]+0.5f);
+				ambientData[ambientDataLen++] = tempTemp;
+				ambientData[ambientDataLen++] = tempTemp >> 8;
+			}
 
 			if(bmap[y][x] && !wallDataFound)
 				wallDataFound = 1;
@@ -1304,6 +1323,8 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		bson_append_binary(&b, "vxMap", (char)BSON_BIN_USER, (const char*)vxData, vxDataLen);
 	if (vyData)
 		bson_append_binary(&b, "vyMap", (char)BSON_BIN_USER, (const char*)vyData, vyDataLen);
+	if (ambientData)
+		bson_append_binary(&b, "ambientMap", (char)BSON_BIN_USER, (const char*)ambientData, ambientDataLen);
 	if (soapLinkData)
 		bson_append_binary(&b, "soapLinks", (char)BSON_BIN_USER, (const char*)soapLinkData, soapLinkDataLen);
 #ifndef NOMOD
@@ -1398,6 +1419,7 @@ fin:
 	free(pressData);
 	free(vxData);
 	free(vyData);
+	free(ambientData);
 	free(elementCount);
 	free(partsSaveIndex);
 	free(soapLinkData);
@@ -1413,8 +1435,10 @@ fin:
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = (particle*)o_partsptr;
-	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *pressData = NULL, *vxData = NULL, *vyData = NULL, *soapLinkData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, pressDataLen, vxDataLen, vyDataLen, soapLinkDataLen;
+	unsigned char *inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
+	unsigned char *pressData = NULL, *vxData = NULL, *vyData = NULL, *ambientData = NULL;
+	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
+	int pressDataLen, vxDataLen, vyDataLen, ambientDataLen = 0;
 #ifndef NOMOD
 	unsigned char *movsData = NULL, *animData = NULL;
 	int movsDataLen, animDataLen;
@@ -1625,6 +1649,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			else
 			{
 				fprintf(stderr, "Invalid datatype of vy data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "ambientMap"))
+		{
+			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (ambientDataLen = bson_iterator_bin_len(&iter)) > 0)
+			{
+				ambientData = (unsigned char*)bson_iterator_bin_data(&iter);
+			}
+			else
+			{
+				fprintf(stderr, "Invalid datatype of ambient data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
 			}
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "fanMap"))
@@ -2143,6 +2178,27 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				i = vyData[j++];
 				i2 = vyData[j++];
 				vy[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
+			}
+		}
+	}
+
+	// Read ambient heat data
+	if (ambientData && aheat_enable)
+	{
+		unsigned int tempTemp;
+		j = 0;
+		if (blockW * blockH > ambientDataLen)
+		{
+			fprintf(stderr, "Not enough ambient data\n");
+			goto fail;
+		}
+		for (x = 0; x < blockW; x++)
+		{
+			for (y = 0; y < blockH; y++)
+			{
+				tempTemp = ambientData[j++];
+				tempTemp |= (((unsigned)ambientData[j++]) << 8);
+				hv[blockY+y][blockX+x] = tempTemp;
 			}
 		}
 	}
