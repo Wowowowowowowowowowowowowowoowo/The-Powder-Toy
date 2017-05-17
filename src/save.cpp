@@ -1289,7 +1289,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_int(&b, "gravityMode", gravityMode);
 	bson_append_int(&b, "airMode", airMode);
 	bson_append_bool(&b, "msrotation", globalSim->msRotation);
-	bson_append_bool(&b, "decorations_enaable", decorations_enable);
+	bson_append_bool(&b, "decorations_enable", decorations_enable);
 	bson_append_bool(&b, "hud_enable", hud_enable);
 	bson_append_bool(&b, "aheat_enable", aheat_enable);
 	bson_append_int(&b, "render_mode", render_mode);
@@ -1432,21 +1432,66 @@ fin:
 	return outputData;
 }
 
+void checkBsonFieldUser(bson_iterator iter, const char *field, unsigned char **data, unsigned int *fieldLen)
+{
+	if (!strcmp(bson_iterator_key(&iter), field))
+	{
+		if (bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (*fieldLen = bson_iterator_bin_len(&iter)) > 0)
+		{
+			*data = (unsigned char*)bson_iterator_bin_data(&iter);
+		}
+		else
+		{
+			fprintf(stderr, "Invalid datatype for %s: %d[%d] %d[%d] %d[%d]\n", field, bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
+		}
+	}
+}
+
+void checkBsonFieldBool(bson_iterator iter, const char *field, bool *flag)
+{
+	if (!strcmp(bson_iterator_key(&iter), field))
+	{
+		if (bson_iterator_type(&iter) == BSON_BOOL)
+		{
+			*flag = bson_iterator_bool(&iter);
+		}
+		else
+		{
+			fprintf(stderr, "Wrong type for %s, expected bool, got type %i\n", bson_iterator_key(&iter),  bson_iterator_type(&iter));
+		}
+	}
+}
+
+void checkBsonFieldInt(bson_iterator iter, const char *field, int *setting)
+{
+	if (!strcmp(bson_iterator_key(&iter), field))
+	{
+		if (bson_iterator_type(&iter) == BSON_INT)
+		{
+			*setting = bson_iterator_int(&iter);
+		}
+		else
+		{
+			fprintf(stderr, "Wrong type for %s, expected int, got type %i\n", bson_iterator_key(&iter),  bson_iterator_type(&iter));
+		}
+	}
+}
+
 int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES])
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
 	unsigned char *pressData = NULL, *vxData = NULL, *vyData = NULL, *ambientData = NULL;
-	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
-	int pressDataLen, vxDataLen, vyDataLen, ambientDataLen = 0;
+	unsigned int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, fanDataLen, wallDataLen, soapLinkDataLen;
+	unsigned int pressDataLen, vxDataLen, vyDataLen, ambientDataLen = 0;
 #ifndef NOMOD
 	unsigned char *movsData = NULL, *animData = NULL;
-	int movsDataLen, animDataLen;
+	unsigned int movsDataLen, animDataLen;
 #endif
 	unsigned partsCount = 0, *partsSimIndex = NULL;
-	int i, freeIndicesCount, x, y, returnCode = 0, j, modsave = 0;
-	int *freeIndices = NULL;
-	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
+	unsigned int freeIndicesCount, returnCode = 0, modsave = 0;
+	unsigned int *freeIndices = NULL;
+	unsigned int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int saved_version = inputData[4];
 	int elementPalette[PT_NUM];
 	bool hasPallete = false;
@@ -1525,8 +1570,36 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 
 	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
 	bson_iterator_init(&iter, &b);
+	bool tempGravityEnable = 0;
+	int tempEdgeMode;
 	while (bson_iterator_next(&iter))
 	{
+		checkBsonFieldUser(iter, "parts", &partsData, &partsDataLen);
+		checkBsonFieldUser(iter, "partsPos", &partsPosData, &partsPosDataLen);
+		checkBsonFieldUser(iter, "wallMap", &wallData, &wallDataLen);
+		checkBsonFieldUser(iter, "pressMap", &pressData, &pressDataLen);
+		checkBsonFieldUser(iter, "vxMap", &vxData, &vxDataLen);
+		checkBsonFieldUser(iter, "vyMap", &vyData, &vyDataLen);
+		checkBsonFieldUser(iter, "ambientMap", &ambientData, &ambientDataLen);
+		checkBsonFieldUser(iter, "fanMap", &fanData, &fanDataLen);
+		checkBsonFieldUser(iter, "soapLinks", &soapLinkData, &soapLinkDataLen);
+#ifndef NOMOD
+		checkBsonFieldUser(iter, "movs", &movsData, &movsDataLen);
+		checkBsonFieldUser(iter, "anim", &animData, &animDataLen);
+#endif
+		checkBsonFieldBool(iter, "legacyEnable", &legacy_enable);
+		checkBsonFieldBool(iter, "gravityEnable", &tempGravityEnable);
+		checkBsonFieldBool(iter, "aheat_enable", &aheat_enable);
+		checkBsonFieldBool(iter, "waterEEnabled", &water_equal_test);
+		checkBsonFieldBool(iter, "paused", &sys_pause);
+		checkBsonFieldBool(iter, "msrotation", &globalSim->msRotation);
+#ifndef TOUCHUI
+		checkBsonFieldBool(iter, "hud_enable", &hud_enable);
+#endif
+		checkBsonFieldInt(iter, "gravityMode", &gravityMode);
+		checkBsonFieldInt(iter, "airMode", &airMode);
+		checkBsonFieldInt(iter, "edgeMode", &tempEdgeMode);
+
 		if (!strcmp(bson_iterator_key(&iter), "signs"))
 		{
 			if (bson_iterator_type(&iter)==BSON_ARRAY)
@@ -1585,128 +1658,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "parts"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				partsData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of particle data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		if (!strcmp(bson_iterator_key(&iter), "partsPos"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (partsPosDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				partsPosData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of particle position data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "wallMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (wallDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				wallData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of wall data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "pressMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (pressDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				pressData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of pressure data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "vxMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (vxDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				vxData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of vx data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "vyMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (vyDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				vyData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of vy data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "ambientMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (ambientDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				ambientData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of ambient data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "fanMap"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (fanDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				fanData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of fan data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "soapLinks"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (soapLinkDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				soapLinkData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of soap data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
 #ifndef NOMOD
-		else if (!strcmp(bson_iterator_key(&iter), "movs"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (movsDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				movsData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of movs data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "anim"))
-		{
-			if(bson_iterator_type(&iter)==BSON_BINDATA && ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER && (animDataLen = bson_iterator_bin_len(&iter)) > 0)
-			{
-				animData = (unsigned char*)bson_iterator_bin_data(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Invalid datatype of anim data: %d[%d] %d[%d] %d[%d]\n", bson_iterator_type(&iter), bson_iterator_type(&iter)==BSON_BINDATA, (unsigned char)bson_iterator_bin_type(&iter), ((unsigned char)bson_iterator_bin_type(&iter))==BSON_BIN_USER, bson_iterator_bin_len(&iter), bson_iterator_bin_len(&iter)>0);
-			}
-		}
 #ifdef LUACONSOLE
 		else if (!strcmp(bson_iterator_key(&iter), "LuaCode") && replace > 0)
 		{
@@ -1786,83 +1738,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "legacyEnable") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				legacy_enable = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "gravityEnable") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				int tempGrav = ngrav_enable;
-				tempGrav = ((int)bson_iterator_bool(&iter))?1:0;
-#ifndef RENDERER
-				//Change the gravity state
-				if(ngrav_enable != tempGrav)
-				{
-					if(tempGrav)
-						start_grav_async();
-					else
-						stop_grav_async();
-				}
-#endif
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "waterEEnabled") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				water_equal_test = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "paused") && replace >= 0 && (!sys_pause || replace == 2))
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				sys_pause = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "gravityMode") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				gravityMode = bson_iterator_int(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "airMode") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				airMode = bson_iterator_int(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
 		else if((!strcmp(bson_iterator_key(&iter), "leftSelectedElementIdentifier") || !strcmp(bson_iterator_key(&iter), "rightSelectedElementIdentifier")) && replace == 2)
 		{
 			if (bson_iterator_type(&iter) == BSON_STRING)
@@ -1879,96 +1754,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					if (temp)
 						activeTools[1] = temp;
 				}
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "activeMenu") && replace == 2)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT && bson_iterator_int(&iter) >= 0 && ((bson_iterator_int(&iter) < SC_TOTAL && menuSections[bson_iterator_int(&iter)]->enabled) || replace == 2))
-			{
-				active_menu = bson_iterator_int(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Wrong value for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "msrotation") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				globalSim->msRotation = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "decorations_enable") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				decorations_enable = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-#ifndef TOUCHUI
-		else if (!strcmp(bson_iterator_key(&iter), "hud_enable") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				hud_enable = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-#endif
-		else if (!strcmp(bson_iterator_key(&iter), "aheat_enable") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_BOOL)
-			{
-				aheat_enable = ((int)bson_iterator_bool(&iter))?1:0;
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "render_mode") && replace == 2)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				render_mode = bson_iterator_int(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "display_mode") && replace == 2)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				display_mode = bson_iterator_int(&iter);
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
-		else if (!strcmp(bson_iterator_key(&iter), "color_mode") && replace == 2)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				Renderer::Ref().SetColorMode(bson_iterator_int(&iter));
 			}
 			else
 			{
@@ -2084,19 +1869,39 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 		}
 	}
-	
+
+#ifndef RENDERER
+	//Change the gravity state
+	if (ngrav_enable != tempGravityEnable)
+	{
+		if (tempGravityEnable)
+			start_grav_async();
+		else
+			stop_grav_async();
+	}
+#endif
+	if (globalSim->saveEdgeMode != tempEdgeMode)
+	{
+		globalSim->saveEdgeMode = tempEdgeMode;
+		if (globalSim->saveEdgeMode == 1)
+			draw_bframe();
+		else
+			erase_bframe();
+	}
+
+
 	//Read wall and fan data
 	if (wallData)
 	{
-		j = 0;
+		unsigned int j = 0;
 		if (blockW * blockH > wallDataLen)
 		{
 			fprintf(stderr, "Not enough wall data\n");
 			goto fail;
 		}
-		for (x = 0; x < blockW; x++)
+		for (unsigned int x = 0; x < blockW; x++)
 		{
-			for (y = 0; y < blockH; y++)
+			for (unsigned int y = 0; y < blockH; y++)
 			{
 				if (wallData[y*blockW+x])
 				{
@@ -2107,7 +1912,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				}
 				if (wallData[y*blockW+x] == WL_FAN && fanData)
 				{
-					if(j+1 >= fanDataLen)
+					if (j+1 >= fanDataLen)
 					{
 						fprintf(stderr, "Not enough fan data\n");
 					}
@@ -2122,17 +1927,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	//Read pressure data
 	if (pressData)
 	{
-		j = 0;
-		if(blockW * blockH > pressDataLen)
+		unsigned int j = 0;
+		unsigned int i, i2;
+		if (blockW * blockH > pressDataLen)
 		{
 			fprintf(stderr, "Not enough pressure data\n");
 			goto fail;
 		}
-		for(x = 0; x < blockW; x++)
+		for (unsigned int x = 0; x < blockW; x++)
 		{
-			for(y = 0; y < blockH; y++)
+			for (unsigned int y = 0; y < blockH; y++)
 			{
-				int i2;
 				i = pressData[j++];
 				i2 = pressData[j++];
 				pv[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
@@ -2143,17 +1948,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	//Read vx data
 	if (vxData)
 	{
-		j = 0;
+		unsigned int j = 0;
+		unsigned int i, i2;
 		if(blockW * blockH > vxDataLen)
 		{
 			fprintf(stderr, "Not enough vx data\n");
 			goto fail;
 		}
-		for(x = 0; x < blockW; x++)
+		for (unsigned int x = 0; x < blockW; x++)
 		{
-			for(y = 0; y < blockH; y++)
+			for (unsigned int y = 0; y < blockH; y++)
 			{
-				int i2;
 				i = vxData[j++];
 				i2 = vxData[j++];
 				vx[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
@@ -2164,17 +1969,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	//Read vy data
 	if (vyData)
 	{
-		j = 0;
+		unsigned int j = 0;
+		unsigned int i, i2;
 		if(blockW * blockH > vyDataLen)
 		{
 			fprintf(stderr, "Not enough vy data\n");
 			goto fail;
 		}
-		for(x = 0; x < blockW; x++)
+		for (unsigned int x = 0; x < blockW; x++)
 		{
-			for(y = 0; y < blockH; y++)
+			for (unsigned int y = 0; y < blockH; y++)
 			{
-				int i2;
 				i = vyData[j++];
 				i2 = vyData[j++];
 				vy[blockY+y][blockX+x] = ((i+(i2<<8))/128.0f)-256;
@@ -2185,16 +1990,15 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	// Read ambient heat data
 	if (ambientData && aheat_enable)
 	{
-		unsigned int tempTemp;
-		j = 0;
+		unsigned int tempTemp, j = 0;
 		if (blockW * blockH > ambientDataLen)
 		{
 			fprintf(stderr, "Not enough ambient data\n");
 			goto fail;
 		}
-		for (x = 0; x < blockW; x++)
+		for (unsigned int x = 0; x < blockW; x++)
 		{
-			for (y = 0; y < blockH; y++)
+			for (unsigned int y = 0; y < blockH; y++)
 			{
 				tempTemp = ambientData[j++];
 				tempTemp |= (((unsigned)ambientData[j++]) << 8);
@@ -2208,8 +2012,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	{
 		int newIndex = 0, fieldDescriptor, tempTemp;
 		int posCount, posTotal, partsPosDataIndex = 0;
-		int saved_x, saved_y;
-		int freeIndicesIndex = 0;
+		unsigned int freeIndicesIndex = 0;
 		if(fullW * fullH * 3 > partsPosDataLen)
 		{
 			fprintf(stderr, "Not enough particle position data\n");
@@ -2217,19 +2020,19 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		globalSim->parts_lastActiveIndex = NPART-1;
 		freeIndicesCount = 0;
-		freeIndices = (int*)calloc(sizeof(int), NPART);
+		freeIndices = (unsigned int*)calloc(sizeof(unsigned int), NPART);
 		partsSimIndex = (unsigned*)calloc(NPART, sizeof(unsigned));
 		partsCount = 0;
-		for (i = 0; i < NPART; i++)
+		for (unsigned int i = 0; i < NPART; i++)
 		{
 			// keep a track of indices we can use
 			if (!partsptr[i].type)
 				freeIndices[freeIndicesCount++] = i;
 		}
-		i = 0;
-		for (saved_y=0; saved_y<fullH; saved_y++)
+		unsigned int i = 0, x, y;
+		for (unsigned int saved_y=0; saved_y<fullH; saved_y++)
 		{
-			for (saved_x=0; saved_x<fullW; saved_x++)
+			for (unsigned int saved_x=0; saved_x<fullW; saved_x++)
 			{
 				//Read total number of particles at this position
 				posTotal = 0;
@@ -2553,7 +2356,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			int movsDataPos = 0, numBalls = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetNumBalls();
 			int solids[MAX_MOVING_SOLIDS]; //solids is a map of the old .tmp2 it was saved with, to the new ball number it is getting
 			memset(solids, MAX_MOVING_SOLIDS, sizeof(solids)); //default to invalid ball
-			for (int i = 0; i < movsDataLen/2; i++)
+			for (unsigned int  i = 0; i < movsDataLen/2; i++)
 			{
 				int bn = movsData[movsDataPos++];
 				if (bn >= 0 && bn < MAX_MOVING_SOLIDS)
@@ -2599,7 +2402,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		if (animData && replace >= 0)
 		{
-			int animDataPos = 0;
+			unsigned int animDataPos = 0;
 			for (unsigned i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_ANIM)
@@ -2636,7 +2439,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 #endif
 		if (soapLinkData)
 		{
-			int soapLinkDataPos = 0;
+			unsigned int soapLinkDataPos = 0;
 			for (unsigned int i = 0; i < partsCount; i++)
 			{
 				if (partsSimIndex[i] && partsptr[partsSimIndex[i]-1].type == PT_SOAP)
@@ -3051,7 +2854,7 @@ int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned c
 
 	if (ver<34)
 	{
-		legacy_enable = 1;
+		legacy_enable = true;
 	}
 	else
 	{
@@ -3656,7 +3459,7 @@ corrupt:
 	if (fp) free(fp);
 	if (replace)
 	{
-		legacy_enable = 0;
+		legacy_enable = false;
 		clear_sim();
 		erase_bframe();
 	}

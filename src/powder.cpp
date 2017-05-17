@@ -40,7 +40,7 @@ unsigned int platent[PT_NUM];
 particle *parts;
 
 int airMode = 0;
-int water_equal_test = 0;
+bool water_equal_test = 0;
 
 unsigned char bmap[YRES/CELL][XRES/CELL];
 unsigned char emap[YRES/CELL][XRES/CELL];

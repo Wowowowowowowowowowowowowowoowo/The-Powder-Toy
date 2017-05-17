@@ -29,7 +29,7 @@ struct quick_option
 	const char *icon;
 	const char *name;
 	int type;
-	int *variable;
+	bool *variable;
 };
 typedef struct quick_option quick_option;
 

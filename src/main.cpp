@@ -228,17 +228,17 @@ bool doubleScreenDialog = false;
 int screenWidth = 0;
 int screenHeight = 0;
 int do_open = 0;
-int sys_pause = 0;
+bool sys_pause = false;
 int sys_shortcuts = 1;
-int legacy_enable = 0; //Used to disable new features such as heat, will be set by save.
-int aheat_enable; //Ambient heat
-int decorations_enable = 1;
-int hud_enable = 1;
+bool legacy_enable = false; //Used to disable new features such as heat, will be set by save.
+bool aheat_enable = false; //Ambient heat
+bool decorations_enable = true;
+bool hud_enable = true;
 int active_menu = 0;
 int last_active_menu = 0;
 int last_fav_menu = SC_FAV;
 int framerender = 0;
-int pretty_powder = 0;
+bool pretty_powder = false;
 int limitFPS = 60;
 int main_loop = 1;
 int finding = 0;
@@ -248,7 +248,7 @@ int heatmode = 0;
 int secret_els = 0;
 int tab_num = 1;
 int num_tabs = 1;
-int show_tabs = 0;
+bool show_tabs = false;
 Brush* currentBrush;
 Tool* activeTools[3];
 int activeToolID = 0;
@@ -271,7 +271,7 @@ int frames = 0;
 int prevafktime = 0;
 int timesplayed = 0;
 
-int console_mode;
+bool console_mode = false;
 bool REPLACE_MODE = false;
 bool SPECIFIC_DELETE = false;
 int GRID_MODE;
@@ -1197,13 +1197,13 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[i], "nohud", 5))
 		{
-			hud_enable = 0;
+			hud_enable = false;
 		}
 		else if (!strncmp(argv[i], "kiosk", 5))
 		{
 			kiosk_enable = 1;
 			//sdl_scale = 2; //Removed because some displays cannot handle the resolution
-			hud_enable = 0;
+			hud_enable = false;
 		}
 		else if (!strncmp(argv[i], "scripts", 8))
 		{

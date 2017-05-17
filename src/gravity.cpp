@@ -49,11 +49,11 @@ float *th_gravp = NULL;
 
 int gravwl_timeout = 0;
 int gravityMode = 0; // starts enabled in "vertical" mode...
-int ngrav_enable = 0; //Newtonian gravity
+bool ngrav_enable = false; //Newtonian gravity
 #ifdef ANDROID
-int ngrav_completedisable = 1;
+bool ngrav_completedisable = true;
 #else
-int ngrav_completedisable = 0;
+bool ngrav_completedisable = false;
 #endif
 int th_gravchanged = 0;
 
@@ -221,7 +221,7 @@ void start_grav_async()
 		pthread_mutex_init (&gravmutex, NULL);
 		pthread_cond_init(&gravcv, NULL);
 		pthread_create(&gravthread, NULL, update_grav_async, NULL); //Start asynchronous gravity simulation
-		ngrav_enable = 1;
+		ngrav_enable = true;
 	}
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
@@ -239,7 +239,7 @@ void stop_grav_async()
 		pthread_mutex_unlock(&gravmutex);
 		pthread_join(gravthread, NULL);
 		pthread_mutex_destroy(&gravmutex); //Destroy the mutex
-		ngrav_enable = 0;
+		ngrav_enable = false;
 	}
 	//Clear the grav velocities
 	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));

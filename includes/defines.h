@@ -177,20 +177,20 @@ extern int elapsedTime;
 
 extern int NUM_PARTS;
 
-extern int legacy_enable;
+extern bool legacy_enable;
 extern int kiosk_enable;
-extern int aheat_enable;
-extern int decorations_enable;
+extern bool aheat_enable;
+extern bool decorations_enable;
 extern int active_menu;
 extern int last_active_menu;
 extern int last_fav_menu;
-extern int hud_enable;
-extern int pretty_powder;
-extern int drawgrav_enable;
-extern int ngrav_enable;
-extern int ngrav_completedisable;
+extern bool hud_enable;
+extern bool pretty_powder;
+extern bool drawgrav_enable;
+extern bool ngrav_enable;
+extern bool ngrav_completedisable;
 extern int limitFPS;
-extern int water_equal_test;
+extern bool water_equal_test;
 extern int finding;
 extern int highesttemp;
 extern int lowesttemp;
@@ -198,7 +198,7 @@ extern int heatmode;
 extern int secret_els;
 extern int tab_num;
 extern int num_tabs;
-extern int show_tabs;
+extern bool show_tabs;
 #ifdef __cplusplus
 class Tool;
 extern Tool* activeTools[3];
@@ -236,7 +236,7 @@ extern long debug_perf_time;
 
 extern int active_menu;
 
-extern int sys_pause;
+extern bool sys_pause;
 extern int framerender;
 
 #include "graphics/Pixel.h"
@@ -248,7 +248,7 @@ struct stamp
 };
 typedef struct stamp stamp;
 
-extern int console_mode;
+extern bool console_mode;
 extern bool REPLACE_MODE;
 extern bool SPECIFIC_DELETE;
 extern int GRID_MODE;
@@ -259,9 +259,7 @@ extern int stamp_count;
 extern int ptsaveOpenID;
 extern int saveURIOpen;
 extern int do_open;
-extern int sys_pause;
 extern int sys_shortcuts;
-extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
 extern pixel *vid_buf;
 extern pixel *vid3d;
 

@@ -88,7 +88,7 @@ void DoRestart(bool saveTab)
 {
 	if (saveTab)
 	{
-		sys_pause = 1;
+		sys_pause = true;
 		tab_save(tab_num, 0);
 	}
 #ifdef ANDROID

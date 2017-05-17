@@ -293,7 +293,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				if (j)
 				{
 					open_ui(vid_buf, console3, NULL, 0);
-					console_mode = 0;
+					console_mode = false;
 				}
 			}
 			else if (strcmp(console2, "if")==0 && console3[0])

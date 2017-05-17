@@ -134,7 +134,7 @@ int has_quit = 0;
 int dateformat = 7;
 int show_ids = 0;
 
-int drawgrav_enable = 0;
+bool drawgrav_enable = false;
 
 void ui_edit_init(ui_edit *ed, int x, int y, int w, int h)
 {
@@ -6885,7 +6885,7 @@ int console_ui(pixel *vid_buf)
 		}
 		if (sdl_key==SDLK_ESCAPE || (sdl_key==SDLK_BACKQUOTE && !(sdl_mod & (KMOD_SHIFT))) || !console_mode) // exit the console
 		{
-			console_mode = 0;
+			console_mode = false;
 			free(old_buf);
 			return 1;
 		}
@@ -6922,7 +6922,7 @@ int console_ui(pixel *vid_buf)
 			}
 		}
 	}
-	console_mode = 0;
+	console_mode = false;
 	free(old_buf);
 	return 1;
 }

@@ -76,7 +76,8 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
-					sys_pause = framerender = 0;
+					sys_pause = false;
+					framerender = 0;
 					BENCHMARK_RUN()
 					{
 						update_air();
@@ -101,7 +102,7 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1000)
 				{
 					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
-					sys_pause = 1;
+					sys_pause = true;
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
@@ -114,7 +115,8 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
-					sys_pause = framerender = 0;
+					sys_pause = false;
+					framerender = 0;
 					BENCHMARK_RUN()
 					{
 						globalSim->Tick();
@@ -126,10 +128,11 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1500)
 				{
 					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
-					sys_pause = framerender = 0;
+					sys_pause = false;
+					framerender = 0;
 					display_mode = 0;
 					render_mode = RENDER_BASC;
-					decorations_enable = 1;
+					decorations_enable = true;
 					globalSim->Tick();
 					BENCHMARK_RUN()
 					{
@@ -142,10 +145,11 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1200)
 				{
 					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
-					sys_pause = framerender = 0;
+					sys_pause = false;
+					framerender = 0;
 					display_mode = 0;
 					render_mode = RENDER_FIRE;
-					decorations_enable = 1;
+					decorations_enable = true;
 					globalSim->Tick();
 					BENCHMARK_RUN()
 					{

@@ -19,7 +19,7 @@
 
 #include "defines.h"
 
-extern int ngrav_enable; //Newtonian gravity
+extern bool ngrav_enable; //Newtonian gravity
 extern int gravwl_timeout;
 extern int gravityMode;
 

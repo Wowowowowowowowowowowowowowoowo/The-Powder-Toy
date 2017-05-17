@@ -589,7 +589,7 @@ void PowderToy::TogglePause()
 
 void PowderToy::SetPause(bool pause)
 {
-	if ((pause ? 1 : 0) != sys_pause)
+	if (pause != sys_pause)
 		TogglePause();
 }
 
@@ -2142,7 +2142,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		else
 		{
 			last_active_menu = active_menu;
-			decorations_enable = 1;
+			decorations_enable = true;
 			SetPause(1);
 			active_menu = SC_DECO;
 
