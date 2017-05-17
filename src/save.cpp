@@ -775,6 +775,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	// when building, this number may be increased depending on what elements are used
 	// or what properties are detected
 	int minimumMajorVersion = 90, minimumMinorVersion = 2;
+	std::set<unsigned int> renderModes, displayModes;
 	bson b;
 
 	//Get coords in blocks
@@ -1292,8 +1293,18 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 	bson_append_bool(&b, "decorations_enable", decorations_enable);
 	bson_append_bool(&b, "hud_enable", hud_enable);
 	bson_append_bool(&b, "aheat_enable", aheat_enable);
-	bson_append_int(&b, "render_mode", render_mode);
-	bson_append_int(&b, "display_mode", display_mode);
+	bson_append_int(&b, "render_mode", Renderer::Ref().GetRenderModesRaw());
+	bson_append_start_array(&b, "render_modes");
+	renderModes = Renderer::Ref().GetRenderModes();
+	for (std::set<unsigned int>::iterator it = renderModes.begin(), end = renderModes.end(); it != end; it++)
+		bson_append_int(&b, "render_mode", *it);
+	bson_append_finish_array(&b);
+	bson_append_int(&b, "display_mode", Renderer::Ref().GetDisplayModesRaw());
+	bson_append_start_array(&b, "display_modes");
+	displayModes = Renderer::Ref().GetDisplayModes();
+	for (std::set<unsigned int>::iterator it = displayModes.begin(), end = displayModes.end(); it != end; it++)
+		bson_append_int(&b, "display_mode", *it);
+	bson_append_finish_array(&b);
 	bson_append_int(&b, "color_mode", Renderer::Ref().GetColorMode());
 	bson_append_int(&b, "Jacob1's_Mod", MOD_SAVE_VERSION);
 	bson_append_int(&b, "edgeMode", globalSim->GetEdgeMode());
@@ -1570,8 +1581,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 
 	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
 	bson_iterator_init(&iter, &b);
-	bool tempGravityEnable = 0;
-	int tempEdgeMode;
+	bool tempGravityEnable = false;
+	int tempEdgeMode = 0;
 	while (bson_iterator_next(&iter))
 	{
 		checkBsonFieldUser(iter, "parts", &partsData, &partsDataLen);
@@ -1587,18 +1598,30 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		checkBsonFieldUser(iter, "movs", &movsData, &movsDataLen);
 		checkBsonFieldUser(iter, "anim", &animData, &animDataLen);
 #endif
-		checkBsonFieldBool(iter, "legacyEnable", &legacy_enable);
-		checkBsonFieldBool(iter, "gravityEnable", &tempGravityEnable);
-		checkBsonFieldBool(iter, "aheat_enable", &aheat_enable);
-		checkBsonFieldBool(iter, "waterEEnabled", &water_equal_test);
-		checkBsonFieldBool(iter, "paused", &sys_pause);
-		checkBsonFieldBool(iter, "msrotation", &globalSim->msRotation);
+		if (replace > 0)
+		{
+			checkBsonFieldBool(iter, "legacyEnable", &legacy_enable);
+			checkBsonFieldBool(iter, "gravityEnable", &tempGravityEnable);
+			checkBsonFieldBool(iter, "aheat_enable", &aheat_enable);
+			checkBsonFieldBool(iter, "waterEEnabled", &water_equal_test);
+			if (!sys_pause || replace == 2)
+				checkBsonFieldBool(iter, "paused", &sys_pause);
+			checkBsonFieldBool(iter, "msrotation", &globalSim->msRotation);
 #ifndef TOUCHUI
-		checkBsonFieldBool(iter, "hud_enable", &hud_enable);
+			checkBsonFieldBool(iter, "hud_enable", &hud_enable);
 #endif
-		checkBsonFieldInt(iter, "gravityMode", &gravityMode);
-		checkBsonFieldInt(iter, "airMode", &airMode);
-		checkBsonFieldInt(iter, "edgeMode", &tempEdgeMode);
+			checkBsonFieldInt(iter, "gravityMode", &gravityMode);
+			checkBsonFieldInt(iter, "airMode", &airMode);
+			checkBsonFieldInt(iter, "edgeMode", &tempEdgeMode);
+		}
+		if (replace == 2)
+		{
+			int tempActiveMenu = -1;
+			checkBsonFieldInt(iter, "activeMenu", &tempActiveMenu);
+			if (tempActiveMenu >= 0 && tempActiveMenu < SC_TOTAL && menuSections[tempActiveMenu]->enabled)
+				active_menu = tempActiveMenu;
+			checkBsonFieldBool(iter, "decorations_enable", &decorations_enable);
+		}
 
 		if (!strcmp(bson_iterator_key(&iter), "signs"))
 		{
@@ -1810,21 +1833,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "edgeMode") && replace > 0)
-		{
-			if(bson_iterator_type(&iter)==BSON_INT)
-			{
-				globalSim->saveEdgeMode = bson_iterator_int(&iter);
-				if (globalSim->saveEdgeMode == 1)
-					draw_bframe();
-				else
-					erase_bframe();
-			}
-			else
-			{
-				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
-			}
-		}
 		else if (!strcmp(bson_iterator_key(&iter), "saveInfo") && replace == 2)
 		{
 			if(bson_iterator_type(&iter)==BSON_OBJECT)
@@ -1867,6 +1875,40 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "render_modes") && replace == 2)
+		{
+			bson_iterator subiter;
+			bson_iterator_subiterator(&iter, &subiter);
+			render_mode = 0;
+			Renderer::Ref().ClearRenderModes();
+			while (bson_iterator_next(&subiter))
+			{
+				if (bson_iterator_type(&subiter) == BSON_INT)
+				{
+					unsigned int renderMode = bson_iterator_int(&subiter);
+					Renderer::Ref().AddRenderMode(renderMode);
+				}
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "display_modes") && replace == 2)
+		{
+			bson_iterator subiter;
+			bson_iterator_subiterator(&iter, &subiter);
+			display_mode = 0;
+			Renderer::Ref().ClearDisplayModes();
+			while (bson_iterator_next(&subiter))
+			{
+				if (bson_iterator_type(&subiter) == BSON_INT)
+				{
+					unsigned int displayMode = bson_iterator_int(&subiter);
+					Renderer::Ref().AddDisplayMode(displayMode);
+				}
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "color_mode") && replace == 2 && bson_iterator_type(&iter) == BSON_INT)
+		{
+			Renderer::Ref().SetColorMode(bson_iterator_int(&iter));
 		}
 	}
 
