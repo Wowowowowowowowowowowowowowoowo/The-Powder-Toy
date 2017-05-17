@@ -18,20 +18,20 @@
 
 int FIRE_update_legacy(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt, lpv, t = parts[i].type;
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	int t = parts[i].type;
+	for (int rx = -2; rx <= 2; rx++)
+		for (int ry = -2; ry <= 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
 				if (bmap[(y+ry)/CELL][(x+rx)/CELL] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_STREAM)
 					continue;
-				rt = r&0xFF;
-				lpv = (int)pv[(y+ry)/CELL][(x+rx)/CELL];
+				int rt = r&0xFF;
+				int lpv = (int)pv[(y+ry)/CELL][(x+rx)/CELL];
 				if (lpv < 1) lpv = 1;
-				if (ptypes[rt].meltable && ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK) && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR)) && ptypes[rt].meltable*lpv>(rand()%1000))
+				if (sim->elements[rt].Meltable && ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK) && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR)) && sim->elements[rt].Meltable*lpv>(rand()%1000))
 				{
 					if (t!=PT_LAVA || parts[i].life>0)
 					{
@@ -41,44 +41,44 @@ int FIRE_update_legacy(UPDATE_FUNC_ARGS)
 							parts[r>>8].ctype = PT_GLAS;
 						else
 							parts[r>>8].ctype = rt;
-						part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
+						sim->part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
 						parts[r>>8].life = rand()%120+240;
 					}
 					else
 					{
 						parts[i].life = 0;
 						parts[i].ctype = PT_NONE;//rt;
-						part_change_type(i,x,y,(parts[i].ctype)?parts[i].ctype:PT_STNE);
+						sim->part_change_type(i,x,y,(parts[i].ctype)?parts[i].ctype:PT_STNE);
 						return 1;
 					}
 				}
 				if (rt==PT_ICEI || rt==PT_SNOW)
 				{
-					parts[r>>8].type = PT_WATR;
+					sim->part_change_type(r>>8, x+rx, y+ry, PT_WATR);
 					if (t==PT_FIRE)
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 					if (t==PT_LAVA)
 					{
 						parts[i].life = 0;
-						part_change_type(i,x,y,PT_STNE);
+						sim->part_change_type(i,x,y,PT_STNE);
 					}
 				}
 				if (rt==PT_WATR || rt==PT_DSTW || rt==PT_SLTW)
 				{
-					kill_part(r>>8);
+					sim->part_kill(r>>8);
 					if (t==PT_FIRE)
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 					if (t==PT_LAVA)
 					{
 						parts[i].life = 0;
 						parts[i].ctype = PT_NONE;
-						part_change_type(i,x,y,(parts[i].ctype)?parts[i].ctype:PT_STNE);
+						sim->part_change_type(i,x,y,(parts[i].ctype)?parts[i].ctype:PT_STNE);
 					}
 				}
 			}
@@ -87,7 +87,7 @@ int FIRE_update_legacy(UPDATE_FUNC_ARGS)
 
 int FIRE_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt, t = parts[i].type;
+	int t = parts[i].type;
 	switch (t)
 	{
 	case PT_PLSM:
@@ -96,12 +96,12 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 			if (parts[i].ctype == PT_NBLE)
 			{
 				t = PT_NBLE;
-				part_change_type(i, x, y, t);
+				sim->part_change_type(i, x, y, t);
 				parts[i].life = 0;
 			}
 			else if ((parts[i].tmp&0x3) == 3)
 			{
-				part_change_type(i, x, y, PT_DSTW);
+				sim->part_change_type(i, x, y, PT_DSTW);
 				parts[i].life = 0;
 				parts[i].ctype = PT_FIRE;
 			}
@@ -112,13 +112,13 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 		{
 			if ((parts[i].tmp&0x3) == 3)
 			{
-				part_change_type(i, x, y, PT_DSTW);
+				sim->part_change_type(i, x, y, PT_DSTW);
 				parts[i].life = 0;
 				parts[i].ctype = PT_FIRE;
 			}
 			else if (parts[i].temp<625)
 			{
-				part_change_type(i, x, y, PT_SMKE);
+				sim->part_change_type(i, x, y, PT_SMKE);
 				parts[i].life = rand()%20+250;
 			}
 		}
@@ -126,24 +126,27 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 	default:
 		break;
 	}
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (int rx = -2; rx <= 2; rx++)
+		for (int ry = -2; ry <= 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = r&0xFF;
+				int rt = r&0xFF;
 				//THRM burning
 				if (rt==PT_THRM && (t==PT_FIRE || t==PT_PLSM || t==PT_LAVA))
 				{
-					if (!(rand()%500)) {
-						part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
+					if (!(rand()%500))
+					{
+						sim->part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
 						parts[r>>8].ctype = PT_BMTL;
 						parts[r>>8].temp = 3500.0f;
 						pv[(y+ry)/CELL][(x+rx)/CELL] += 50.0f;
-					} else {
-						part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
+					}
+					else
+					{
+						sim->part_change_type(r>>8,x+rx,y+ry,PT_LAVA);
 						parts[r>>8].life = 400;
 						parts[r>>8].ctype = PT_THRM;
 						parts[r>>8].temp = 3500.0f;
@@ -182,14 +185,14 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 					}
 				}
 
-				if ((surround_space || ptypes[rt].explosive) &&
-					ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]*10.0f)) > (rand()%1000) &&
+				if ((surround_space || sim->elements[rt].Explosive) &&
+					sim->elements[rt].Flammable && (sim->elements[rt].Flammable + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]*10.0f)) > (rand()%1000) &&
 					//exceptions, t is the thing causing the flame and rt is what's burning
 					(t != PT_SPRK || (rt != PT_RBDM && rt != PT_LRBD && rt != PT_INSL)) &&
 					(t != PT_PHOT || rt != PT_INSL) &&
 					(rt != PT_SPNG || parts[r>>8].life == 0))
 				{
-					part_change_type(r>>8, x+rx, y+ry, PT_FIRE);
+					sim->part_change_type(r>>8, x+rx, y+ry, PT_FIRE);
 					parts[r>>8].temp = restrict_flt(ptypes[PT_FIRE].heat + (ptypes[rt].flammable/2), MIN_TEMP, MAX_TEMP);
 					parts[r>>8].life = rand()%80+180;
 					parts[r>>8].tmp = parts[r>>8].ctype = 0;
