@@ -62,7 +62,8 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						parts[i].vy = 3.0f*sinf(a);
 						if (parts[i].ctype == 0x3FFFFFFF)
 							parts[i].ctype = 0x1F<<(rand()%26);
-						parts[i].life++; //Delay death
+						if (parts[i].life)
+							parts[i].life++; //Delay death
 					}
 				}
 				else if ((r&0xFF) == PT_BGLA)
