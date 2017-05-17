@@ -2285,8 +2285,10 @@ void render_parts(pixel *vid, Point mousePos)
 					fireg = colg = (unsigned char)color_data[caddress+1];
 					fireb = colb = (unsigned char)color_data[caddress+2];
 					cola = 255;
-					if(pixel_mode & (FIREMODE | PMODE_GLOW))
+					if (pixel_mode & (FIREMODE | PMODE_GLOW))
 						pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					else if ((pixel_mode & (PMODE_BLEND | PMODE_ADD)) == (PMODE_BLEND | PMODE_ADD))
+						pixel_mode = (pixel_mode & ~(PMODE_BLEND|PMODE_ADD)) | PMODE_FLAT;
 					else if (!pixel_mode)
 						pixel_mode |= PMODE_FLAT;
 				}
@@ -2299,8 +2301,10 @@ void render_parts(pixel *vid, Point mousePos)
 						q = parts[i].life;
 					colr = colg = colb = (int)(sin(gradv*q) * 100 + 128);
 					cola = 255;
-					if(pixel_mode & (FIREMODE | PMODE_GLOW))
+					if (pixel_mode & (FIREMODE | PMODE_GLOW))
 						pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+					else if ((pixel_mode & (PMODE_BLEND | PMODE_ADD)) == (PMODE_BLEND | PMODE_ADD))
+						pixel_mode = (pixel_mode & ~(PMODE_BLEND|PMODE_ADD)) | PMODE_FLAT;
 					else if (!pixel_mode)
 						pixel_mode |= PMODE_FLAT;
 				}
