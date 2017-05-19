@@ -1912,23 +1912,26 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 	}
 
+	if (replace > 0)
+	{
 #ifndef RENDERER
-	//Change the gravity state
-	if (ngrav_enable != tempGravityEnable)
-	{
-		if (tempGravityEnable)
-			start_grav_async();
-		else
-			stop_grav_async();
-	}
+		//Change the gravity state
+		if (ngrav_enable != tempGravityEnable)
+		{
+			if (tempGravityEnable)
+				start_grav_async();
+			else
+				stop_grav_async();
+		}
 #endif
-	if (globalSim->saveEdgeMode != tempEdgeMode)
-	{
-		globalSim->saveEdgeMode = tempEdgeMode;
-		if (globalSim->saveEdgeMode == 1)
-			draw_bframe();
-		else
-			erase_bframe();
+		if (globalSim->saveEdgeMode != tempEdgeMode)
+		{
+			globalSim->saveEdgeMode = tempEdgeMode;
+			if (globalSim->saveEdgeMode == 1)
+				draw_bframe();
+			else
+				erase_bframe();
+		}
 	}
 
 
