@@ -1056,6 +1056,15 @@ now uses the MSVC compiler.
 Version 35.2 3/5/17
 Fix crash when brush x radius is 0
 
+Version 35.3 5/18/17
+Fix LAVA(GOLD) + EXOT --> LAVA(VIBR) reaction. Better PROP tool sanity 
+checking. Fix WIND tool color. Add ctrl+backspace/delete and shift+up/down 
+support to new UI. Fix being unable to edit link signs. Update internal script 
+manager to 3.10. Fix stickmen respawning after ctrl+z-ing them. Fix save 
+thumbnails often not downloading. Fix -nan temperatures when using realistic 
+heat mode. Simulation updates from tpt++, including PHOT changes, customizable 
+INVS and FRAY, and ambient heat now being saved in saves.
+
 
 
 
@@ -1071,11 +1080,11 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
->Add avatars in game (done in profile ui)
 >Use new tpt++ methods to fetch saves and not over 2 year old ones.
+>Rewrite save browser and save preview UI to new interface
+>Increase element limit to 2^10
 Support alternate save servers
 Support multiple logins / "remember me" setting
-Do something about the massively repeated drawing code in Simulation.cpp
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
 Ability to follow users using jacksonmj's website
 >Add things from tpt++ that look cool, and any new simulation changes it gets
