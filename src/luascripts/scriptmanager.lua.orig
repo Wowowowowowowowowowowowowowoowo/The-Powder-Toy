@@ -19,7 +19,7 @@ void luaopen_scriptmanager(lua_State *l)
 	char *buffer = new char[size+1];
 	::memcpy(buffer, data, size);
 	buffer[size] = 0;
-	luaL_loadbuffer(l, buffer, size, "@multiplayer.lua");
+	luaL_loadbuffer(l, buffer, size, "@scriptmanager.lua");
 	lua_pcall(l, 0, 0, 0);
 	delete[] buffer;
 #endif

@@ -1065,6 +1065,10 @@ thumbnails often not downloading. Fix -nan temperatures when using realistic
 heat mode. Simulation updates from tpt++, including PHOT changes, customizable 
 INVS and FRAY, and ambient heat now being saved in saves.
 
+Version 35.4 5/19/17
+Fix Newtonian Gravity and edge mode always turning off when loading stamps. 
+Fix internal script manager being missing on Windows.
+
 
 
 
