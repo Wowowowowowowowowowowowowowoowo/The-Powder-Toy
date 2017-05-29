@@ -227,14 +227,15 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 	if (a == 0)
 		return x;
 	int startX = x;
-	bool highlight = false, modifiedColor = false;
+	bool highlight = false, modifiedColor = false, didNewline = false;
 	int oldR = r, oldG = g, oldB = b;
 	for (size_t i = 0; i < s.length(); i++)
 	{
 		switch (s[i])
 		{
-		case '\n':
 		case '\r':
+			didNewline = true;
+		case '\n':
 			x = startX;
 			y += FONT_H+2;
 			if (highlight && s.length() > i+1 && (s[i+1] == '\n' || s[i+1] == '\r' || (s.length() > i+2 && s[i+1] == '\x01' && (s[i+2] == '\n' || s[i+2] == '\r'))))
@@ -311,10 +312,15 @@ int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int 
 		default:
 			int oldX = x;
 			x = DrawChar(x, y, s[i], r, g, b, a, modifiedColor);
-			if (highlight)
+			if (didNewline && s[i] == ' ')
+			{
+				x = oldX;
+			}
+			else if (highlight)
 			{
 				FillRect(oldX, y-2, font_data[font_ptrs[(unsigned char)s[i]]], FONT_H+2, 0, 0, 255, 127);
 			}
+			didNewline = false;
 		}
 	}
 	return x;
