@@ -164,9 +164,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			text.erase(cursor, cursorStart-cursor);
 			cursorStart = cursor;
 
-			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r');
+			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r'), oldCursor = cursor;
 			UpdateDisplayText();
-			int newLines = std::count(text.begin(), text.begin()+cursor, '\r');
+			int newLines = std::count(text.begin(), text.begin()+cursor, '\r') - (cursor - oldCursor);
 
 			// make sure cursor is correct when deleting the character put us on the previous line or next line (deleting a space)
 			if (oldLines != newLines)
@@ -187,9 +187,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			text.erase(cursorStart, cursor-cursorStart);
 			cursor = cursorStart;
 
-			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r');
+			int oldLines = std::count(text.begin(), text.begin()+cursor, '\r'), oldCursor = cursor;;
 			UpdateDisplayText();
-			int newLines = std::count(text.begin(), text.begin()+cursor, '\r');
+			int newLines = std::count(text.begin(), text.begin()+cursor, '\r') - (cursor - oldCursor);
 
 			// make sure cursor is correct when deleting the character put us on the next line (deleting a space)
 			if (oldLines != newLines)
