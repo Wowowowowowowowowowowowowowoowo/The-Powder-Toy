@@ -85,6 +85,7 @@ void Textbox::InsertText(std::string inserttext)
 	//put cursor at end of the new paste, accounting for extra newlines
 	cursor += len+newLines-oldLines;
 	cursorStart = cursor;
+	UpdateDisplayText();
 
 	if (callback)
 		callback->TextChangedCallback(this);
@@ -214,6 +215,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 		{
 			MoveCursor(&cursor, -1);
 			cursorStart = cursor;
+			UpdateDisplayText();
 		}
 		break;
 	case SDLK_RIGHT:
@@ -228,6 +230,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 		{
 			MoveCursor(&cursor, 1);
 			cursorStart = cursor;
+			UpdateDisplayText();
 		}
 		break;
 	case SDLK_UP:
@@ -268,7 +271,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			if (cursorPosReset)
 			{
 				UpdateDisplayText();
-				cursorPosReset = true;
+				cursorPosReset = false;
 			}
 			cursorY += 12;
 			if (cursorY > size.Y)

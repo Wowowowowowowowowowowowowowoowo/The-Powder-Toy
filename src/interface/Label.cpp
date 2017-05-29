@@ -93,14 +93,14 @@ bool Label::CheckPlaceCursor(bool updateCursor, unsigned int position, int posX,
 	if (updateCursor && ((posX >= cursorX && posY >= cursorY) || (posY >= cursorY+12)))
 	{
 		cursor = position;
-		cursorX = posX;
+		cursorX = posX-1;
 		cursorY = posY;
 		return true;
 	}
 	// don't need to update cursor, but ensure cursorX and Y are right (cursor might have been changed due to typing a letter, etc.)
 	else if (!updateCursor && cursor <= position)
 	{
-		cursorX = posX;
+		cursorX = posX-1;
 		cursorY = posY;
 		return true;
 	}
@@ -227,6 +227,11 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 		if (firstClick)
 			clickPosition = cursorStart = cursor;
 		UpdateCursor(cursor);
+	}
+	else if (!updatedCursor)
+	{
+		cursorX = posX+1;
+		cursorY = posY;
 	}
 	//make sure cursor isn't out of bounds (for ctrl+a and shift+right)
 	if (cursor > text.length())
