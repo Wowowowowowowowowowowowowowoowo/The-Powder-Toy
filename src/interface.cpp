@@ -5021,7 +5021,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if ((tmpobj = cJSON_GetObjectItem(commentobj, "FormattedUsername")) && tmpobj->type == cJSON_String)
 							{
 								info->commentauthors[i] = (char*)calloc(63,sizeof(char*));
-								if (!strcmp(tmpobj->valuestring, "jacobot") || !strcmp(tmpobj->valuestring, "boxmein"))
+								if (!strcmp(tmpobj->valuestring, "jacobot") || !strcmp(tmpobj->valuestring, "Mrprocom"))
 									sprintf(info->commentauthors[i], "\bt%s", tmpobj->valuestring);
 								else
 									strncpy(info->commentauthors[i], tmpobj->valuestring, 63);
