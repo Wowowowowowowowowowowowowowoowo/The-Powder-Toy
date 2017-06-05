@@ -374,6 +374,10 @@ void Simulation::InitCanMove()
 			can_move[movingType][PT_VIBR] = 1;
 			can_move[movingType][PT_BVBR] = 1;
 		}
+
+		//SAWD cannot be displaced by other powders
+		if (elements[movingType].Properties & TYPE_PART)
+			can_move[movingType][PT_SAWD] = 0;
 	}
 	//a list of lots of things PHOT can move through
 	for (int destinationType = 0; destinationType < PT_NUM; destinationType++)
@@ -579,6 +583,12 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 
 	if (!e) //if no movement
 	{
+		if ((r&0xFF) == PT_WOOD)
+		{
+			float vel = std::sqrt(std::pow(parts[i].vx, 2) + std::pow(parts[i].vy, 2));
+			if (vel > 5)
+				part_change_type(r>>8, nx, ny, PT_SAWD);
+		}
 		if (!(ptypes[parts[i].type].properties & TYPE_ENERGY))
 			return 0;
 		if (!legacy_enable && parts[i].type==PT_PHOT && r)//PHOT heat conduction

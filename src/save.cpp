@@ -1123,6 +1123,15 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 				{
 					RESTRICTVERSION(91, 5);
 				}
+				if (partsptr[i].type == PT_HEAC || partsptr[i].type == PT_SAWD || partsptr[i].type == PT_POLO
+						|| partsptr[i].type == PT_RFRG || partsptr[i].type == PT_RFGL || partsptr[i].type == PT_LSNS)
+				{
+					RESTRICTVERSION(92, 0);
+				}
+				else if ((partsptr[i].type == PT_FRAY || partsptr[i].type == PT_INVIS) && partsptr[i].tmp)
+				{
+					RESTRICTVERSION(92, 0);
+				}
 				//Get the pmap entry for the next particle in the same position
 				i = partsPosLink[i];
 			}

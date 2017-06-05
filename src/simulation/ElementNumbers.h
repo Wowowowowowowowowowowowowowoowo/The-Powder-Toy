@@ -18,7 +18,7 @@
 #if (!defined(ElementNumbers_H_Numbers) || (defined(ElementNumbers_Include_Decl) && !defined(ElementNumbers_H_Decl)) || (defined(ElementNumbers_Include_Call) && !defined(ElementNumbers_H_Call)))
 
 //Defines for the number of elements that are rarely changed. Seems like it doesn't belong here ...
-#define PT_NORMAL_NUM 180
+#define PT_NORMAL_NUM 186
 #define PT_NUM 256
 
 #undef ElementNumbers_Include_Numbers
@@ -241,6 +241,12 @@ DEFINE_ELEMENT(VRSG, 176)
 DEFINE_ELEMENT(GRVT, 177)
 DEFINE_ELEMENT(DRAY, 178)
 DEFINE_ELEMENT(CRMC, 179)
+DEFINE_ELEMENT(HEAC, 180)
+DEFINE_ELEMENT(SAWD, 181)
+DEFINE_ELEMENT(POLO, 182)
+DEFINE_ELEMENT(RFRG, 183)
+DEFINE_ELEMENT(RFGL, 184)
+DEFINE_ELEMENT(LSNS, 185)
 
 #ifndef NOMOD
 DEFINE_ELEMENT(MOVS, PT_NORMAL_NUM)
