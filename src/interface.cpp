@@ -1330,25 +1330,31 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
 			Favorite::Ref().AddFavorite(globalSim->elements[selectedl].Identifier);
-			FillMenus();
 			save_presets();
 		}
 		else
+		{
 			*selectedLeft = GetToolFromIdentifier(globalSim->elements[selectedl].Identifier);
+			Favorite::Ref().AddRecent(globalSim->elements[selectedl].Identifier);
+		}
+		FillMenus();
 	}
 	if (selectedr != -1)
 	{
 		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
-			if (Favorite::Ref().IsFavorite(globalSim->elements[selectedl].Identifier))
+			if (Favorite::Ref().IsFavorite(globalSim->elements[selectedr].Identifier))
 			{
-				Favorite::Ref().RemoveFavorite(globalSim->elements[selectedl].Identifier);
-				FillMenus();
+				Favorite::Ref().RemoveFavorite(globalSim->elements[selectedr].Identifier);
 				save_presets();
 			}
 		}
 		else
+		{
 			*selectedRight = GetToolFromIdentifier(globalSim->elements[selectedr].Identifier);
+			Favorite::Ref().AddRecent(globalSim->elements[selectedr].Identifier);
+		}
+		FillMenus();
 	}
 	
 	while (!sdl_poll())
