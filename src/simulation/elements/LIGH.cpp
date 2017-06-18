@@ -232,6 +232,14 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->elem != PT_LIGH)
 						parts[r>>8].life -= powderful/100;
 					break;
+				case PT_HEAC:
+					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					if (parts[r>>8].temp > sim->elements[PT_HEAC].HighTemperatureTransitionThreshold)
+					{
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_LAVA);
+						parts[r>>8].ctype = PT_HEAC;
+					}
+					break;
 				default:
 					break;
 				}

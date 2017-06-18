@@ -605,7 +605,7 @@ bool transfer_heat(int i, int t, int surround[8])
 							if (ctemph >= pres+ptransitions[PT_CRMC].thv)
 								s = 0;
 						}
-						else if (ptransitions[parts[i].ctype].tht == PT_LAVA)
+						else if (ptransitions[parts[i].ctype].tht == PT_LAVA || parts[i].ctype == PT_HEAC)
 						{
 							if (pt>=ptransitions[parts[i].ctype].thv)
 								s = 0;

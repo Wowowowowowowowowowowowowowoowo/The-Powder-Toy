@@ -96,7 +96,7 @@ void HEAC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Flammable = 0;
 	elem->Explosive = 0;
 	elem->Meltable = 1;
-	elem->Hardness = 50;
+	elem->Hardness = 0;
 
 	elem->Weight = 100;
 
@@ -112,7 +112,8 @@ void HEAC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighPressureTransitionElement = NT;
 	elem->LowTemperatureTransitionThreshold = ITL;
 	elem->LowTemperatureTransitionElement = NT;
-	elem->HighTemperatureTransitionThreshold = ITH;
+	// can't melt by normal heat conduction, this is used by other elements for special melting behavior
+	elem->HighTemperatureTransitionThreshold = 1887.15f;
 	elem->HighTemperatureTransitionElement = NT;
 
 	elem->Update = &HEAC_update;
