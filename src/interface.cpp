@@ -20,13 +20,15 @@
 #include "common/tpt-minmax.h"
 #include "SDLCompat.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sstream>
+#include <set>
 #include <bzlib.h>
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 #include <dirent.h>
 #ifdef WIN
 #include <direct.h>
@@ -4742,6 +4744,32 @@ void converttotime(const char *timestamp, char **timestring, int show_day, int s
 	//strncpy(*timestring, asctime(stamptime), 63);
 }
 
+std::set<std::string> swearWords;
+bool swearInitialized = false;
+void InitializeSwearing()
+{
+	if (swearInitialized)
+		return;
+	swearWords.insert("fuck");
+	swearWords.insert("shit ");
+	swearWords.insert("asshole");
+	swearWords.insert("dick");
+	swearWords.insert("cunt");
+	swearWords.insert(" nigger");
+	swearWords.insert("faggot");
+	swearWords.insert("dumbass");
+	swearInitialized = true;
+}
+bool CheckSwearing(std::string text)
+{
+	for (std::set<std::string>::iterator iter = swearWords.begin(), end = swearWords.end(); iter != end; iter++)
+	{
+		if (text.find(*iter) != text.npos)
+			return true;
+	}
+	return false;
+}
+
 #ifdef WIN
 // not sure if it is my new computer or windows, scrolling is slow
 // other people have complained about it before too, so increase the default speed on windows
@@ -4779,6 +4807,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ui_copytext ctb;
 
 	const char *profileToOpen = "";
+
+	std::string commentWarning;
+	bool commentWarningShown = false;
+	size_t commentLen = 0; // used to not recheck comment for warnings
+	InitializeSwearing();
 
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	if (!old_vid || !info)
@@ -5262,6 +5295,52 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 				drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
 				drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
+
+				if (commentLen != strlen(ed.str))
+				{
+					std::string text = ed.str;
+					std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+					if (myown && text.find("vote") != text.npos)
+					{
+						if (!commentWarningShown)
+						{
+							commentWarning = "Do not ask for votes";
+							commentWarningShown = true;
+						}
+					}
+					else if (!myown && (text.find("stolen") != text.npos || text.find("copied") != text.npos))
+					{
+						if (!commentWarningShown)
+						{
+							if (rand()%2)
+								commentWarning = "Stolen? Report the save instead";
+							else
+								commentWarning = "Please report stolen saves";
+							commentWarningShown = true;
+						}
+					}
+					else if (CheckSwearing(text))
+					{
+						if (!commentWarningShown)
+						{
+							if (rand()%2)
+								commentWarning = "Please do not swear";
+							else
+								commentWarning = "Bad language may be deleted";
+							commentWarningShown = true;
+						}
+					}
+					else if (commentWarningShown)
+					{
+						commentWarning = "";
+						commentWarningShown = false;
+					}
+					commentLen = strlen(ed.str);
+				}
+				if (commentWarningShown && commentWarning.length())
+				{
+					drawtext(vid_buf, 56+(XRES/2), YRES+MENUSIZE-63, commentWarning.c_str(), 255, 0, 0, 255);
+				}
 			}
 
 			//Save ID text and copybox
@@ -5437,7 +5516,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				else
 				{
 					scroll_velocity *= scrollDeceleration;
-					if (abs(scroll_velocity) < .5f)
+					if (std::abs(scroll_velocity) < .5f)
 						scroll_velocity = 0.0f;
 				}
 			}
