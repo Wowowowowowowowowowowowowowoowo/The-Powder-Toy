@@ -21,14 +21,14 @@ CreateSign::CreateSign(int signID, Point pos):
 	FocusComponent(signTextbox);
 #endif
 
-	justificationLabel = new Label(signTextbox->Below(Point(0, 4)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Justify:");
-	this->AddComponent(justificationLabel);
+	pointerLabel = new Label(signTextbox->Below(Point(0, 4)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Pointer:");
+	this->AddComponent(pointerLabel);
 
-	class JustificationAction : public ButtonAction
+	class PointerAction : public ButtonAction
 	{
 		Sign::Justification ju;
 	public:
-		JustificationAction(Sign::Justification ju):
+		PointerAction(Sign::Justification ju):
 				ButtonAction(),
 				ju(ju)
 		{
@@ -40,20 +40,20 @@ CreateSign::CreateSign(int signID, Point pos):
 			dynamic_cast<CreateSign*>(button->GetParent())->SetJustification(ju);
 		}
 	};
-	leftJuButton = new Button(justificationLabel->Right(Point(8, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9D Left");
-	leftJuButton->SetCallback(new JustificationAction(Sign::Left));
+	leftJuButton = new Button(pointerLabel->Right(Point(8, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\xA0 Left");
+	leftJuButton->SetCallback(new PointerAction(Sign::Left));
 	this->AddComponent(leftJuButton);
 
 	middleJuButton = new Button(leftJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9E Middle");
-	middleJuButton->SetCallback(new JustificationAction(Sign::Middle));
+	middleJuButton->SetCallback(new PointerAction(Sign::Middle));
 	this->AddComponent(middleJuButton);
 
 	rightJuButton = new Button(middleJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9F Right");
-	rightJuButton->SetCallback(new JustificationAction(Sign::Right));
+	rightJuButton->SetCallback(new PointerAction(Sign::Right));
 	this->AddComponent(rightJuButton);
 
-	noneJuButton = new Button(rightJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "  None");
-	noneJuButton->SetCallback(new JustificationAction(Sign::NoJustification));
+	noneJuButton = new Button(rightJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9D None");
+	noneJuButton->SetCallback(new PointerAction(Sign::NoJustification));
 	this->AddComponent(noneJuButton);
 
 	class MoveAction : public ButtonAction

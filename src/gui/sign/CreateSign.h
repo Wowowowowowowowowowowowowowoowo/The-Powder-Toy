@@ -9,7 +9,7 @@ class Button;
 class Textbox;
 class CreateSign : public Window_
 {
-	Label *newSignLabel, *justificationLabel;
+	Label *newSignLabel, *pointerLabel;
 	Button *okButton, *leftJuButton, *middleJuButton, *rightJuButton, *noneJuButton, *moveButton, *deleteButton;
 	Textbox *signTextbox;
 

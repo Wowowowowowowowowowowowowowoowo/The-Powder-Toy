@@ -582,8 +582,8 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = i==1||i==26||j==1||j==14 ? PIXPACK(0xA0A0A0) : PIXPACK(0x000000);
 				}
 			}
-			drawtext(vid_buf, x+9, y+3, "\xA1", 32, 64, 128, 255);
-			drawtext(vid_buf, x+9, y+3, "\xA0", 255, 255, 255, 255);
+			drawtext(vid_buf, x+9, y+5, "\xA1", 32, 64, 128, 255);
+			drawtext(vid_buf, x+9, y+5, "\xA0", 255, 255, 255, 255);
 		}
 		else
 			draw_tool_button(vid_buf, x, y, PIXPACK(toolTypes[current->GetID()].color), toolTypes[current->GetID()].name.c_str());
