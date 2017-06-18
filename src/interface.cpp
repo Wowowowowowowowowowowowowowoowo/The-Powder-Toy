@@ -1867,6 +1867,7 @@ bool login_ui(pixel *vid_buf)
 	char passwordHash[33];
 	char totalHash[33];
 	char hashStream[99]; //not really a stream ...
+	bool signIn = false;
 
 	while (!sdl_poll())
 	{
@@ -1907,7 +1908,10 @@ bool login_ui(pixel *vid_buf)
 		drawrect(vid_buf, x0+8, y0+40, 176, 16, 192, 192, 192, 255);
 		ui_edit_draw(vid_buf, &ed1);
 		ui_edit_draw(vid_buf, &ed2);
-		drawtext(vid_buf, x0+5, y0+69, "Sign out", 255, 255, 255, 255);
+		if (svf_login)
+			drawtext(vid_buf, x0+5, y0+69, "Sign out", 255, 255, 255, 255);
+		else
+			drawtext(vid_buf, x0+5, y0+69, "Register Online", 255, 255, 255, 255);
 		drawtext(vid_buf, x0+187-textwidth("Sign in"), y0+69, "Sign in", 255, 255, 55, 255);
 		drawrect(vid_buf, x0, y0+64, 192, 16, 192, 192, 192, 255);
 		drawrect(vid_buf, x0, y0+64, 96, 16, 192, 192, 192, 255);
@@ -1919,32 +1923,57 @@ bool login_ui(pixel *vid_buf)
 
 		if (b && !bq)
 		{
-			if (mx>=x0+9 && mx<x0+23 && my>=y0+22 && my<y0+36)
-				break;
-			if (mx>=x0+9 && mx<x0+23 && my>=y0+42 && my<y0+46)
-				break;
+			// sign out or "Register Online" button, depending on whether you are logged in
 			if (mx>=x0 && mx<x0+96 && my>=y0+64 && my<=y0+80)
-				goto fail;
+			{
+				if (svf_login)
+					goto fail;
+				else
+				{
+					Platform::OpenLink("https://powdertoy.co.uk/Register.html");
+				}
+			}
+			// sign in
 			if (mx>=x0+97 && mx<x0+192 && my>=y0+64 && my<=y0+80)
+			{
+				signIn = true;
 				break;
+			}
+			// out of bounds, exit without doing anything
 			if (mx < x0 || my < y0 || mx > x0+192 || my > y0+80)
 				return false;
 		}
 
-		if (sdl_key==SDLK_RETURN || sdl_key==SDLK_TAB)
+		if (sdl_key == SDLK_RETURN)
 		{
 			if (!ed1.focus)
+			{
+				signIn = true;
 				break;
+			}
 			ed1.focus = 0;
 			ed2.focus = 1;
 		}
-		if (sdl_key==SDLK_ESCAPE)
+		else if (sdl_key == SDLK_TAB)
+		{
+			ed2.focus = ed1.focus;
+			ed1.focus = !ed1.focus;
+		}
+		else if (sdl_key == SDLK_ESCAPE)
 		{
 			if (!ed1.focus && !ed2.focus)
 				return false;
 			ed1.focus = 0;
 			ed2.focus = 0;
 		}
+	}
+
+	if (!signIn)
+		return false;
+	if (strchr(ed1.str, '@'))
+	{
+		error_ui(vid_buf, 0, "Use your Powder Toy account to log in, not your email. If you don't have a Powder Toy account, you can create one at https://powdertoy.co.uk/Register.html");
+		return false;
 	}
 
 	strcpy(svf_user, ed1.str);
@@ -2021,15 +2050,10 @@ bool login_ui(pixel *vid_buf)
 					tmpobj = cJSON_GetObjectItem(root, "Error");
 					if (tmpobj && tmpobj->type == cJSON_String)
 					{
-						char * banstring = strstr(tmpobj->valuestring, ". Ban expire in");
-						if (banstring) //TODO: temporary, remove this when the ban message is fixed
-						{
-							char banreason[256] = "Account banned. Login at http://powdertoy.co.uk in order to see the full ban reason. Ban expires";
-							strappend(banreason, strstr(tmpobj->valuestring, " in"));
-							error_ui(vid_buf, 0, banreason);
-						}
-						else
+						if (strlen(tmpobj->valuestring))
 							error_ui(vid_buf, 0, tmpobj->valuestring);
+						else
+							error_ui(vid_buf, 0, "Unknown error while logging in");
 					}
 					else
 						error_ui(vid_buf, 0, "Could not read Error response");
