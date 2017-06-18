@@ -3141,7 +3141,7 @@ void render_gravlensing(pixel *src, pixel * dst)
 			gy = (int)(ny-gravy[co]*0.875f+0.5f);
 			bx = (int)(nx-gravx[co]+0.5f);
 			by = (int)(ny-gravy[co]+0.5f);
-			if(rx > 0 && rx < XRES && ry > 0 && ry < YRES && gx > 0 && gx < XRES && gy > 0 && gy < YRES && bx > 0 && bx < XRES && by > 0 && by < YRES)
+			if(rx >= 0 && rx < XRES && ry >= 0 && ry < YRES && gx >= 0 && gx < XRES && gy >= 0 && gy < YRES && bx >= 0 && bx < XRES && by >= 0 && by < YRES)
 			{
 				t = dst[ny*(XRES+BARSIZE)+nx];
 				r = PIXR(src[ry*(XRES+BARSIZE)+rx]) + PIXR(t);
