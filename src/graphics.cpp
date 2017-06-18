@@ -2316,20 +2316,21 @@ void render_parts(pixel *vid, Point mousePos)
 					pixel_mode = PMODE_FLAT;
 				}
 
-				if(!(color_mode & ~COLOR_GRAD))
+				if (!(color_mode & ~COLOR_GRAD) && decorations_enable && deca)
 				{
-					if(!(pixel_mode & NO_DECO) && decorations_enable)
+					deca++;
+					if (!(pixel_mode & NO_DECO))
 					{
-						colr = (deca*decr + (255-deca)*colr) >> 8;
-						colg = (deca*decg + (255-deca)*colg) >> 8;
-						colb = (deca*decb + (255-deca)*colb) >> 8;
+						colr = (deca*decr + (256-deca)*colr) >> 8;
+						colg = (deca*decg + (256-deca)*colg) >> 8;
+						colb = (deca*decb + (256-deca)*colb) >> 8;
 					}
-					
-					if(pixel_mode & DECO_FIRE && decorations_enable)
+
+					if (pixel_mode & DECO_FIRE)
 					{
-						firer = (deca*decr + (255-deca)*firer) >> 8;
-						fireg = (deca*decg + (255-deca)*fireg) >> 8;
-						fireb = (deca*decb + (255-deca)*fireb) >> 8;
+						firer = (deca*decr + (256-deca)*firer) >> 8;
+						fireg = (deca*decg + (256-deca)*fireg) >> 8;
+						fireb = (deca*decb + (256-deca)*fireb) >> 8;
 					}
 				}
 
