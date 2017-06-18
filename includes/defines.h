@@ -85,6 +85,8 @@
 #endif
 #define XRES	612
 #define YRES	384
+#define VIDXRES XRES+BARSIZE
+#define VIDYRES YRES+MENUSIZE
 #define NPART XRES*YRES
 const int menuStartPosition = XRES+BARSIZE-17;
 const int menuIconWidth = 17;

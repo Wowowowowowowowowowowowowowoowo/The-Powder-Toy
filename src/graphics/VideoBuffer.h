@@ -29,7 +29,7 @@ public:
 	static signed char CharSize(unsigned char c);
 	static Point TextSize(std::string s);
 
-	void DrawImage(pixel *image, int x, int y, int w, int h);
+	void DrawImage(pixel *image, int x, int y, int w, int h, int a=255);
 
 	pixel* GetVid() { return vid; }
 };

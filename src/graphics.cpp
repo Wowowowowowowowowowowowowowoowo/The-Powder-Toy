@@ -3267,17 +3267,57 @@ void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float alpha)
 
 void draw_image(pixel *vid, pixel *img, int x, int y, int w, int h, int a)
 {
-	int i, j, r, g, b;
-	if (!img) return;
-	for (j=0; j<h; j++)
-		for (i=0; i<w; i++)
+	int startX = 0;
+	if (!img)
+		return;
+	// Adjust height to prevent drawing off the bottom
+	if (y + h > VIDYRES)
+		h = ((VIDYRES)-y)-1;
+	// Too big
+	if (x + w > VIDXRES)
+		return;
+
+	// Starts off the top of the screen, adjust
+	if (y < 0 && -y < h)
+	{
+		img += -y*w;
+		h += y;
+		y = 0;
+	}
+	// Starts off the left side of the screen, adjust
+	if (x < 0 && -x < w)
+	{
+		startX = -x;
+	}
+
+	if (!h || y < 0 || !w)
+		return;
+	if (a >= 255)
+		for (int j = 0; j < h; j++)
 		{
-			r = PIXR(*img);
-			g = PIXG(*img);
-			b = PIXB(*img);
-			drawpixel(vid, x+i, y+j, r, g, b, a);
-			img++;
+			img += startX;
+			for (int i = startX; i < w; i++)
+			{
+				vid[(y+j)*(VIDXRES)+(x+i)] = *img;
+				img++;
+			}
 		}
+	else
+	{
+		int r, g, b;
+		for (int j = 0; j < h; j++)
+		{
+			img += startX;
+			for (int i = startX; i < w; i++)
+			{
+				r = PIXR(*img);
+				g = PIXG(*img);
+				b = PIXB(*img);
+				blendpixel(vid, x+i, y+j, r, g, b, a);
+				img++;
+			}
+		}
+	}
 }
 
 void dim_copy(pixel *dst, pixel *src) //old persistent, unused

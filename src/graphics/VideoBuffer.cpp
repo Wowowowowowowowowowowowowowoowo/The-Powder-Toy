@@ -375,29 +375,57 @@ Point VideoBuffer::TextSize(std::string s)
 	return Point(width, height);
 }
 
-void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h)
-{
-	// image out of bounds (scrollable windows)
-	if (y < 0)
+void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h, int a)
+{	
+	int startX = 0;
+	if (!img)
+		return;
+	// Adjust height to prevent drawing off the bottom
+	if (y + h > height)
+		h = ((height)-y)-1;
+	// Too big
+	if (x + w > width)
+		return;
+
+	// Starts off the top of the video buffer, adjust
+	if (y < 0 && -y < h)
 	{
-		// only draw the height we need
-		if (y+h >= 0)
-		{
-			img -= y*h;
-			h += y;
-			y = 0;
-		}
-		else
-			return;
+		img += -y*w;
+		h += y;
+		y = 0;
 	}
-	for (int j = 0; j < h; j++)
-		for (int i = 0; i < w; i++)
+	// Starts off the left side of the video buffer, adjust
+	if (x < 0 && -x < w)
+	{
+		startX = -x;
+	}
+
+	if (!h || y < 0 || !w)
+		return;
+	if (a >= 255)
+		for (int j = 0; j < h; j++)
 		{
-			int r = PIXR(*img);
-			int g = PIXG(*img);
-			int b = PIXB(*img);
-			if (x >= 0 && x < width && y < height)
-				DrawPixel(x+i, y+j, r, g, b, 255);
-			img++;
+			img += startX;
+			for (int i = startX; i < w; i++)
+			{
+				vid[(y+j)*(width)+(x+i)] = *img;
+				img++;
+			}
 		}
+	else
+	{
+		int r, g, b;
+		for (int j = 0; j < h; j++)
+		{
+			img += startX;
+			for (int i = startX; i < w; i++)
+			{
+				r = PIXR(*img);
+				g = PIXG(*img);
+				b = PIXB(*img);
+				DrawPixel(x+i, y+j, r, g, b, a);
+				img++;
+			}
+		}
+	}
 }
