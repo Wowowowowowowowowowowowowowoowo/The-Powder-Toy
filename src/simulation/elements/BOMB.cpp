@@ -102,7 +102,7 @@ void BOMB_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Bomb. Explodes and destroys all surrounding particles when it touches something.";
 
-	elem->Properties = TYPE_PART|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC|PROP_SPARKSETTLE;
+	elem->Properties = TYPE_PART|PROP_SPARKSETTLE;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
