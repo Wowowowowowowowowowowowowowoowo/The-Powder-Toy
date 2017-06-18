@@ -472,18 +472,17 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 	result = can_move[pt][r&0xFF];
 	if (result == 3)
 	{
-		if ((r&0xFF) == PT_LCRY)
+		switch (r&0xFF)
 		{
-			if (pt==PT_PHOT || pt==PT_ELEC)
+		case PT_LCRY:
+			if (pt==PT_PHOT)
 				result = (parts[r>>8].life > 5)? 2 : 0;
-		}
-		else if ((r&0xFF) == PT_GPMP)
-		{
+			break;
+		case PT_GPMP:
 			if (pt == PT_PHOT)
 				result = (parts[r>>8].life < 10) ? 2 : 0;
-		}
-		else if ((r&0xFF) == PT_INVIS)
-		{
+			break;
+		case PT_INVIS:
 			float pressureResistance;
 			if (parts[r>>8].tmp > 0)
 				pressureResistance = (float)parts[r>>8].tmp;
@@ -494,16 +493,16 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 				result = 2;
 			else
 				result = 0;
-		}
+			break;
 #ifndef NOMOD
-		else if ((r&0xFF) == PT_PINV)
-		{
-			if (parts[r>>8].life >= 10) result = 2;
-			else result = 0;
-		}
+		case PT_PINV:
+			if (parts[r>>8].life >= 10)
+				result = 2;
+			else
+				result = 0;
+			break;
 #endif
-		else if ((r&0xFF) == PT_PVOD)
-		{
+		case PT_PVOD:
 			if (parts[r>>8].life == 10)
 			{
 				if(!parts[r>>8].ctype || (parts[r>>8].ctype==pt) != (parts[r>>8].tmp&1))
@@ -511,17 +510,16 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 				else
 					result = 0;
 			}
-			else result = 0;
-		}
-		else if ((r&0xFF) == PT_VOID)
-		{
+			else
+				result = 0;
+			break;
+		case PT_VOID:
 			if(!parts[r>>8].ctype || (parts[r>>8].ctype==pt) != (parts[r>>8].tmp&1))
 				result = 1;
 			else
 				result = 0;
-		}
-		else if ((r&0xFF) == PT_SWCH)
-		{
+			break;
+		case PT_SWCH:
 			if (pt == PT_TRON)
 			{
 				if (parts[r>>8].life >= 10)
@@ -529,19 +527,26 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 				else
 					return 0;
 			}
-		}
-		else if ((r&0xFF) == PT_SPNG)
-		{
-			if (parts[r>>8].vx == 0 && parts[r>>8].vy == 0) result = 0;
-			else result = 2;
-		}
-		else if (pt == PT_SPNG)
-		{
-			int vx = (int)parts[pt].vx;
-			int vy = (int)parts[pt].vy;
-			parts[r>>8].x += vx;
-			parts[r>>8].y += vy;
-			result = 2;
+			break;
+		case PT_SPNG:
+			if (parts[r>>8].vx == 0 && parts[r>>8].vy == 0)
+				result = 0;
+			else
+				result = 2;
+			break;
+		default:
+			if (pt == PT_SPNG)
+			{
+				int vx = (int)parts[pt].vx;
+				int vy = (int)parts[pt].vy;
+				parts[r>>8].x += vx;
+				parts[r>>8].y += vy;
+				result = 2;
+			}
+			// This should never happen
+			// If it were to happen, try_move would interpret a 3 as a 1
+			result =  1;
+			break;
 		}
 	}
 	if (bmap[ny/CELL][nx/CELL])
@@ -638,22 +643,23 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	}
 	if (e == 2) //if occupy same space
 	{
-		if (parts[i].type == PT_PHOT)
+		switch (parts[i].type)
 		{
-			if ((r&0xFF) == PT_GLOW)
+		case PT_PHOT:
+		{
+			switch (r&0xFF)
 			{
+			case PT_GLOW:
 				if (!parts[r>>8].life && rand() < RAND_MAX/30)
 				{
 					parts[r>>8].life = 120;
 					CreateGainPhoton(i);
 				}
-			}
-			else if ((r&0xFF) == PT_FILT)
-			{
+				break;
+			case PT_FILT:
 				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
-			}
-			else if ((r&0xFF) == PT_C5)
-			{
+				break;
+			case PT_C5:
 				if (parts[r>>8].life > 0 && (parts[r>>8].ctype & parts[i].ctype & 0xFFFFFFC0))
 				{
 					float vx = ((parts[r>>8].tmp << 16) >> 16) / 255.0f;
@@ -679,8 +685,8 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 					parts[r>>8].tmp2 = (0xFFFF & (int)((parts[i].x - x) * 255.0f)) | (0xFFFF0000 & (int)((parts[i].y - y) * 16711680.0f));
 					kill_part(i);
 				}
-			}
-			else if ((r&0xFF) == PT_INVIS)
+				break;
+			case PT_INVIS:
 			{
 				float pressureResistance;
 				if (parts[r>>8].tmp > 0)
@@ -703,77 +709,83 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 					}
 				}
 #endif
+				break;
 			}
-			else if ((r&0xFF)==PT_BIZR || (r&0xFF)==PT_BIZRG || (r&0xFF)==PT_BIZRS)
-			{
+			case PT_BIZR:
+			case PT_BIZRG:
+			case PT_BIZRS:
 				part_change_type(i, x, y, PT_ELEC);
 				parts[i].ctype = 0;
-			}
-			else if ((r&0xFF) == PT_H2 && !(parts[i].tmp&0x1))
-			{
-				part_change_type(i, x, y, PT_PROT);
-				parts[i].ctype = 0;
-				parts[i].tmp2 = 0x1;
-
-				part_create(r>>8, x, y, PT_ELEC);
-				return -1;
-			}
-			else if ((r&0xFF) == PT_GPMP)
-			{
+				break;
+			case PT_H2:
+				if (!(parts[i].tmp&0x1))
+				{
+					part_change_type(i, x, y, PT_PROT);
+					parts[i].ctype = 0;
+					parts[i].tmp2 = 0x1;
+	
+					part_create(r>>8, x, y, PT_ELEC);
+					return -1;
+				}
+				break;
+			case PT_GPMP:
 				if (parts[r>>8].life == 0)
 				{
 					part_change_type(i, x, y, PT_GRVT);
 					parts[i].tmp = (int)(parts[r>>8].temp - 273.15f);
 				}
+				break;
 			}
+			break;
 		}
-		else if (parts[i].type == PT_NEUT)
-		{
+		case PT_NEUT:
 			if ((r&0xFF) == PT_GLAS || (r&0xFF) == PT_BGLA)
 			{
 				if (rand() < RAND_MAX/10)
 					CreateCherenkovPhoton(i);
 			}
-		}
-		else if (parts[i].type == PT_ELEC)
-		{
+			break;
+		case PT_ELEC:
 			if ((r&0xFF) == PT_GLOW)
 			{
 				part_change_type(i, x, y, PT_PHOT);
 				parts[i].ctype = 0x3FFFFFFF;
 			}
-		}
-		else if (parts[i].type == PT_PROT)
-		{
+			break;
+		case PT_PROT:
 			if ((r&0xFF) == PT_INVIS)
 				part_change_type(i, x, y, PT_NEUT);
-		}
-		else if (parts[i].type == PT_BIZR || parts[i].type == PT_BIZRG)
-		{
+			break;
+		case PT_BIZR:
+		case PT_BIZRG:
 			if ((r&0xFF) == PT_FILT)
 				parts[i].ctype = interactWavelengths(&parts[r>>8], parts[i].ctype);
+			break;
 		}
 		return 1;
 	}
 	//else e=1 , we are trying to swap the particles, return 0 no swap/move, 1 is still overlap/move, because the swap takes place later
 
-	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_PVOD) //this is where void eats particles
+	switch (r&0xFF)
 	{
-		//void ctype already checked in eval_move
+	case PT_VOID:
+	case PT_PVOD:
+		// This is where void eats particles
+		// Void ctype already checked in eval_move
 		part_kill(i);
 		return 0;
-	}
-	else if ((r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) //this is where blackhole eats particles
-	{
+	case PT_BHOL:
+	case PT_NBHL:
+		// This is where blackhole eats particles
 		part_kill(i);
 		if (!legacy_enable)
 		{
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);//3.0f;
 		}
 		return 0;
-	}
-	else if ((r&0xFF)==PT_WHOL || (r&0xFF)==PT_NWHL) //whitehole eats anar
-	{
+	case PT_WHOL:
+	case PT_NWHL:
+		// Whitehole eats anar
 		if (parts[i].type == PT_ANAR)
 		{
 			if (!legacy_enable)
@@ -783,9 +795,8 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			part_kill(i);
 			return 0;
 		}
-	}
-	else if ((r&0xFF) == PT_DEUT)
-	{
+		break;
+	case PT_DEUT:
 		if (parts[i].type == PT_ELEC)
 		{
 			if (parts[r>>8].life < 6000)
@@ -794,35 +805,36 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			part_kill(i);
 			return 0;
 		}
-	}
-	else if ((r&0xFF)==PT_VIBR || (r&0xFF)==PT_BVBR)
-	{
+		break;
+	case PT_VIBR:
+	case PT_BVBR:
 		if (ptypes[parts[i].type].properties & TYPE_ENERGY)
 		{
 			parts[r>>8].tmp += 20;
 			part_kill(i);
 			return 0;
 		}
+		break;
 	}
 
-	if (parts[i].type == PT_NEUT)
+	switch (parts[i].type)
 	{
+	case PT_NEUT:
 		if (ptypes[r&0xFF].properties & PROP_NEUTABSORB)
 		{
 			part_kill(i);
 			return 0;
 		}
-	}
-	else if (parts[i].type == PT_CNCT)
-	{
-		//check below CNCT for another CNCT
+		break;
+	case PT_CNCT:
+		// Check below CNCT for another CNCT
 		if (y<ny && (pmap[y+1][x]&0xFF)==PT_CNCT)
 			return 0;
-	}
-	else if (parts[i].type == PT_GBMB)
-	{
+		break;
+	case PT_GBMB:
 		if (parts[i].life > 0)
 			return 0;
+		break;
 	}
 
 	if ((bmap[y/CELL][x/CELL]==WL_EHOLE && !emap[y/CELL][x/CELL]) && !(bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[ny/CELL][nx/CELL]))
