@@ -331,6 +331,8 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 	bson b;
 	bson_iterator iter;
 
+	for (int i = 0; i < PT_NUM; i++)
+		elementPalette[i] = i;
 	//Block sizes
 	blockX = 0;
 	blockY = 0;
@@ -430,16 +432,18 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "palette"))
 		{
-			if(bson_iterator_type(&iter)==BSON_ARRAY)
+			if (bson_iterator_type(&iter) == BSON_ARRAY)
 			{
 				bson_iterator subiter;
 				bson_iterator_subiterator(&iter, &subiter);
-				while(bson_iterator_next(&subiter))
+				while (bson_iterator_next(&subiter))
 				{
-					if(bson_iterator_type(&subiter)==BSON_INT)
+					if (bson_iterator_type(&subiter) == BSON_INT)
 					{
 						std::string identifier = std::string(bson_iterator_key(&subiter));
-						int ID = -1, oldID = bson_iterator_int(&subiter);
+						int ID = 0, oldID = bson_iterator_int(&subiter);
+						if (oldID <= 0 || oldID >= PT_NUM)
+							continue;
 						for (int i = 0; i < PT_NUM; i++)
 							if (!identifier.compare(globalSim->elements[i].Identifier))
 							{
@@ -447,7 +451,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 								break;
 							}
 
-						if (oldID >= 0 && oldID < PT_NUM)
+						if (ID != 0 || identifier.find("DEFAULT_PT_") != 0)
 							elementPalette[oldID] = ID;
 					}
 				}
@@ -1327,7 +1331,8 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 		bson_append_start_array(&b, "palette");
 		for (int i = 0; i < PT_NUM; i++)
-			bson_append_int(&b, globalSim->elements[i].Identifier.c_str(), i);
+			if (globalSim->elements[i].Enabled)
+				bson_append_int(&b, globalSim->elements[i].Identifier.c_str(), i);
 
 		bson_append_finish_array(&b);
 	}
@@ -1518,7 +1523,8 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	bson b;
 	bson_iterator iter;
 
-	memset(elementPalette, -1, sizeof(elementPalette));
+	for (int i = 0; i < PT_NUM; i++)
+		elementPalette[i] = i;
 	//Block sizes
 	blockX = x0/CELL;
 	blockY = y0/CELL;
@@ -1711,16 +1717,18 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 #endif
 		else if (!strcmp(bson_iterator_key(&iter), "palette"))
 		{
-			if(bson_iterator_type(&iter)==BSON_ARRAY)
+			if (bson_iterator_type(&iter) == BSON_ARRAY)
 			{
 				bson_iterator subiter;
 				bson_iterator_subiterator(&iter, &subiter);
-				while(bson_iterator_next(&subiter))
+				while (bson_iterator_next(&subiter))
 				{
-					if(bson_iterator_type(&subiter)==BSON_INT)
+					if (bson_iterator_type(&subiter) == BSON_INT)
 					{
 						std::string identifier = std::string(bson_iterator_key(&subiter));
-						int ID = -1, oldID = bson_iterator_int(&subiter);
+						int ID = 0, oldID = bson_iterator_int(&subiter);
+						if (oldID <= 0 || oldID >= PT_NUM)
+							continue;
 						for (int i = 0; i < PT_NUM; i++)
 							if (!identifier.compare(globalSim->elements[i].Identifier))
 							{
@@ -1728,7 +1736,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								break;
 							}
 
-						if (oldID >= 0 && oldID < PT_NUM)
+						if (ID != 0 || identifier.find("DEFAULT_PT_") != 0)
 							elementPalette[oldID] = ID;
 					}
 				}
