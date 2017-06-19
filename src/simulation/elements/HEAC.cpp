@@ -13,7 +13,79 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+#include <functional>
 #include "simulation/ElementsCommon.h"
+
+struct IsInsulator : public std::binary_function<Simulation*,int,bool> {
+  bool operator() (Simulation* a, int b) {return b && a->elements[b].HeatConduct == 0;}
+};
+IsInsulator isInsulator = IsInsulator();
+
+// If this is used elsewhere (GOLD), it should be moved into Simulation.h
+template<class BinaryPredicate>
+bool CheckLine(Simulation* sim, int x1, int y1, int x2, int y2, BinaryPredicate func)
+{
+	bool reverseXY = abs(y2-y1) > abs(x2-x1);
+	int x, y, dx, dy, sy;
+	float e, de;
+	if (reverseXY)
+	{
+		y = x1;
+		x1 = y1;
+		y1 = y;
+		y = x2;
+		x2 = y2;
+		y2 = y;
+	}
+	if (x1 > x2)
+	{
+		y = x1;
+		x1 = x2;
+		x2 = y;
+		y = y1;
+		y1 = y2;
+		y2 = y;
+	}
+	dx = x2 - x1;
+	dy = abs(y2 - y1);
+	e = 0.0f;
+	if (dx)
+		de = dy/(float)dx;
+	else
+		de = 0.0f;
+	y = y1;
+	sy = (y1<y2) ? 1 : -1;
+	for (x=x1; x<=x2; x++)
+	{
+		if (reverseXY)
+		{
+			if (func(sim, pmap[x][y]&0xFF)) return true;
+		}
+		else
+		{
+			if (func(sim, pmap[y][x]&0xFF)) return true;
+		}
+		e += de;
+		if (e >= 0.5f)
+		{
+			y += sy;
+			if ((y1<y2) ? (y<=y2) : (y>=y2))
+			{
+				if (reverseXY)
+				{
+					if (func(sim, pmap[x][y]&0xFF)) return true;
+				}
+				else
+				{
+					if (func(sim, pmap[y][x]&0xFF)) return true;
+				}
+			}
+			e -= 1.0f;
+		}
+	}
+	return false;
+}
 
 int HEAC_update(UPDATE_FUNC_ARGS)
 {
@@ -26,7 +98,7 @@ int HEAC_update(UPDATE_FUNC_ARGS)
 		{
 			rry = ry * rad;
 			rrx = rx * rad;
-			if (x+rrx >= 0 && x+rrx < XRES && y+rry >= 0 && y+rry < YRES)
+			if (x+rrx >= 0 && x+rrx < XRES && y+rry >= 0 && y+rry < YRES && !CheckLine<IsInsulator>(sim, x, y, x+rrx, y+rry, isInsulator))
 			{
 				r = pmap[y+rry][x+rrx];
 				if (r && sim->elements[r&0xFF].HeatConduct > 0)
@@ -54,7 +126,7 @@ int HEAC_update(UPDATE_FUNC_ARGS)
 			{
 				rry = ry * rad;
 				rrx = rx * rad;
-				if (x+rrx >= 0 && x+rrx < XRES && y+rry >= 0 && y+rry < YRES)
+				if (x+rrx >= 0 && x+rrx < XRES && y+rry >= 0 && y+rry < YRES && !CheckLine<IsInsulator>(sim, x, y, x+rrx, y+rry, isInsulator))
 				{
 					r = pmap[y+rry][x+rrx];
 					if (r && sim->elements[r&0xFF].HeatConduct > 0)
