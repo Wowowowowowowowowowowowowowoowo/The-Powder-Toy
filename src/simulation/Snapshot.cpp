@@ -80,6 +80,7 @@ void Snapshot::ClearSnapshots()
 		delete snapshots.back();
 		snapshots.pop_back();
 	}
+	delete redoHistory;
 }
 
 Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
