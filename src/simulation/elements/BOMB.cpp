@@ -17,7 +17,7 @@
 
 int BOMB_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, nb;
+	int r, rx, ry, rt, nb;
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -25,32 +25,40 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_EMBR && (r&0xFF)!=PT_VIBR && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))
+				rt = r&0xFF;
+				if (rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_VIBR && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[rt].Properties&PROP_CLONE) && !(sim->elements[rt].Properties&PROP_BREAKABLECLONE))
 				{
-					int rad = 8;
-					int nxi;
-					int nxj;
+					int rad = 8, nt;
+					int nxi, nxj;
 					//TODO: this looks like a bad idea
 					pmap[y][x] = 0;
 					for (nxj=-rad; nxj<=rad; nxj++)
 						for (nxi=-rad; nxi<=rad; nxi++)
-							if ((pow((float)nxi,2.0f))/(pow((float)rad,2.0f))+(pow((float)nxj,2.0f))/(pow((float)rad,2.0f))<=1)
-
-								if ((pmap[y+nxj][x+nxi]&0xFF)!=PT_VIBR && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[pmap[y+nxj][x+nxi]&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE)) {
-									sim->part_delete(x+nxi, y+nxj);
+							if ((std::pow((float)nxi,2.0f))/(std::pow((float)rad,2.0f))+(std::pow((float)nxj,2.0f))/(std::pow((float)rad,2.0f))<=1)
+							{
+								if (!pmap[y+nxj][x+nxi])
+									continue;
+								nt = pmap[y+nxj][x+nxi]&0xFF;
+								if (nt!=PT_VIBR && !(sim->elements[nt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[nt].Properties&PROP_CLONE) && !(sim->elements[nt].Properties&PROP_BREAKABLECLONE))
+								{
+									sim->part_kill(pmap[y+nxj][x+nxi]>>8);
 									pv[(y+nxj)/CELL][(x+nxi)/CELL] += 0.1f;
 									nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
-									if (nb!=-1) {
+									if (nb != -1)
+									{
 										parts[nb].tmp = 2;
 										parts[nb].life = 2;
 										parts[nb].temp = MAX_TEMP;
 									}
 								}
+							}
 					for (nxj=-(rad+1); nxj<=(rad+1); nxj++)
 						for (nxi=-(rad+1); nxi<=(rad+1); nxi++)
-							if ((pow((float)nxi,2.0f))/(pow((float)(rad+1),2.0f))+(pow((float)nxj,2.0f))/(pow((float)(rad+1),2.0f))<=1 && !(pmap[y+nxj][x+nxi]&0xFF)) {
+							if ((std::pow((float)nxi,2.0f))/(std::pow((float)(rad+1),2.0f))+(std::pow((float)nxj,2.0f))/(std::pow((float)(rad+1),2.0f))<=1 && !(pmap[y+nxj][x+nxi]&0xFF))
+							{
 								nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
-								if (nb!=-1) {
+								if (nb != -1)
+								{
 									parts[nb].tmp = 0;
 									parts[nb].life = 50;
 									parts[nb].temp = MAX_TEMP;
@@ -58,7 +66,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 									parts[nb].vy = rand()%40-20.0f;
 								}
 							}
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				}
 			}
