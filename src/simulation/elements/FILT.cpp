@@ -111,6 +111,11 @@ int FILT_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+void FILT_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	parts[i].tmp = v;
+}
+
 void FILT_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_FILT";
@@ -155,5 +160,6 @@ void FILT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &FILT_graphics;
+	elem->Func_Create = &FILT_create;
 	elem->Init = &FILT_init_element;
 }
