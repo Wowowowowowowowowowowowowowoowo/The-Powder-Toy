@@ -25,24 +25,33 @@ int CAUS_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_ACID && (r&0xFF)!=PT_CAUS)
+				if ((r&0xFF) == PT_GAS)
 				{
-					if ((!(ptypes[r&0xFF].properties&PROP_CLONE) && ptypes[r&0xFF].hardness>(rand()%1000))&&parts[i].life>=50)
+					if (pv[(y+ry)/CELL][(x+rx)/CELL] > 3)
+					{
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_RFRG);
+						sim->part_change_type(i, x, y, PT_RFRG);
+					}
+				}
+				else if ((r&0xFF)!=PT_ACID && (r&0xFF)!=PT_CAUS && (r&0xFF)!=PT_RFRG && (r&0xFF)!=PT_RFGL)
+				{
+					if ((!(sim->elements[r&0xFF].Properties&PROP_CLONE) && sim->elements[r&0xFF].Hardness>(rand()%1000))&&parts[i].life>=50)
 					{
 						if (parts_avg(i, r>>8,PT_GLAS)!= PT_GLAS)//GLAS protects stuff from acid
 						{
-							float newtemp = ((60.0f-(float)ptypes[r&0xFF].hardness))*7.0f;
+							float newtemp = ((60.0f-(float)sim->elements[r&0xFF].Hardness))*7.0f;
 							if(newtemp < 0){
 								newtemp = 0;
 							}
 							parts[i].temp += newtemp;
 							parts[i].life--;
-							kill_part(r>>8);
+							sim->part_kill(r>>8);
+							continue;
 						}
 					}
 					else if (parts[i].life<=50)
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}

@@ -37,7 +37,7 @@ static toolType toolTypes[] =
 	{"VAC",  "DEFAULT_TOOL_VAC",	COLPACK(0x303030), "Vacuum, reduces air pressure."},
 	{"PGRV", "DEFAULT_TOOL_PGRV",	COLPACK(0xCCCCFF), "Creates a short-lasting gravity well."},
 	{"NGRV", "DEFAULT_TOOL_NGRV",	COLPACK(0xAACCFF), "Creates a short-lasting negative gravity well."},
-	{"MIX",	 "DEFAULT_TOOL_MIX",	COLPACK(0xFFD090), "Mixes powders around randomly."},
+	{"MIX",	 "DEFAULT_TOOL_MIX",	COLPACK(0xFFD090), "Mixes particles around randomly."},
 	{"WIND", "DEFAULT_UI_WIND",		COLPACK(0x404040), "Creates air movement."},
 	{"PROP", "DEFAULT_UI_PROPERTY",	COLPACK(0xFFAA00), "Property drawing tool."},
 	{"SIGN", "DEFAULT_UI_SIGN",		COLPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."}

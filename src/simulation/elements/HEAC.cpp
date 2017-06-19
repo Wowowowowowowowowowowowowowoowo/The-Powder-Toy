@@ -152,7 +152,7 @@ void HEAC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Name = "HEAC";
 	elem->Colour = PIXPACK(0xCB6351);
 	elem->MenuVisible = 1;
-	elem->MenuSection = SC_SPECIAL;
+	elem->MenuSection = SC_SOLIDS;
 	elem->Enabled = 1;
 
 	elem->Advection = 0.0f;
