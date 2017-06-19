@@ -65,7 +65,8 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 						{
 							sim->part_create(r>>8, x+rx, y+ry, rand()%3 ? PT_LAVA : PT_URAN);
 							parts[r>>8].temp = MAX_TEMP;
-							if (parts[r>>8].type==PT_LAVA) {
+							if (parts[r>>8].type == PT_LAVA)
+							{
 								parts[r>>8].tmp = 100;
 								parts[r>>8].ctype = PT_PLUT;
 							}
@@ -85,7 +86,7 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 					if (pressureFactor+1+(parts[r>>8].life/100) > rand()%1000)
 					{
 						DeutExplosion(sim, parts[r>>8].life, x+rx, y+ry, restrict_flt(parts[r>>8].temp + parts[r>>8].life*500.0f, MIN_TEMP, MAX_TEMP), PT_NEUT);
-						kill_part(r>>8);
+						sim->part_kill(r>>8);
 					}
 					break;
 #else
@@ -102,28 +103,28 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 							pv[y/CELL][x/CELL] += 6.0f * CFDS;
 						}
 						else
-							kill_part(r>>8);
+							sim->part_kill(r>>8);
 					}
 					break;
 #endif
 				case PT_GUNP:
 					if (3>(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_DUST);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_DUST);
 					break;
 				case PT_DYST:
 					if (3>(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_YEST);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_YEST);
 					break;
 				case PT_YEST:
-					part_change_type(r>>8, x+rx, y+ry, PT_DYST);
+					sim->part_change_type(r>>8, x+rx, y+ry, PT_DYST);
 					break;
 				case PT_PLEX:
 					if (3>(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_GOO);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_GOO);
 					break;
 				case PT_NITR:
 					if (3>(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_DESL);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_DESL);
 					break;
 				case PT_PLNT:
 					if (!(rand()%20))
@@ -132,7 +133,7 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 				case PT_DESL:
 				case PT_OIL:
 					if (3>(rand()%200))
-						part_change_type(r>>8, x+rx, y+ry, PT_GAS);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_GAS);
 					break;
 				case PT_COAL:
 					if (!(rand()%20))
@@ -140,11 +141,11 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 					break;
 				case PT_DUST:
 					if (!(rand()%20))
-						part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
 					break;
 				case PT_EMBR:
 					if (parts[i].tmp == 1 && !(rand()%20))
-						part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
+						sim->part_change_type(r>>8, x+rx, y+ry, PT_FWRK);
 					break;
 				case PT_FWRK:
 					if (!(rand()%20))
@@ -164,6 +165,12 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 				case PT_EXOT:
 					if (5>(rand()%100))
 						parts[r>>8].life = 1500;
+					break;
+				case PT_RFRG:
+					if (rand()%2)
+						sim->part_create(r>>8, x+rx, y+ry, PT_GAS);
+					else
+						sim->part_create(r>>8, x+rx, y+ry, PT_CAUS);
 					break;
 				default:
 					break;
