@@ -2207,7 +2207,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 								partsptr[newIndex].tmp |= (((unsigned)partsData[i++]) << 16);
 							}
 						}
-						if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP)
+						if (partsptr[newIndex].type == PT_PIPE || partsptr[newIndex].type == PT_PPIP || partsptr[newIndex].type == PT_STOR)
 							partsptr[newIndex].tmp = fix_type(partsptr[newIndex].tmp&0xFF, saved_version, modsave, hasPallete ? elementPalette : NULL)|(parts[newIndex].tmp&~0xFF);
 					}
 					
