@@ -115,7 +115,7 @@ void POLO_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HeatConduct = 251;
 	elem->Description = "Polonium, highly radioactive. Decays into NEUT and heats up.";
 
-	elem->Properties = PROP_NEUTPASS|PROP_RADIOACTIVE|PROP_LIFE_DEC|PROP_DEADLY;
+	elem->Properties = TYPE_PART|PROP_NEUTPASS|PROP_RADIOACTIVE|PROP_LIFE_DEC|PROP_DEADLY;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
