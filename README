@@ -1075,7 +1075,7 @@ HEAC, SAWD, POLO, RFRG, RFGL, and LSNS. Fix crash when favoriting elements
 from search UI. Search UI now adds selected elements to the recents menu. Fix 
 line debugging (tpt.setdebug(0x4)) ignoring zoom window. Fix elements being 
 one R/G/B value less than they should be. Change "sign out" button to 
-"Register Online" when not logged in. Many simulationn updates and interface 
+"Register Online" when not logged in. Many simulation updates and interface 
 changes from tpt++.
 
 
