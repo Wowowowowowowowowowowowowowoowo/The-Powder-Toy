@@ -170,7 +170,8 @@ int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
 
 int invalid_element(int save_as, int el)
 {
-	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	//if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
+	if (save_as > 0 && (el >= PT_HEAC || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
 	//if (save_as > 1 && (el == PT_GRVT || el == PT_DRAY))
@@ -1766,7 +1767,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 							fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 					}
 				}
-				if (major > SAVE_VERSION || (major == SAVE_VERSION && minor > MINOR_VERSION))
+				if (major > FAKE_SAVE_VERSION || (major == FAKE_SAVE_VERSION && minor > FAKE_MINOR_VER))
 				{
 					std::stringstream errorMessage;
 					errorMessage << "Save from a newer version: Requires version " << major << "." << minor;

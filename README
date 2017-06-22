@@ -1069,6 +1069,15 @@ Version 35.4 5/19/17
 Fix Newtonian Gravity and edge mode always turning off when loading stamps. 
 Fix internal script manager being missing on Windows.
 
+Version 36.0 6/21/17
+Fix more textbox issues in new UI. Add the new elements from the snapshots: 
+HEAC, SAWD, POLO, RFRG, RFGL, and LSNS. Fix crash when favoriting elements 
+from search UI. Search UI now adds selected elements to the recents menu. Fix 
+line debugging (tpt.setdebug(0x4)) ignoring zoom window. Fix elements being 
+one R/G/B value less than they should be. Change "sign out" button to 
+"Register Online" when not logged in. Many simulationn updates and interface 
+changes from tpt++.
+
 
 
 

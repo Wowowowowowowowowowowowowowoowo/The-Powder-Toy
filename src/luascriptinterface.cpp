@@ -17,6 +17,7 @@
 #include "powder.h"
 #include "powdergraphics.h"
 #include "save.h"
+#include "hud.h"
 
 #include "common/Platform.h"
 #include "game/Brush.h"
@@ -1856,6 +1857,7 @@ int renderer_debugHUD(lua_State * l)
 		return 1;
 	}
 	DEBUG_MODE = luaL_optint(l, 1, 0);
+	SetCurrentHud();
 	return 0;
 }
 
