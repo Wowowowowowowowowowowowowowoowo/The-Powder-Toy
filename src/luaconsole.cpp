@@ -388,13 +388,12 @@ int luacon_partwrite(lua_State* l)
 	
 	i = cIndex;
 	
-	if (i < 0 || i >= NPART || offset==-1)
-	{
-		if (i < 0 || i >= NPART)
-			return luaL_error(l, "array index out of bounds");
-		else
-			return luaL_error(l, "Invalid property");
-	}
+	if (i < 0 || i >= NPART)
+		return luaL_error(l, "Out of range");
+	else if (!parts[i].type)
+		return luaL_error(l, "Dead particle");
+	else if (offset == -1)
+		return luaL_error(l, "Invalid property");
 
 	switch(format)
 	{
