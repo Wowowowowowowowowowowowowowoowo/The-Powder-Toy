@@ -46,7 +46,7 @@ void SAWD_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HeatConduct = 70;
 	elem->Description = "Sawdust. Floats on water.";
 
-	elem->Properties = TYPE_PART;
+	elem->Properties = TYPE_PART | PROP_NEUTPASS;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
