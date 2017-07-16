@@ -125,7 +125,10 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		const char *temp = luaL_checkstring(l, 3);
 		std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
-		signs[id]->SetText(cleaned);
+		if (!cleaned.empty())
+			signs[id]->SetText(cleaned);
+		else
+			luaL_error(l, "Text is empty");
 		return 1;
 	}
 	else if (!key.compare("justification"))
@@ -162,7 +165,7 @@ int simulation_signNewIndex(lua_State *l)
 	return 0;
 }
 
-//creates a new sign at the first open index
+// Creates a new sign at the first open index
 int simulation_newsign(lua_State *l)
 {
 	if (signs.size() >= MAXSIGNS)
@@ -183,7 +186,19 @@ int simulation_newsign(lua_State *l)
 
 	std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
 	signs.push_back(new Sign(cleaned, x, y, (Sign::Justification)ju));
-	lua_pushnumber(l, signs.size()-1);
+	lua_pushnumber(l, signs.size());
+	return 1;
+}
+
+// Deletes a sign
+int simulation_deletesign(lua_State *l)
+{
+	int signID = luaL_checkinteger(l, 1);
+	if (signID <= 0 || signID > (int)signs.size())
+		return luaL_error(l, "Sign doesn't exist");
+
+	delete signs[signID-1];
+	signs.erase(signs.begin()+signID-1);
 	return 1;
 }
 
@@ -316,6 +331,8 @@ void initSimulationAPI(lua_State * l)
 	}
 	lua_pushcfunction(l, simulation_newsign);
 	lua_setfield(l, -2, "new");
+	lua_pushcfunction(l, simulation_deletesign);
+	lua_setfield(l, -2, "delete");
 	lua_setfield(l, -2, "signs");
 }
 
