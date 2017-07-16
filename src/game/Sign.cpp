@@ -125,7 +125,7 @@ std::string Sign::GetDisplayText()
 		{
 			float aheat = 0.0f;
 			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-				aheat = hv[y/CELL][x/CELL];
+				aheat = hv[y/CELL][x/CELL]-273.15f;
 			displayTextStream << std::fixed << std::setprecision(2) << aheat;
 		}
 		else if (text == "{t}")
