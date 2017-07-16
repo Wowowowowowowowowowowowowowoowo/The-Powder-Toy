@@ -4831,6 +4831,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	ui_copytext ctb;
 
 	const char *profileToOpen = "";
+	bool fake404save = false;
 
 	std::string commentWarning;
 	bool commentWarningShown = false;
@@ -5017,6 +5018,41 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						error_ui(vid_buf, 0, "Save info not found");
 						break;
+					}
+					else if (!fake404save && !strlen(info->author))
+					{
+						if (info->title) free(info->title);
+						if (info->name) free(info->name);
+						if (info->author) free(info->author);
+						if (info->date) free(info->date);
+						if (info->description) free(info->description);
+						if (info->tags) free(info->tags);
+						info->title = mystrdup("Save doesn't exist");
+						info->name = mystrdup("Save doesn't exist");
+						info->author = mystrdup("FourOhFour");
+						info->date = mystrdup("December 2010");
+						info->description = mystrdup("I DUNNO LOL");
+						info->tags = mystrdup("");
+
+						if (saveDataDownload)
+							saveDataDownload->Cancel();
+						std::stringstream uri;
+						uri << "http://" << STATICSERVER << "/2157797.cps";
+						saveDataDownload = new Download(uri.str());
+						if (svf_login)
+							saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
+						saveDataDownload->Start();
+
+						if (!instant_open)
+						{
+							uri.str("");
+							uri << "http://" << STATICSERVER << "/2157797_large.pti";
+							thumbnailDownload = new Download(uri.str());
+							thumbnailDownload->Start();
+						}
+
+						data_ready = 0;
+						fake404save = true;
 					}
 				}
 				if (info_data)
@@ -5305,7 +5341,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				//memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
 			}
 			//Render the comment box.
-			if (info_ready && svf_login)
+			if (info_ready && svf_login && !fake404save)
 			{
 				fillrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 0, 0, 0, 255);
 				drawrect(vid_buf, 51+(XRES/2), ed.y-6, XRES+BARSIZE-100-((XRES/2)+1), ed.h+25, 200, 200, 200, 255);
@@ -5382,7 +5418,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			drawtext(vid_buf, 73, YRES+MENUSIZE-63, "Open", 255, 255, 255, bc);
 			drawtext(vid_buf, 56, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
 			//Fav Button
-			bc = svf_login?255:150;
+			bc = svf_login && !fake404save ? 255 : 150;
 			drawrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			if(info->myfav && svf_login){
 				drawtext(vid_buf, 122, YRES+MENUSIZE-63, "Unfav.", 255, 230, 230, bc);
@@ -5391,17 +5427,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			drawtext(vid_buf, 107, YRES+MENUSIZE-64, "\xCC", 255, 255, 255, bc);
 			//Report Button
-			bc = (svf_login && info_ready)?255:150;
+			bc = (svf_login && info_ready && !fake404save) ? 255 : 150;
 			drawrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 168, YRES+MENUSIZE-63, "Report", 255, 255, 255, bc);
 			drawtext(vid_buf, 155, YRES+MENUSIZE-64, "\xE4", 255, 255, 255, bc);
 			//Delete Button
-			bc = authoritah?255:150;
+			bc = authoritah && !fake404save ? 255 : 150;
 			drawrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 218, YRES+MENUSIZE-63, "Delete", 255, 255, 255, bc);
 			drawtext(vid_buf, 206, YRES+MENUSIZE-64, "\xAA", 255, 255, 255, bc);
 			//Open in browser button
-			bc = 255;
+			bc = !fake404save ? 255 : 150;
 			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 273, YRES+MENUSIZE-63, "Open in Browser", 255, 255, 255, bc);
 			drawtext(vid_buf, 257, YRES+MENUSIZE-62, "\x81", 255, 255, 255, bc);
@@ -5418,7 +5454,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			//Fav Button
-			if (mx > 100 && mx < 100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && !queue_open) {
+			if (mx > 100 && mx < 100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && !queue_open && !fake404save) {
 				fillrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
 				if (b && !bq) {
 					//Button Clicked
@@ -5436,7 +5472,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			//Report Button
-			if (mx > 150 && mx < 150+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
+			if (mx > 150 && mx < 150+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open && !fake404save) {
 				fillrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
 				if (b && !bq) {
 					//Button Clicked
@@ -5447,7 +5483,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			//Delete Button
-			if (mx > 200 && mx < 200+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && (authoritah || myown) && !queue_open) {
+			if (mx > 200 && mx < 200+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && (authoritah || myown) && !queue_open && !fake404save) {
 				fillrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
 				if (b && !bq) {
 					//Button Clicked
@@ -5473,7 +5509,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			//Open in browser button
-			if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open) {
+			if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open && !fake404save) {
 				fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
 				if (b && !bq)
 				{
@@ -5483,7 +5519,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			//Submit Button
-			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open) {
+			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open && !fake404save) {
 				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(!commentsDownload->CheckStarted() ? 0 : 1)*80);
 				if (b && !bq && !commentsDownload->CheckStarted())
 				{
@@ -5616,7 +5652,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					svf_own = svf_login && !strcmp(info->author, svf_user);
 					svf_publish = info->publish && svf_login && !strcmp(info->author, svf_user);
 
-					strcpy(svf_id, save_id);
+					
+					if (!fake404save)
+						strcpy(svf_id, save_id);
+					else
+						strcpy(svf_id, "2157797");
 					strcpy(svf_name, info->name);
 					strcpy(svf_description, info->description);
 					strncpy(svf_author, info->author, 63);
