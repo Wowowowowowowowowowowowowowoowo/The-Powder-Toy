@@ -395,6 +395,11 @@ int simulation_partCreate(lua_State * l)
 		lua_pushinteger(l, -1);
 		return 1;
 	}
+	if (newID >= 0 && !parts[newID].type)
+	{
+		lua_pushinteger(l, -1);
+		return 1;
+	}
 	int type = lua_tointeger(l, 4);
 	int v = -1;
 	if (type&~(0xFF))
