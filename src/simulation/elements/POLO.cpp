@@ -108,6 +108,7 @@ void POLO_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Explosive = 0;
 	elem->Meltable = 1;
 	elem->Hardness = 0;
+	elem->PhotonReflectWavelengths = 0x000FF200;
 
 	elem->Weight = 90;
 
