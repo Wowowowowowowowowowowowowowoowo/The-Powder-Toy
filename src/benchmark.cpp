@@ -12,6 +12,7 @@
 #include "common/Point.h"
 #include "game/Sign.h"
 #include "graphics/Pixel.h"
+#include "json/json.h"
 #include "simulation/Simulation.h"
 
 char *benchmark_file = NULL;
@@ -65,17 +66,19 @@ void benchmark_run()
 	{
 		int size;
 		char *file_data;
+		Json::Value temp;
 		file_data = (char*)file_load(benchmark_file, &size);
 		if (file_data)
 		{
-			if(!parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap))
+			if(!parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp))
 			{
 				printf("Save speed test:\n");
 
 				printf("Update particles+air: ");
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+					temp.clear();
+					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
@@ -93,7 +96,8 @@ void benchmark_run()
 				{
 					BENCHMARK_RUN()
 					{
-						parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+						temp.clear();
+						parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					}
 				}
 				BENCHMARK_END()
@@ -101,7 +105,8 @@ void benchmark_run()
 				printf("Update particles - paused: ");
 				BENCHMARK_INIT(benchmark_repeat_count, 1000)
 				{
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+					temp.clear();
+					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					sys_pause = true;
 					framerender = 0;
 					BENCHMARK_RUN()
@@ -114,7 +119,8 @@ void benchmark_run()
 				printf("Update particles - unpaused: ");
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+					temp.clear();
+					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
@@ -127,7 +133,8 @@ void benchmark_run()
 				printf("Render particles: ");
 				BENCHMARK_INIT(benchmark_repeat_count, 1500)
 				{
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+					temp.clear();
+					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;
@@ -144,7 +151,8 @@ void benchmark_run()
 				printf("Render particles+fire: ");
 				BENCHMARK_INIT(benchmark_repeat_count, 1200)
 				{
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap);
+					temp.clear();
+					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;

@@ -20,6 +20,7 @@
 #include "hud.h"
 
 #include "common/Platform.h"
+#include "game/Authors.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
@@ -1130,8 +1131,17 @@ int simulation_loadStamp(lua_State* l)
 	}
 
 	int oldPause = sys_pause;
-	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap))
+	Json::Value luaStampAuthors;
+	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &luaStampAuthors))
+	{
 		lua_pushinteger(l, 1);
+		
+		if (luaStampAuthors.size())
+		{
+			luaStampAuthors["type"] = "luastamp";
+			MergeStampAuthorInfo(luaStampAuthors);
+		}
+	}
 	else
 		lua_pushnil(l);
 
@@ -1193,8 +1203,10 @@ int simulation_loadSave(lua_State * l)
 
 int simulation_reloadSave(lua_State * l)
 {
-	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
 	Snapshot::TakeSnapshot(globalSim);
+	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+	if (!authors.size())
+		DefaultSaveInfo();
 	return 0;
 }
 

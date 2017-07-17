@@ -31,6 +31,7 @@
 #include "luaconsole.h"
 
 #include "common/Platform.h"
+#include "game/Authors.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
 #include "graphics/Renderer.h"
@@ -71,7 +72,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES])
+int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES], Json::Value *j)
 {
 	unsigned char * saveData = (unsigned char*)save;
 	if (size<16)
@@ -84,7 +85,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
 		{
-			return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap);
+			return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap, j);
 		}
 		else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
 		{
@@ -759,7 +760,7 @@ fin:
 	minimumMinorVersion = minor;\
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, bool tab)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, Json::Value *j, bool tab)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
@@ -1398,6 +1399,12 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		bson_append_int(&b, "myVote", svf_myvote);
 		bson_append_finish_object(&b);
 	}
+	if ((*j).size())
+	{
+		bson_append_start_object(&b, "authors");
+		ConvertJsonToBson(&b, *j);
+		bson_append_finish_object(&b);
+	}
 	bson_finish(&b);
 	//bson_print(&b);
 	
@@ -1503,7 +1510,7 @@ void checkBsonFieldInt(bson_iterator iter, const char *field, int *setting)
 	}
 }
 
-int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES])
+int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES], Json::Value *j)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
@@ -1927,6 +1934,17 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		else if (!strcmp(bson_iterator_key(&iter), "color_mode") && replace == 2 && bson_iterator_type(&iter) == BSON_INT)
 		{
 			Renderer::Ref().SetColorMode(bson_iterator_int(&iter));
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "authors"))
+		{
+			if (bson_iterator_type(&iter) == BSON_OBJECT)
+			{
+				ConvertBsonToJson(&iter, j);
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
 		}
 	}
 
@@ -3603,7 +3621,8 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	vector2d vel;
 	vector2d cornerso[4];
 	unsigned char *odatac = (unsigned char*)odata;
-	if (parse_save(odata, *size, -1, 0, 0, bmapo, vxo, vyo, pvo, fvxo, fvyo, signst, partst, pmapt))
+	Json::Value tempAuthorInfo;
+	if (parse_save(odata, *size, -1, 0, 0, bmapo, vxo, vyo, pvo, fvxo, fvyo, signst, partst, pmapt, &tempAuthorInfo))
 	{
 		free(bmapo);
 		free(bmapn);
@@ -3705,7 +3724,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 			vyn[ny][nx] = vel.y;
 			pvn[ny][nx] = pvo[y][x];
 		}
-	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst);
+	ndata = build_save(size,0,0,nw,nh,bmapn,vxn,vyn,pvn,fvxn,fvyn,signst,partst,&tempAuthorInfo);
 	free(bmapo);
 	free(bmapn);
 	free(partst);
@@ -3721,4 +3740,119 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	free(pvo);
 	free(pvn);
 	return ndata;
+}
+
+void ConvertBsonToJson(bson_iterator *iter, Json::Value *j)
+{
+	bson_iterator subiter;
+	bson_iterator_subiterator(iter, &subiter);
+	while (bson_iterator_next(&subiter))
+	{
+		std::string key = bson_iterator_key(&subiter);
+		if (bson_iterator_type(&subiter) == BSON_STRING)
+			(*j)[key] = bson_iterator_string(&subiter);
+		else if (bson_iterator_type(&subiter) == BSON_BOOL)
+			(*j)[key] = bson_iterator_bool(&subiter);
+		else if (bson_iterator_type(&subiter) == BSON_INT)
+			(*j)[key] = bson_iterator_int(&subiter);
+		else if (bson_iterator_type(&subiter) == BSON_LONG)
+			(*j)[key] = (Json::Value::Int64)bson_iterator_long(&subiter);
+		else if (bson_iterator_type(&subiter) == BSON_ARRAY)
+		{
+			bson_iterator arrayiter;
+			bson_iterator_subiterator(&subiter, &arrayiter);
+			while (bson_iterator_next(&arrayiter))
+			{
+				if (bson_iterator_type(&arrayiter) == BSON_OBJECT && !strcmp(bson_iterator_key(&arrayiter), "part"))
+				{
+					Json::Value tempPart;
+					ConvertBsonToJson(&arrayiter, &tempPart);
+					(*j)["links"].append(tempPart);
+				}
+				else if (bson_iterator_type(&arrayiter) == BSON_INT && !strcmp(bson_iterator_key(&arrayiter), "saveID"))
+				{
+					(*j)["links"].append(bson_iterator_int(&arrayiter));
+				}
+			}
+		}
+	}
+}
+
+std::set<int> GetNestedSaveIDs(Json::Value j)
+{
+	Json::Value::Members members = j.getMemberNames();
+	std::set<int> saveIDs = std::set<int>();
+	for (Json::Value::Members::iterator iter = members.begin(), end = members.end(); iter != end; ++iter)
+	{
+		std::string member = *iter;
+		if (member == "id" && j[member].isInt())
+			saveIDs.insert(j[member].asInt());
+		else if (j[member].isArray())
+		{
+			for (Json::Value::ArrayIndex i = 0; i < j[member].size(); i++)
+			{
+				// only supports objects and ints here because that is all we need
+				if (j[member][i].isInt())
+				{
+					saveIDs.insert(j[member][i].asInt());
+					continue;
+				}
+				if (!j[member][i].isObject())
+					continue;
+				std::set<int> nestedSaveIDs = GetNestedSaveIDs(j[member][i]);
+				saveIDs.insert(nestedSaveIDs.begin(), nestedSaveIDs.end());
+			}
+		}
+	}
+	return saveIDs;
+}
+
+// converts a json object to bson
+void ConvertJsonToBson(bson *b, Json::Value j, int depth)
+{
+	Json::Value::Members members = j.getMemberNames();
+	for (Json::Value::Members::iterator iter = members.begin(), end = members.end(); iter != end; ++iter)
+	{
+		std::string member = *iter;
+		if (j[member].isString())
+			bson_append_string(b, member.c_str(), j[member].asCString());
+		else if (j[member].isBool())
+			bson_append_bool(b, member.c_str(), j[member].asBool());
+		else if (j[member].isInt() || j[member].isUInt())
+			bson_append_int(b, member.c_str(), j[member].asInt());
+		else if (j[member].isInt64() || j[member].isUInt64())
+			bson_append_long(b, member.c_str(), j[member].asInt64());
+		else if (j[member].isArray())
+		{
+			bson_append_start_array(b, member.c_str());
+			std::set<int> saveIDs = std::set<int>();
+			for (Json::Value::ArrayIndex i = 0; i < j[member].size(); i++)
+			{
+				// only supports objects and ints here because that is all we need
+				if (j[member][i].isInt())
+				{
+					saveIDs.insert(j[member][i].asInt());
+					continue;
+				}
+				if (!j[member][i].isObject())
+					continue;
+				if (depth > 4)
+				{
+					std::set<int> nestedSaveIDs = GetNestedSaveIDs(j[member][i]);
+					saveIDs.insert(nestedSaveIDs.begin(), nestedSaveIDs.end());
+				}
+				else
+				{
+					bson_append_start_object(b, "part");
+					ConvertJsonToBson(b, j[member][i], depth+1);
+					bson_append_finish_object(b);
+				}
+			}
+			for (std::set<int>::iterator iter = saveIDs.begin(), end = saveIDs.end(); iter != end; ++iter)
+			{
+				bson_append_int(b, "saveID", *iter);
+			}
+			bson_append_finish_array(b);
+		}
+	}
 }

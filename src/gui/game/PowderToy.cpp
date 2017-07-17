@@ -15,6 +15,7 @@
 #include "update.h"
 
 #include "common/Platform.h"
+#include "game/Authors.h"
 #include "game/Brush.h"
 #include "game/Download.h"
 #include "game/Menus.h"
@@ -435,7 +436,9 @@ void PowderToy::ReloadSave(unsigned char b)
 	if (b == 1 || !strncmp(svf_id, "", 8))
 	{
 		Snapshot::TakeSnapshot(globalSim);
-		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+		if (!authors.size())
+			DefaultSaveInfo();
 	}
 	else
 		open_ui(vid_buf, svf_id, NULL, 0);
@@ -453,7 +456,15 @@ void PowderToy::DoSave(unsigned char b)
 		if (mouse.X <= saveButton->GetPosition().X+18 && svf_fileopen)
 		{
 			int saveSize;
-			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+
+			Json::Value localSaveInfo;
+			localSaveInfo["type"] = "localsave";
+			localSaveInfo["username"] = svf_user;
+			localSaveInfo["title"] = svf_filename;
+			localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
+			SaveAuthorInfo(&localSaveInfo);
+
+			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &localSaveInfo);
 			if (!saveData)
 			{
 				SetInfoTip("Error creating save");
@@ -1679,7 +1690,9 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		stampMoving = false;
 #endif
 		Snapshot::TakeSnapshot(globalSim);
-		parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		Json::Value tempStampInfo;
+		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo))
+			MergeStampAuthorInfo(tempStampInfo);
 		ResetStampState();
 		return;
 	}
@@ -1712,15 +1725,29 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			switch (state)
 			{
 			case COPY:
+			{
 				free(clipboardData);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+				Json::Value clipboardInfo;
+				clipboardInfo["type"] = "clipboard";
+				clipboardInfo["username"] = svf_user;
+				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
+				SaveAuthorInfo(&clipboardInfo);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo);
 				break;
+			}
 			case CUT:
+			{
 				free(clipboardData);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+				Json::Value clipboardInfo;
+				clipboardInfo["type"] = "clipboard";
+				clipboardInfo["username"] = svf_user;
+				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
+				SaveAuthorInfo(&clipboardInfo);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo);
 				if (clipboardData)
 					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
+			}
 			case SAVE:
 				// function returns the stamp name which we don't want, so free it
 				free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
@@ -2020,6 +2047,14 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			};
 			ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmInstall(), "Install Powder Toy", "You are about to install The Powder Toy", "Install");
 			Engine::Ref().ShowWindow(confirm);
+		}
+		break;
+	case 'a':
+		if (ctrlHeld)
+		{
+			std::string authorString = authors.toStyledString();
+			InfoPrompt *info = new InfoPrompt("Save authorship info", authorString);
+			Engine::Ref().ShowWindow(info);
 		}
 		break;
 	case 's':

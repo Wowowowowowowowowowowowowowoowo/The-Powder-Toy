@@ -79,6 +79,7 @@
 
 #include "common/Platform.h"
 #include "common/tpt-minmax.h"
+#include "game/Authors.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "game/Sign.h"
@@ -394,6 +395,7 @@ void clear_sim()
 		LuaCode = NULL;
 	}
 #endif
+	authors.clear();
 }
 
 void NewSim()
@@ -509,7 +511,23 @@ char* stamp_save(int x, int y, int w, int h)
 	FILE *f;
 	char fn[64], sn[16];
 	int n;
-	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+
+	// Generate filename
+	stamp_gen_name(sn);
+	sprintf(fn, "stamps" PATH_SEP "%s.stm", sn);
+
+	Json::Value stampInfo;
+	stampInfo["type"] = "stamp";
+	stampInfo["username"] = svf_user;
+	stampInfo["name"] = fn;
+	stampInfo["date"] = (Json::Value::UInt64)time(NULL);
+	if (authors.size())
+	{
+		// This is a stamp, always append full authorship info (even if same user)
+		stampInfo["links"].append(authors);
+	}
+
+	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, &stampInfo);
 	if (!s)
 		return NULL;
 
@@ -518,9 +536,6 @@ char* stamp_save(int x, int y, int w, int h)
 #else
 	mkdir("stamps", 0755);
 #endif
-
-	stamp_gen_name(sn);
-	sprintf(fn, "stamps" PATH_SEP "%s.stm", sn);
 
 	f = fopen(fn, "wb");
 	if (!f)
@@ -551,8 +566,17 @@ void tab_save(int num, char reloadButton)
 	char fileName[64];
 	void *saveData;
 
+	sprintf(fileName, "tabs" PATH_SEP "%d.stm", num);
+
+	Json::Value tabInfo;
+	tabInfo["type"] = "tab";
+	tabInfo["username"] = svf_user;
+	tabInfo["num"] = num;
+	tabInfo["date"] = (Json::Value::UInt64)time(NULL);
+	SaveAuthorInfo(&tabInfo);
+
 	//build the tab
-	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, true);
+	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &tabInfo, true);
 	if (!saveData)
 		return;
 
@@ -563,7 +587,6 @@ void tab_save(int num, char reloadButton)
 #endif
 
 	//save the tab
-	sprintf(fileName, "tabs" PATH_SEP "%d.stm", num);
 	f = fopen(fileName, "wb");
 	if (!f)
 		return;
@@ -635,7 +658,7 @@ int tab_load(int tabNum, bool del)
 		if (del)
 			remove(fileName); //prevent crash loops on startup
 		Snapshot::TakeSnapshot(globalSim);
-		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
 		if (!svf_last) //only free if reload button isn't active
 		{
 			free(saveData);
@@ -1557,7 +1580,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			
 			svf_last = saveDataOpen;
 			svf_lsize = saveDataOpenSize;
-			if(parse_save(saveDataOpen, saveDataOpenSize, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap))
+			if(parse_save(saveDataOpen, saveDataOpenSize, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &authors))
 			{
 				saveOpenError = 1;
 				svf_last = NULL;
@@ -1665,7 +1688,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					if (sdl_mod & (KMOD_CTRL|KMOD_META))
 					{
 						Snapshot::TakeSnapshot(globalSim);
-						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+						Json::Value tempStampInfo;
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo);
+						MergeStampAuthorInfo(tempStampInfo);
 					}
 					else if (!(sdl_mod & (KMOD_CTRL|KMOD_META|KMOD_SHIFT)))
 						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration = 0;
@@ -1676,7 +1701,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
 					Snapshot::TakeSnapshot(globalSim);
-					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
 				}
 			}
 			if (sdl_key=='o')

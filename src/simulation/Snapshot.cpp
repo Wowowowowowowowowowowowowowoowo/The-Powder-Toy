@@ -5,6 +5,7 @@
 #include "simulation/Simulation.h"
 #include "elements/STKM.h"
 #include "elements/PRTI.h"
+#include "game/Authors.h"
 #include "game/Sign.h"
 
 unsigned int Snapshot::undoHistoryLimit = 5;
@@ -101,6 +102,7 @@ Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 	snap->FanVelocityY.insert(snap->FanVelocityY.begin(), &fvy[0][0], &fvy[0][0]+((XRES/CELL)*(YRES/CELL)));
 	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
 		snap->Signs.push_back(new Sign(**iter));
+	snap->Authors = authors;
 
 	sim->RecountElements();
 	for (int i = 0; i < PT_NUM; i++)
@@ -138,6 +140,7 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 	ClearSigns();
 	for (std::vector<Sign*>::const_iterator iter = snap.Signs.begin(), end = snap.Signs.end(); iter != end; ++iter)
 		signs.push_back(new Sign(**iter));
+	authors = snap.Authors;
 
 	for (int i = 0; i < PT_NUM; i++)
 	{

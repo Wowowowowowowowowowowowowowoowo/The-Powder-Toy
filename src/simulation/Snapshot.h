@@ -8,6 +8,7 @@
 #include "Particle.h"
 #include "common/tpt-minmax.h"
 #include "game/Sign.h"
+#include "json/json.h"
 
 class ElementDataContainer;
 class Simulation;
@@ -35,6 +36,8 @@ public:
 	std::vector<float> FanVelocityY;
 
 	std::vector<Sign*> Signs;
+
+	Json::Value Authors;
 
 	Snapshot() :
 		AirPressure(),

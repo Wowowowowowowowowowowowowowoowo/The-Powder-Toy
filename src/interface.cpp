@@ -66,6 +66,7 @@
 #include "update.h"
 
 #include "common/Platform.h"
+#include "game/Authors.h"
 #include "game/Download.h"
 #include "game/Favorite.h"
 #include "game/Menus.h"
@@ -5639,7 +5640,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				Snapshot::TakeSnapshot(globalSim);
 				// Do Open!
-				int status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
+				Json::Value tempSaveInfo;
+				int status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempSaveInfo);
 				if (!status)
 				{
 					if(svf_last)
@@ -5676,6 +5678,15 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					memset(fire_r, 0, sizeof(fire_r));
 					memset(fire_g, 0, sizeof(fire_g));
 					memset(fire_b, 0, sizeof(fire_b));
+					
+					if (!tempSaveInfo.size())
+					{
+						DefaultSaveInfo();
+						authors["published"] = info->publish;
+						authors["date"] = info->date; // this is WRONG but we don't get any better info until I use the new api
+					}
+					else
+						authors = tempSaveInfo;
 
 					break;
 				}
@@ -6251,7 +6262,17 @@ int execute_save(pixel *vid_buf)
 	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
 	int len;
-	uploadparts[2] = (char*)build_save(&len, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+
+	Json::Value serverSaveInfo;
+	serverSaveInfo["type"] = "save";
+	serverSaveInfo["id"] = svf_id[0] ? atoi(svf_id) : -1;
+	serverSaveInfo["title"] = svf_name;
+	serverSaveInfo["description"] = svf_description;
+	serverSaveInfo["published"] = svf_publish;
+	serverSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
+	SaveAuthorInfo(&serverSaveInfo);
+
+	uploadparts[2] = (char*)build_save(&len, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &serverSaveInfo);
 	plens[2] = len;
 	if (!uploadparts[2])
 	{
@@ -7627,7 +7648,14 @@ int save_filename_ui(pixel *vid_buf)
 	pixel *save = NULL;//calloc((XRES/3)*(YRES/3), PIXELSIZE);
 	ui_edit ed;
 
-	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts);
+	Json::Value localSaveInfo;
+	localSaveInfo["type"] = "localsave";
+	localSaveInfo["username"] = svf_user;
+	localSaveInfo["title"] = "unknown";
+	localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
+	SaveAuthorInfo(&localSaveInfo);
+
+	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &localSaveInfo);
 	if (!save_data)
 	{
 		error_ui(vid_buf, 0, "Unable to create save file");
@@ -7855,17 +7883,19 @@ void catalogue_ui(pixel * vid_buf)
 				if(listyc > y0+ysize) //Stop when we get to the bottom of the viewable
 					break;
 				cactive = 0;
-				if(my > listyc && my < listyc+YRES/CATALOGUE_S+2 && mx > listxc && mx < listxc+XRES/CATALOGUE_S && my > y0+48 && my < y0+ysize)
+				if (my > listyc && my < listyc+YRES/CATALOGUE_S+2 && mx > listxc && mx < listxc+XRES/CATALOGUE_S && my > y0+48 && my < y0+ysize)
 				{
-					if(b)
+					if (b)
 					{
 						int status, size;
 						void *data;
 						data = file_load(csave->filename, &size);
-						if (data) {
+						if (data)
+						{
 							Snapshot::TakeSnapshot(globalSim);
-							status = parse_save(data, size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap);
-							if(!status)
+							Json::Value tempLocalSaveInfo;
+							status = parse_save(data, size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempLocalSaveInfo);
+							if (!status)
 							{
 								//svf_filename[0] = 0;
 								strncpy(svf_filename, csave->name, 255);
@@ -7884,6 +7914,7 @@ void catalogue_ui(pixel * vid_buf)
 								svf_last = data;
 								data = NULL;
 								svf_lsize = size;
+								authors = tempLocalSaveInfo;
 								goto openfin;
 							} else {
 								error_ui(vid_buf, 0, "Save data corrupt");
