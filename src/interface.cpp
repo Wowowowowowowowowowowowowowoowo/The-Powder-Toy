@@ -4072,7 +4072,7 @@ int search_ui(pixel *vid_buf)
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[pos], search_thsizes[pos], &finw, &finh);
 					if(thumb_imgdata!=NULL){
 						thumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_S, YRES/GRID_S);
-						draw_image(v_buf, thumb_rsdata, gx, gy, XRES/GRID_S, YRES/GRID_S, 255);
+						draw_image(v_buf, thumb_rsdata, gx-touchOffset, gy, XRES/GRID_S, YRES/GRID_S, 255);
 						free(thumb_imgdata);
 						free(thumb_rsdata);
 					}
@@ -4268,7 +4268,7 @@ int search_ui(pixel *vid_buf)
 					touchOffset = 0;
 				else if (touchOffset < 0 && page_count<=exp_res)
 					touchOffset = 0;
-				if (std::abs(touchOffset) > 10)
+				if (std::abs(touchOffset) > 20)
 					touchDragged = true;
 			}
 		}
