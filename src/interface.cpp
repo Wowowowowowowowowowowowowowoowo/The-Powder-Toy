@@ -3781,6 +3781,7 @@ int search_ui(pixel *vid_buf)
 	int nmp = -1;
 #endif
 	int touchOffset = 0;
+	bool touchDragged = false; // when true, ignore clicks on saves
 	int thumb_drawn[GRID_X*GRID_Y];
 	pixel *v_buf = (pixel *)malloc(((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 	pixel *bthumb_rsdata = NULL;
@@ -4267,15 +4268,20 @@ int search_ui(pixel *vid_buf)
 					touchOffset = 0;
 				else if (touchOffset < 0 && page_count<=exp_res)
 					touchOffset = 0;
+				if (std::abs(touchOffset) > 10)
+					touchDragged = true;
 			}
 		}
+		// Delay a frame before setting this to false
+		 if (touchDragged && !bq)
+			touchDragged = false;
 		if (b && !bq && my >= 30 && do_open == 0)
 		{
 			dragging = true;
 			initialOffset = mx;
 		}
 #endif
-		if (!b && bq)
+		if (!b && bq && !touchDragged)
 		{
 			if (mx>=XRES-64+16+xOffset && mx<=XRES-8+16+xOffset && my>=8 && my<=24 && svf_login && !search_fav)
 			{
