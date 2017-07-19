@@ -14,6 +14,7 @@ namespace Platform
 	bool ShowOnScreenKeyboard(const char *str, bool autoCorrect = true);
 	void GetOnScreenKeyboardInput(char * buff, int buffSize, bool autoCorrect = true);
 	bool IsOnScreenKeyboardShown();
+	void Vibrate(int milliseconds);
 }
 
 

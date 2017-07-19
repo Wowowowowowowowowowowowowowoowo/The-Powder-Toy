@@ -21,6 +21,7 @@ class Button : public Component
 public:
 	enum TextAlign { LEFT, CENTER };
 	enum State { NORMAL, HIGHLIGHTED, INVERTED, HOLD };
+	const int heldThreshold = 1000;
 
 private:
 	std::string text;
@@ -33,6 +34,7 @@ private:
 
 	// "hold" button does different actions when you hold it for one second
 	uint32_t timeHeldDown;
+	bool didVibrate;
 
 public:
 	Button(Point position, Point size, std::string text_);
@@ -48,7 +50,7 @@ public:
 	void SetState(State state_) { state = state_; }
 	void SetCloseButton(bool isCloseButton_) { isCloseButton = isCloseButton_; }
 
-	bool IsHeld() { return timeHeldDown > 1000; }
+	bool IsHeld() { return timeHeldDown > heldThreshold; }
 
 	virtual void OnMouseDown(int x, int y, unsigned char button);
 	virtual void OnMouseUp(int x, int y, unsigned char button);

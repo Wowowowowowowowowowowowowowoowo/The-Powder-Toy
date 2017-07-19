@@ -1,6 +1,7 @@
 #include "Button.h"
 #include "Window.h"
 #include "common/tpt-minmax.h"
+#include "common/Platform.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
@@ -12,7 +13,8 @@ Button::Button(Point position, Point size_, std::string text_):
 	alignment(CENTER),
 	state(NORMAL),
 	isCloseButton(false),
-	timeHeldDown(0)
+	timeHeldDown(0),
+	didVibrate(false)
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
 	{
@@ -224,6 +226,15 @@ void Button::OnTick(uint32_t ticks)
 		if (IsClicked())
 			timeHeldDown += ticks;
 		else
+		{
 			timeHeldDown = 0;
+			didVibrate = false;
+		}
+
+		if (!didVibrate && timeHeldDown > heldThreshold)
+		{
+			Platform::Vibrate(10);
+			didVibrate = true;
+		}
 	}
 }

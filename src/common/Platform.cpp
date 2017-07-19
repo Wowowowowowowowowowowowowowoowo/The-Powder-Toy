@@ -473,4 +473,11 @@ bool IsOnScreenKeyboardShown()
 	return false;
 }
 
+void Vibrate(int milliseconds)
+{
+#ifdef ANDROID
+	SDL_ANDROID_Vibrate(milliseconds);
+#endif
+}
+
 }
