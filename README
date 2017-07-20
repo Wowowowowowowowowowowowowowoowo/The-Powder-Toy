@@ -1078,6 +1078,12 @@ one R/G/B value less than they should be. Change "sign out" button to
 "Register Online" when not logged in. Many simulation updates and interface 
 changes from tpt++.
 
+Version 36.1 7/19/17
+Simulation updates from tpt++ (finalize the new elements). Workaround for 
+broken 404 save. Add logging inside saves for which IDs material was taken 
+from. Fix RAZR not cutting through SAWD. ctrl+click now selects top sign. 
+Wall brush graphics now snapped to the grid when drawing lines and boxes.
+
 
 
 

@@ -2067,7 +2067,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		break;
 	case 'a':
-		if (ctrlHeld)
+		if (ctrlHeld && (svf_mod || svf_admin))
 		{
 			std::string authorString = authors.toStyledString();
 			InfoPrompt *info = new InfoPrompt("Save authorship info", authorString);

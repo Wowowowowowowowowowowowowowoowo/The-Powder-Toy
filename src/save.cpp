@@ -2130,7 +2130,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 					y = saved_y + fullY;
 					fieldDescriptor = partsData[i+1];
 					fieldDescriptor |= partsData[i+2] << 8;
-					if (x >= XRES || x < 0 || y >= YRES || y < 0)
+					if (x >= XRES || y >= YRES)
 					{
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
