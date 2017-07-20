@@ -376,7 +376,11 @@ void Simulation::InitCanMove()
 		}
 
 		//SAWD cannot be displaced by other powders
+#ifdef NOMOD
 		if (elements[movingType].Properties & TYPE_PART)
+#else
+		if ((elements[movingType].Properties & TYPE_PART) && movingType != PT_RAZR)
+#endif
 			can_move[movingType][PT_SAWD] = 0;
 	}
 	//a list of lots of things PHOT can move through
