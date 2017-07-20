@@ -21,7 +21,7 @@ class Button : public Component
 public:
 	enum TextAlign { LEFT, CENTER };
 	enum State { NORMAL, HIGHLIGHTED, INVERTED, HOLD };
-	const int heldThreshold = 1000;
+	static const uint32_t heldThreshold = 1000;
 
 private:
 	std::string text;

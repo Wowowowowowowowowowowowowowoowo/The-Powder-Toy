@@ -1485,8 +1485,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
 				else if (drawState == PowderToy::RECT)
 					snappedCursor = the_game->RectSnapCoords(initialDrawPoint, snappedCursor);
-
 			}
+			initialDrawPoint = the_game->SnapCoordinatesWall(initialDrawPoint, snappedCursor);
+			snappedCursor = the_game->SnapCoordinatesWall(snappedCursor, initialDrawPoint);
 			if (drawState != PowderToy::RECT || !isMouseDown)
 			{
 				if (isMouseDown && (sdl_mod & KMOD_ALT))

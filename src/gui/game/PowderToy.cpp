@@ -857,6 +857,23 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 	return mouse;
 }
 
+Point PowderToy::SnapCoordinatesWall(Point pos1, Point pos2)
+{
+	if (activeTools[toolIndex]->GetType() == WALL_TOOL)
+	{
+		pos1 = pos1/4*4;
+		if (drawState == PowderToy::RECT)
+		{
+			if (pos1.X >= pos2.X)
+				pos1.X += CELL-1;
+
+			if (pos1.Y >= pos2.Y)
+				pos1.Y += CELL-1;
+		}
+	}
+	return pos1;
+}
+
 bool PowderToy::IsMouseInZoom(Point mouse)
 {
 	//adjust coords into the simulation area

@@ -119,6 +119,7 @@ public:
 	void ConfirmUpdate(std::string changelog, std::string file);
 	bool MouseClicksIgnored();
 	Point AdjustCoordinates(Point mouse);
+	Point SnapCoordinatesWall(Point pos1, Point pos2);
 	bool IsMouseInZoom(Point mouse);
 	void SetInfoTip(std::string infotip);
 	ToolTip *GetQTip(std::string qtip, int y);
