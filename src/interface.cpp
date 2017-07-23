@@ -2546,11 +2546,13 @@ int save_name_ui(pixel *vid_buf)
 		drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+40, XRES/3+3, YRES/3+3, 128, 128, 128, 255); //rectangle around thumbnail
 		render_thumb(th, ths, 0, vid_buf, x0+(205-XRES/3)/2+205, y0+42, 3);
 
+#ifndef NOMOD
 		if (!can_publish)
 		{
 			drawtext(vid_buf, x0+235, y0+180, "\xE4", 255, 255, 0, 255);
 			drawtext(vid_buf, x0+251, y0+182, "Warning: uses mod elements", 192, 192, 192, 255);
 		}
+#endif
 
 		ui_checkbox_draw(vid_buf, &cbPublish);
 		drawtext(vid_buf, cbPublish.x+24, cbPublish.y+3, "Publish?", 192, 192, 192, 255);
