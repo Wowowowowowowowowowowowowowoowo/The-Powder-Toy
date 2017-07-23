@@ -3686,6 +3686,7 @@ int sdl_open()
 	sprintf(envStr, "SDL_VIDEO_WINDOW_POS=%i,%i", savedWindowX, savedWindowY);
 	SDL_putenv(envStr);
 #endif
+	//if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK)<0)
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 	{
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
@@ -3762,6 +3763,7 @@ int sdl_open()
 #ifdef ANDROID
 	// hide overlay buttons that just get in the way
 	SDL_ANDROID_SetScreenKeyboardShown(0);
+	//SDL_JoystickOpen(1);
 #endif
 
 	//if (screen_err)

@@ -101,6 +101,14 @@ bool Engine::EventProcess(SDL_Event event)
 		lastMousePosition = Point(mx, my);
 		break;
 	}
+	/*case SDL_JOYAXISMOTION:
+	{
+		if (event.jaxis.which == 1 && event.jaxis.axis >= 8 && event.jaxis.axis <= 10)
+		{
+			top->DoJoystickMotion(event.jaxis.which, event.jaxis.axis-8, event.jaxis.value);
+		}
+		break;
+	}*/
 	case SDL_VIDEORESIZE:
 		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
 		// if we don't do this, the touchscreen calibration variables won't ever be set properly

@@ -22,6 +22,7 @@ private:
 	unsigned short heldModifier;
 	int mouseWheel;
 	bool mouseCanceled;
+	int16_t orientation[3];
 
 	// notifications
 	int numNotifications;
@@ -167,6 +168,7 @@ public:
 	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
 	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
 	void OnDefocus();
+	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	bool BeforeMouseDown(int x, int y, unsigned char button);
 	bool BeforeMouseUp(int x, int y, unsigned char button);

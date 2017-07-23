@@ -39,6 +39,7 @@ public:
 	virtual void DoMouseWheel(int x, int y, int d);
 	virtual void DoKeyPress(int key, unsigned short character, unsigned short modifiers);
 	virtual void DoKeyRelease(int key, unsigned short character, unsigned short modifiers);
+	virtual void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }
@@ -69,6 +70,7 @@ protected:
 	virtual void OnMouseWheel(int x, int y, int d) { }
 	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
 	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
+	virtual void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) { }
 
 	virtual void OnFocus() { }
 	virtual void OnDefocus() { }

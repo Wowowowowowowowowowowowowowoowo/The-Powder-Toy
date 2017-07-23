@@ -967,6 +967,10 @@ void PowderToy::OnTick(uint32_t ticks)
 		mouseCanceled = true;
 	if (mouseCanceled)
 		mouseDown = 0;
+	
+	/*std::stringstream orStr;
+	orStr << orientation[0] << ", " << orientation[1] << ", " << orientation[2] << std::endl;
+	luacon_log(mystrdup(orStr.str().c_str()));*/
 #endif
 	sdl_key = heldKey; // ui_edit_process in deco editor uses these two globals so we have to set them ):
 	sdl_ascii = heldAscii;
@@ -2360,4 +2364,9 @@ void PowderToy::OnDefocus()
 	ResetStampState();
 	UpdateDrawMode();
 	UpdateToolStrength();
+}
+
+void PowderToy::OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
+{
+	orientation[axis] = value;
 }

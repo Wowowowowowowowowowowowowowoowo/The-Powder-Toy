@@ -381,6 +381,16 @@ void Window_::DoKeyRelease(int key, unsigned short character, unsigned short mod
 	OnKeyRelease(key, character, modifiers);
 }
 
+void Window_::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
+{
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoJoystickMotion(joysticknum, axis, value);
+	}
+
+	OnJoystickMotion(joysticknum, axis, value);
+}
+
 void Window_::VideoBufferHack()
 {
 	std::copy(&vid_buf[0], &vid_buf[(XRES+BARSIZE)*(YRES+MENUSIZE)], &videoBuffer->GetVid()[0]);
