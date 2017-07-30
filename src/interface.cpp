@@ -5246,18 +5246,18 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (show_ids && info->commentauthorIDs[cc]) //Draw author id
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]), ccy+60+comment_scroll, info->commentauthorIDs[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
+								if (!b && bq && mx > 265+(XRES/2)-textwidth(info->commentauthorIDs[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 									show_ids = 0;
 							}
 							else if (info->commenttimestamps[cc]) //, or draw timestamp
 							{
 								drawtext(vid_buf, 265+(XRES/2)-textwidth(info->commenttimestamps[cc]), ccy+60+comment_scroll, info->commenttimestamps[cc], 255, 255, 0, 255);
-								if (b && !bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
+								if (!b && bq && mx > 265+(XRES/2)-textwidth(info->commenttimestamps[cc]) && mx < 265+(XRES/2) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 									show_ids = 1;
 							}
 							drawtext(vid_buf, 61+(XRES/2), ccy+60+comment_scroll, info->commentauthors[cc], r, g, bl, 255); //Draw author
 
-							if (b && !bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
+							if (!b && bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 							{
 								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
 								{
@@ -5303,7 +5303,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							ui_label_process(mx, my, b, bq, &info->comments[cc]); // process copying
 #endif
 
-							if (svf_login && b && !bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
+							if (svf_login && !b && bq && mx > 50+(XRES/2)+1 && mx < 50 + XRES+BARSIZE-100 && my > commentboxy - 2 && my < commentboxy + ed.h+2) // defocus comments that are under textbox
 								info->comments[cc].focus = info->comments[cc].cursor = info->comments[cc].cursorstart = info->comments[cc].numClicks = 0;
 
 							ccy += change + 10;
@@ -5460,7 +5460,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (mx > 50 && mx < 50+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && openable && !queue_open) {
 				fillrect(vid_buf, 50, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-				if (b && !bq) {
+				if (!b && bq) {
 					//Button Clicked
 					queue_open = 1;
 				}
@@ -5468,7 +5468,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Fav Button
 			if (mx > 100 && mx < 100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && !queue_open && !fake404save) {
 				fillrect(vid_buf, 100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-				if (b && !bq) {
+				if (!b && bq) {
 					//Button Clicked
 					if(info->myfav){
 						fillrect(vid_buf, -1, -1, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 192);
@@ -5486,7 +5486,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Report Button
 			if (mx > 150 && mx < 150+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open && !fake404save) {
 				fillrect(vid_buf, 150, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-				if (b && !bq) {
+				if (!b && bq) {
 					//Button Clicked
 					if (report_ui(vid_buf, save_id, false)) {
 						retval = 0;
@@ -5497,7 +5497,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Delete Button
 			if (mx > 200 && mx < 200+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && (authoritah || myown) && !queue_open && !fake404save) {
 				fillrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40);
-				if (b && !bq) {
+				if (!b && bq) {
 					//Button Clicked
 					if (myown || !info->publish) {
 						if (confirm_ui(vid_buf, "Are you sure you wish to delete this?", "You will not be able recover it.", "Delete")) {
@@ -5523,7 +5523,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Open in browser button
 			if (mx > 250 && mx < 250+107 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50  && !queue_open && !fake404save) {
 				fillrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, 40);
-				if (b && !bq)
+				if (!b && bq)
 				{
 					std::stringstream browserLink;
 					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
@@ -5533,7 +5533,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open && !fake404save) {
 				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(!commentsDownload->CheckStarted() ? 0 : 1)*80);
-				if (b && !bq && !commentsDownload->CheckStarted())
+				if (!b && bq && !commentsDownload->CheckStarted())
 				{
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 192);
@@ -5616,7 +5616,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			//If mouse was clicked outside of the window bounds.
 			if (!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<YRES+MENUSIZE-50) && !(mx >= ctb.x && mx <= ctb.x+ctb.width && my >= ctb.y && my <= ctb.y+ctb.height) && !queue_open && strlen(ed.str) < 200)
 			{
-				if (b && !bq)
+				if (!b && bq)
 				{
 					clickOutOfBounds = true;
 				}
