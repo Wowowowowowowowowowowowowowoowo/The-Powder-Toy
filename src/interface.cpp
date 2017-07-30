@@ -1302,8 +1302,10 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		{
 			if (mx>=x0 && mx<x0+windowWidth && my>=y0+windowHeight-16 && my<=y0+windowHeight)
 			{
+#ifndef TOUCHUI
 				selectedl = -1;
 				selectedr = -1;
+#endif
 				break;
 			}
 #ifndef TOUCHUI
