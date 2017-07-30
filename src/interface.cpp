@@ -2881,6 +2881,9 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 #endif
 	}
 
+#ifdef TOUCHUI
+	bool overflowsLeft = false;
+#endif
 	//main loop, draws the tools and figures out which tool you are hovering over / selecting
 	for (std::vector<Tool*>::iterator iter = menuSections[i]->tools.begin(), end = menuSections[i]->tools.end(); iter != end; ++iter)
 	{
@@ -2898,6 +2901,9 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		if (x-xoff > menuStartPosition-28 || x-xoff < -26)
 		{
 			x -= 31;
+#ifdef TOUCHUI
+			overflowsLeft = true;
+#endif
 			continue;
 		}
 		if (old_menu && x <= menuStartPosition-17*31 && i < SC_FAV)
@@ -2950,6 +2956,12 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		}
 	}
 #ifdef TOUCHUI
+	if ((overflowsLeft && x-xoff < 15) || x-xoff < -31)
+		for (int i = 0; i <= 15; i++)
+		{
+			for (int j = -1; j <= 15; j++)
+				blendpixel(vid_buf, i, y+j, 0, 0, 0, 255-16*i);
+		}
 	if (fwidth > menuStartPosition && std::abs(originalmx-mx) > 10)
 	{
 		originalOver = NULL;
