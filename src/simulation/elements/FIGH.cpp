@@ -145,7 +145,11 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Identifier = "DEFAULT_PT_FIGH";
 	elem->Name = "FIGH";
 	elem->Colour = COLPACK(0xFFE0A0);
+#ifndef TOUCHUI
 	elem->MenuVisible = 1;
+#else
+	elem->MenuVisible = 0;
+#endif
 	elem->MenuSection = SC_SPECIAL;
 	elem->Enabled = 1;
 

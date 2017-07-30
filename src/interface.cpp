@@ -2469,7 +2469,6 @@ void tag_list_ui(pixel *vid_buf)
 int save_name_ui(pixel *vid_buf)
 {
 	int x0=(XRES-420)/2,y0=(YRES-78-YRES/4)/2,b=1,bq,mx,my,ths,idtxtwidth,nd=0;
-	bool can_publish = true;
 	void *th;
 	pixel *old_vid=(pixel *)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	ui_edit ed;
@@ -2479,8 +2478,12 @@ int save_name_ui(pixel *vid_buf)
 	ui_copytext ctb;
 
 	th = build_thumb(&ths, 0);
+
+#ifndef NOMOD
+	bool can_publish = true;
 	if (check_save(2,0,0,XRES,YRES,0))
 		can_publish = false;
+#endif
 
 	while (!sdl_poll())
 	{

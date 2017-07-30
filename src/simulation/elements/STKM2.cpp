@@ -49,7 +49,11 @@ void STKM2_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Identifier = "DEFAULT_PT_STKM2";
 	elem->Name = "STK2";
 	elem->Colour = COLPACK(0x6464FF);
+#ifndef TOUCHUI
 	elem->MenuVisible = 1;
+#else
+	elem->MenuVisible = 0;
+#endif
 	elem->MenuSection = SC_SPECIAL;
 	elem->Enabled = 1;
 
