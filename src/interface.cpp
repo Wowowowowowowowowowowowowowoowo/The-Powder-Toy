@@ -4284,10 +4284,16 @@ int search_ui(pixel *vid_buf)
 			{
 				touchOffset = mx-initialOffset;
 				if (touchOffset > 0 && !search_page)
+				{
 					touchOffset = 0;
+					touchDragged = true;
+				}
 				else if (touchOffset < 0 && page_count<=exp_res)
+				{
 					touchOffset = 0;
-				if (std::abs(touchOffset) > 20)
+					touchDragged = true;
+				}
+				else if (std::abs(touchOffset) > 20)
 					touchDragged = true;
 			}
 		}
