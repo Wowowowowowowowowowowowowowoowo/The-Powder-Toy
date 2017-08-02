@@ -1599,6 +1599,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			open_ui(vid_buf, saveURIOpenString, NULL, 0);
 			saveURIOpen = 0;
 		}
+		if (!ptsaveOpenID)
+			ptsaveOpenID = Platform::CheckLoadedPtsave();
 		if (ptsaveOpenID)
 		{
 			if (num_tabs < 22-GetNumMenus())

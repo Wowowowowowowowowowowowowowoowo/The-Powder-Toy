@@ -480,4 +480,12 @@ void Vibrate(int milliseconds)
 #endif
 }
 
+int CheckLoadedPtsave()
+{
+#ifdef ANDROID
+	return SDL_ANDROID_GetPtsaveOpen();
+#endif
+	return 0;
+}
+
 }
