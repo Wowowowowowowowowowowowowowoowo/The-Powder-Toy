@@ -17,6 +17,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <sstream>
 #include "interface.h"
 #include "powder.h"
 #include "console.h"
@@ -95,13 +96,26 @@ int console_parse_coords(const char *txt, int *x, int *y, char *err)
 //takes things like 100C or 212F into account
 float console_parse_temp(std::string temperature)
 {
-	if (!temperature.length())
-		return 0;
-	if (temperature[temperature.length()-1] == 'C')
-		return (float)atof(temperature.substr(0, temperature.length()-1).c_str())+273.15f;
-	else if (temperature[temperature.length()-1] == 'F')
-		return (float)(atof(temperature.substr(0, temperature.length()-1).c_str())-32.0f)*5/9+273.15f;
-	return (float)atof(temperature.c_str());
+	float value;
+	bool isCelcius = false, isFahrenheit = false;
+	
+	char last = toupper(temperature[temperature.length()-1]);
+	if (last == 'C')
+		isCelcius = true;
+	else if (last == 'F')
+		isFahrenheit = true;
+	if (isCelcius || isFahrenheit)
+		temperature = temperature.substr(0, temperature.length()-1);
+	std::stringstream parser(temperature);
+	parser >> value;
+	if (!parser.eof())
+		return -1;
+
+	if (isCelcius)
+		value += 273.15f;
+	else if (isFahrenheit)
+		value = (value-32.0f)*5/9+273.15f;
+	return restrict_flt(value, MIN_TEMP, MAX_TEMP);
 }
 
 //takes a string of either coords or a particle number, and puts the particle number into *which
@@ -473,27 +487,36 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					if (strcmp(console4, "all")==0)
 					{
 						f = console_parse_temp(console5);
-						for (i=0; i<NPART; i++)
-						{
-							if (parts[i].type)
-								parts[i].temp = f;
-						}
+						if (f >= 0)
+							for (i=0; i<NPART; i++)
+							{
+								if (parts[i].type)
+									parts[i].temp = f;
+							}
+						else
+							strcpy(console_error, "Invalid temperature");
 					}
 					else if (console_parse_type(console4, &j, console_error))
 					{
 						f = console_parse_temp(console5);
-						for (i=0; i<NPART; i++)
-						{
-							if (parts[i].type == j)
-								parts[i].temp= f;
-						}
+						if (f >= 0)
+							for (i=0; i<NPART; i++)
+							{
+								if (parts[i].type == j)
+									parts[i].temp= f;
+							}
+						else
+							strcpy(console_error, "Invalid temperature");
 					}
 					else
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
 							f = console_parse_temp(console5);
-							parts[i].temp = f;
+							if (f >= 0)
+								parts[i].temp = f;
+							else
+								strcpy(console_error, "Invalid temperature");
 						}
 					}
 				}
