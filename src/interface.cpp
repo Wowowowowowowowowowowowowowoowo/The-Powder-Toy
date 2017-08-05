@@ -7702,7 +7702,6 @@ int save_filename_ui(pixel *vid_buf)
 
 	ui_edit_init(&ed, x0+11, y0+25, xsize-20, 0);
 	strcpy(ed.def, "[filename]");
-	ed.focus = 0;
 	ed.nx = 0;
 	
 	if (svf_fileopen)
