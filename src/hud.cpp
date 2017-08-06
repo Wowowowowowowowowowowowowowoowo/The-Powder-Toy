@@ -163,7 +163,8 @@ void SetRightHudText(int x, int y)
 			}
 			if (currentHud[20])
 			{
-				sprintf(tempstring,"Tmp: %d, ",parts[cr>>8].tmp);
+				if (currentHud[12] || ((cr&0xFF) != PT_RFRG && (cr&0xFF) != PT_RFGL))
+					sprintf(tempstring,"Tmp: %d, ",parts[cr>>8].tmp);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[21])
