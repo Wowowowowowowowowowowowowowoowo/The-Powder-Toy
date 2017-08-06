@@ -195,6 +195,10 @@ private:
 	bool GetNormal(int pt, int x, int y, float dx, float dy, float *nx, float *ny);
 
 	int TryMove(int i, int x, int y, int nx, int ny);
+	
+	// Functions in Transitions.cpp
+	bool TransferHeat(int i, int t, int surround[8]);
+	bool CheckPressureTransitions(int i, int t);
 };
 
 void Simulation_Compat_CopyData(Simulation *sim);

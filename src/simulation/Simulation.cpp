@@ -816,7 +816,7 @@ bool Simulation::UpdateParticle(int i)
 
 	if (!legacy_enable)
 	{
-		if (transfer_heat(i, t, surround))
+		if (TransferHeat(i, t, surround))
 		{
 			transitionOccurred = true;
 			t = parts[i].type;
@@ -872,7 +872,7 @@ bool Simulation::UpdateParticle(int i)
 
 	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].HighPressureTransitionThreshold != -1 || elements[t].HighPressureTransitionElement != -1))
 	{
-		if (particle_transitions(i, t))
+		if (CheckPressureTransitions(i, t))
 		{
 			transitionOccurred = true;
 			t = parts[i].type;
