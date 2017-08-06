@@ -57,6 +57,6 @@ pixel *prerender_save_PSv(void *save, int size, int *width, int *height);
 int parse_save_PSv(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES]);
 
 void ConvertJsonToBson(bson *b, Json::Value j, int depth = 0);
-void ConvertBsonToJson(bson_iterator *b, Json::Value *j);
+void ConvertBsonToJson(bson_iterator *b, Json::Value *j, int depth = 0);
 
 #endif

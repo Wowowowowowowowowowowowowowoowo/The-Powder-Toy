@@ -13,16 +13,15 @@ void MergeStampAuthorInfo(Json::Value stampAuthors)
 		// unless there is nothing loaded currently, then set authors directly
 		if (authors.size())
 		{
+			// Don't add if it's exactly the same
+			if (stampAuthors["links"].size() == 1 && stampAuthors["links"][0] == authors)
+				return;
 			if (authors["username"] != stampAuthors["username"])
 			{
-				// Don't add if it's exactly the same
-				if (stampAuthors["links"].size() != 1 || stampAuthors["links"][0] != authors)
-				{
-					// 2nd arg of MergeAuthorInfo needs to be an array 
-					Json::Value toAdd;
-					toAdd.append(stampAuthors);
-					MergeAuthorInfo(toAdd);
-				}
+				// 2nd arg of MergeAuthorInfo needs to be an array 
+				Json::Value toAdd;
+				toAdd.append(stampAuthors);
+				MergeAuthorInfo(toAdd);
 			}
 			else if (stampAuthors["links"].size())
 			{

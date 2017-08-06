@@ -111,19 +111,22 @@ void DoRestart(bool saveTab)
 
 void OpenLink(std::string uri)
 {
+	int ret = 0;
 #ifdef ANDROID
 	SDL_ANDROID_OpenExternalWebBrowser(uri.c_str());
 #elif WIN
 	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
 #elif MACOSX
 	std::string command = "open " + uri;
-	(void)system(command.c_str());
+	ret = system(command.c_str());
 #elif LIN
 	std::string command = "xdg-open " + uri;
-	system(command.c_str());
+	ret = system(command.c_str());
 #else
-	printf("Cannot open browser\n");
+	ret = 1;
 #endif
+	if (ret)
+		printf("Cannot open browser\n");
 }
 
 void Millisleep(long int t)
