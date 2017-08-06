@@ -1101,8 +1101,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 					}
 				}
 
-				//Don't save pavg for things that break under pressure, because then they will break when the save is loaded, since pressure isn't also loaded
-				if ((partsptr[i].pavg[0] || partsptr[i].pavg[1]) && !(partsptr[i].type == PT_QRTZ || partsptr[i].type == PT_GLAS || partsptr[i].type == PT_TUNG))
+				if (partsptr[i].pavg[0] || partsptr[i].pavg[1])
 				{
 					fieldDesc |= 1 << 13;
 					partsData[partsDataLen++] = (int)partsptr[i].pavg[0];
