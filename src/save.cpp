@@ -72,7 +72,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 	return NULL;
 }
 
-int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES], Json::Value *j)
+int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES], Json::Value *j, bool includePressure)
 {
 	unsigned char * saveData = (unsigned char*)save;
 	if (size < 16)
@@ -84,7 +84,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 	{
 		if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
 		{
-			ret = parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap, j);
+			ret = parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap, j, includePressure);
 		}
 		else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
 		{
@@ -766,7 +766,7 @@ fin:
 	minimumMinorVersion = minor;\
 }
 
-void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, Json::Value *j, bool tab)
+void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, Json::Value *j, bool tab, bool includePressure)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *finalData = NULL, *outputData = NULL, *soapLinkData = NULL;
@@ -1349,14 +1349,17 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 		bson_append_binary(&b, "wallMap", (char)BSON_BIN_USER, (const char*)wallData, wallDataLen);
 	if (fanData)
 		bson_append_binary(&b, "fanMap", (char)BSON_BIN_USER, (const char*)fanData, fanDataLen);
-	if (pressData)
-		bson_append_binary(&b, "pressMap", (char)BSON_BIN_USER, (const char*)pressData, pressDataLen);
-	if (vxData)
-		bson_append_binary(&b, "vxMap", (char)BSON_BIN_USER, (const char*)vxData, vxDataLen);
-	if (vyData)
-		bson_append_binary(&b, "vyMap", (char)BSON_BIN_USER, (const char*)vyData, vyDataLen);
-	if (ambientData)
-		bson_append_binary(&b, "ambientMap", (char)BSON_BIN_USER, (const char*)ambientData, ambientDataLen);
+	if (includePressure)
+	{
+		if (pressData)
+			bson_append_binary(&b, "pressMap", (char)BSON_BIN_USER, (const char*)pressData, pressDataLen);
+		if (vxData)
+			bson_append_binary(&b, "vxMap", (char)BSON_BIN_USER, (const char*)vxData, vxDataLen);
+		if (vyData)
+			bson_append_binary(&b, "vyMap", (char)BSON_BIN_USER, (const char*)vyData, vyDataLen);
+		if (ambientData)
+			bson_append_binary(&b, "ambientMap", (char)BSON_BIN_USER, (const char*)ambientData, ambientDataLen);
+	}
 	if (soapLinkData)
 		bson_append_binary(&b, "soapLinks", (char)BSON_BIN_USER, (const char*)soapLinkData, soapLinkDataLen);
 #ifndef NOMOD
@@ -1515,7 +1518,7 @@ void checkBsonFieldInt(bson_iterator iter, const char *field, int *setting)
 	}
 }
 
-int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES], Json::Value *j)
+int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* o_partsptr, unsigned pmap[YRES][XRES], Json::Value *j, bool includePressure)
 {
 	particle *partsptr = (particle*)o_partsptr;
 	unsigned char *inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
@@ -2011,7 +2014,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 	
 	//Read pressure data
-	if (pressData)
+	if (pressData && includePressure)
 	{
 		unsigned int j = 0;
 		unsigned int i, i2;
@@ -2032,7 +2035,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 
 	//Read vx data
-	if (vxData)
+	if (vxData && includePressure)
 	{
 		unsigned int j = 0;
 		unsigned int i, i2;
@@ -2053,7 +2056,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 
 	//Read vy data
-	if (vyData)
+	if (vyData && includePressure)
 	{
 		unsigned int j = 0;
 		unsigned int i, i2;
@@ -2074,7 +2077,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	}
 
 	// Read ambient heat data
-	if (ambientData && aheat_enable)
+	if (ambientData && aheat_enable && includePressure)
 	{
 		unsigned int tempTemp, j = 0;
 		if (blockW * blockH > ambientDataLen)

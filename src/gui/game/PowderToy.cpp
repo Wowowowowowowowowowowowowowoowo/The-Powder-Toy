@@ -1712,7 +1712,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 #endif
 		Snapshot::TakeSnapshot(globalSim);
 		Json::Value tempStampInfo;
-		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo))
+		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo, !shiftHeld))
 			MergeStampAuthorInfo(tempStampInfo);
 		ResetStampState();
 		return;
@@ -1753,7 +1753,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				break;
 			}
 			case CUT:
@@ -1764,14 +1764,14 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				if (clipboardData)
 					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
 			}
 			case SAVE:
 				// function returns the stamp name which we don't want, so free it
-				free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y));
+				free(stamp_save(savePos.X, savePos.Y, saveSize.X, saveSize.Y, !shiftHeld));
 				break;
 			default:
 				break;

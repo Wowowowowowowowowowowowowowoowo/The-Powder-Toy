@@ -506,7 +506,7 @@ int clipboard_ready = 0;
 void *clipboard_data = 0;
 int clipboard_length = 0;
 
-char* stamp_save(int x, int y, int w, int h)
+char* stamp_save(int x, int y, int w, int h, bool includePressure)
 {
 	FILE *f;
 	char fn[64], sn[16];
@@ -527,7 +527,7 @@ char* stamp_save(int x, int y, int w, int h)
 		stampInfo["links"].append(authors);
 	}
 
-	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, &stampInfo);
+	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, &stampInfo, false, includePressure);
 	if (!s)
 		return NULL;
 

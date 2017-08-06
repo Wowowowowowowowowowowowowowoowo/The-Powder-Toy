@@ -1098,17 +1098,19 @@ int simulation_saveStamp(lua_State* l)
 	int y = luaL_optint(l,2,0);
 	int w = luaL_optint(l,3,XRES);
 	int h = luaL_optint(l,4,YRES);
-	char *name = stamp_save(x, y, w, h);
+	int includePressure = luaL_optint(l,5,1);
+	char *name = stamp_save(x, y, w, h, includePressure);
 	lua_pushstring(l, name);
 	return 1;
 }
 
 int simulation_loadStamp(lua_State* l)
 {
-	int stamp_size = 0, i = -1, x, y;
+	int stamp_size = 0, i = -1;
 	void *load_data = NULL;
-	x = luaL_optint(l,2,0);
-	y = luaL_optint(l,3,0);
+	int x = luaL_optint(l,2,0);
+	int y = luaL_optint(l,3,0);
+	int includePressure = luaL_optint(l,4,1);
 
 	if (lua_isstring(l, 1)) //Load from 10 char name, or full filename
 	{
@@ -1132,7 +1134,7 @@ int simulation_loadStamp(lua_State* l)
 
 	int oldPause = sys_pause;
 	Json::Value luaStampAuthors;
-	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &luaStampAuthors))
+	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &luaStampAuthors, includePressure))
 	{
 		lua_pushinteger(l, 1);
 		

@@ -277,7 +277,7 @@ bool thumb_cache_find(char *id, void **thumb, int *size);
 void dump_frame(pixel *src, int w, int h, int pitch);
 void clear_sim();
 void NewSim();
-char* stamp_save(int x, int y, int w, int h);
+char* stamp_save(int x, int y, int w, int h, bool includePressure);
 void tab_save(int num, char reloadButton);
 void *stamp_load(int i, int *size, int reorder);
 int tab_load(int tabNum, bool del = false);
