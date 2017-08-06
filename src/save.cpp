@@ -3775,7 +3775,7 @@ void ConvertBsonToJson(bson_iterator *iter, Json::Value *j, int depth)
 					(*j)["links"].append(bson_iterator_int(&arrayiter));
 				}
 				length2++;
-				if (length > (int)(40 / std::pow(depth+1, 2)) || length2 > 50)
+				if (length > (int)(40 / ((depth+1) * (depth+1))) || length2 > 50)
 					break;
 			}
 		}
@@ -3841,7 +3841,7 @@ void ConvertJsonToBson(bson *b, Json::Value j, int depth)
 				}
 				if (!j[member][i].isObject())
 					continue;
-				if (depth > 4 || length > (int)(40 / std::pow(depth+1, 2)))
+				if (depth > 4 || length > (int)(40 / ((depth+1) * (depth+1))))
 				{
 					std::set<int> nestedSaveIDs = GetNestedSaveIDs(j[member][i]);
 					saveIDs.insert(nestedSaveIDs.begin(), nestedSaveIDs.end());
