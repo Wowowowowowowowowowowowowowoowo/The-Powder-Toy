@@ -5717,7 +5717,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						authors["date"] = info->date; // this is WRONG but we don't get any better info until I use the new api
 					}
 					else
+					{
+						if (tempSaveInfo["id"] == 0 || tempSaveInfo["id"] == -1)
+							tempSaveInfo["id"] = atoi(svf_id);
 						authors = tempSaveInfo;
+					}
 
 					break;
 				}
@@ -6371,6 +6375,8 @@ int execute_save(pixel *vid_buf)
 	svf_own = 1;
 	if (result)
 		free(result);
+	serverSaveInfo["id"] = atoi(svf_id);
+	authors = serverSaveInfo;
 	return 0;
 }
 
@@ -7771,6 +7777,8 @@ int save_filename_ui(pixel *vid_buf)
 				{
 					error_ui(vid_buf, 0, "Unable to write to save file.");
 				}
+				if (!ret)
+					authors = localSaveInfo;
 				break;
 			}
 		}
