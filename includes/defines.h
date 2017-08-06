@@ -89,8 +89,8 @@
 const int menuStartPosition = XRES+BARSIZE-17;
 const int menuIconWidth = 17;
 
-#define XCNTR   306
-#define YCNTR   192
+#define XCNTR   XRES/2
+#define YCNTR   YRES/2
 
 #define MAX_DISTANCE sqrt(pow(XRES, 2.0f)+pow(YRES, 2.0f))
 
