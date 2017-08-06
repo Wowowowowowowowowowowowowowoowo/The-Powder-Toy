@@ -75,22 +75,28 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float vx[YRES/CELL][XRES/CELL], float vy[YRES/CELL][XRES/CELL], float pv[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], std::vector<Sign*>& signs, void* partsptr, unsigned pmap[YRES][XRES], Json::Value *j)
 {
 	unsigned char * saveData = (unsigned char*)save;
-	if (size<16)
+	if (size < 16)
 	{
 		return 1;
 	}
-	globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
-	((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
+	int ret = 1;
 	try
 	{
 		if(saveData[0] == 'O' && saveData[1] == 'P' && (saveData[2] == 'S' || saveData[2] == 'J') && saveData[3] == '1')
 		{
-			return parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap, j);
+			ret = parse_save_OPS(save, size, replace, x0, y0, bmap, vx, vy, pv, fvx, fvy, signs, partsptr, pmap, j);
 		}
 		else if((saveData[0]==0x66 && saveData[1]==0x75 && saveData[2]==0x43) || (saveData[0]==0x50 && saveData[1]==0x53 && saveData[2]==0x76))
 		{
-			return parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
+			ret = parse_save_PSv(save, size, replace, x0, y0, bmap, fvx, fvy, signs, partsptr, pmap);
 		}
+		if (!ret)
+		{
+			globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
+			((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
+			RecalculateBlockAirMaps(globalSim);
+		}
+		return ret;
 	}
 	catch (std::runtime_error)
 	{

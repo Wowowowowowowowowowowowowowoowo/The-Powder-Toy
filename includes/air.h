@@ -18,6 +18,8 @@
 #define AIR_H
 #include "defines.h"
 
+class Simulation;
+
 extern float vx[YRES/CELL][XRES/CELL], ovx[YRES/CELL][XRES/CELL];
 extern float vy[YRES/CELL][XRES/CELL], ovy[YRES/CELL][XRES/CELL];
 extern float pv[YRES/CELL][XRES/CELL], opv[YRES/CELL][XRES/CELL];
@@ -36,5 +38,7 @@ void make_kernel(void);
 void update_airh(void);
 
 void update_air(void);
+
+void RecalculateBlockAirMaps(Simulation * sim);
 
 #endif
