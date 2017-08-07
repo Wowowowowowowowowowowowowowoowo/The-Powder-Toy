@@ -2251,10 +2251,11 @@ void render_parts(pixel *vid, Point mousePos)
 						}
 					}
 				}
-				if(ptypes[t].properties & PROP_HOT_GLOW && parts[i].temp>(ptransitions[t].thv-800.0f))
+				if(sim->elements[t].Properties & PROP_HOT_GLOW && parts[i].temp > (sim->elements[t].HighTemperatureTransitionThreshold-800.0f))
 				{
-					gradv = M_PI/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
-					caddress = (int)((parts[i].temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):parts[i].temp-(ptransitions[t].thv-800.0f));
+					int transitionTemp = sim->elements[t].HighTemperatureTransitionThreshold;
+					gradv = M_PI / (transitionTemp + 800.0f);
+					caddress = (int)(parts[i].temp > transitionTemp ? 800.0f : parts[i].temp - (transitionTemp - 800.0f));
 					colr += (int)(sin(gradv*caddress) * 226);
 					colg += (int)(sin(gradv*caddress*4.55 +3.14) * 34);
 					colb += (int)(sin(gradv*caddress*2.22 +3.14) * 64);

@@ -21,7 +21,7 @@ int DEST_update(UPDATE_FUNC_ARGS)
 	int ry=rand()%5-2;
 
 	int r = pmap[y+ry][x+rx];
-	if (!r || (r&0xFF)==PT_DEST || ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE || ptypes[r&0xFF].properties&PROP_CLONE || ptypes[r&0xFF].properties&PROP_BREAKABLECLONE)
+	if (!r || (r&0xFF)==PT_DEST || (sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE) || (sim->elements[r&0xFF].Properties&PROP_CLONE) || (sim->elements[r&0xFF].Properties&PROP_BREAKABLECLONE))
 		return 0;
 
 	if (parts[i].life<=0 || parts[i].life>37)
@@ -47,11 +47,11 @@ int DEST_update(UPDATE_FUNC_ARGS)
 	else if (!(rand()%3))
 	{
 		kill_part(r>>8);
-		parts[i].life -= 4*((ptypes[r&0xFF].properties&TYPE_SOLID)?3:1);
+		parts[i].life -= 4*((sim->elements[r&0xFF].Properties&TYPE_SOLID)?3:1);
 		if (parts[i].life<=0)
 			parts[i].life=1;
 	}
-	else if (ptypes[r&0xFF].hconduct)
+	else if (sim->elements[r&0xFF].HeatConduct)
 		parts[r>>8].temp = MAX_TEMP;
 	parts[i].temp = MAX_TEMP;
 	pv[y/CELL][x/CELL]+=80.0f;

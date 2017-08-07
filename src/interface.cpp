@@ -3099,9 +3099,9 @@ void menu_select_element(int b, Tool* over)
 			{
 				realistic = !realistic;
 				if (realistic)
-					ptypes[PT_FIRE].hconduct = 1;
+					globalSim->elements[PT_FIRE].HeatConduct = 1;
 				else
-					ptypes[PT_FIRE].hconduct = 88;
+					globalSim->elements[PT_FIRE].HeatConduct = 88;
 			}
 			else if (toolID == FAV_FIND2)
 			{

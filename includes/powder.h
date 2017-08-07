@@ -81,40 +81,15 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 struct part_type
 {
 	char *name;
-	float gravity;
-	int falldown;
-	int flammable;
-	int explosive;
-	int meltable;
-	int hardness;
 	int enabled;
-	int weight;
 	float heat;
-	unsigned char hconduct;
 	char *descs;
 	unsigned int properties;
 	int (*graphics_func) (GRAPHICS_FUNC_ARGS);
 };
 typedef struct part_type part_type;
 
-struct part_transition
-{
-	float plv; // transition occurs if pv is lower than this
-	int plt;
-	float phv; // transition occurs if pv is higher than this
-	int pht;
-	float tlv; // transition occurs if t is lower than this
-	int tlt;
-	float thv; // transition occurs if t is higher than this
-	int tht;
-};
-typedef struct part_transition part_transition;
-
-// TODO: falldown, properties, state - should at least one of these be removed?
 extern part_type ptypes[PT_NUM];
-extern unsigned int platent[PT_NUM];
-
-extern part_transition ptransitions[PT_NUM];
 
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern const particle emptyparticle;

@@ -34,8 +34,6 @@
 #include "simulation/WallNumbers.h"
 
 part_type ptypes[PT_NUM];
-part_transition ptransitions[PT_NUM];
-unsigned int platent[PT_NUM];
 
 particle *parts;
 
@@ -322,7 +320,7 @@ int flood_water(int x, int y, int i, int originaly, int check)
 
 	while (x1>=CELL)
 	{
-		if ((ptypes[(pmap[y][x1-1]&0xFF)].falldown)!=2)
+		if ((globalSim->elements[(pmap[y][x1-1]&0xFF)].Falldown)!=2)
 		{
 			break;
 		}
@@ -330,7 +328,7 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	}
 	while (x2<XRES-CELL)
 	{
-		if ((ptypes[(pmap[y][x2+1]&0xFF)].falldown)!=2)
+		if ((globalSim->elements[(pmap[y][x2+1]&0xFF)].Falldown)!=2)
 		{
 			break;
 		}
@@ -360,12 +358,12 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	
 	if (y>=CELL+1)
 		for (x=x1; x<=x2; x++)
-			if ((ptypes[(pmap[y-1][x]&0xFF)].falldown)==2 && (parts[pmap[y-1][x]>>8].flags & FLAG_WATEREQUAL) == check)
+			if ((globalSim->elements[(pmap[y-1][x]&0xFF)].Falldown)==2 && (parts[pmap[y-1][x]>>8].flags & FLAG_WATEREQUAL) == check)
 				if (!flood_water(x, y-1, i, originaly, check))
 					return 0;
 	if (y<YRES-CELL-1)
 		for (x=x1; x<=x2; x++)
-			if ((ptypes[(pmap[y+1][x]&0xFF)].falldown)==2 && (parts[pmap[y+1][x]>>8].flags & FLAG_WATEREQUAL) == check)
+			if ((globalSim->elements[(pmap[y+1][x]&0xFF)].Falldown)==2 && (parts[pmap[y+1][x]>>8].flags & FLAG_WATEREQUAL) == check)
 				if (!flood_water(x, y+1, i, originaly, check))
 					return 0;
 	return 1;

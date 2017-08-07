@@ -114,11 +114,13 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 
 int QRTZ_graphics(GRAPHICS_FUNC_ARGS)
 {
-	int t = cpart->type, z = cpart->tmp2 - 5;//speckles!
-	if (cpart->temp>(ptransitions[t].thv-800.0f))//hotglow for quartz
+	int t = cpart->type, z = cpart->tmp2 - 5; // speckles!
+	float transitionTemp = sim->elements[t].HighTemperatureTransitionThreshold;
+	// hotglow for quartz
+	if (cpart->temp > transitionTemp - 800.0f)
 	{
-		float frequency = M_PI/(2*ptransitions[t].thv-(ptransitions[t].thv-800.0f));
-		int q = (int)((cpart->temp>ptransitions[t].thv)?ptransitions[t].thv-(ptransitions[t].thv-800.0f):cpart->temp-(ptransitions[t].thv-800.0f));
+		float frequency = M_PI / (transitionTemp + 800.0f);
+		int q = (int)(cpart->temp > transitionTemp ? 800.0f : cpart->temp - (transitionTemp - 800.0f));
 		*colr += (int)(sin(frequency*q) * 226 + (z * 16));
 		*colg += (int)(sin(frequency*q*4.55 +3.14) * 34 + (z * 16));
 		*colb += (int)(sin(frequency*q*2.22 +3.14) * 64 + (z * 16));

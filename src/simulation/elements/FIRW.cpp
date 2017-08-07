@@ -32,12 +32,12 @@ int FIRW_update(UPDATE_FUNC_ARGS)
 					if (rt==PT_FIRE || rt==PT_PLSM || rt==PT_THDR)
 					{
 						float gx, gy, multiplier;
-						get_gravity_field(x, y, ptypes[PT_FIRW].gravity, 1.0f, &gx, &gy);
+						get_gravity_field(x, y, sim->elements[PT_FIRW].Gravity, 1.0f, &gx, &gy);
 						if (gx*gx+gy*gy < 0.001f)
 						{
 							float angle = (rand()%6284)*0.001f;//(in radians, between 0 and 2*pi)
-							gx += sinf(angle)*ptypes[PT_FIRW].gravity*0.5f;
-							gy += cosf(angle)*ptypes[PT_FIRW].gravity*0.5f;
+							gx += sinf(angle) * sim->elements[PT_FIRW].Gravity * 0.5f;
+							gy += cosf(angle) * sim->elements[PT_FIRW].Gravity * 0.5f;
 						}
 						parts[i].tmp = 1;
 						parts[i].life = rand()%10+20;

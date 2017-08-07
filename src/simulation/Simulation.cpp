@@ -2852,28 +2852,9 @@ void Simulation_Compat_CopyData(Simulation* sim)
 	{
 		ptypes[t].name = mystrdup(sim->elements[t].Name.c_str());
 		ptypes[t].enabled = sim->elements[t].Enabled;
-		ptypes[t].gravity = sim->elements[t].Gravity;
-		ptypes[t].falldown = sim->elements[t].Falldown;
-		ptypes[t].flammable = sim->elements[t].Flammable;
-		ptypes[t].explosive = sim->elements[t].Explosive;
-		ptypes[t].meltable = sim->elements[t].Meltable;
-		ptypes[t].hardness = sim->elements[t].Hardness;
-		ptypes[t].weight = sim->elements[t].Weight;
 		ptypes[t].heat = sim->elements[t].DefaultProperties.temp;
-		ptypes[t].hconduct = sim->elements[t].HeatConduct;
 		ptypes[t].descs = mystrdup(sim->elements[t].Description.c_str());
 		ptypes[t].properties = sim->elements[t].Properties;
 		ptypes[t].graphics_func = sim->elements[t].Graphics;
-
-		ptransitions[t].plt = sim->elements[t].LowPressureTransitionElement;
-		ptransitions[t].plv = sim->elements[t].LowPressureTransitionThreshold;
-		ptransitions[t].pht = sim->elements[t].HighPressureTransitionElement;
-		ptransitions[t].phv = sim->elements[t].HighPressureTransitionThreshold;
-		ptransitions[t].tlt = sim->elements[t].LowTemperatureTransitionElement;
-		ptransitions[t].tlv = sim->elements[t].LowTemperatureTransitionThreshold;
-		ptransitions[t].tht = sim->elements[t].HighTemperatureTransitionElement;
-		ptransitions[t].thv = sim->elements[t].HighTemperatureTransitionThreshold;
-
-		platent[t] = sim->elements[t].Latent;
 	}
 }

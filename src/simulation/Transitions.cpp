@@ -139,9 +139,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				{
 					if (realistic)
 					{
-						if (platent[t] <= (c_heat - (elements[t].HighTemperatureTransitionThreshold - dbt)*c_Cm))
+						if (elements[t].Latent <= (c_heat - (elements[t].HighTemperatureTransitionThreshold - dbt)*c_Cm))
 						{
-							pt = (c_heat - platent[t])/c_Cm;
+							pt = (c_heat - elements[t].Latent)/c_Cm;
 							t = elements[t].HighTemperatureTransitionElement;
 						}
 						else
@@ -169,9 +169,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 							if (s)
 							{
 								//One ice table value for all it's kinds
-								if (platent[t] <= (c_heat - (elements[parts[i].ctype].LowTemperatureTransitionThreshold - dbt)*c_Cm))
+								if (elements[t].Latent <= (c_heat - (elements[parts[i].ctype].LowTemperatureTransitionThreshold - dbt)*c_Cm))
 								{
-									pt = (c_heat - platent[t])/c_Cm;
+									pt = (c_heat - elements[t].Latent)/c_Cm;
 									t = parts[i].ctype;
 									parts[i].ctype = PT_NONE;
 									parts[i].life = 0;
@@ -212,9 +212,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				{
 					if (realistic)
 					{
-						if (platent[t] <= (c_heat - (elements[t].HighTemperatureTransitionThreshold - dbt)*c_Cm))
+						if (elements[t].Latent <= (c_heat - (elements[t].HighTemperatureTransitionThreshold - dbt)*c_Cm))
 						{
-							pt = (c_heat - platent[t])/c_Cm;
+							pt = (c_heat - elements[t].Latent)/c_Cm;
 
 							if (1>rand()%6)
 								t = PT_SALT;
@@ -271,9 +271,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				{
 					if (realistic)
 					{
-						if (platent[elements[t].LowTemperatureTransitionElement] >= (c_heat - (elements[t].LowTemperatureTransitionThreshold - dbt)*c_Cm))
+						if (elements[elements[t].LowTemperatureTransitionElement].Latent >= (c_heat - (elements[t].LowTemperatureTransitionThreshold - dbt)*c_Cm))
 						{
-							pt = (c_heat + platent[elements[t].LowTemperatureTransitionElement])/c_Cm;
+							pt = (c_heat + elements[elements[t].LowTemperatureTransitionElement].Latent)/c_Cm;
 							t = elements[t].LowTemperatureTransitionElement;
 						}
 						else
@@ -376,7 +376,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 					pv[y/CELL][x/CELL] += 0.50f;
 				if (t==PT_NONE)
 				{
-					kill_part(i);
+					part_kill(i);
 					return true;
 				}
 				else

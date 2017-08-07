@@ -21,12 +21,12 @@ int FWRK_update(UPDATE_FUNC_ARGS)
 	{
 		float gx, gy, multiplier, gmax;
 		int randTmp;
-		get_gravity_field(x, y, ptypes[PT_FWRK].gravity, 1.0f, &gx, &gy);
+		get_gravity_field(x, y, sim->elements[PT_FWRK].Gravity, 1.0f, &gx, &gy);
 		if (gx*gx+gy*gy < 0.001f)
 		{
 			float angle = (rand()%6284)*0.001f;//(in radians, between 0 and 2*pi)
-			gx += sinf(angle)*ptypes[PT_FWRK].gravity*0.5f;
-			gy += cosf(angle)*ptypes[PT_FWRK].gravity*0.5f;
+			gx += sinf(angle) * sim->elements[PT_FWRK].Gravity * 0.5f;
+			gy += cosf(angle) * sim->elements[PT_FWRK].Gravity * 0.5f;
 		}
 		gmax = std::max(fabsf(gx), fabsf(gy));
 		if (sim->EvalMove(PT_FWRK, (int)(x-(gx/gmax)+0.5f), (int)(y-(gy/gmax)+0.5f)))

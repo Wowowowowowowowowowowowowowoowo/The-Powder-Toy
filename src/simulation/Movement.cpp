@@ -17,13 +17,13 @@ bool Simulation::IsWallBlocking(int x, int y, int type)
 	if (bmap[y/CELL][x/CELL])
 	{
 		int wall = bmap[y/CELL][x/CELL];
-		if (wall == WL_ALLOWGAS && !(ptypes[type].properties&TYPE_GAS))
+		if (wall == WL_ALLOWGAS && !(elements[type].Properties&TYPE_GAS))
 			return true;
-		else if (wall == WL_ALLOWENERGY && !(ptypes[type].properties&TYPE_ENERGY))
+		else if (wall == WL_ALLOWENERGY && !(elements[type].Properties&TYPE_ENERGY))
 			return true;
-		else if (wall == WL_ALLOWLIQUID && !(ptypes[type].properties&TYPE_LIQUID))
+		else if (wall == WL_ALLOWLIQUID && !(elements[type].Properties&TYPE_LIQUID))
 			return true;
-		else if (wall == WL_ALLOWPOWDER && !(ptypes[type].properties&TYPE_PART))
+		else if (wall == WL_ALLOWPOWDER && !(elements[type].Properties&TYPE_PART))
 			return true;
 		else if (wall == WL_ALLOWAIR || wall == WL_WALL || wall == WL_WALLELEC)
 			return true;
@@ -313,21 +313,21 @@ void Simulation::InitCanMove()
 		for (int destinationType = 1; destinationType < PT_NUM; destinationType++)
 		{
 			// weight check, also prevents particles of same type displacing each other
-			if (ptypes[movingType].weight <= ptypes[destinationType].weight || destinationType == PT_GEL)
+			if (elements[movingType].Weight <= elements[destinationType].Weight || destinationType == PT_GEL)
 				can_move[movingType][destinationType] = 0;
 
 			//other checks for NEUT and energy particles
-			if (movingType == PT_NEUT && ptypes[destinationType].properties&PROP_NEUTPASS)
+			if (movingType == PT_NEUT && elements[destinationType].Properties&PROP_NEUTPASS)
 				can_move[movingType][destinationType] = 2;
-			if (movingType == PT_NEUT && ptypes[destinationType].properties&PROP_NEUTABSORB)
+			if (movingType == PT_NEUT && elements[destinationType].Properties&PROP_NEUTABSORB)
 				can_move[movingType][destinationType] = 1;
-			if (movingType == PT_NEUT && ptypes[destinationType].properties&PROP_NEUTPENETRATE)
+			if (movingType == PT_NEUT && elements[destinationType].Properties&PROP_NEUTPENETRATE)
 				can_move[movingType][destinationType] = 1;
-			if (ptypes[movingType].properties&PROP_NEUTPENETRATE && destinationType == PT_NEUT)
+			if (elements[movingType].Properties&PROP_NEUTPENETRATE && destinationType == PT_NEUT)
 				can_move[movingType][destinationType] = 0;
-			if (ptypes[movingType].properties&TYPE_ENERGY && ptypes[destinationType].properties&TYPE_ENERGY)
+			if (elements[movingType].Properties&TYPE_ENERGY && elements[destinationType].Properties&TYPE_ENERGY)
 				can_move[movingType][destinationType] = 2;
-			if (ptypes[destinationType].properties&PROP_INDESTRUCTIBLE)
+			if (elements[destinationType].Properties&PROP_INDESTRUCTIBLE)
 				can_move[movingType][destinationType] = 0;
 		}
 	}
@@ -335,7 +335,7 @@ void Simulation::InitCanMove()
 	{
 		//set what stickmen can move through
 		unsigned char stkm_move = 0;
-		if (ptypes[destinationType].properties & (TYPE_LIQUID | TYPE_GAS))
+		if (elements[destinationType].Properties & (TYPE_LIQUID | TYPE_GAS))
 			stkm_move = 2;
 		if (!destinationType || destinationType == PT_PRTO || destinationType == PT_SPAWN || destinationType == PT_SPAWN2)
 			stkm_move = 2;
@@ -369,7 +369,7 @@ void Simulation::InitCanMove()
 		can_move[movingType][PT_EMBR] = 0;
 		can_move[PT_EMBR][movingType] = 0;
 		//Energy particles move through VIBR and BVBR, so it can absorb them
-		if (ptypes[movingType].properties&TYPE_ENERGY)
+		if (elements[movingType].Properties&TYPE_ENERGY)
 		{
 			can_move[movingType][PT_VIBR] = 1;
 			can_move[movingType][PT_BVBR] = 1;
@@ -393,7 +393,7 @@ void Simulation::InitCanMove()
 #ifndef NOMOD
 		 || destinationType == PT_PINV
 #endif
-		 || (ptypes[destinationType].properties&PROP_CLONE) || (ptypes[destinationType].properties&PROP_BREAKABLECLONE))
+		 || (elements[destinationType].Properties&PROP_CLONE) || (elements[destinationType].Properties&PROP_BREAKABLECLONE))
 			can_move[PT_PHOT][destinationType] = 2;
 		if (destinationType != PT_DMND && destinationType != PT_INSL && destinationType != PT_VOID && destinationType != PT_PVOD
 			 && destinationType != PT_VIBR && destinationType != PT_BVBR && destinationType != PT_PRTO && destinationType != PT_PRTI
@@ -555,19 +555,19 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 	}
 	if (bmap[ny/CELL][nx/CELL])
 	{
-		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWGAS && !(ptypes[pt].properties&TYPE_GAS))// && ptypes[pt].falldown!=0 && pt!=PT_FIRE && pt!=PT_SMKE)
+		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWGAS && !(elements[pt].Properties&TYPE_GAS))// && elements[pt].Falldown!=0 && pt!=PT_FIRE && pt!=PT_SMKE)
 			return 0;
-		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWENERGY && !(ptypes[pt].properties&TYPE_ENERGY))// && ptypes[pt].falldown!=0 && pt!=PT_FIRE && pt!=PT_SMKE)
+		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWENERGY && !(elements[pt].Properties&TYPE_ENERGY))// && elements[pt].Falldown!=0 && pt!=PT_FIRE && pt!=PT_SMKE)
 			return 0;
-		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWLIQUID && ptypes[pt].falldown!=2)
+		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWLIQUID && elements[pt].Falldown!=2)
 			return 0;
-		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWPOWDER && ptypes[pt].falldown!=1)
+		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWPOWDER && elements[pt].Falldown!=1)
 			return 0;
 		if (bmap[ny/CELL][nx/CELL]==WL_ALLOWAIR || bmap[ny/CELL][nx/CELL]==WL_WALL || bmap[ny/CELL][nx/CELL]==WL_WALLELEC)
 			return 0;
 		if (bmap[ny/CELL][nx/CELL]==WL_EWALL && !emap[ny/CELL][nx/CELL])
 			return 0;
-		if (bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[ny/CELL][nx/CELL] && !(ptypes[pt].properties&TYPE_SOLID) && !(ptypes[r&0xFF].properties&TYPE_SOLID))
+		if (bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[ny/CELL][nx/CELL] && !(elements[pt].Properties&TYPE_SOLID) && !(elements[r&0xFF].Properties&TYPE_SOLID))
 			return 2;
 	}
 	return result;
@@ -598,24 +598,24 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			if (vel > 5)
 				part_change_type(r>>8, nx, ny, PT_SAWD);
 		}
-		if (!(ptypes[parts[i].type].properties & TYPE_ENERGY))
+		if (!(elements[parts[i].type].Properties & TYPE_ENERGY))
 			return 0;
 		if (!legacy_enable && parts[i].type==PT_PHOT && r)//PHOT heat conduction
 		{
 			if ((r & 0xFF) == PT_COAL || (r & 0xFF) == PT_BCOL)
 				parts[r>>8].temp = parts[i].temp;
 
-			if ((r & 0xFF) < PT_NUM && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && (r&0xFF)!=PT_FILT)
+			if ((r & 0xFF) < PT_NUM && elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && (r&0xFF)!=PT_FILT)
 				parts[i].temp = parts[r>>8].temp = restrict_flt((parts[r>>8].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
 		}
-		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((ptypes[r&0xFF].properties&PROP_CLONE) || (ptypes[r&0xFF].properties&PROP_BREAKABLECLONE))) {
+		else if ((parts[i].type==PT_NEUT || parts[i].type==PT_ELEC) && ((elements[r&0xFF].Properties&PROP_CLONE) || (elements[r&0xFF].Properties&PROP_BREAKABLECLONE))) {
 			if (!parts[r>>8].ctype)
 				parts[r>>8].ctype = parts[i].type;
 		}
 #ifdef NOMOD
-		if ((r&0xFF)==PT_PRTI && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+		if ((r&0xFF)==PT_PRTI && (elements[parts[i].type].Properties & TYPE_ENERGY))
 #else
-		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (ptypes[parts[i].type].properties & TYPE_ENERGY))
+		if (((r&0xFF)==PT_PRTI || (r&0xFF)==PT_PPTI) && (elements[parts[i].type].Properties & TYPE_ENERGY))
 #endif
 		{
 			PortalChannel *channel = ((PRTI_ElementDataContainer*)elementData[PT_PRTI])->GetParticleChannel(this, r>>8);
@@ -636,7 +636,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		x2 = x + vx2;
 		y2 = y + vy2;
 		r2 = pmap[y2][x2];
-		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && !(ptypes[r2&0xFF].properties&PROP_INDESTRUCTIBLE) && (vx2 || vy2))
+		while ((r2&0xFF) && ((r2&0xFF) != PT_SPNG) && !(elements[r2&0xFF].Properties&PROP_INDESTRUCTIBLE) && (vx2 || vy2))
 		{
 			parts[r2>>8].x += vx;
 			parts[r2>>8].y += vy;
@@ -687,7 +687,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 					parts[r>>8].ctype = parts[i].ctype;
 					parts[r>>8].tmp = (0xFFFF & (int)(parts[i].vx * 255.0f)) | (0xFFFF0000 & (int)(parts[i].vy * 16711680.0f));
 					parts[r>>8].tmp2 = (0xFFFF & (int)((parts[i].x - x) * 255.0f)) | (0xFFFF0000 & (int)((parts[i].y - y) * 16711680.0f));
-					kill_part(i);
+					part_kill(i);
 				}
 				break;
 			case PT_INVIS:
@@ -812,7 +812,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		break;
 	case PT_VIBR:
 	case PT_BVBR:
-		if (ptypes[parts[i].type].properties & TYPE_ENERGY)
+		if (elements[parts[i].type].Properties & TYPE_ENERGY)
 		{
 			parts[r>>8].tmp += 20;
 			part_kill(i);
@@ -824,7 +824,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	switch (parts[i].type)
 	{
 	case PT_NEUT:
-		if (ptypes[r&0xFF].properties & PROP_NEUTABSORB)
+		if (elements[r&0xFF].Properties & PROP_NEUTABSORB)
 		{
 			part_kill(i);
 			return 0;
@@ -851,7 +851,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		{
 			// target material is NEUTPENETRATE, meaning it gets moved around when neutron passes
 			unsigned s = pmap[y][x];
-			if (s && !(ptypes[s&0xFF].properties&PROP_NEUTPENETRATE))
+			if (s && !(elements[s&0xFF].Properties&PROP_NEUTPENETRATE))
 				return 1; // if the element currently underneath neutron isn't NEUTPENETRATE, don't move anything except the neutron
 			// if nothing is currently underneath neutron, only move target particle
 			if (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY)
@@ -933,7 +933,7 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 			return -1;
 		}
 
-		if (ptypes[t].properties & TYPE_ENERGY)
+		if (elements[t].Properties & TYPE_ENERGY)
 			photons[ny][nx] = t|(i<<8);
 #ifndef NOMOD
 		else if (t && (pmap[ny][nx]&0xFF) != PT_PINV && (t!=PT_MOVS || !(pmap[ny][nx]&0xFF) || (pmap[ny][nx]&0xFF) == PT_MOVS))

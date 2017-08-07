@@ -76,7 +76,7 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype&0xFF);
 			if (np >= 0)
 			{
-				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && ptransitions[parts[i].tmp].tht==PT_LAVA)
+				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransitionElement==PT_LAVA)
 					parts[np].ctype = parts[i].tmp;
 			}
 		}

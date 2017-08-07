@@ -205,10 +205,10 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 					(rt != PT_SPNG || parts[r>>8].life == 0))
 				{
 					sim->part_change_type(r>>8, x+rx, y+ry, PT_FIRE);
-					parts[r>>8].temp = restrict_flt(ptypes[PT_FIRE].heat + (ptypes[rt].flammable/2), MIN_TEMP, MAX_TEMP);
+					parts[r>>8].temp = restrict_flt(ptypes[PT_FIRE].heat + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);
 					parts[r>>8].life = rand()%80+180;
 					parts[r>>8].tmp = parts[r>>8].ctype = 0;
-					if (ptypes[rt].explosive)
+					if (sim->elements[rt].Explosive)
 						pv[y/CELL][x/CELL] += 0.25f * CFDS;
 				}
 			}

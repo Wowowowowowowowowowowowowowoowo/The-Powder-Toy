@@ -57,7 +57,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			ry = (rndstore>>2)%3-1;
 			rndstore = rndstore >> 4;
 			r = pmap[y+ry][x+rx];
-			if ((r&0xFF) && (r&0xFF) != PT_BREL && (ptypes[r&0xFF].properties&PROP_CONDUCTS) && !parts[r>>8].life)
+			if ((r&0xFF) && (r&0xFF) != PT_BREL && (sim->elements[r&0xFF].Properties&PROP_CONDUCTS) && !parts[r>>8].life)
 			{
 				sim->spark_conductive(r>>8, x+rx, y+ry);
 			}
@@ -70,7 +70,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			if(BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
-				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && ptypes[r&0xFF].hconduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10))
+				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10))
 				{
 					parts[r>>8].temp += parts[i].tmp*3;
 					parts[i].tmp = 0;
