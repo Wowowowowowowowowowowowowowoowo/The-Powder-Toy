@@ -137,6 +137,7 @@ PowderToy::PowderToy():
 	else
 		sessionCheck = NULL;
 
+#ifndef TOUCHUI
 	if (prevDNS != prevDNSalt)
 	{
 		class SwapDNSAction : public ButtonAction
@@ -187,6 +188,7 @@ PowderToy::PowderToy():
 		notification->SetCallback(new SwapDNSStaticAction());
 		AddComponent(notification);
 	}
+#endif
 
 	// start placing the bottom row of buttons, starting from the left
 #ifdef TOUCHUI
