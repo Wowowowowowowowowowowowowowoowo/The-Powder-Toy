@@ -5,8 +5,9 @@
 
 #include "PowderToy.h"
 #include "defines.h"
-#include "interface.h"
 #include "gravity.h"
+#include "http.h"
+#include "interface.h"
 #include "luaconsole.h"
 #include "powder.h"
 #include "powdergraphics.h"
@@ -135,6 +136,57 @@ PowderToy::PowderToy():
 	}
 	else
 		sessionCheck = NULL;
+
+	if (prevDNS != prevDNSalt)
+	{
+		class SwapDNSAction : public ButtonAction
+		{
+		public:
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
+			{
+				if (b == 1)
+				{
+					prevDNS = prevDNSalt;
+					save_presets();
+					Platform::DoRestart(true);
+				}
+				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
+			}
+		};
+		std::string message;
+		if (swappedDNS)
+			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
+		else
+			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
+		Button *notification = AddNotification(message);
+		notification->SetCallback(new SwapDNSAction());
+		AddComponent(notification);
+	}
+	if (prevDNSstatic != prevDNSstaticalt)
+	{
+		class SwapDNSStaticAction : public ButtonAction
+		{
+		public:
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
+			{
+				if (b == 1)
+				{
+					prevDNSstatic = prevDNSstaticalt;
+					save_presets();
+					Platform::DoRestart(true);
+				}
+				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
+			}
+		};
+		std::string message;
+		if (swappedDNSstatic)
+			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
+		else
+			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
+		Button *notification = AddNotification(message);
+		notification->SetCallback(new SwapDNSStaticAction());
+		AddComponent(notification);
+	}
 
 	// start placing the bottom row of buttons, starting from the left
 #ifdef TOUCHUI
