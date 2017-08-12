@@ -1090,7 +1090,7 @@ Change version number to 92.0.331
 Version 36.3 8/7/17
 Update with all changes and fixes from TPT 92.1.332. Add double DNS 
 verification to ensure that if the DNS for powdertoy.co.uk expires or is 
-changed, the site is still accessable.
+changed, the site is still accessible.
 
 
 
