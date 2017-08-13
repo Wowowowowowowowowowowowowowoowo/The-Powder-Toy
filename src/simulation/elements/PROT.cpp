@@ -64,9 +64,12 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		break;
 	case PT_LCRY:
 		//Powered LCRY reaction: PROT->PHOT
-		part_change_type(i, x, y, PT_PHOT);
-		parts[i].life *= 2;
-		parts[i].ctype = 0x3FFFFFFF;
+		if (parts[under>>8].life > 5 && !(rand() % 10))
+		{
+			part_change_type(i, x, y, PT_PHOT);
+			parts[i].life *= 2;
+			parts[i].ctype = 0x3FFFFFFF;
+		}
 		break;
 	case PT_EXOT:
 		parts[under>>8].ctype = PT_PROT;
