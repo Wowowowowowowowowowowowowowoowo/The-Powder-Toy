@@ -1092,6 +1092,10 @@ Update with all changes and fixes from TPT 92.1.332. Add double DNS
 verification to ensure that if the DNS for powdertoy.co.uk expires or is 
 changed, the site is still accessible.
 
+Version 36.4 8/12/17
+Fix clicking out of bounds not closing save preview ui. Fix PROT being 
+destroyed traveling through powered-off LCRY.
+
 
 
 
