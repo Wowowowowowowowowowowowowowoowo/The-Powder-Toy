@@ -3191,7 +3191,6 @@ void menu_select_element(int b, Tool* over)
 		else
 		{
 			activeTools[0] = over;
-			activeToolID = 0;
 			if (((ToolTool*)over)->GetID() == TOOL_PROP)
 				openProp = true;
 			Favorite::Ref().AddRecent(over->GetIdentifier());
@@ -3237,7 +3236,6 @@ void menu_select_element(int b, Tool* over)
 		else
 		{
 			activeTools[1] = over;
-			activeToolID = 1;
 			if (((ToolTool*)over)->GetID() == TOOL_PROP)
 				openProp = true;
 			Favorite::Ref().AddRecent(over->GetIdentifier());

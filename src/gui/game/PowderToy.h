@@ -132,6 +132,7 @@ public:
 	bool IsMouseDown() { return isMouseDown; }
 	float GetToolStrength() { return toolStrength; }
 	Point GetInitialDrawPoint() { return initialDrawPoint; }
+	int GetToolIndex() { return toolIndex; }
 	Point LineSnapCoords(Point point1, Point point2);
 	Point RectSnapCoords(Point point1, Point point2);
 

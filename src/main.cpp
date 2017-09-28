@@ -252,7 +252,6 @@ int num_tabs = 1;
 bool show_tabs = false;
 Brush* currentBrush;
 Tool* activeTools[3];
-int activeToolID = 0;
 float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
@@ -1491,9 +1490,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (drawState != PowderToy::RECT || !isMouseDown)
 			{
 				if (isMouseDown && (sdl_mod & KMOD_ALT))
-					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[activeToolID], currentBrush);
+					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[the_game->GetToolIndex()], currentBrush);
 				else if ((x < XRES && y < YRES) || isMouseDown)
-					render_cursor(vid_buf, mx, my, activeTools[activeToolID], currentBrush);
+					render_cursor(vid_buf, mx, my, activeTools[the_game->GetToolIndex()], currentBrush);
 			}
 
 			if (isMouseDown)

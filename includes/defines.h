@@ -203,7 +203,6 @@ extern bool show_tabs;
 class Tool;
 extern Tool* activeTools[3];
 #endif
-extern int activeToolID;
 extern float toolStrength;
 extern int autosave;
 extern int realistic;
