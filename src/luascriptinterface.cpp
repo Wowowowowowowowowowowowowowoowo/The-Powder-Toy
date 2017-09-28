@@ -2772,32 +2772,31 @@ int elements_loadDefault(lua_State * l)
 
 int elements_allocate(lua_State * l)
 {
-	char *group, *id, *identifier, *tmp;
-	int i, newID = -1;
 	luaL_checktype(l, 1, LUA_TSTRING);
 	luaL_checktype(l, 2, LUA_TSTRING);
-	group = (char*)lua_tostring(l, 1);
-	tmp = group;
-	while (*tmp) { *tmp = toupper(*tmp); tmp++; }
-	id = (char*)lua_tostring(l, 2);
-	tmp = id;
-	while (*tmp) { *tmp = toupper(*tmp); tmp++; }
+	std::string group = std::string(lua_tostring(l, 1));
+	std::string id = std::string(lua_tostring(l, 2));
+	
+	std::transform(group.begin(), group.end(), group.begin(), ::toupper);
+	std::transform(id.begin(), id.end(), id.begin(), ::toupper);
 
-	if(!strcmp(group,"DEFAULT"))
+	if (group == "DEFAULT")
 		return luaL_error(l, "You cannot create elements in the 'default' group.");
 
-	identifier = (char*)calloc(strlen(group)+strlen(id)+5,sizeof(char));
-	sprintf(identifier,"%s_PT_%s",group,id);
+	std::stringstream identifierStream;
+	identifierStream << group << "_PT_" << id;
+	std::string identifier = identifierStream.str();
 
-	for(i = 0; i < PT_NUM; i++)
+	for (int i = 0; i < PT_NUM; i++)
 	{
-		if(globalSim->elements[i].Enabled && !strcmp(globalSim->elements[i].Identifier.c_str(), identifier))
+		if (globalSim->elements[i].Enabled &&globalSim->elements[i].Identifier == identifier)
 			return luaL_error(l, "Element identifier already in use");
 	}
 
-	for(i = PT_NUM-1; i >= 0; i--)
+	int newID = -1;
+	for (int i = PT_NUM-1; i >= 0; i--)
 	{
-		if(!globalSim->elements[i].Enabled)
+		if (!globalSim->elements[i].Enabled)
 		{
 			newID = i;
 			globalSim->elements[i] = Element();
@@ -2811,11 +2810,11 @@ int elements_allocate(lua_State * l)
 		}
 	}
 
-	if(newID != -1)
+	if (newID != -1)
 	{
 		lua_getglobal(l, "elements");
 		lua_pushinteger(l, newID);
-		lua_setfield(l, -2, globalSim->elements[i].Identifier.c_str());
+		lua_setfield(l, -2, identifier.c_str());
 		lua_pop(l, 1);
 	}
 
