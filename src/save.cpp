@@ -1530,7 +1530,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 	unsigned int movsDataLen, animDataLen;
 #endif
 	unsigned partsCount = 0, *partsSimIndex = NULL;
-	unsigned int freeIndicesCount, returnCode = 0, modsave = 0;
+	unsigned int freeIndicesCount, returnCode = 0, modsave = 0, androidsave = 0;
 	unsigned int *freeIndices = NULL;
 	unsigned int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int saved_version = inputData[4];
@@ -1818,7 +1818,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 		}
 		else if (!strcmp(bson_iterator_key(&iter), "Jacob1's_Mod"))
 		{
-			if(bson_iterator_type(&iter)==BSON_INT)
+			if (bson_iterator_type(&iter)==BSON_INT)
 			{
 #ifndef NOMOD
 				modsave = bson_iterator_int(&iter);
@@ -1828,15 +1828,6 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 #ifndef NOMOD
 					globalSim->instantActivation = true;
 #endif
-#ifdef LUACONSOLE
-					//TODO: don't use lua logging
-					if (modsave && !strcmp(svf_user,"jacob1") && log_history[19] == NULL)
-					{
-						char* modver = (char*)calloc(32, sizeof(char));
-						sprintf(modver, "Made in jacob1's mod version %d", modsave);
-						luacon_log(modver);
-					}
-#endif
 				}
 			}
 			else
@@ -1844,21 +1835,25 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
 			}
 		}
-		else if (!strcmp(bson_iterator_key(&iter), "mobileBuildVersion"))
+		else if (!strcmp(bson_iterator_key(&iter), "origin"))
 		{
-			if (bson_iterator_type(&iter) == BSON_INT)
+			if (bson_iterator_type(&iter) == BSON_OBJECT)
 			{
-				if (replace == 1)
+				bson_iterator subiter;
+				bson_iterator_subiterator(&iter, &subiter);
+				while (bson_iterator_next(&subiter))
 				{
-#ifdef LUACONSOLE
-					//TODO: don't use lua logging
-					if (!strcmp(svf_user,"jacob1") && log_history[19] == NULL)
+					if (!strcmp(bson_iterator_key(&subiter), "mobileBuildVersion"))
 					{
-						char* modver = (char*)calloc(32, sizeof(char));
-						sprintf(modver, "Made in android build version %d", bson_iterator_int(&iter));
-						luacon_log(modver);
+						if (bson_iterator_type(&subiter) == BSON_INT)
+						{
+							androidsave =  bson_iterator_int(&subiter);
+						}
+						else
+						{
+							fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+						}
 					}
-#endif
 				}
 			}
 			else
@@ -2554,6 +2549,27 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			}
 		}
 	}
+
+#ifdef LUACONSOLE
+	//TODO: don't use lua logging
+	if (!strcmp(svf_user, "jacob1") && replace == 1)
+	{
+		if (androidsave)
+		{
+			char* modver = (char*)calloc(35, sizeof(char));
+			sprintf(modver, "Made in android build version %d", androidsave);
+			luacon_log(modver);
+		}
+
+		if (modsave && !androidsave)
+		{
+			char* modver = (char*)calloc(33, sizeof(char));
+			sprintf(modver, "Made in jacob1's mod version %d", modsave);
+			luacon_log(modver);
+		}
+	}
+#endif
+
 	goto fin;
 fail:
 	//Clean up everything
