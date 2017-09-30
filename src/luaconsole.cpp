@@ -195,6 +195,14 @@ void luacon_open()
 	lua_pushinteger(l, BUILD_NUM);
 	lua_setfield(l, tptPropertiesVersion, "build");
 	lua_pushinteger(l, MOD_VERSION);
+#ifdef ANDROID
+	lua_pushinteger(l, MOBILE_MAJOR);
+	lua_setfield(l, tptPropertiesVersion, "mobilemajor");
+	lua_pushinteger(l, MOBILE_MINOR);
+	lua_setfield(l, tptPropertiesVersion, "mobileminor");
+	lua_pushinteger(l, MOBILE_BUILD);
+	lua_setfield(l, tptPropertiesVersion, "mobilebuild");
+#endif
 	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod");
 	lua_pushinteger(l, MOD_MINOR_VERSION);
 	lua_setfield(l, tptPropertiesVersion, "jacob1s_mod_minor");
