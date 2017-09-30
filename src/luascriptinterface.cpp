@@ -268,6 +268,7 @@ void initSimulationAPI(lua_State * l)
 		{"neighbours", simulation_neighbours},
 		{"framerender", simulation_framerender},
 		{"gspeed", simulation_gspeed},
+		{"takeSnapshot", simulation_takeSnapshot},
 		{"stickman", simulation_stickman},
 		{NULL, NULL}
 	};
@@ -1595,6 +1596,12 @@ int simulation_gspeed(lua_State * l)
 	if (gspeed < 1)
 		return luaL_error(l, "GSPEED must be at least 1");
 	((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golSpeed = gspeed;
+	return 0;
+}
+
+int simulation_takeSnapshot(lua_State * l)
+{
+	Snapshot::TakeSnapshot(globalSim);
 	return 0;
 }
 
