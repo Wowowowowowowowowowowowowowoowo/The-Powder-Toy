@@ -126,7 +126,7 @@ if tool:
 			env['ENV']['PATH'] = "{0}:{1}".format(sdlconfigpath, env['ENV']['PATH'])
 
 #copy environment variables because scons doesn't do this by default
-for var in ["CC","CXX","LD","LIBPATH"]:
+for var in ["CC","CXX","LD","LIBPATH","STRIP"]:
 	if var in os.environ:
 		env[var] = os.environ[var]
 		print "copying environment variable {0}={1!r}".format(var,os.environ[var])
@@ -201,7 +201,8 @@ def CheckBit(context):
 def CheckFramework(context, framework):
 	import SCons.Conftest
 	#Extreme hack, TODO: maybe think of a better one (like replicating CheckLib here) or at least just fix the message
-	oldLinkFlags = context.env.Append(LINKFLAGS=["-framework", framework])
+	oldLinkFlags = env["LINKFLAGS"]
+	context.env.Append(LINKFLAGS=["-framework", framework])
 	context.Display("Checking for Darwin Framework {0}...".format(framework))
 	ret = SCons.Conftest.CheckLib(context, ["m"], autoadd = 0)
 	context.did_show_result = 1
@@ -259,7 +260,7 @@ def findLibs(env, conf):
 		#Look for Lua
 		luaver = "lua5.1"
 		if GetOption('luajit'):
-			if not conf.CheckLib(['luajit-5.1', 'luajit5.1', 'luajit', 'libluajit']):
+			if not conf.CheckLib(['luajit-5.1', 'luajit5.1', 'luajit2.0', 'luajit', 'libluajit']):
 				FatalError("luajit development library not found or not installed")
 			env.Append(CPPDEFINES=["LUAJIT"])
 			luaver = "luajit"
@@ -382,6 +383,8 @@ elif platform == "Linux":
 elif platform == "Darwin":
 	env.Append(CPPDEFINES=['MACOSX'])
 	env.Append(LINKFLAGS=["-headerpad_max_install_names"]) #needed in some cross compiles
+	if GetOption('luajit'):
+		env.Append(LINKFLAGS=['-pagezero_size=10000', '-image_base=100000000'])
 
 
 #Add architecture flags and defines
