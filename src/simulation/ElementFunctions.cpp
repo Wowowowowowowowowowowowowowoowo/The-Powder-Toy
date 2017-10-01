@@ -136,22 +136,24 @@ int graphics_DEFAULT(GRAPHICS_FUNC_ARGS)
 //very ugly function that somehow makes powered elements floodfill update and also maintain compatibility if not
 int update_POWERED(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
 #ifndef NOMOD
-	if ((parts[i].type == PT_PPTI || parts[i].type == PT_PPTO) && parts[i].tmp2>0 && parts[i].tmp2!=10)
-		parts[i].tmp2--;
-	else if (parts[i].life>0 && parts[i].life!=10)
+	if (parts[i].type == PT_PPTI || parts[i].type == PT_PPTO)
+	{
+		if (parts[i].tmp2 > 0 && parts[i].tmp2 != 10)
+			parts[i].tmp2--;
+	}
+	else if (parts[i].life > 0 && parts[i].life != 10)
 		parts[i].life--;
 #else
-	if (parts[i].life>0 && parts[i].life!=10)
+	if (parts[i].life > 0 && parts[i].life != 10)
 			parts[i].life--;
 
 #endif
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (int rx = -2; rx <= 2; rx++)
+		for (int ry = -2; ry <= 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
 #ifdef NOMOD
