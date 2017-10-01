@@ -85,7 +85,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 								break;
 							}
 							r = pmap[y+nyi+nyy][x+nxi+nxx];
-							if (!sim->IsWallBlocking(x+nxi+nxx, y+nyi+nyy, parts[i].ctype) && (!pmap[y+nyi+nyy][x+nxi+nxx] || createSpark)) { // create, also set color if it has passed through FILT
+							if (!sim->IsWallBlocking(x+nxi+nxx, y+nyi+nyy, parts[i].ctype&0xFF) && (!pmap[y+nyi+nyy][x+nxi+nxx] || createSpark)) { // create, also set color if it has passed through FILT
 								int nr = sim->part_create(-1, x+nxi+nxx, y+nyi+nyy, parts[i].ctype&0xFF, parts[i].ctype>>8);
 								if (nr!=-1) {
 									if (colored)
