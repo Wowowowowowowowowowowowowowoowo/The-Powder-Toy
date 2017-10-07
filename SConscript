@@ -20,9 +20,9 @@ class ourSpawn:
 		data, err = proc.communicate()
 		rv = proc.wait()
 		if rv:
-			print "====="
-			print err
-			print "====="
+			print("=====")
+			print(err)
+			print("=====")
 		return rv
 def SetupSpawn(env):
 	buf = ourSpawn()
@@ -129,7 +129,7 @@ if tool:
 for var in ["CC","CXX","LD","LIBPATH","STRIP"]:
 	if var in os.environ:
 		env[var] = os.environ[var]
-		print "copying environment variable {0}={1!r}".format(var,os.environ[var])
+		print("copying environment variable {0}={1!r}".format(var,os.environ[var]))
 # variables containing several space separated things
 for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 	if var in os.environ:
@@ -137,7 +137,7 @@ for var in ["CFLAGS","CCFLAGS","CXXFLAGS","LINKFLAGS","CPPDEFINES","CPPPATH"]:
 			env[var] += SCons.Util.CLVar(os.environ[var])
 		else:
 			env[var] = SCons.Util.CLVar(os.environ[var])
-		print "copying environment variable {0}={1!r}".format(var,os.environ[var])
+		print("copying environment variable {0}={1!r}".format(var,os.environ[var]))
 
 #Used for intro text / executable name, actual bit flags are only set if the --64bit/--32bit command line args are given
 def add32bitflags(env):
