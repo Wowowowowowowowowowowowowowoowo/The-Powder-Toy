@@ -188,7 +188,7 @@ bool console_parse_hex(char *txt, int *val, char *err)
 	return true;
 }
 
-int process_command_old(pixel *vid_buf, char *command, char **result)
+int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **result)
 {
 	int y,x,nx,ny,i,j,k,m;
 	float f;
@@ -277,7 +277,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 									do_next = 0;
 								else
 								{
-									do_next = process_command_old(vid_buf, pch, result);
+									do_next = process_command_old(sim, vid_buf, pch, result);
 									if (result)
 										free(result);
 								}
@@ -341,7 +341,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 							v = j>>8;
 							j = j&0xFF;
 						}
-						if (globalSim->part_create(-1, nx, ny, j, v) < 0)
+						if (sim->part_create(-1, nx, ny, j, v) < 0)
 							strcpy(console_error, "Could not create particle");
 					}
 				}
@@ -352,12 +352,12 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 				{
 					int first, rem1, rem2;
 
-					first = globalSim->part_create(-1, nx+18, ny, PT_SOAP);
+					first = sim->part_create(-1, nx+18, ny, PT_SOAP);
 					rem1 = first;
 
 					for (i = 1; i<=30; i++)
 					{
-						rem2 = globalSim->part_create(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
+						rem2 = sim->part_create(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
 
 						parts[rem1].ctype = 7;
 						parts[rem1].tmp = rem2;
@@ -384,7 +384,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					for (nx = 0; nx<XRES/CELL; nx++)
 						for (ny = 0; ny<YRES/CELL; ny++)
 						{
-							globalSim->air->pv[ny][nx] = 0;
+							sim->air->pv[ny][nx] = 0;
 						}
 				}
 				else if (strcmp(console3, "velocity")==0)
@@ -392,8 +392,8 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					for (nx = 0; nx<XRES/CELL; nx++)
 						for (ny = 0; ny<YRES/CELL; ny++)
 						{
-							globalSim->air->vx[ny][nx] = 0;
-							globalSim->air->vy[ny][nx] = 0;
+							sim->air->vx[ny][nx] = 0;
+							sim->air->vy[ny][nx] = 0;
 						}
 				}
 				else if (strcmp(console3, "sparks")==0)
@@ -409,7 +409,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 							else
 								kill_part(i);
 						}
-					globalSim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
+					sim->elementData[PT_WIFI]->Simulation_Cleared(sim);
 				}
 				else if (strcmp(console3, "temp")==0)
 				{
@@ -461,7 +461,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 							for (i=0; i<NPART; i++)
 							{
 								if (parts[i].type)
-									globalSim->part_change_type_force(i, j);
+									sim->part_change_type_force(i, j);
 							}
 					}
 					else if (console_parse_type(console4, &j, console_error) && j != 0
@@ -470,7 +470,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						for (i=0; i<NPART; i++)
 						{
 							if (parts[i].type == j)
-								globalSim->part_change_type_force(i, k);
+								sim->part_change_type_force(i, k);
 						}
 					}
 					else
@@ -478,7 +478,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 						if (console_parse_partref(console4, &i, console_error) && j != 0
 					        && console_parse_type(console5, &j, console_error))
 						{
-							globalSim->part_change_type_force(i, j);
+							sim->part_change_type_force(i, j);
 						}
 					}
 				}

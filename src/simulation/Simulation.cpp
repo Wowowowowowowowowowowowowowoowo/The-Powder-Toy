@@ -67,6 +67,8 @@ Simulation::Simulation():
 	air = new Air();
 
 	Clear();
+	InitElements();
+	InitCanMove();
 }
 
 Simulation::~Simulation()

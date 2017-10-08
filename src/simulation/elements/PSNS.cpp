@@ -17,23 +17,22 @@
 
 int PSNS_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt;
 	if (sim->air->pv[y/CELL][x/CELL] > parts[i].temp-273.15f)
 	{
 		parts[i].life = 0;
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
+		for (int rx = -2; rx <= 2; rx++)
+			for (int ry = -2; ry <= 2; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
-					r = pmap[y+ry][x+rx];
+					int r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
-					if (parts_avg(i,r>>8,PT_INSL) != PT_INSL)
+					int rt = r&0xFF;
+					if (parts_avg(i, r>>8, PT_INSL) != PT_INSL)
 					{
-						if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0)
+						if ((sim->elements[rt].Properties&PROP_CONDUCTS) && !(rt==PT_WATR || rt==PT_SLTW || rt==PT_NTCT || rt==PT_PTCT || rt==PT_INWR) && parts[r>>8].life == 0)
 						{
-							globalSim->spark_conductive(r>>8, x+rx, y+ry);
+							sim->spark_conductive(r>>8, x+rx, y+ry);
 						}
 					}
 				}

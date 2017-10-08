@@ -121,16 +121,16 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 
 		ctemph = ctempl = pt;
 		// change boiling point with pressure
-		if (((elements[t].Properties&TYPE_LIQUID) && globalSim->IsElementOrNone(elements[t].HighTemperatureTransitionElement) && (elements[elements[t].HighTemperatureTransitionElement].Properties&TYPE_GAS)) || t==PT_LNTG || t==PT_SLTW)
+		if (((elements[t].Properties&TYPE_LIQUID) && IsElementOrNone(elements[t].HighTemperatureTransitionElement) && (elements[elements[t].HighTemperatureTransitionElement].Properties&TYPE_GAS)) || t==PT_LNTG || t==PT_SLTW)
 			ctemph -= 2.0f*air->pv[y/CELL][x/CELL];
-		else if (((elements[t].Properties&TYPE_GAS) && globalSim->IsElementOrNone(elements[t].LowTemperatureTransitionElement) && (elements[elements[t].LowTemperatureTransitionElement].Properties&TYPE_LIQUID)) || t==PT_WTRV)
+		else if (((elements[t].Properties&TYPE_GAS) && IsElementOrNone(elements[t].LowTemperatureTransitionElement) && (elements[elements[t].LowTemperatureTransitionElement].Properties&TYPE_LIQUID)) || t==PT_WTRV)
 			ctempl -= 2.0f*air->pv[y/CELL][x/CELL];
 		s = 1;
 
 		if (!(elements[t].Properties&PROP_INDESTRUCTIBLE))
 		{
 			//A fix for ice with ctype = 0
-			if ((t==PT_ICEI || t==PT_SNOW) && (!globalSim->IsElement(parts[i].ctype) || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW))
+			if ((t==PT_ICEI || t==PT_SNOW) && (!IsElement(parts[i].ctype) || parts[i].ctype==PT_ICEI || parts[i].ctype==PT_SNOW))
 				parts[i].ctype = PT_WATR;
 			if (elements[t].HighTemperatureTransitionElement > -1 && ctemph >= elements[t].HighTemperatureTransitionThreshold)
 			{
@@ -297,7 +297,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				}
 				else if (t==PT_LAVA)
 				{
-					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && globalSim->elements[parts[i].ctype].Enabled)
+					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && elements[parts[i].ctype].Enabled)
 					{
 						if (parts[i].ctype == PT_THRM && pt>=elements[PT_BMTL].HighTemperatureTransitionThreshold)
 							s = 0;

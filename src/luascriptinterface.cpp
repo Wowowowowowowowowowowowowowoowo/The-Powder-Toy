@@ -66,7 +66,7 @@ int simulation_signIndex(lua_State *l)
 	if (!key.compare("text"))
 		return lua_pushstring(l, signs[id]->GetText().c_str()), 1;
 	else if (!key.compare("displayText"))
-		return lua_pushstring(l, signs[id]->GetDisplayText(globalSim).c_str()), 1;
+		return lua_pushstring(l, signs[id]->GetDisplayText(luaSim).c_str()), 1;
 	else if (!key.compare("linkText"))
 		return lua_pushstring(l, signs[id]->GetLinkText().c_str()), 1;
 	else if (!key.compare("justification"))
@@ -78,28 +78,28 @@ int simulation_signIndex(lua_State *l)
 	else if (!key.compare("screenX"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(globalSim, x, y, w, h);
+		signs[id]->GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, x);
 		return 1;
 	}
 	else if (!key.compare("screenY"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(globalSim, x, y, w, h);
+		signs[id]->GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, y);
 		return 1;
 	}
 	else if (!key.compare("width"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(globalSim, x, y, w, h);
+		signs[id]->GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, w);
 		return 1;
 	}
 	else if (!key.compare("height"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(globalSim, x, y, w, h);
+		signs[id]->GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, h);
 		return 1;
 	}
@@ -409,7 +409,7 @@ int simulation_partCreate(lua_State * l)
 		v = type>>8;
 		type = type&0xFF;
 	}
-	lua_pushinteger(l, globalSim->part_create(newID, lua_tointeger(l, 2), lua_tointeger(l, 3), type, v));
+	lua_pushinteger(l, luaSim->part_create(newID, lua_tointeger(l, 2), lua_tointeger(l, 3), type, v));
 	return 1;
 }
 
@@ -516,7 +516,7 @@ int simulation_partProperty(lua_State * l)
 			*((float*)(((unsigned char*)&parts[particleID])+offset)) = (float)lua_tonumber(l, 3);
 			break;
 		case 2:
-			globalSim->part_change_type_force(particleID, lua_tointeger(l, 3));
+			luaSim->part_change_type_force(particleID, lua_tointeger(l, 3));
 			break;
 		}
 		return 0;
@@ -545,7 +545,7 @@ int simulation_partProperty(lua_State * l)
 int simulation_partKill(lua_State * l)
 {
 	if (lua_gettop(l) == 2)
-		globalSim->part_delete(lua_tointeger(l, 1), lua_tointeger(l, 2));
+		luaSim->part_delete(lua_tointeger(l, 1), lua_tointeger(l, 2));
 	else
 	{
 		int i = lua_tointeger(l, 1);
@@ -568,7 +568,7 @@ int simulation_pressure(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, globalSim->air->pv[y][x]);
+		lua_pushnumber(l, luaSim->air->pv[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -604,7 +604,7 @@ int simulation_ambientHeat(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, globalSim->air->hv[y][x]);
+		lua_pushnumber(l, luaSim->air->hv[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -640,7 +640,7 @@ int simulation_velocityX(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, globalSim->air->vx[y][x]);
+		lua_pushnumber(l, luaSim->air->vx[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -676,7 +676,7 @@ int simulation_velocityY(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, globalSim->air->vy[y][x]);
+		lua_pushnumber(l, luaSim->air->vy[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -744,7 +744,7 @@ int simulation_createParts(lua_State * l)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	int ret = globalSim->CreateParts(x, y, c, flags, true, tempBrush);
+	int ret = luaSim->CreateParts(x, y, c, flags, true, tempBrush);
 	delete tempBrush;
 	lua_pushinteger(l, ret);
 	return 1;
@@ -765,7 +765,7 @@ int simulation_createLine(lua_State * l)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	globalSim->CreateLine(x1, y1, x2, y2, c, flags, tempBrush);
+	luaSim->CreateLine(x1, y1, x2, y2, c, flags, tempBrush);
 	delete tempBrush;
 	return 0;
 }
@@ -779,7 +779,7 @@ int simulation_createBox(lua_State * l)
 	int c = luaL_optint(l,5,((ElementTool*)activeTools[0])->GetID());
 	int flags = luaL_optint(l,6,get_brush_flags());
 
-	globalSim->CreateBox(x1, y1, x2, y2, c, flags);
+	luaSim->CreateBox(x1, y1, x2, y2, c, flags);
 	return 0;
 }
 
@@ -791,7 +791,7 @@ int simulation_floodParts(lua_State * l)
 	int cm = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 
-	int ret = globalSim->FloodParts(x, y, c, cm, flags);
+	int ret = luaSim->FloodParts(x, y, c, cm, flags);
 	lua_pushinteger(l, ret);
 	return 1;
 }
@@ -806,7 +806,7 @@ int simulation_createWalls(lua_State * l)
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
-	globalSim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, c);
+	luaSim->CreateWallBox(x-rx, y-ry, x+rx, y+ry, c);
 	lua_pushinteger(l, 1);
 	return 1;
 }
@@ -823,7 +823,7 @@ int simulation_createWallLine(lua_State * l)
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
-	globalSim->CreateWallLine(x1, y1, x2, y2, rx, ry, c);
+	luaSim->CreateWallLine(x1, y1, x2, y2, rx, ry, c);
 	return 0;
 }
 
@@ -837,7 +837,7 @@ int simulation_createWallBox(lua_State * l)
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
-	globalSim->CreateWallBox(x1, y1, x2, y2, c);
+	luaSim->CreateWallBox(x1, y1, x2, y2, c);
 	return 0;
 }
 
@@ -855,7 +855,7 @@ int simulation_floodWalls(lua_State * l)
 		return 1;
 	}
 
-	int ret = globalSim->FloodWalls(x, y, c, bm);
+	int ret = luaSim->FloodWalls(x, y, c, bm);
 	lua_pushinteger(l, ret);
 	return 1;
 }
@@ -875,7 +875,7 @@ int simulation_toolBrush(lua_State * l)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	globalSim->CreateToolBrush(x, y, tool, strength, tempBrush);
+	luaSim->CreateToolBrush(x, y, tool, strength, tempBrush);
 	delete tempBrush;
 	lua_pushinteger(l, 0);
 	return 1;
@@ -898,7 +898,7 @@ int simulation_toolLine(lua_State * l)
 		return luaL_error(l, "Invalid brush id '%d'", brush);
 
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	globalSim->CreateToolLine(x1, y1, x2, y2, tool, strength, tempBrush);
+	luaSim->CreateToolLine(x1, y1, x2, y2, tool, strength, tempBrush);
 	delete tempBrush;
 	return 0;
 }
@@ -914,7 +914,7 @@ int simulation_toolBox(lua_State * l)
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 
-	globalSim->CreateToolBox(x1, y1, x2, y2, tool, strength);
+	luaSim->CreateToolBox(x1, y1, x2, y2, tool, strength);
 	return 0;
 }
 
@@ -937,7 +937,7 @@ int simulation_decoBrush(lua_State * l)
 
 	unsigned int color = COLARGB(a, r, g, b);
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	globalSim->CreateDecoBrush(x, y, tool, color, tempBrush);
+	luaSim->CreateDecoBrush(x, y, tool, color, tempBrush);
 	delete tempBrush;
 	return 0;
 }
@@ -963,7 +963,7 @@ int simulation_decoLine(lua_State * l)
 
 	unsigned int color = COLARGB(a, r, g, b);
 	Brush* tempBrush = new Brush(Point(rx, ry), brush);
-	globalSim->CreateDecoLine(x1, y1, x2, y2, tool, color, tempBrush);
+	luaSim->CreateDecoLine(x1, y1, x2, y2, tool, color, tempBrush);
 	delete tempBrush;
 	return 0;
 }
@@ -983,7 +983,7 @@ int simulation_decoBox(lua_State * l)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 
 	unsigned int color = COLARGB(a, r, g, b);
-	globalSim->CreateDecoBox(x1, y1, x2, y2, tool, color);
+	luaSim->CreateDecoBox(x1, y1, x2, y2, tool, color);
 	return 0;
 }
 
@@ -998,8 +998,8 @@ int simulation_floodDeco(lua_State * l)
 
 	PropertyValue color;
 	color.UInteger = COLARGB(a, r, g, b);
-	globalSim->FloodProp(x, y, UInteger, color, offsetof(particle, dcolour));
-	//globalSim->FloodDeco(x, y, -1, color);
+	luaSim->FloodProp(x, y, UInteger, color, offsetof(particle, dcolour));
+	//luaSim->FloodDeco(x, y, -1, color);
 	return 0;
 }
 
@@ -1052,11 +1052,11 @@ int simulation_clearRect(lua_State * l)
 int simulation_resetTemp(lua_State * l)
 {
 	bool onlyConductors = luaL_optint(l, 1, 0) ? true : false;
-	for (int i = 0; i < globalSim->parts_lastActiveIndex; i++)
+	for (int i = 0; i < luaSim->parts_lastActiveIndex; i++)
 	{
-		if (parts[i].type && (globalSim->elements[parts[i].type].HeatConduct || !onlyConductors))
+		if (parts[i].type && (luaSim->elements[parts[i].type].HeatConduct || !onlyConductors))
 		{
-			parts[i].temp = globalSim->elements[parts[i].type].DefaultProperties.temp;
+			parts[i].temp = luaSim->elements[parts[i].type].DefaultProperties.temp;
 		}
 	}
 	return 0;
@@ -1088,7 +1088,7 @@ int simulation_resetPressure(lua_State * l)
 	for (int nx = x1; nx<x1+width; nx++)
 		for (int ny = y1; ny<y1+height; ny++)
 		{
-			globalSim->air->pv[ny][nx] = 0.0f;
+			luaSim->air->pv[ny][nx] = 0.0f;
 		}
 	return 0;
 }
@@ -1135,7 +1135,7 @@ int simulation_loadStamp(lua_State* l)
 
 	int oldPause = sys_pause;
 	Json::Value luaStampAuthors;
-	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &luaStampAuthors, includePressure))
+	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, luaSim->air->vx, luaSim->air->vy, luaSim->air->pv, luaSim->air->fvx, luaSim->air->fvy, signs, parts, pmap, &luaStampAuthors, includePressure))
 	{
 		lua_pushinteger(l, 1);
 		
@@ -1206,8 +1206,8 @@ int simulation_loadSave(lua_State * l)
 
 int simulation_reloadSave(lua_State * l)
 {
-	Snapshot::TakeSnapshot(globalSim);
-	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
+	Snapshot::TakeSnapshot(luaSim);
+	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, luaSim->air->vx, luaSim->air->vy, luaSim->air->pv, luaSim->air->fvx, luaSim->air->fvy, signs, parts, pmap, &authors);
 	if (!authors.size())
 		DefaultSaveInfo();
 	return 0;
@@ -1273,23 +1273,23 @@ int simulation_edgeMode(lua_State * l)
 	if (acount == 0 || lua_isnil(l, 1))
 	{
 		if (temp)
-			lua_pushnumber(l, globalSim->saveEdgeMode);
+			lua_pushnumber(l, luaSim->saveEdgeMode);
 		else
-			lua_pushnumber(l, globalSim->edgeMode);
+			lua_pushnumber(l, luaSim->edgeMode);
 		return 1;
 	}
 
 	// set edge mode
 	int edgeMode = (char)luaL_optint(l, 1, 0);
 	if (temp)
-		globalSim->saveEdgeMode = edgeMode;
+		luaSim->saveEdgeMode = edgeMode;
 	else
 	{
-		globalSim->edgeMode = edgeMode;
-		globalSim->saveEdgeMode = -1;
+		luaSim->edgeMode = edgeMode;
+		luaSim->saveEdgeMode = -1;
 	}
 
-	if (globalSim->GetEdgeMode() == 1)
+	if (luaSim->GetEdgeMode() == 1)
 		draw_bframe();
 	else
 		erase_bframe();
@@ -1338,10 +1338,10 @@ int simulation_ambientAirTemp(lua_State * l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, globalSim->air->outside_temp);
+		lua_pushnumber(l, luaSim->air->outside_temp);
 		return 1;
 	}
-	globalSim->air->outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
+	luaSim->air->outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
 	return 0;
 }
 
@@ -1351,7 +1351,7 @@ int simulation_elementCount(lua_State* l)
 	if (element < 0 || element >= PT_NUM)
 		return luaL_error(l, "Invalid element ID (%d)", element);
 
-	lua_pushnumber(l, globalSim->elementCount[element]);
+	lua_pushnumber(l, luaSim->elementCount[element]);
 	return 1;
 }
 
@@ -1366,12 +1366,12 @@ int simulation_canMove(lua_State * l)
 	
 	if (lua_gettop(l) < 3)
 	{
-		lua_pushnumber(l, globalSim->can_move[movingElement][destinationElement]);
+		lua_pushnumber(l, luaSim->can_move[movingElement][destinationElement]);
 		return 1;
 	}
 	else
 	{
-		globalSim->can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
+		luaSim->can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
 		return 0;
 	}
 }
@@ -1589,19 +1589,19 @@ int simulation_gspeed(lua_State * l)
 {
 	if (lua_gettop(l) == 0)
 	{
-		lua_pushinteger(l, ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golSpeed);
+		lua_pushinteger(l, ((LIFE_ElementDataContainer*)luaSim->elementData[PT_LIFE])->golSpeed);
 		return 1;
 	}
 	int gspeed = luaL_checkinteger(l, 1);
 	if (gspeed < 1)
 		return luaL_error(l, "GSPEED must be at least 1");
-	((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golSpeed = gspeed;
+	((LIFE_ElementDataContainer*)luaSim->elementData[PT_LIFE])->golSpeed = gspeed;
 	return 0;
 }
 
 int simulation_takeSnapshot(lua_State * l)
 {
-	Snapshot::TakeSnapshot(globalSim);
+	Snapshot::TakeSnapshot(luaSim);
 	return 0;
 }
 
@@ -1616,15 +1616,15 @@ int simulation_stickman(lua_State *l)
 	if (set)
 		value = luaL_checknumber(l, 3);
 
-	if (num < 1 || num > ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters()+2)
+	if (num < 1 || num > ((FIGH_ElementDataContainer*)luaSim->elementData[PT_FIGH])->MaxFighters()+2)
 		return luaL_error(l, "invalid stickmen number %d", num);
 	Stickman *stick;
 	if (num == 1)
-		stick = ((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman1();
+		stick = ((STKM_ElementDataContainer*)luaSim->elementData[PT_STKM])->GetStickman1();
 	else if (num == 2)
-		stick = ((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->GetStickman2();
+		stick = ((STKM_ElementDataContainer*)luaSim->elementData[PT_STKM])->GetStickman2();
 	else
-		stick = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get((unsigned char)(num-3));
+		stick = ((FIGH_ElementDataContainer*)luaSim->elementData[PT_FIGH])->Get((unsigned char)(num-3));
 
 	if (!strcmp(property, "comm"))
 	{
@@ -2456,13 +2456,13 @@ void initElementsAPI(lua_State * l)
 	//Element identifiers
 	for(i = 0; i < PT_NUM; i++)
 	{
-		if(globalSim->elements[i].Enabled)
+		if(luaSim->elements[i].Enabled)
 		{
 			char realidentifier[24];
 			lua_pushinteger(l, i);
-			lua_setfield(l, -2, globalSim->elements[i].Identifier.c_str());
+			lua_setfield(l, -2, luaSim->elements[i].Identifier.c_str());
 			sprintf(realidentifier,"DEFAULT_PT_%s",ptypes[i].name);
-			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(globalSim->elements[i].Identifier.c_str(), realidentifier))
+			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(luaSim->elements[i].Identifier.c_str(), realidentifier))
 			{
 				lua_pushinteger(l, i);
 				lua_setfield(l, -2, realidentifier);
@@ -2662,29 +2662,29 @@ void elements_setProperty(lua_State * l, int id, int format, int offset)
 	switch(format)
 	{
 		case 0: //Int
-			*((int*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
+			*((int*)(((unsigned char*)&luaSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 			break;
 		case 1: //Float
-			*((float*)(((unsigned char*)&globalSim->elements[id])+offset)) = (float)luaL_checknumber(l, 3);
+			*((float*)(((unsigned char*)&luaSim->elements[id])+offset)) = (float)luaL_checknumber(l, 3);
 			break;
 		case 2: //String
-			*((std::string*)(((unsigned char*)&globalSim->elements[id]) + offset)) = std::string(luaL_checkstring(l, 3));
+			*((std::string*)(((unsigned char*)&luaSim->elements[id]) + offset)) = std::string(luaL_checkstring(l, 3));
 			break;
 		case 3: //Unsigned char (HeatConduct)
-			*((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)) = (unsigned char)luaL_checkinteger(l, 3);
+			*((unsigned char*)(((unsigned char*)&luaSim->elements[id])+offset)) = (unsigned char)luaL_checkinteger(l, 3);
 			break;
 		case 4: //Color (Color)
 		{
 #if PIXELSIZE == 4
 			unsigned int col = (unsigned int)luaL_checknumber(l, 3);
-			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = col;
+			*((unsigned int*)(((unsigned char*)&luaSim->elements[id])+offset)) = col;
 #else
-			*((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
+			*((unsigned short*)(((unsigned char*)&luaSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 #endif
 			break;
 		}
 		case 5: //Unsigned int (Properties, PhotonReflectWavelength, Latent)
-			*((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
+			*((unsigned int*)(((unsigned char*)&luaSim->elements[id])+offset)) = luaL_checkinteger(l, 3);
 			break;
 		case 6: // old state (removed)
 		default:
@@ -2697,26 +2697,26 @@ void elements_writeProperty(lua_State *l, int id, int format, int offset)
 	switch(format)
 	{
 		case 0: //Int
-			lua_pushinteger(l, *((int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushinteger(l, *((int*)(((unsigned char*)&luaSim->elements[id])+offset)));
 			break;
 		case 1: //Float
-			lua_pushnumber(l, *((float*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushnumber(l, *((float*)(((unsigned char*)&luaSim->elements[id])+offset)));
 			break;
 		case 2: //String
-			lua_pushstring(l, (*((std::string*)(((unsigned char*)&globalSim->elements[id])+offset))).c_str());
+			lua_pushstring(l, (*((std::string*)(((unsigned char*)&luaSim->elements[id])+offset))).c_str());
 			break;
 		case 3: //Unsigned char (HeatConduct)
-			lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushinteger(l, *((unsigned char*)(((unsigned char*)&luaSim->elements[id])+offset)));
 			break;
 		case 4: //Color (Color)
 #if PIXELSIZE == 4
-			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luaSim->elements[id])+offset)));
 #else
-			lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushinteger(l, *((unsigned short*)(((unsigned char*)&luaSim->elements[id])+offset)));
 #endif
 			break;
 		case 5: //Unsigned int (Properties, PhotonReflectWavelengths, Latent)
-			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&globalSim->elements[id])+offset)));
+			lua_pushinteger(l, *((unsigned int*)(((unsigned char*)&luaSim->elements[id])+offset)));
 			break;
 		case 6: // old state (removed)
 		default:
@@ -2737,27 +2737,27 @@ int elements_loadDefault(lua_State * l)
 
 		lua_getglobal(l, "elements");
 		lua_pushnil(l);
-		lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
+		lua_setfield(l, -2, luaSim->elements[id].Identifier.c_str());
 
 		if(id < PT_NUM)
 		{
-			if (globalSim->elements[id].Init)
-				globalSim->elements[id].Init(globalSim, &globalSim->elements[id], id);
+			if (luaSim->elements[id].Init)
+				luaSim->elements[id].Init(luaSim, &luaSim->elements[id], id);
 			else
-				globalSim->elements[id] = Element();
-			Simulation_Compat_CopyData(globalSim);
+				luaSim->elements[id] = Element();
+			Simulation_Compat_CopyData(luaSim);
 		}
 
 		lua_pushinteger(l, id);
-		lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
+		lua_setfield(l, -2, luaSim->elements[id].Identifier.c_str());
 		lua_pop(l, 1);
 	}
 	else
 	{
 		for (int i = 0; i < PT_NUM; i++)
-			if (globalSim->elements[i].Init)
-				globalSim->elements[i].Init(globalSim, &globalSim->elements[i], i);
-		Simulation_Compat_CopyData(globalSim);
+			if (luaSim->elements[i].Init)
+				luaSim->elements[i].Init(luaSim, &luaSim->elements[i], i);
+		Simulation_Compat_CopyData(luaSim);
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");
 		lua_pushnil(l);
@@ -2772,7 +2772,7 @@ int elements_loadDefault(lua_State * l)
 	}
 
 	FillMenus();
-	globalSim->InitCanMove();
+	luaSim->InitCanMove();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;
 }
@@ -2796,23 +2796,23 @@ int elements_allocate(lua_State * l)
 
 	for (int i = 0; i < PT_NUM; i++)
 	{
-		if (globalSim->elements[i].Enabled &&globalSim->elements[i].Identifier == identifier)
+		if (luaSim->elements[i].Enabled &&luaSim->elements[i].Identifier == identifier)
 			return luaL_error(l, "Element identifier already in use");
 	}
 
 	int newID = -1;
 	for (int i = PT_NUM-1; i >= 0; i--)
 	{
-		if (!globalSim->elements[i].Enabled)
+		if (!luaSim->elements[i].Enabled)
 		{
 			newID = i;
-			globalSim->elements[i] = Element();
-			globalSim->elements[i].Enabled = 1;
-			globalSim->elements[i].Identifier = identifier;
-			globalSim->elements[i].MenuSection = SC_OTHER;
+			luaSim->elements[i] = Element();
+			luaSim->elements[i].Enabled = 1;
+			luaSim->elements[i].Identifier = identifier;
+			luaSim->elements[i].MenuSection = SC_OTHER;
 			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier));
 
-			Simulation_Compat_CopyData(globalSim);
+			Simulation_Compat_CopyData(luaSim);
 			break;
 		}
 	}
@@ -2837,7 +2837,7 @@ int elements_element(lua_State * l)
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 
-	if (id <= 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
+	if (id <= 0 || id >= PT_NUM || !luaSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 1)
@@ -2884,9 +2884,9 @@ int elements_element(lua_State * l)
 		else
 			lua_pop(l, 1);
 
-		Simulation_Compat_CopyData(globalSim);
+		Simulation_Compat_CopyData(luaSim);
 		FillMenus();
-		globalSim->InitCanMove();
+		luaSim->InitCanMove();
 		graphicscache[id].isready = 0;
 
 		lua_pop(l, 1);
@@ -2904,7 +2904,7 @@ int elements_element(lua_State * l)
 			lua_setfield(l, -2, propertyList[i]);
 			i++;
 		}
-		lua_pushstring(l, globalSim->elements[id].Identifier.c_str());
+		lua_pushstring(l, luaSim->elements[id].Identifier.c_str());
 		lua_setfield(l, -2, "Identifier");
 		return 1;
 	}
@@ -2916,7 +2916,7 @@ int elements_property(lua_State * l)
 	unsigned int modifiedStuff = 0;
 	const char *propertyName = luaL_checkstring(l, 2);
 
-	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
+	if(id < 0 || id >= PT_NUM || !luaSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
 	if(args > 2)
@@ -2936,12 +2936,12 @@ int elements_property(lua_State * l)
 				if (modifiedStuff & LUACON_EL_MODIFIED_MENUS)
 					FillMenus();
 				if (modifiedStuff & LUACON_EL_MODIFIED_CANMOVE)
-					globalSim->InitCanMove();
+					luaSim->InitCanMove();
 				if (modifiedStuff & LUACON_EL_MODIFIED_GRAPHICS)
 					graphicscache[id].isready = 0;
 			}
 
-			Simulation_Compat_CopyData(globalSim);
+			Simulation_Compat_CopyData(luaSim);
 			return 0;
 		}
 		else if(!strcmp(propertyName,"Update"))
@@ -3000,7 +3000,7 @@ int elements_property(lua_State * l)
 		}
 		else if(!strcmp(propertyName, "Identifier"))
 		{
-			lua_pushstring(l, globalSim->elements[id].Identifier.c_str());
+			lua_pushstring(l, luaSim->elements[id].Identifier.c_str());
 			return 1;
 		}
 		else
@@ -3015,17 +3015,17 @@ int elements_free(lua_State * l)
 	luaL_checktype(l, 1, LUA_TNUMBER);
 	id = lua_tointeger(l, 1);
 	
-	if(id < 0 || id >= PT_NUM || !globalSim->elements[id].Enabled)
+	if(id < 0 || id >= PT_NUM || !luaSim->elements[id].Enabled)
 		return luaL_error(l, "Invalid element");
 
-	if (globalSim->elements[id].Identifier.find("DEFAULT") != globalSim->elements[id].Identifier.npos)
+	if (luaSim->elements[id].Identifier.find("DEFAULT") != luaSim->elements[id].Identifier.npos)
 		return luaL_error(l, "Cannot free default elements");
 
-	globalSim->elements[id].Enabled = ptypes[id].enabled = 0;
+	luaSim->elements[id].Enabled = ptypes[id].enabled = 0;
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);
-	lua_setfield(l, -2, globalSim->elements[id].Identifier.c_str());
+	lua_setfield(l, -2, luaSim->elements[id].Identifier.c_str());
 	lua_pop(l, 1);
 
 	return 0;

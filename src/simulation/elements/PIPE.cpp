@@ -461,7 +461,7 @@ particle tpart;
 int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int t = cpart->tmp&0xFF;
-	if (t > 0 && t < PT_NUM && globalSim->elements[t].Enabled)
+	if (t > 0 && t < PT_NUM && sim->elements[t].Enabled)
 	{
 		if (t == PT_STKM || t == PT_STKM2 || t == PT_FIGH)
 			return 0;
@@ -488,9 +488,9 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 			if (t == PT_PHOT && tpart.ctype == 0x40000000)
 				tpart.ctype = 0x3FFFFFFF;
 
-			*colr = PIXR(globalSim->elements[t].Colour);
-			*colg = PIXG(globalSim->elements[t].Colour);
-			*colb = PIXB(globalSim->elements[t].Colour);
+			*colr = PIXR(sim->elements[t].Colour);
+			*colg = PIXG(sim->elements[t].Colour);
+			*colb = PIXB(sim->elements[t].Colour);
 			if (ptypes[t].graphics_func)
 			{
 				(*(ptypes[t].graphics_func))(sim, &tpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);

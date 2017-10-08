@@ -1791,7 +1791,7 @@ void draw_air(pixel *vid, Simulation * sim)
 					c = 0;
 				else
 				{
-					float ttemp = globalSim->air->hv[y][x]+(-MIN_TEMP);
+					float ttemp = sim->air->hv[y][x]+(-MIN_TEMP);
 					int caddress = (int)restrict_flt((int)( restrict_flt(ttemp, 0.0f, (float)MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3);
 					c = PIXRGB((int)((unsigned char)color_data[caddress]*0.7f), (int)((unsigned char)color_data[caddress+1]*0.7f), (int)((unsigned char)color_data[caddress+2]*0.7f));
 				}
@@ -2085,14 +2085,14 @@ void xor_rect(pixel *vid, int x, int y, int w, int h)
 	}
 }
 
-void draw_other(pixel *vid) // EMP effect
+void draw_other(pixel *vid, Simulation * sim) // EMP effect
 {
 	if (!sys_pause || framerender)
-		((EMP_ElementDataContainer*)globalSim->elementData[PT_EMP])->Deactivate();
+		((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Deactivate();
 	if (!(render_mode & EFFECT)) // not in nothing mode
 		return;
 
-	int emp_decor = ((EMP_ElementDataContainer*)globalSim->elementData[PT_EMP])->emp_decor;
+	int emp_decor = ((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_decor;
 	if (emp_decor)
 	{
 		int r=(int)(emp_decor*2.5), g=(int)(100+emp_decor*1.5), b=255;
@@ -2115,9 +2115,8 @@ void prepare_graphicscache()
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 }
 
-void render_parts(pixel *vid, Point mousePos)
+void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 {
-	Simulation *sim = globalSim;
 	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker;
@@ -2133,7 +2132,7 @@ void render_parts(pixel *vid, Point mousePos)
 					blendpixel(vid, nx, ny, 100, 100, 100, 80);
 			}
 	}
-	for(i = 0; i <= globalSim->parts_lastActiveIndex; i++) {
+	for(i = 0; i <= sim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
 #ifndef NOMOD
@@ -2155,10 +2154,10 @@ void render_parts(pixel *vid, Point mousePos)
 				
 			//Defaults
 			pixel_mode = 0 | PMODE_FLAT;
-			cola = COLA(globalSim->elements[t].Colour); // always 255
-			colr = COLR(globalSim->elements[t].Colour);
-			colg = COLG(globalSim->elements[t].Colour);
-			colb = COLB(globalSim->elements[t].Colour);
+			cola = COLA(sim->elements[t].Colour); // always 255
+			colr = COLR(sim->elements[t].Colour);
+			colg = COLG(sim->elements[t].Colour);
+			colb = COLB(sim->elements[t].Colour);
 			firea = 0;
 			
 			deca = COLA(parts[i].dcolour);
@@ -2310,9 +2309,9 @@ void render_parts(pixel *vid, Point mousePos)
 				}
 				else if (color_mode & COLOR_BASC)
 				{
-					colr = COLR(globalSim->elements[t].Colour);
-					colg = COLG(globalSim->elements[t].Colour);
-					colb = COLB(globalSim->elements[t].Colour);
+					colr = COLR(sim->elements[t].Colour);
+					colg = COLG(sim->elements[t].Colour);
+					colb = COLB(sim->elements[t].Colour);
 					pixel_mode = PMODE_FLAT;
 				}
 
@@ -2410,8 +2409,8 @@ void render_parts(pixel *vid, Point mousePos)
 						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
 					else if (t == PT_STKM2)
 						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
-					else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->MaxFighters())
-						cplayer = ((FIGH_ElementDataContainer*)globalSim->elementData[PT_FIGH])->Get(parts[i].tmp);
+					else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->MaxFighters())
+						cplayer = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get(parts[i].tmp);
 					else
 						continue;
 
@@ -2425,9 +2424,9 @@ void render_parts(pixel *vid, Point mousePos)
 					{
 						if (cplayer->elem<PT_NUM)
 						{
-							colr = COLR(globalSim->elements[cplayer->elem].Colour);
-							colg = COLG(globalSim->elements[cplayer->elem].Colour);
-							colb = COLB(globalSim->elements[cplayer->elem].Colour);
+							colr = COLR(sim->elements[cplayer->elem].Colour);
+							colg = COLG(sim->elements[cplayer->elem].Colour);
+							colb = COLB(sim->elements[cplayer->elem].Colour);
 						}
 						else
 						{
@@ -2765,7 +2764,7 @@ int persist_counter = 0;
 // draw the graphics that appear after update_particles is called
 void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mousePos)
 {
-	render_parts(part_vbuf, mousePos); //draw particles
+	render_parts(part_vbuf, sim, mousePos); //draw particles
 	if (vid_buf && (display_mode & DISPLAY_PERS))
 	{
 		if (!persist_counter)
@@ -2782,7 +2781,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mous
 	if (render_mode & FIREMODE)
 		render_fire(part_vbuf);
 #endif
-	draw_other(part_vbuf);
+	draw_other(part_vbuf, sim);
 #ifndef RENDERER
 	if (!ngrav_completedisable && ((WallTool*)activeTools[the_game->GetToolIndex()])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
@@ -2796,17 +2795,18 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mous
 #endif
 
 	if (finding & 0x8)
-		draw_find();
+		draw_find(sim);
 	sampleColor = vid_buf[(mousePos.Y)*(XRES + BARSIZE) + (mousePos.X)];
 }
 
-void draw_find() //Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles
+// Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles
+void draw_find(Simulation * sim)
 {
 	int i, x, y;
 	if (finding == 8)
 		return;
 	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
-	for (i = 0; i <= globalSim->parts_lastActiveIndex; i++) //Color particles
+	for (i = 0; i <= sim->parts_lastActiveIndex; i++) //Color particles
 	{
 		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
@@ -3806,7 +3806,7 @@ int set_scale(int scale, int kiosk){
 }
 
 float maxAverage = 0.0f; //for debug mode
-int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y)
+int draw_debug_info(pixel* vid, Simulation * sim, int lx, int ly, int cx, int cy, int line_x, int line_y)
 {
 	char infobuf[256];
 	if(debug_flags & DEBUG_DRAWTOOL)
@@ -3847,10 +3847,10 @@ int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int 
 		int bars = 0;
 		for (int i = 0; i < PT_NUM; i++)
 		{
-			if (globalSim->elements[i].Enabled)
+			if (sim->elements[i].Enabled)
 			{
-				if (maxVal < globalSim->elementCount[i])
-					maxVal = globalSim->elementCount[i];
+				if (maxVal < sim->elementCount[i])
+					maxVal = sim->elementCount[i];
 				bars++;
 			}
 		}
@@ -3869,25 +3869,25 @@ int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int 
 		bars = 0;
 		for (int i = 0; i < PT_NUM; i++)
 		{
-			if (globalSim->elements[i].Enabled)
+			if (sim->elements[i].Enabled)
 			{
-				int count = globalSim->elementCount[i];
+				int count = sim->elementCount[i];
 				int barSize = (int)(count * scale - 0.5f);
 				int barX = bars;//*2;
 
-				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), XRES+BARSIZE);
-				if (globalSim->elementCount[i])
+				draw_line(vid_buf, xStart+barX, yBottom+3, xStart+barX, yBottom+2, COLR(sim->elements[i].Colour), COLG(sim->elements[i].Colour), COLB(sim->elements[i].Colour), XRES+BARSIZE);
+				if (sim->elementCount[i])
 				{
 					if (barSize > 256)
 					{
 						barSize = 256;
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-3, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-5, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
-						blendpixel(vid_buf, xStart+barX, yBottom-barSize-7, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-3, COLR(sim->elements[i].Colour), COLG(sim->elements[i].Colour), COLB(sim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-5, COLR(sim->elements[i].Colour), COLG(sim->elements[i].Colour), COLB(sim->elements[i].Colour), 255);
+						blendpixel(vid_buf, xStart+barX, yBottom-barSize-7, COLR(sim->elements[i].Colour), COLG(sim->elements[i].Colour), COLB(sim->elements[i].Colour), 255);
 					}
 					else
 						draw_line(vid_buf, xStart+barX, yBottom-barSize-3, xStart+barX, yBottom-barSize-2, 255, 255, 255, XRES+BARSIZE);
-					draw_line(vid_buf, xStart+barX, yBottom-barSize, xStart+barX, yBottom, COLR(globalSim->elements[i].Colour), COLG(globalSim->elements[i].Colour), COLB(globalSim->elements[i].Colour), XRES+BARSIZE);
+					draw_line(vid_buf, xStart+barX, yBottom-barSize, xStart+barX, yBottom, COLR(sim->elements[i].Colour), COLG(sim->elements[i].Colour), COLB(sim->elements[i].Colour), XRES+BARSIZE);
 				}
 				bars++;
 			}
@@ -3900,14 +3900,14 @@ int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int 
 	if(debug_flags & DEBUG_PARTS)
 	{
 		int i = 0, x = 0, y = 0, lpx = 0, lpy = 0;
-		sprintf(infobuf, "%d/%d (%.2f%%)", globalSim->parts_lastActiveIndex, NPART, (((float)globalSim->parts_lastActiveIndex)/((float)NPART))*100.0f);
+		sprintf(infobuf, "%d/%d (%.2f%%)", sim->parts_lastActiveIndex, NPART, (((float)sim->parts_lastActiveIndex)/((float)NPART))*100.0f);
 		for(i = 0; i < NPART; i++){
 			if(parts[i].type){
 				drawpixel(vid, x, y, 255, 255, 255, 180);
 			} else {
 				drawpixel(vid, x, y, 0, 0, 0, 180);
 			}
-			if(i == globalSim->parts_lastActiveIndex)
+			if(i == sim->parts_lastActiveIndex)
 			{
 				lpx = x;
 				lpy = y;

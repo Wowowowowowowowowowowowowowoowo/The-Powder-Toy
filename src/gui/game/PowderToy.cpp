@@ -59,6 +59,7 @@ PowderToy::PowderToy():
 	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
+	delayedHttpChecks(true),
 	drawState(POINTS),
 	isMouseDown(false),
 	isStampMouseDown(false),
@@ -108,6 +109,11 @@ PowderToy::PowderToy():
 	ignoreQuits = true;
 	hasBorder = false;
 
+	sim = new Simulation();
+	globalSim = sim;
+
+	InitMenusections();
+	FillMenus();
 	regularTools[0] = "DEFAULT_PT_DUST";
 	regularTools[1] = "DEFAULT_PT_NONE";
 	regularTools[2] = "DEFAULT_PT_NONE";
@@ -118,12 +124,13 @@ PowderToy::PowderToy():
 	activeTools[1] = GetToolFromIdentifier(regularTools[1]);
 	activeTools[2] = GetToolFromIdentifier(regularTools[2]);
 
+	load_presets();
+
 	if (doUpdates)
 	{
 		versionCheck = new Download("http://" UPDATESERVER "/Startup.json");
 		if (svf_login)
 			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
-		versionCheck->Start();
 	}
 	else
 		versionCheck = NULL;
@@ -132,63 +139,9 @@ PowderToy::PowderToy():
 	{
 		sessionCheck = new Download("http://" SERVER "/Startup.json");
 		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
-		sessionCheck->Start();
 	}
 	else
 		sessionCheck = NULL;
-
-#ifndef TOUCHUI
-	if (prevDNS != prevDNSalt)
-	{
-		class SwapDNSAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				if (b == 1)
-				{
-					prevDNS = prevDNSalt;
-					save_presets();
-					Platform::DoRestart(true);
-				}
-				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-			}
-		};
-		std::string message;
-		if (swappedDNS)
-			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
-		else
-			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		Button *notification = AddNotification(message);
-		notification->SetCallback(new SwapDNSAction());
-		AddComponent(notification);
-	}
-	if (prevDNSstatic != prevDNSstaticalt)
-	{
-		class SwapDNSStaticAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				if (b == 1)
-				{
-					prevDNSstatic = prevDNSstaticalt;
-					save_presets();
-					Platform::DoRestart(true);
-				}
-				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-			}
-		};
-		std::string message;
-		if (swappedDNSstatic)
-			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
-		else
-			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		Button *notification = AddNotification(message);
-		notification->SetCallback(new SwapDNSStaticAction());
-		AddComponent(notification);
-	}
-#endif
 
 	// start placing the bottom row of buttons, starting from the left
 #ifdef TOUCHUI
@@ -466,6 +419,66 @@ PowderToy::PowderToy():
 #endif
 }
 
+void PowderToy::DelayedHttpInitialization()
+{
+	if (versionCheck)
+		versionCheck->Start();
+	if (sessionCheck)
+		sessionCheck->Start();
+#ifndef TOUCHUI
+	if (prevDNS != prevDNSalt)
+	{
+		class SwapDNSAction : public ButtonAction
+		{
+		public:
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
+			{
+				if (b == 1)
+				{
+					prevDNS = prevDNSalt;
+					save_presets();
+					Platform::DoRestart(true);
+				}
+				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
+			}
+		};
+		std::string message;
+		if (swappedDNS)
+			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
+		else
+			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
+		Button *notification = AddNotification(message);
+		notification->SetCallback(new SwapDNSAction());
+		AddComponent(notification);
+	}
+	if (prevDNSstatic != prevDNSstaticalt)
+	{
+		class SwapDNSStaticAction : public ButtonAction
+		{
+		public:
+			virtual void ButtionActionCallback(Button *button, unsigned char b)
+			{
+				if (b == 1)
+				{
+					prevDNSstatic = prevDNSstaticalt;
+					save_presets();
+					Platform::DoRestart(true);
+				}
+				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
+			}
+		};
+		std::string message;
+		if (swappedDNSstatic)
+			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
+		else
+			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
+		Button *notification = AddNotification(message);
+		notification->SetCallback(new SwapDNSStaticAction());
+		AddComponent(notification);
+	}
+#endif
+}
+
 void PowderToy::OpenBrowser(unsigned char b)
 {
 	if (voteDownload)
@@ -489,8 +502,8 @@ void PowderToy::ReloadSave(unsigned char b)
 {
 	if (b == 1 || !strncmp(svf_id, "", 8))
 	{
-		Snapshot::TakeSnapshot(globalSim);
-		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
+		Snapshot::TakeSnapshot(sim);
+		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, sim->air->vx, sim->air->vy, sim->air->pv, sim->air->fvx, sim->air->fvy, signs, parts, pmap, &authors);
 		if (!authors.size())
 			DefaultSaveInfo();
 	}
@@ -518,7 +531,7 @@ void PowderToy::DoSave(unsigned char b)
 			localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
 			SaveAuthorInfo(&localSaveInfo);
 
-			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &localSaveInfo);
+			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, sim->air->vx, sim->air->vy, sim->air->pv, sim->air->fvx, sim->air->fvy, signs, parts, &localSaveInfo);
 			if (!saveData)
 			{
 				SetInfoTip("Error creating save");
@@ -637,16 +650,16 @@ void PowderToy::RenderOptions()
 
 void PowderToy::TogglePause()
 {
-	if (sys_pause && globalSim->debug_currentParticle)
+	if (sys_pause && sim->debug_currentParticle)
 	{
 #ifdef LUACONSOLE
 		std::stringstream logmessage;
-		logmessage << "Updated particles from #" << globalSim->debug_currentParticle << " to end due to unpause";
+		logmessage << "Updated particles from #" << sim->debug_currentParticle << " to end due to unpause";
 		luacon_log(mystrdup(logmessage.str().c_str()));
 #endif
-		globalSim->UpdateParticles(globalSim->debug_currentParticle, NPART);
-		globalSim->UpdateAfter();
-		globalSim->debug_currentParticle = 0;
+		sim->UpdateParticles(sim->debug_currentParticle, NPART);
+		sim->UpdateAfter();
+		sim->debug_currentParticle = 0;
 	}
 	sys_pause = !sys_pause;
 	restorePreviousPause = false;
@@ -1042,7 +1055,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	{
 		if (drawState == POINTS)
 		{
-			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+			activeTools[toolIndex]->DrawLine(sim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
 			lastDrawPoint = cursor;
 		}
 		else if (drawState == LINE)
@@ -1052,12 +1065,12 @@ void PowderToy::OnTick(uint32_t ticks)
 				Point drawPoint2 = cursor;
 				if (altHeld)
 					drawPoint2 = LineSnapCoords(initialDrawPoint, cursor);
-				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, initialDrawPoint, drawPoint2, false, toolStrength);
+				activeTools[toolIndex]->DrawLine(sim, currentBrush, initialDrawPoint, drawPoint2, false, toolStrength);
 			}
 		}
 		else if (drawState == FILL)
 		{
-			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+			activeTools[toolIndex]->FloodFill(sim, currentBrush, cursor);
 		}
 	}
 
@@ -1178,8 +1191,11 @@ void PowderToy::OnTick(uint32_t ticks)
 			{
 				datastream >> root;
 
+				loginFinished = 1;
 				if (!root["Session"].asInt())
 				{
+					if (svf_login)
+						loginFinished = -1;
 					// TODO: better login system, why do we reset all these
 					strcpy(svf_user, "");
 					strcpy(svf_user_id, "");
@@ -1218,7 +1234,6 @@ void PowderToy::OnTick(uint32_t ticks)
 					Button *notification = AddNotification(message);
 					notification->SetCallback(new NotificationOpenAction(link));
 				}
-				loginFinished = 1;
 			}
 			catch (std::exception &e)
 			{
@@ -1228,6 +1243,13 @@ void PowderToy::OnTick(uint32_t ticks)
 		}
 		free(ret);
 		sessionCheck = NULL;
+	}
+	// delay these a frame, due to the way startup initializatin is ordered
+	// http hasn't been initialized when the PowderToy object is created
+	if (delayedHttpChecks)
+	{
+		DelayedHttpInitialization();
+		delayedHttpChecks = false;
 	}
 	if (voteDownload && voteDownload->CheckDone())
 	{
@@ -1258,7 +1280,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		else
 		{
 			Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
-			int signID = InsideSign(globalSim, cursor.X, cursor.Y, true);
+			int signID = InsideSign(sim, cursor.X, cursor.Y, true);
 			if (signID == -1 && signs.size() >= MAXSIGNS)
 				SetInfoTip("Sign limit reached");
 			else
@@ -1409,7 +1431,10 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 	else
 	{
-		loginButtonText = "\x84 [sign in]";
+		if (loginFinished == -1)
+			loginButtonText = "\x0F\xFF\x01\x01\x84\x0E [sign in]";
+		else
+			loginButtonText = "\x84 [sign in]";
 		loginButtonTip = "Sign into the Simulation Server";
 	}
 	loginButton->SetText(loginButtonText);
@@ -1538,13 +1563,13 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 		{
 			if (drawState == POINTS)
 			{
-				activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+				activeTools[toolIndex]->DrawLine(sim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
 				lastDrawPoint = cursor;
 				skipDraw = true;
 			}
 			else if (drawState == FILL)
 			{
-				activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+				activeTools[toolIndex]->FloodFill(sim, currentBrush, cursor);
 				skipDraw = true;
 			}
 		}
@@ -1638,7 +1663,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			isStampMouseDown = true;
 		}
 	}
-	else if (InsideSign(globalSim, cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
+	else if (InsideSign(sim, cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
 	{
 		// do nothing
 	}
@@ -1646,7 +1671,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	{
 		deletingRenderOptions = true;
 	}
-	else if (globalSim->InBounds(mouse.X, mouse.Y))
+	else if (sim->InBounds(mouse.X, mouse.Y))
 	{
 		toolIndex = ((button&1) || button == 2) ? 0 : 1;
 		UpdateDrawMode();
@@ -1655,9 +1680,9 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		//	activeTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
 		if (button == 2 || (altHeld && !shiftHeld && !ctrlHeld))
 		{
-			Tool *tool = activeTools[toolIndex]->Sample(globalSim, cursor);
+			Tool *tool = activeTools[toolIndex]->Sample(sim, cursor);
 			if (tool)
-				activeTools[toolIndex] = activeTools[toolIndex]->Sample(globalSim, cursor);
+				activeTools[toolIndex] = activeTools[toolIndex]->Sample(sim, cursor);
 			return;
 		}
 
@@ -1668,14 +1693,14 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		}
 		else if (drawState == POINTS)
 		{
-			Snapshot::TakeSnapshot(globalSim);
+			Snapshot::TakeSnapshot(sim);
 			lastDrawPoint = cursor;
-			activeTools[toolIndex]->DrawPoint(globalSim, currentBrush, cursor, toolStrength);
+			activeTools[toolIndex]->DrawPoint(sim, currentBrush, cursor, toolStrength);
 		}
 		else if (drawState == FILL)
 		{
-			Snapshot::TakeSnapshot(globalSim);
-			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+			Snapshot::TakeSnapshot(sim);
+			activeTools[toolIndex]->FloodFill(sim, currentBrush, cursor);
 		}
 	}
 }
@@ -1764,9 +1789,9 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			return;
 		stampMoving = false;
 #endif
-		Snapshot::TakeSnapshot(globalSim);
+		Snapshot::TakeSnapshot(sim);
 		Json::Value tempStampInfo;
-		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &tempStampInfo, !shiftHeld))
+		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, sim->air->vx, sim->air->vy, sim->air->pv, sim->air->fvx, sim->air->fvy, signs, parts, pmap, &tempStampInfo, !shiftHeld))
 			MergeStampAuthorInfo(tempStampInfo);
 		ResetStampState();
 		return;
@@ -1807,7 +1832,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, sim->air->vx, sim->air->vy, sim->air->pv, sim->air->fvx, sim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				break;
 			}
 			case CUT:
@@ -1818,7 +1843,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, sim->air->vx, sim->air->vy, sim->air->pv, sim->air->fvx, sim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				if (clipboardData)
 					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
@@ -1845,26 +1870,26 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	{
 		if (drawState == POINTS)
 		{
-			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
-			activeTools[toolIndex]->Click(globalSim, cursor);
+			activeTools[toolIndex]->DrawLine(sim, currentBrush, lastDrawPoint, cursor, true, toolStrength);
+			activeTools[toolIndex]->Click(sim, cursor);
 		}
 		else if (drawState == LINE)
 		{
 			if (altHeld)
 				cursor = LineSnapCoords(initialDrawPoint, cursor);
-			Snapshot::TakeSnapshot(globalSim);
-			activeTools[toolIndex]->DrawLine(globalSim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
+			Snapshot::TakeSnapshot(sim);
+			activeTools[toolIndex]->DrawLine(sim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
 		}
 		else if (drawState == RECT)
 		{
 			if (altHeld)
 				cursor = RectSnapCoords(initialDrawPoint, cursor);
-			Snapshot::TakeSnapshot(globalSim);
-			activeTools[toolIndex]->DrawRect(globalSim, currentBrush, initialDrawPoint, cursor);
+			Snapshot::TakeSnapshot(sim);
+			activeTools[toolIndex]->DrawRect(sim, currentBrush, initialDrawPoint, cursor);
 		}
 		else if (drawState == FILL)
 		{
-			activeTools[toolIndex]->FloodFill(globalSim, currentBrush, cursor);
+			activeTools[toolIndex]->FloodFill(sim, currentBrush, cursor);
 		}
 		isMouseDown = false;
 	}
@@ -1873,7 +1898,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		// ctrl+click moves a sign
 		if (ctrlHeld)
 		{
-			int signID = InsideSign(globalSim, cursor.X, cursor.Y, true);
+			int signID = InsideSign(sim, cursor.X, cursor.Y, true);
 			if (signID != -1)
 				MSIGN = signID;
 		}
@@ -1882,7 +1907,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			toolIndex = ((button&1) || button == 2) ? 0 : 1;
 			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
-			int signID = InsideSign(globalSim, cursor.X, cursor.Y, false);
+			int signID = InsideSign(sim, cursor.X, cursor.Y, false);
 			if (signID != -1)
 			{
 				// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
@@ -1892,7 +1917,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				{
 					Point realPos = signs[signID]->GetRealPos();
 					if (pmap[realPos.Y][realPos.X])
-						globalSim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
+						sim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
 				}
 				else if (signs[signID]->GetType() == Sign::SaveLink)
 				{
@@ -2084,7 +2109,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		// ctrl + y
 		if (ctrlHeld)
 		{
-			Snapshot::RestoreRedoSnapshot(globalSim);
+			Snapshot::RestoreRedoSnapshot(sim);
 		}
 		break;
 	case 'i':
@@ -2093,9 +2118,9 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			for (int nx = 0; nx < XRES/CELL; nx++)
 				for (int ny = 0; ny < YRES/CELL; ny++)
 				{
-					globalSim->air->pv[ny][nx] = -globalSim->air->pv[ny][nx];
-					globalSim->air->vx[ny][nx] = -globalSim->air->vx[ny][nx];
-					globalSim->air->vy[ny][nx] = -globalSim->air->vy[ny][nx];
+					sim->air->pv[ny][nx] = -sim->air->pv[ny][nx];
+					sim->air->vx[ny][nx] = -sim->air->vx[ny][nx];
+					sim->air->vy[ny][nx] = -sim->air->vy[ny][nx];
 				}
 		}
 		else
@@ -2134,7 +2159,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		break;
 	case 's':
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-		if (globalSim->elementCount[PT_STKM2] > 0 ? ctrlHeld : !ctrlHeld)
+		if (sim->elementCount[PT_STKM2] > 0 ? ctrlHeld : !ctrlHeld)
 		{
 			ResetStampState();
 			state = SAVE;
@@ -2181,9 +2206,9 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		if (ctrlHeld)
 		{
 			if (shiftHeld)
-				Snapshot::RestoreRedoSnapshot(globalSim);
+				Snapshot::RestoreRedoSnapshot(sim);
 			else
-				Snapshot::RestoreSnapshot(globalSim);
+				Snapshot::RestoreSnapshot(sim);
 		}
 		// zoom window
 		else

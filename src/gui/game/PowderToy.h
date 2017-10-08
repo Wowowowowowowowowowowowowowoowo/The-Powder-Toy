@@ -9,6 +9,7 @@ class Button;
 class VideoBuffer;
 class Download;
 class ToolTip;
+class Simulation;
 class PowderToy : public Window_
 {
 public:
@@ -32,6 +33,8 @@ private:
 	Download *versionCheck;
 	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
 	Download *voteDownload;
+	bool delayedHttpChecks;
+	void DelayedHttpInitialization();
 
 	// drawing stuff
 	DrawState drawState;
@@ -59,6 +62,9 @@ private:
 	Point zoomMousePosition; // position where the mouse was when placing the zoom window, needed so that we can resize it without glitching things
 	int zoomSize;
 	int zoomFactor;
+	
+	// Simulation object
+	Simulation * sim;
 
 	// loading stamps
 	StampState state;

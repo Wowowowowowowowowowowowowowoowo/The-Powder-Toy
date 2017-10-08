@@ -1112,10 +1112,6 @@ PowderToy *the_game;
 int main(int argc, char *argv[])
 {
 	bool benchmark_enable = false;
-	//init some new c++ stuff
-	Simulation *mainSim = new Simulation();
-	mainSim->InitElements();
-	globalSim = mainSim;
 
 #ifdef PTW32_STATIC_LIB
 	pthread_win32_process_attach_np();
@@ -1129,6 +1125,9 @@ int main(int argc, char *argv[])
 	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
+	// initialize this first so simulation gets inited
+	the_game = new PowderToy(); // you just lost
+	
 	limitFPS = 60;
 	vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
@@ -1143,11 +1142,7 @@ int main(int argc, char *argv[])
 #ifdef MT
 	numCores = core_count();
 #endif
-	InitMenusections();
-	FillMenus();
 	currentBrush = new Brush(Point(5, 5), CIRCLE_BRUSH);
-
-	mainSim->InitCanMove();
 
 #ifdef LUACONSOLE
 	luacon_open();
@@ -1181,8 +1176,7 @@ int main(int argc, char *argv[])
 			i++;
 		}
 	}
-	
-	load_presets();
+
 	timesplayed = timesplayed + 1;
 	if (DEBUG_MODE)
 		memcpy(currentHud,debugHud,sizeof(currentHud));
@@ -1321,8 +1315,6 @@ int main(int argc, char *argv[])
 		saveOpenError = 0;
 		error_ui(vid_buf, 0, "Unable to open save file.");
 	}
-
-	the_game = new PowderToy(); // you just lost
 
 #ifdef LUACONSOLE
 	lua_vid_buf = the_game->GetVid()->GetVid();
@@ -1552,7 +1544,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					snappedCursor = the_game->RectSnapCoords(initialDrawPoint, snappedCursor);
 
 			}
-			draw_debug_info(vid_buf, initialDrawPoint.X, initialDrawPoint.Y, x, y, snappedCursor.X, snappedCursor.Y);
+			draw_debug_info(vid_buf, globalSim, initialDrawPoint.X, initialDrawPoint.Y, x, y, snappedCursor.X, snappedCursor.Y);
 		}
 
 		if (saveDataOpen)

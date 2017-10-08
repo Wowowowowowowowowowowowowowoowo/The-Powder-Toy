@@ -7046,7 +7046,7 @@ int console_ui(pixel *vid_buf)
 #ifdef LUACONSOLE
 			if (process_command_lua(vid_buf, command, &result) == -1)
 #else
-			if (process_command_old(vid_buf, command, &result) == -1)
+			if (process_command_old(globalSim, vid_buf, command, &result) == -1)
 #endif
 			{
 				free(old_buf);

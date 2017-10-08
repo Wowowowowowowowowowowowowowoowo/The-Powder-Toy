@@ -38,6 +38,9 @@
 #define LUACON_EL_MODIFIED_GRAPHICS 0x2
 #define LUACON_EL_MODIFIED_MENUS 0x4
 
+class Simulation;
+extern Simulation * luaSim;
+
 extern pixel *lua_vid_buf;
 extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 extern char* log_history[20];

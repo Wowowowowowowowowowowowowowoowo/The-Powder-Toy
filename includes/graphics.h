@@ -68,7 +68,7 @@ extern gcache_item *graphicscache;
 
 void prepare_graphicscache();
 
-void draw_other(pixel *vid);
+void draw_other(pixel *vid, Simulation * sim);
 
 void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float a);
 
@@ -158,7 +158,7 @@ void xor_rect(pixel *vid, int x, int y, int w, int h);
 void blend_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int a);
 
 struct Point;
-void render_parts(pixel *vid, Point mousePos);
+void render_parts(pixel *vid, Simulation * sim, Point mousePos);
 
 void render_before(pixel *part_vbuf, Simulation * sim);
 
@@ -168,7 +168,7 @@ void draw_parts(pixel *vid);
 
 void draw_walls(pixel *vid, Simulation * sim);
 
-void draw_find();
+void draw_find(Simulation * sim);
 
 void render_signs(pixel *vid_buf, Simulation * sim);
 
@@ -198,7 +198,7 @@ void SetSDLVideoMode(int width, int height);
 
 int set_scale(int scale, int kiosk);
 
-int draw_debug_info(pixel* vid, int lx, int ly, int cx, int cy, int line_x, int line_y);
+int draw_debug_info(pixel* vid, Simulation * sim, int lx, int ly, int cx, int cy, int line_x, int line_y);
 
 #endif
 

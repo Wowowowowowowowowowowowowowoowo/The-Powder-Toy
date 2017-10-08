@@ -56,19 +56,19 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 	{
 		PropertyValue valuef;
 		valuef.Float = parts[i].temp;
-		return globalSim->FloodProp(x, y - 1, Float, valuef, propoffset);
+		return sim->FloodProp(x, y - 1, Float, valuef, propoffset);
 	}
 	else if (format == 3)
 	{
 		PropertyValue valueui;
 		valueui.UInteger = parts[i].dcolour;
-		return globalSim->FloodProp(x, y - 1, UInteger, valueui, propoffset);
+		return sim->FloodProp(x, y - 1, UInteger, valueui, propoffset);
 	}
 	else
 	{
 		PropertyValue valuei;
 		valuei.Integer = parts[i].tmp;
-		return globalSim->FloodProp(x, y - 1, Integer, valuei, propoffset);
+		return sim->FloodProp(x, y - 1, Integer, valuei, propoffset);
 	}
 }
 
@@ -83,7 +83,7 @@ int PWHT_update(UPDATE_FUNC_ARGS)
 		{
 			PropertyValue valuef;
 			valuef.Float = parts[i].temp;
-			globalSim->FloodProp(x, y - 1, Float, valuef, offsetof(particle, temp));
+			sim->FloodProp(x, y - 1, Float, valuef, offsetof(particle, temp));
 		}
 		else
 		{

@@ -54,6 +54,7 @@ extern "C"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 
+Simulation * luaSim;
 pixel *lua_vid_buf;
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
 char* log_history[20];
@@ -167,6 +168,7 @@ void luacon_open()
 	luaopen_socket(l);
 	luaL_register(l, "tpt", tptluaapi);
 	
+	luaSim = globalSim;
 	initSimulationAPI(l);
 	initRendererAPI(l);
 	initFileSystemAPI(l);
@@ -413,7 +415,7 @@ int luacon_partwrite(lua_State* l)
 		*((float*)(((char*)&parts[i])+offset)) = (float)luaL_optnumber(l, 3, 0);
 		break;
 	case 2:
-		globalSim->part_change_type_force(i, luaL_optinteger(l, 3, 0));
+		luaSim->part_change_type_force(i, luaL_optinteger(l, 3, 0));
 	}
 	return 1;
 }
@@ -512,7 +514,7 @@ int luacon_transitionwrite(lua_State* l)
 		return luaL_error(l, "Invalid property");
 	}
 	elements_setProperty(l, i, format, offset);
-	Simulation_Compat_CopyData(globalSim);
+	Simulation_Compat_CopyData(luaSim);
 	return 0;
 }
 
@@ -727,13 +729,13 @@ int luacon_elementwrite(lua_State* l)
 	else
 		free(tempstring);
 	elements_setProperty(l, i, format, offset);
-	Simulation_Compat_CopyData(globalSim);
+	Simulation_Compat_CopyData(luaSim);
 	if (modified_stuff)
 	{
 		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
 			FillMenus();
 		if (modified_stuff & LUACON_EL_MODIFIED_CANMOVE)
-			globalSim->InitCanMove();
+			luaSim->InitCanMove();
 		if (modified_stuff & LUACON_EL_MODIFIED_GRAPHICS)
 			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	}
@@ -1222,7 +1224,7 @@ int process_command_lua(pixel *vid_buf, char *command, char **result)
 	{
 		if(strncmp(command, "!", 1)==0)
 		{
-			return process_command_old(vid_buf, command+1, result);
+			return process_command_old(luaSim, vid_buf, command+1, result);
 		}
 		else
 		{
@@ -1409,7 +1411,7 @@ int luatpt_create(lua_State* l)
 			if (!console_parse_type(name, &t, NULL))
 				return luaL_error(l,"Unrecognised element '%s'", name);
 		}
-		retid = globalSim->part_create(-1, x, y, t);
+		retid = luaSim->part_create(-1, x, y, t);
 		// failing to create a particle often happens (e.g. if space is already occupied) and isn't usually important, so don't raise an error
 		lua_pushinteger(l, retid);
 		return 1;
@@ -1516,13 +1518,13 @@ void set_map(int x, int y, int width, int height, float value, int map)
 		for (ny = y; ny<y+height; ny++)
 		{
 			if (map == 1)
-				globalSim->air->pv[ny][nx] = value;
+				luaSim->air->pv[ny][nx] = value;
 			else if (map == 2)
-				globalSim->air->hv[ny][nx] = value;
+				luaSim->air->hv[ny][nx] = value;
 			else if (map == 3)
-				globalSim->air->vx[ny][nx] = value;
+				luaSim->air->vx[ny][nx] = value;
 			else if (map == 4)
-				globalSim->air->vy[ny][nx] = value;
+				luaSim->air->vy[ny][nx] = value;
 			else if (map == 5)
 				gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
 
@@ -1648,8 +1650,8 @@ int luatpt_reset_velocity(lua_State* l)
 	for (nx = x1; nx<x1+width; nx++)
 		for (ny = y1; ny<y1+height; ny++)
 		{
-			globalSim->air->vx[ny][nx] = 0;
-			globalSim->air->vy[ny][nx] = 0;
+			luaSim->air->vx[ny][nx] = 0;
+			luaSim->air->vy[ny][nx] = 0;
 		}
 	return 0;
 }
@@ -1661,7 +1663,7 @@ int luatpt_reset_spark(lua_State* l)
 	{
 		if (parts[i].type == PT_SPRK)
 		{
-			if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && globalSim->elements[parts[i].ctype].Enabled)
+			if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && luaSim->elements[parts[i].ctype].Enabled)
 			{
 				parts[i].type = parts[i].ctype;
 				parts[i].life = parts[i].ctype = 0;
@@ -1750,7 +1752,7 @@ int luatpt_set_property(lua_State* l)
 					else if (format == 0)
 						*((int*)(((unsigned char*)&parts[i])+offset)) = t;
 					else if (format == 2)
-						globalSim->part_change_type_force(i, t);
+						luaSim->part_change_type_force(i, t);
 				}
 			}
 		}
@@ -1783,7 +1785,7 @@ int luatpt_set_property(lua_State* l)
 		else if (format == 0)
 			*((int*)(((unsigned char*)&parts[i])+offset)) = t;
 		else if (format == 2)
-			globalSim->part_change_type_force(i, t);
+			luaSim->part_change_type_force(i, t);
 	}
 	return 0;
 }
@@ -2022,7 +2024,7 @@ int luatpt_delete(lua_State* l)
 	arg2 = abs(arg2);
 	if (arg2 < YRES && arg1 < XRES)
 	{
-		globalSim->part_delete(arg1, arg2);
+		luaSim->part_delete(arg1, arg2);
 		return 0;
 	}
 	return luaL_error(l,"Invalid coordinates or particle ID");
@@ -2544,12 +2546,12 @@ int luatpt_bubble(lua_State* l)
 	int y = luaL_optint(l, 1, 0);
 	int first, rem1, rem2, i;
 
-	first = globalSim->part_create(-1, x+18, y, PT_SOAP);
+	first = luaSim->part_create(-1, x+18, y, PT_SOAP);
 	rem1 = first;
 
 	for (i = 1; i<=30; i++)
 	{
-		rem2 = globalSim->part_create(-1, (int)(x+18*cosf(i/5.0f)), (int)(y+18*sinf(i/5.0f)), PT_SOAP);
+		rem2 = luaSim->part_create(-1, (int)(x+18*cosf(i/5.0f)), (int)(y+18*sinf(i/5.0f)), PT_SOAP);
 
 		parts[rem1].ctype = 7;
 		parts[rem1].tmp = rem2;
@@ -2571,14 +2573,14 @@ int luatpt_maxframes(lua_State* l)
 	int maxFrames = luaL_optint(l,1,-1), i;
 	if (maxFrames == -1)
 	{
-		lua_pushnumber(l, globalSim->maxFrames);
+		lua_pushnumber(l, luaSim->maxFrames);
 		return 1;
 	}
 	if (maxFrames > 0 && maxFrames <= 256)
-		globalSim->maxFrames = maxFrames;
+		luaSim->maxFrames = maxFrames;
 	else
 		return luaL_error(l, "must be between 1 and 256");
-	for (i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+	for (i = 0; i <= luaSim->parts_lastActiveIndex; i++)
 		if (parts[i].type == PT_ANIM)
 		{
 			if (parts[i].animations)
@@ -2689,12 +2691,12 @@ int luatpt_indestructible(lua_State* l)
 	if (ind)
 	{
 		ptypes[el].properties |= PROP_INDESTRUCTIBLE;
-		globalSim->elements[el].Properties |= PROP_INDESTRUCTIBLE;
+		luaSim->elements[el].Properties |= PROP_INDESTRUCTIBLE;
 	}
 	else
 	{
 		ptypes[el].properties &= ~PROP_INDESTRUCTIBLE;
-		globalSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
+		luaSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
 	}
 	return 0;
 }

@@ -71,7 +71,7 @@ void benchmark_run()
 		file_data = (char*)file_load(benchmark_file, &size);
 		if (file_data)
 		{
-			if(!parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp))
+			if(!parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp))
 			{
 				printf("Save speed test:\n");
 
@@ -79,14 +79,14 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
 						sim->air->UpdateAir();
 						sim->air->UpdateAirHeat();
-						globalSim->Tick();
+						sim->Tick();
 					}
 				}
 				BENCHMARK_END()
@@ -97,7 +97,7 @@ void benchmark_run()
 					BENCHMARK_RUN()
 					{
 						temp.clear();
-						parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+						parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					}
 				}
 				BENCHMARK_END()
@@ -106,12 +106,12 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1000)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = true;
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
-						globalSim->Tick();
+						sim->Tick();
 					}
 				}
 				BENCHMARK_END()
@@ -120,12 +120,12 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
-						globalSim->Tick();
+						sim->Tick();
 					}
 				}
 				BENCHMARK_END()
@@ -134,16 +134,16 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1500)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;
 					render_mode = RENDER_BASC;
 					decorations_enable = true;
-					globalSim->Tick();
+					sim->Tick();
 					BENCHMARK_RUN()
 					{
-						render_parts(vid_buf, Point(0,0));
+						render_parts(vid_buf, sim, Point(0,0));
 					}
 				}
 				BENCHMARK_END()
@@ -152,16 +152,16 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, sim->air->vx, sim->air->vy, sim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;
 					render_mode = RENDER_FIRE;
 					decorations_enable = true;
-					globalSim->Tick();
+					sim->Tick();
 					BENCHMARK_RUN()
 					{
-						render_parts(vid_buf, Point(0, 0));
+						render_parts(vid_buf, sim, Point(0, 0));
 						render_fire(vid_buf);
 					}
 				}

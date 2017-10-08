@@ -134,11 +134,11 @@ public:
 	{
 		if (numBalls == 0)
 			return;
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+		for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 		{
 			if (parts[i].flags&FLAG_DISAPPEAR)
 			{
-				globalSim->part_kill(i);
+				sim->part_kill(i);
 			}
 			else if (parts[i].type == PT_MOVS)
 			{
@@ -185,7 +185,7 @@ public:
 				movingSolid->rotationOld += 2*M_PI;
 			}
 		}
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
+		for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 		{
 			if (parts[i].type == PT_MOVS)
 			{
@@ -207,7 +207,7 @@ public:
 						rotate(&tmp, &tmp2, .02f);
 						if (parts[movingSolid->index-1].x + tmp != nx || parts[movingSolid->index-1].y + tmp2 != ny)
 						{
-							int j = globalSim->part_create(-1, (int)(parts[movingSolid->index-1].x + tmp), (int)(parts[movingSolid->index-1].y + tmp2), parts[i].type);
+							int j = sim->part_create(-1, (int)(parts[movingSolid->index-1].x + tmp), (int)(parts[movingSolid->index-1].y + tmp2), parts[i].type);
 							if (j >= 0)
 							{
 								parts[j].flags |= FLAG_DISAPPEAR;

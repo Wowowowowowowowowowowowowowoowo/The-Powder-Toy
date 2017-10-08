@@ -19,7 +19,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 {
 	//pavg[0] measures how many frames until it is cured (0 if still actively spreading and not being cured)
 	//pavg[1] measures how many frames until it dies 
-	int r, rx, ry, rndstore = rand();
+	int rndstore = rand();
 	if (parts[i].pavg[0])
 	{
 		parts[i].pavg[0] -= (rndstore&0x1) ? 0:1;
@@ -41,18 +41,18 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 	{
 		if (!(rndstore & 0x7) && --parts[i].pavg[1] <= 0)
 		{
-			kill_part(i);
+			sim->part_kill(i);
 			return 1;
 		}
 		rndstore >>= 3;
 	}
 
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 		{
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
 
@@ -67,14 +67,14 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 				{
 					parts[i].pavg[0] += 10;
 					if (!(rndstore & 0x3))
-						kill_part(r>>8);
+						sim->part_kill(r>>8);
 					return 0;
 				}
 				else if ((r&0xFF) == PT_PLSM)
 				{
 					if (surround_space && 10 + (int)(sim->air->pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
 					{
-						globalSim->part_create(i, x, y, PT_PLSM);
+						sim->part_create(i, x, y, PT_PLSM);
 						return 1;
 					}
 				}
@@ -89,11 +89,11 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 						else
 							parts[r>>8].pavg[1] = 0;
 						if (parts[r>>8].temp < 305.0f)
-							part_change_type(r>>8,x+rx,y+ry,PT_VRSS);
+							sim->part_change_type(r>>8,x+rx,y+ry,PT_VRSS);
 						else if (parts[r>>8].temp > 673.0f)
-							part_change_type(r>>8,x+rx,y+ry,PT_VRSG);
+							sim->part_change_type(r>>8,x+rx,y+ry,PT_VRSG);
 						else
-							part_change_type(r>>8,x+rx,y+ry,PT_VIRS);
+							sim->part_change_type(r>>8,x+rx,y+ry,PT_VIRS);
 					}
 					rndstore >>= 3;
 				}

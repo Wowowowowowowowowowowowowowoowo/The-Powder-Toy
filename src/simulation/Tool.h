@@ -52,14 +52,14 @@ public:
 class ElementTool : public Tool
 {
 public:
-	ElementTool(int elementID);
+	ElementTool(Simulation * sim, int elementID);
 	int GetID();
 };
 
 class PlopTool : public ElementTool
 {
 public:
-	PlopTool(int elementID);
+	PlopTool(Simulation * sim, int elementID);
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
 	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);

@@ -118,8 +118,8 @@ Tool* Tool::Sample(Simulation *sim, Point position)
 }
 
 
-ElementTool::ElementTool(int elementID):
-	Tool(ELEMENT_TOOL, elementID, globalSim->elements[elementID].Identifier)
+ElementTool::ElementTool(Simulation * sim, int elementID):
+	Tool(ELEMENT_TOOL, elementID, sim->elements[elementID].Identifier)
 {
 
 }
@@ -134,8 +134,8 @@ int ElementTool::GetID()
 }
 
 
-PlopTool::PlopTool(int elementID):
-	ElementTool(elementID)
+PlopTool::PlopTool(Simulation * sim, int elementID):
+	ElementTool(sim, elementID)
 {
 
 }

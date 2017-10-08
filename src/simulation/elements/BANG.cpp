@@ -43,7 +43,7 @@ int BANG_update(UPDATE_FUNC_ARGS)
 		{
 			PropertyValue tempValue;
 			tempValue.Integer = 2;
-			globalSim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
+			sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
 		}
 		parts[i].tmp = 2;
 	}
