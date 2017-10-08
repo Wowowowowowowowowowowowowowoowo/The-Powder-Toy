@@ -23,7 +23,7 @@ int INVS_update(UPDATE_FUNC_ARGS)
 	else
 		pressureResistance = 4.0f;
 
-	if (pv[y/CELL][x/CELL] < -pressureResistance || pv[y/CELL][x/CELL] > pressureResistance)
+	if (sim->air->pv[y/CELL][x/CELL] < -pressureResistance || sim->air->pv[y/CELL][x/CELL] > pressureResistance)
 		parts[i].tmp2 = 1;
 	else
 		parts[i].tmp2 = 0;

@@ -196,7 +196,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 	}
 	else
 	{
-		if (pv[y/CELL][x/CELL]>0.5f || pv[y/CELL][x/CELL]<(-0.5f))
+		if (sim->air->pv[y/CELL][x/CELL]>0.5f || sim->air->pv[y/CELL][x/CELL]<(-0.5f))
 		{
 			parts[i].ctype = 1;
 			parts[i].life = 10;

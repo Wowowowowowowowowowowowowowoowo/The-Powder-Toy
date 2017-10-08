@@ -32,13 +32,13 @@ void DeutImplosion(Simulation *sim, int n, int x, int y, float temp, int t)
 		else if (sim->pfree < 0)
 			break;
 	}
-	pv[y/CELL][x/CELL] -= (6.0f * CFDS)*n;
+	sim->air->pv[y/CELL][x/CELL] -= (6.0f * CFDS)*n;
 	return;
 }
 
 int PROT_update(UPDATE_FUNC_ARGS)
 {
-	pv[y/CELL][x/CELL] -= .003f;
+	sim->air->pv[y/CELL][x/CELL] -= .003f;
 	int under = pmap[y][x];
 	int utype = under & 0xFF;
 	switch (utype)
@@ -56,7 +56,7 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		break;
 	}
 	case PT_DEUT:
-		if ((-((int)pv[y/CELL][x/CELL]-4)+(parts[under>>8].life/100)) > rand()%200)
+		if ((-((int)sim->air->pv[y/CELL][x/CELL]-4)+(parts[under>>8].life/100)) > rand()%200)
 		{
 			DeutImplosion(sim, parts[under>>8].life, x, y, restrict_flt(parts[under>>8].temp + parts[under>>8].life*500, MIN_TEMP, MAX_TEMP), PT_PROT);
 			kill_part(under>>8);
@@ -93,7 +93,7 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		{
 			sim->part_create(under>>8, x, y, PT_FIRE);
 			parts[under>>8].temp += restrict_flt(sim->elements[under&0xFF].Flammable*5.0f, MIN_TEMP, MAX_TEMP);
-			pv[y/CELL][x/CELL] += 1.00f;
+			sim->air->pv[y/CELL][x/CELL] += 1.00f;
 		}
 		//prevent inactive sparkable elements from being sparked
 		else if ((sim->elements[under&0xFF].Properties&PROP_CONDUCTS) && parts[under>>8].life <= 4)

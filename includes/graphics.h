@@ -21,6 +21,8 @@
 #include "defines.h"
 #include "graphics/Pixel.h"
 
+class Simulation;
+
 extern pixel sampleColor;
 
 extern unsigned int render_mode;
@@ -137,7 +139,7 @@ void blendpixel(pixel *vid, int x, int y, int r, int g, int b, int a);
 
 void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag);
 
-void draw_air(pixel *vid);
+void draw_air(pixel *vid, Simulation * sim);
 
 void draw_grav_zones(pixel *vid);
 
@@ -158,17 +160,17 @@ void blend_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b,
 struct Point;
 void render_parts(pixel *vid, Point mousePos);
 
-void render_before(pixel *part_vbuf);
+void render_before(pixel *part_vbuf, Simulation * sim);
 
-void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos);
+void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mousePos);
 
 void draw_parts(pixel *vid);
 
-void draw_walls(pixel *vid);
+void draw_walls(pixel *vid, Simulation * sim);
 
 void draw_find();
 
-void render_signs(pixel *vid_buf);
+void render_signs(pixel *vid_buf, Simulation * sim);
 
 void render_fire(pixel *dst);
 

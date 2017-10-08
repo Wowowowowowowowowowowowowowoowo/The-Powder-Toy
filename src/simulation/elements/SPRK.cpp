@@ -81,7 +81,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			if (parts[i].temp > 5273.15)
 				parts[i].tmp |= 0x4;
 			parts[i].temp = 3500;
-			pv[y/CELL][x/CELL] += 1;
+			sim->air->pv[y/CELL][x/CELL] += 1;
 		}
 		break;
 	case PT_TESC:
@@ -106,12 +106,12 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 					parts[p].tmp2=1;
 					parts[p].tmp=(int)(atan2((float)-ry, (float)rx)/M_PI*360);
 					parts[i].temp-=parts[i].tmp*2+parts[i].temp/5; // slight self-cooling
-					if (fabs(pv[y/CELL][x/CELL])!=0.0f)
+					if (fabs(sim->air->pv[y/CELL][x/CELL])!=0.0f)
 					{
-						if (fabs(pv[y/CELL][x/CELL])<=0.5f)
-							pv[y/CELL][x/CELL] = 0;
+						if (fabs(sim->air->pv[y/CELL][x/CELL])<=0.5f)
+							sim->air->pv[y/CELL][x/CELL] = 0;
 						else
-							pv[y/CELL][x/CELL] -= (pv[y/CELL][x/CELL]>0) ? 0.5f : -0.5f;
+							sim->air->pv[y/CELL][x/CELL] -= (sim->air->pv[y/CELL][x/CELL]>0) ? 0.5f : -0.5f;
 					}
 				}
 			}
@@ -297,7 +297,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				switch (receiver)
 				{
 				case PT_QRTZ:
-					if ((sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN||sender==PT_QRTZ) && (parts[r>>8].temp<173.15||pv[(y+ry)/CELL][(x+rx)/CELL]>8))
+					if ((sender==PT_NSCN||sender==PT_METL||sender==PT_PSCN||sender==PT_QRTZ) && (parts[r>>8].temp<173.15||sim->air->pv[(y+ry)/CELL][(x+rx)/CELL]>8))
 						goto conduct;
 					continue;
 				case PT_NTCT:

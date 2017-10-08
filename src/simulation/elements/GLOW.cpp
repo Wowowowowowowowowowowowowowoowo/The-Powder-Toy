@@ -17,34 +17,23 @@
 
 int GLOW_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR && !(rand()%400))
+				if ((r&0xFF) == PT_WATR && !(rand()%400))
 				{
 					kill_part(i);
-					part_change_type(r>>8,x+rx,y+ry,PT_DEUT);
+					part_change_type(r>>8, x+rx, y+ry, PT_DEUT);
 					parts[r>>8].life = 10;
 					return 1;
 				}
-				/*else if (((r&0xFF)==PT_TTAN || ((r&0xFF)==PT_LAVA && parts[r>>8].ctype == PT_TTAN)) && pv[y/CELL][x/CELL] < -200) //not final
-				{
-					int index;
-					if (rand()%5)
-						kill_part(r>>8);
-					index = create_part(i, x, y, PT_BVBR);
-					if (index != -1)
-						parts[index].ctype = 1;
-					return 1;
-				}*/
 			}
-	parts[i].ctype = (int)pv[y/CELL][x/CELL]*16;
-	parts[i].tmp = abs((int)((vx[y/CELL][x/CELL]+vy[y/CELL][x/CELL])*16.0f)) + abs((int)((parts[i].vx+parts[i].vy)*64.0f));
+	parts[i].ctype = (int)sim->air->pv[y/CELL][x/CELL]*16;
+	parts[i].tmp = abs((int)((sim->air->vx[y/CELL][x/CELL]+sim->air->vy[y/CELL][x/CELL])*16.0f)) + abs((int)((parts[i].vx+parts[i].vy)*64.0f));
 	return 0;
 }
 
@@ -88,7 +77,7 @@ void GLOW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 40;
 
-	elem->DefaultProperties.temp = R_TEMP+20.0f+273.15f;
+	elem->DefaultProperties.temp = 315.15f;
 	elem->HeatConduct = 44;
 	elem->Latent = 0;
 	elem->Description = "Glow, Glows under pressure.";

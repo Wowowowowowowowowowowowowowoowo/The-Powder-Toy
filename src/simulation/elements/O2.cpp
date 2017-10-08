@@ -47,7 +47,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 				}
 			}
 
-	if (parts[i].temp > 9973.15 && pv[y/CELL][x/CELL] > 250.0f && fabsf(gravx[((y/CELL)*(XRES/CELL))+(x/CELL)]) + fabsf(gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]) > 20)
+	if (parts[i].temp > 9973.15 && sim->air->pv[y/CELL][x/CELL] > 250.0f && fabsf(gravx[((y/CELL)*(XRES/CELL))+(x/CELL)]) + fabsf(gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]) > 20)
 	{
 		if (!(rand()%5))
 		{
@@ -78,7 +78,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 				parts[j].temp = MAX_TEMP;
 
 			parts[i].temp = MAX_TEMP;
-			pv[y/CELL][x/CELL] = 256;
+			sim->air->pv[y/CELL][x/CELL] = 256;
 		}
 	}
 	return 0;

@@ -220,8 +220,8 @@ void WallTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point end
 			for (int i=0; i<XRES/CELL; i++)
 				if (bmap[j][i] == WL_FANHELPER)
 				{
-					fvx[j][i] = nfvx;
-					fvy[j][i] = nfvy;
+					sim->air->fvx[j][i] = nfvx;
+					sim->air->fvy[j][i] = nfvy;
 					bmap[j][i] = WL_FAN;
 				}
 	}

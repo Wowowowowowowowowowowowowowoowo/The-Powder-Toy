@@ -86,9 +86,9 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 		}
 	}
 	else if (parts[i].life < 1001)
-		pv[y/CELL][x/CELL] += (parts[i].tmp2*CFDS)/160000;
+		sim->air->pv[y/CELL][x/CELL] += (parts[i].tmp2*CFDS)/160000;
 
-	if (pv[y/CELL][x/CELL]>200 && parts[i].temp>9000 && parts[i].tmp2>200)
+	if (sim->air->pv[y/CELL][x/CELL]>200 && parts[i].temp>9000 && parts[i].tmp2>200)
 	{
 		parts[i].tmp2 = 6000;
 		part_change_type(i, x, y, PT_WARP);
@@ -138,7 +138,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 	{
 		parts[i].vx = 0;
 		parts[i].vy = 0;
-		pv[y/CELL][x/CELL] -= 0.01f;
+		sim->air->pv[y/CELL][x/CELL] -= 0.01f;
 		parts[i].tmp--;
 	}
 	return 0;

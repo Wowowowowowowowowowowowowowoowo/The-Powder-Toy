@@ -2,7 +2,6 @@
 #include <math.h>
 #include "SDLCompat.h"
 
-#include "air.h"
 #include "powder.h"
 #include "gravity.h"
 #include "graphics.h"
@@ -62,6 +61,8 @@ double benchmark_get_time()
 void benchmark_run()
 {
 	pixel *vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	Simulation *sim = globalSim;
+	aheat_enable = true;
 	if (benchmark_file)
 	{
 		int size;
@@ -70,7 +71,7 @@ void benchmark_run()
 		file_data = (char*)file_load(benchmark_file, &size);
 		if (file_data)
 		{
-			if(!parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp))
+			if(!parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp))
 			{
 				printf("Save speed test:\n");
 
@@ -78,14 +79,13 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
 					{
-						update_air();
-						if(aheat_enable)
-							update_airh();
+						sim->air->UpdateAir();
+						sim->air->UpdateAirHeat();
 						globalSim->Tick();
 					}
 				}
@@ -97,7 +97,7 @@ void benchmark_run()
 					BENCHMARK_RUN()
 					{
 						temp.clear();
-						parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+						parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					}
 				}
 				BENCHMARK_END()
@@ -106,7 +106,7 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1000)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = true;
 					framerender = 0;
 					BENCHMARK_RUN()
@@ -120,7 +120,7 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					BENCHMARK_RUN()
@@ -134,7 +134,7 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1500)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;
@@ -152,7 +152,7 @@ void benchmark_run()
 				BENCHMARK_INIT(benchmark_repeat_count, 1200)
 				{
 					temp.clear();
-					parse_save(file_data, size, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &temp);
+					parse_save(file_data, size, 1, 0, 0, bmap, sim->air->fvx, sim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &temp);
 					sys_pause = false;
 					framerender = 0;
 					display_mode = 0;
@@ -205,15 +205,15 @@ void benchmark_run()
 		printf("Air - no walls, no changes: ");
 		BENCHMARK_START(benchmark_repeat_count, 3000)
 		{
-			update_air();
+			sim->air->UpdateAir();
 		}
 		BENCHMARK_END()
 
 		printf("Air + aheat - no walls, no changes: ");
 		BENCHMARK_START(benchmark_repeat_count, 1600)
 		{
-			update_air();
-			update_airh();
+			sim->air->UpdateAir();
+			sim->air->UpdateAirHeat();
 		}
 		BENCHMARK_END()
 	}

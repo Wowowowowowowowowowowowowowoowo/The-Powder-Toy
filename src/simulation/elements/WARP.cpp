@@ -17,25 +17,23 @@
 
 int WARP_update(UPDATE_FUNC_ARGS)
 {
-	int trade, r, rx, ry;
-
-	if (parts[i].tmp2>2000)
+	if (parts[i].tmp2 > 2000)
 	{
 		parts[i].temp = 10000;
-		pv[y/CELL][x/CELL] += (parts[i].tmp2/5000) * CFDS;
+		sim->air->pv[y/CELL][x/CELL] += (parts[i].tmp2/5000) * CFDS;
 		if (!(rand()%50))
 			sim->part_create(-3, x, y, PT_ELEC);
 	}
-	for ( trade = 0; trade<5; trade ++)
+	for (int trade = 0; trade < 5; trade ++)
 	{
-		rx = rand()%3-1;
-		ry = rand()%3-1;
+		int rx = rand()%3-1;
+		int ry = rand()%3-1;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
-			r = pmap[y+ry][x+rx];
+			int r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if ((r&0xFF)!=PT_WARP && (r&0xFF)!=PT_STKM && (r&0xFF)!=PT_STKM2 && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE))
+			if ((r&0xFF) != PT_WARP && (r&0xFF) != PT_STKM && (r&0xFF) != PT_STKM2 && !(sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[r&0xFF].Properties&PROP_CLONE))
 			{
 				parts[i].x = parts[r>>8].x;
 				parts[i].y = parts[r>>8].y;
@@ -45,7 +43,7 @@ int WARP_update(UPDATE_FUNC_ARGS)
 				parts[r>>8].vy = (rand()%4)-2.0f;
 				parts[i].life += 4;
 				pmap[y][x] = r;
-				pmap[y+ry][x+rx] = (i<<8)|parts[i].type;
+				pmap[y+ry][x+rx] = (i<<8) | parts[i].type;
 				trade = 5;
 			}
 		}

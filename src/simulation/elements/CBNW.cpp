@@ -18,13 +18,13 @@
 int CBNW_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	if (pv[y/CELL][x/CELL]<=3)
+	if (sim->air->pv[y/CELL][x/CELL]<=3)
 	{
-		if (pv[y/CELL][x/CELL] <= -0.5 || !(rand()%4000))
+		if (sim->air->pv[y/CELL][x/CELL] <= -0.5 || !(rand()%4000))
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
-			pv[y/CELL][x/CELL] += 0.5f;
+			sim->air->pv[y/CELL][x/CELL] += 0.5f;
 		}
 	}
 	if (parts[i].tmp2!=20)
@@ -43,7 +43,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
-			pv[y/CELL][x/CELL] += 0.2f;
+			sim->air->pv[y/CELL][x/CELL] += 0.2f;
 		}
 		parts[i].tmp--;
 	}
@@ -59,13 +59,13 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 					//Start explode
 					parts[i].tmp = rand()%25;//(rand()%100)+50;
 				}
-				else if (ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-pv[y/CELL][x/CELL])>(rand()%6667))
+				else if (ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-sim->air->pv[y/CELL][x/CELL])>(rand()%6667))
 				{
 					if (rand()%2)
 					{
 						part_change_type(i, x, y, PT_CO2);
 						parts[i].ctype = 5;
-						pv[y/CELL][x/CELL] += 0.2f;
+						sim->air->pv[y/CELL][x/CELL] += 0.2f;
 					}
 				}
 				if ((r&0xFF)==PT_CBNW)

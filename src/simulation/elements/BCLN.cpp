@@ -19,32 +19,31 @@
 
 int BCLN_update(UPDATE_FUNC_ARGS)
 {
-	if (!parts[i].life && pv[y/CELL][x/CELL]>4.0f)
+	if (!parts[i].life && sim->air->pv[y/CELL][x/CELL]>4.0f)
 		parts[i].life = rand()%40+80;
 	if (parts[i].life)
 	{
-		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
-		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
+		parts[i].vx += ADVECTION * sim->air->vx[y/CELL][x/CELL];
+		parts[i].vy += ADVECTION * sim->air->vy[y/CELL][x/CELL];
 	}
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
+	if (parts[i].ctype <= 0 || parts[i].ctype >= PT_NUM || !sim->elements[parts[i].ctype].Enabled || (parts[i].ctype == PT_LIFE && (parts[i].tmp < 0 || parts[i].tmp >= NGOL)))
 	{
-		int r, rx, ry, rt;
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK)
 				{
-					r = photons[y+ry][x+rx];
+					int r = photons[y+ry][x+rx];
 					if (!r)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
-					if (!(ptypes[rt].properties&PROP_CLONE) &&
-						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
+					int rt = r&0xFF;
+					if (!(sim->elements[rt].Properties&PROP_CLONE) &&
+						!(sim->elements[rt].Properties&PROP_BREAKABLECLONE) &&
 				        rt!=PT_STKM && rt!=PT_STKM2)
 					{
 						parts[i].ctype = rt;
-						if (rt==PT_LIFE || rt==PT_LAVA)
+						if (rt == PT_LIFE || rt == PT_LAVA)
 							parts[i].tmp = parts[r>>8].ctype;
 					}
 				}
@@ -58,7 +57,7 @@ int BCLN_update(UPDATE_FUNC_ARGS)
 			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype&0xFF);
 			if (np >= 0)
 			{
-				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransitionElement==PT_LAVA)
+				if (parts[i].ctype == PT_LAVA && parts[i].tmp > 0 && parts[i].tmp < PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransitionElement == PT_LAVA)
 					parts[np].ctype = parts[i].tmp;
 			}
 		}

@@ -22,7 +22,6 @@
 #endif
 #include "defines.h"
 #include "powder.h"
-#include "air.h"
 #include "misc.h"
 #include "gravity.h"
 

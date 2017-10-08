@@ -17,7 +17,7 @@
 
 int URAN_update(UPDATE_FUNC_ARGS)
 {
-	if (!legacy_enable && pv[y/CELL][x/CELL]>0.0f)
+	if (!legacy_enable && sim->air->pv[y/CELL][x/CELL]>0.0f)
 	{
 		if (parts[i].temp == MIN_TEMP)
 		{
@@ -25,7 +25,7 @@ int URAN_update(UPDATE_FUNC_ARGS)
 		}
 		else
 		{
-			parts[i].temp = restrict_flt((parts[i].temp*(1 + (pv[y / CELL][x / CELL] / 2000))) + MIN_TEMP, MIN_TEMP, MAX_TEMP);
+			parts[i].temp = restrict_flt((parts[i].temp*(1 + (sim->air->pv[y / CELL][x / CELL] / 2000))) + MIN_TEMP, MIN_TEMP, MAX_TEMP);
 		}
 	}
 	return 0;

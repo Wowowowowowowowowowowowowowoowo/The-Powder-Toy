@@ -18,7 +18,7 @@
 int GLAS_update(UPDATE_FUNC_ARGS)
 {
 	parts[i].pavg[0] = parts[i].pavg[1];
-	parts[i].pavg[1] = pv[y/CELL][x/CELL];
+	parts[i].pavg[1] = sim->air->pv[y/CELL][x/CELL];
 	float diff = parts[i].pavg[1] - parts[i].pavg[0];
 	if (diff > 0.25f || diff < -0.25f)
 	{
@@ -29,7 +29,7 @@ int GLAS_update(UPDATE_FUNC_ARGS)
 
 void GLAS_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].pavg[1] = pv[y/CELL][x/CELL];
+	sim->parts[i].pavg[1] = sim->air->pv[y/CELL][x/CELL];
 }
 
 void GLAS_init_element(ELEMENT_INIT_FUNC_ARGS)

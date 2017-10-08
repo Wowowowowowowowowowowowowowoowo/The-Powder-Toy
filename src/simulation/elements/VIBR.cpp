@@ -32,15 +32,15 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			parts[i].temp += 3;
 		}
 		//Pressure absorption code
-		if (pv[y/CELL][x/CELL] > 2.5)
+		if (sim->air->pv[y/CELL][x/CELL] > 2.5)
 		{
 			parts[i].tmp += 7;
-			pv[y/CELL][x/CELL]--;
+			sim->air->pv[y/CELL][x/CELL]--;
 		}
-		else if (pv[y/CELL][x/CELL] < -2.5)
+		else if (sim->air->pv[y/CELL][x/CELL] < -2.5)
 		{
 			parts[i].tmp -= 2;
-			pv[y/CELL][x/CELL]++;
+			sim->air->pv[y/CELL][x/CELL]++;
 		}
 		//initiate explosion counter
 		if (parts[i].tmp > 1000)
@@ -97,7 +97,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 				sim->part_create(i, x, y, PT_EXOT);
 				parts[i].tmp2 = (rndstore>>2)%1000;
 				parts[i].temp=9000;
-				pv[y/CELL][x/CELL] += 50;
+				sim->air->pv[y/CELL][x/CELL] += 50;
 
 				return 1;
 			}
@@ -150,7 +150,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 				if (parts[i].type != PT_BVBR && (r&0xFF) == PT_ANAR)
 				{
 					part_change_type(i,x,y,PT_BVBR);
-					pv[y/CELL][x/CELL] -= 1;
+					sim->air->pv[y/CELL][x/CELL] -= 1;
 				}
 			}
 	for (trade = 0; trade < 9; trade++)

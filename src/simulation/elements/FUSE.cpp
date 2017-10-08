@@ -36,7 +36,7 @@ int FUSE_update(UPDATE_FUNC_ARGS)
 		}
 	}
 
-	if (pv[y/CELL][x/CELL] > 2.7f && parts[i].tmp>40)
+	if (sim->air->pv[y/CELL][x/CELL] > 2.7f && parts[i].tmp>40)
 		parts[i].tmp=39;
 	else if (parts[i].tmp <= 0)
 	{

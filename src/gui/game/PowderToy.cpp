@@ -490,7 +490,7 @@ void PowderToy::ReloadSave(unsigned char b)
 	if (b == 1 || !strncmp(svf_id, "", 8))
 	{
 		Snapshot::TakeSnapshot(globalSim);
-		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+		parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
 		if (!authors.size())
 			DefaultSaveInfo();
 	}
@@ -518,7 +518,7 @@ void PowderToy::DoSave(unsigned char b)
 			localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
 			SaveAuthorInfo(&localSaveInfo);
 
-			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &localSaveInfo);
+			void *saveData = build_save(&saveSize, 0, 0, XRES, YRES, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &localSaveInfo);
 			if (!saveData)
 			{
 				SetInfoTip("Error creating save");
@@ -1258,7 +1258,7 @@ void PowderToy::OnTick(uint32_t ticks)
 		else
 		{
 			Point cursor = AdjustCoordinates(Point(mouseX, mouseY));
-			int signID = InsideSign(cursor.X, cursor.Y, true);
+			int signID = InsideSign(globalSim, cursor.X, cursor.Y, true);
 			if (signID == -1 && signs.size() >= MAXSIGNS)
 				SetInfoTip("Sign limit reached");
 			else
@@ -1638,7 +1638,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			isStampMouseDown = true;
 		}
 	}
-	else if (InsideSign(cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
+	else if (InsideSign(globalSim, cursor.X, cursor.Y, ctrlHeld) != -1 || MSIGN != -1)
 	{
 		// do nothing
 	}
@@ -1766,7 +1766,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 #endif
 		Snapshot::TakeSnapshot(globalSim);
 		Json::Value tempStampInfo;
-		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo, !shiftHeld))
+		if (!parse_save(stampData, stampSize, 0, loadPos.X, loadPos.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &tempStampInfo, !shiftHeld))
 			MergeStampAuthorInfo(tempStampInfo);
 		ResetStampState();
 		return;
@@ -1807,7 +1807,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				break;
 			}
 			case CUT:
@@ -1818,7 +1818,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				clipboardInfo["username"] = svf_user;
 				clipboardInfo["date"] = (Json::Value::UInt64)time(NULL);
 				SaveAuthorInfo(&clipboardInfo);
-				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, vx, vy, pv, fvx, fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
+				clipboardData = build_save(&clipboardSize, savePos.X, savePos.Y, saveSize.X, saveSize.Y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &clipboardInfo, false, !shiftHeld);
 				if (clipboardData)
 					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
@@ -1873,7 +1873,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		// ctrl+click moves a sign
 		if (ctrlHeld)
 		{
-			int signID = InsideSign(cursor.X, cursor.Y, true);
+			int signID = InsideSign(globalSim, cursor.X, cursor.Y, true);
 			if (signID != -1)
 				MSIGN = signID;
 		}
@@ -1882,7 +1882,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			toolIndex = ((button&1) || button == 2) ? 0 : 1;
 			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
-			int signID = InsideSign(cursor.X, cursor.Y, false);
+			int signID = InsideSign(globalSim, cursor.X, cursor.Y, false);
 			if (signID != -1)
 			{
 				// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
@@ -2093,9 +2093,9 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			for (int nx = 0; nx < XRES/CELL; nx++)
 				for (int ny = 0; ny < YRES/CELL; ny++)
 				{
-					pv[ny][nx] = -pv[ny][nx];
-					vx[ny][nx] = -vx[ny][nx];
-					vy[ny][nx] = -vy[ny][nx];
+					globalSim->air->pv[ny][nx] = -globalSim->air->pv[ny][nx];
+					globalSim->air->vx[ny][nx] = -globalSim->air->vx[ny][nx];
+					globalSim->air->vy[ny][nx] = -globalSim->air->vy[ny][nx];
 				}
 		}
 		else

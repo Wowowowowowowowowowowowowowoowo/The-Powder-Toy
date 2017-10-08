@@ -45,7 +45,7 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 							sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
 						else
 							kill_part(r>>8);
-						pv[y/CELL][x/CELL] -= 2.0f;
+						sim->air->pv[y/CELL][x/CELL] -= 2.0f;
 					}
 				}
 			}

@@ -34,7 +34,7 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				}
 				else if (rt!=PT_THDR && rt!=PT_SPRK && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
 				{
-					pv[y/CELL][x/CELL] += 100.0f;
+					sim->air->pv[y/CELL][x/CELL] += 100.0f;
 					if (legacy_enable&&1>(rand()%200))
 					{
 						parts[i].life = rand()%50+120;

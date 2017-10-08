@@ -19,7 +19,7 @@ int SPNG_update(UPDATE_FUNC_ARGS)
 {
 	int r, trade, rx, ry, tmp, np;
 	int limit = 50;
-	if (parts[i].life<limit && pv[y/CELL][x/CELL]<=3&&pv[y/CELL][x/CELL]>=-3&&parts[i].temp<=374.0f)
+	if (parts[i].life<limit && sim->air->pv[y/CELL][x/CELL]<=3&&sim->air->pv[y/CELL][x/CELL]>=-3&&parts[i].temp<=374.0f)
 	{
 		int absorbChanceDenom = parts[i].life*10000/limit + 500;
 		for (rx=-1; rx<2; rx++)

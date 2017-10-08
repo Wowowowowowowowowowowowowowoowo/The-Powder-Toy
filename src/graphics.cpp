@@ -27,7 +27,6 @@
 #endif
 
 #include "defines.h"
-#include "air.h"
 #include "gravity.h"
 #include "interface.h"
 #include "powder.h"
@@ -1767,25 +1766,24 @@ void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag)
 		drawtext(vid_buf, x+3, y+2, t, 255, 255, 255, 255);
 	}
 }
-void draw_air(pixel *vid)
+void draw_air(pixel *vid, Simulation * sim)
 {
-	int x, y, i, j;
 	pixel c;
-	for (y=0; y<YRES/CELL; y++)
-		for (x=0; x<XRES/CELL; x++)
+	for (int y = 0; y < YRES/CELL; y++)
+		for (int x = 0; x < XRES/CELL; x++)
 		{
 			if (display_mode & DISPLAY_AIRP)
 			{
-				if (pv[y][x] > 0.0f)
-					c  = PIXRGB(clamp_flt(pv[y][x], 0.0f, 8.0f), 0, 0);//positive pressure is red!
+				if (sim->air->pv[y][x] > 0.0f)
+					c  = PIXRGB(clamp_flt(sim->air->pv[y][x], 0.0f, 8.0f), 0, 0);//positive pressure is red!
 				else
-					c  = PIXRGB(0, 0, clamp_flt(-pv[y][x], 0.0f, 8.0f));//negative pressure is blue!
+					c  = PIXRGB(0, 0, clamp_flt(-sim->air->pv[y][x], 0.0f, 8.0f));//negative pressure is blue!
 			}
 			else if (display_mode & DISPLAY_AIRV)
 			{
-				c  = PIXRGB(clamp_flt(fabsf(vx[y][x]), 0.0f, 8.0f),//vx adds red
-				clamp_flt(pv[y][x], 0.0f, 8.0f),//pressure adds green
-				clamp_flt(fabsf(vy[y][x]), 0.0f, 8.0f));//vy adds blue
+				c  = PIXRGB(clamp_flt(fabsf(sim->air->vx[y][x]), 0.0f, 8.0f),//vx adds red
+				clamp_flt(sim->air->pv[y][x], 0.0f, 8.0f),//pressure adds green
+				clamp_flt(fabsf(sim->air->vy[y][x]), 0.0f, 8.0f));//vy adds blue
 			}
 			else if (display_mode & DISPLAY_AIRH)
 			{
@@ -1793,7 +1791,7 @@ void draw_air(pixel *vid)
 					c = 0;
 				else
 				{
-					float ttemp = hv[y][x]+(-MIN_TEMP);
+					float ttemp = globalSim->air->hv[y][x]+(-MIN_TEMP);
 					int caddress = (int)restrict_flt((int)( restrict_flt(ttemp, 0.0f, (float)MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3);
 					c = PIXRGB((int)((unsigned char)color_data[caddress]*0.7f), (int)((unsigned char)color_data[caddress+1]*0.7f), (int)((unsigned char)color_data[caddress+2]*0.7f));
 				}
@@ -1804,12 +1802,12 @@ void draw_air(pixel *vid)
 				int g;
 				int b;
 				// velocity adds grey
-				r = clamp_flt(fabsf(vx[y][x]), 0.0f, 24.0f) + clamp_flt(fabsf(vy[y][x]), 0.0f, 20.0f);
-				g = clamp_flt(fabsf(vx[y][x]), 0.0f, 20.0f) + clamp_flt(fabsf(vy[y][x]), 0.0f, 24.0f);
-				b = clamp_flt(fabsf(vx[y][x]), 0.0f, 24.0f) + clamp_flt(fabsf(vy[y][x]), 0.0f, 20.0f);
-				if (pv[y][x] > 0.0f)
+				r = clamp_flt(fabsf(sim->air->vx[y][x]), 0.0f, 24.0f) + clamp_flt(fabsf(sim->air->vy[y][x]), 0.0f, 20.0f);
+				g = clamp_flt(fabsf(sim->air->vx[y][x]), 0.0f, 20.0f) + clamp_flt(fabsf(sim->air->vy[y][x]), 0.0f, 24.0f);
+				b = clamp_flt(fabsf(sim->air->vx[y][x]), 0.0f, 24.0f) + clamp_flt(fabsf(sim->air->vy[y][x]), 0.0f, 20.0f);
+				if (sim->air->pv[y][x] > 0.0f)
 				{
-					r += clamp_flt(pv[y][x], 0.0f, 16.0f);//pressure adds red!
+					r += clamp_flt(sim->air->pv[y][x], 0.0f, 16.0f);//pressure adds red!
 					if (r>255)
 						r=255;
 					if (g>255)
@@ -1820,7 +1818,7 @@ void draw_air(pixel *vid)
 				}
 				else
 				{
-					b += clamp_flt(-pv[y][x], 0.0f, 16.0f);//pressure adds blue!
+					b += clamp_flt(-sim->air->pv[y][x], 0.0f, 16.0f);//pressure adds blue!
 					if (r>255)
 						r=255;
 					if (g>255)
@@ -1834,8 +1832,9 @@ void draw_air(pixel *vid)
 			{
 				c = PIXRGB(PIXR(c)/10,PIXG(c)/10,PIXB(c)/10);
 			}
-			for (j=0; j<CELL; j++)//draws the colors
-				for (i=0; i<CELL; i++)
+			// Draws the colors
+			for (int j = 0; j < CELL; j++)
+				for (int i = 0; i < CELL; i++)
 					vid[(x*CELL+i) + (y*CELL+j)*(XRES+BARSIZE)] = c;
 		}
 }
@@ -2742,11 +2741,11 @@ void render_parts(pixel *vid, Point mousePos)
 }
 
 // draw the graphics that appear before update_particles is called
-void render_before(pixel *part_vbuf)
+void render_before(pixel *part_vbuf, Simulation * sim)
 {
 		if (display_mode & DISPLAY_AIR)//air only gets drawn in these modes
 		{
-			draw_air(part_vbuf);
+			draw_air(part_vbuf, sim);
 		}
 		else if (display_mode & DISPLAY_PERS)//save background for persistent, then clear
 		{
@@ -2759,12 +2758,12 @@ void render_before(pixel *part_vbuf)
 		}
 		if(ngrav_enable && drawgrav_enable)
 			draw_grav(part_vbuf);
-		draw_walls(part_vbuf);
+		draw_walls(part_vbuf, sim);
 }
 
 int persist_counter = 0;
 // draw the graphics that appear after update_particles is called
-void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
+void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mousePos)
 {
 	render_parts(part_vbuf, mousePos); //draw particles
 	if (vid_buf && (display_mode & DISPLAY_PERS))
@@ -2789,7 +2788,7 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Point mousePos)
 		draw_grav_zones(part_vbuf);
 #endif
 
-	render_signs(part_vbuf);
+	render_signs(part_vbuf, sim);
 
 #ifndef OGLR
 	if(vid_buf && ngrav_enable && (display_mode & DISPLAY_WARP))
@@ -2830,7 +2829,7 @@ void draw_find() //Find just like how my lua script did it, it will find everyth
 	}
 }
 
-void draw_walls(pixel *vid)
+void draw_walls(pixel *vid, Simulation * sim)
 {
 	for (int y = 0; y < YRES/CELL; y++)
 		for (int x =0; x < XRES/CELL; x++)
@@ -2922,7 +2921,7 @@ void draw_walls(pixel *vid)
 						float yf = y*CELL + CELL*0.5f;
 						int oldX = (int)(xf+0.5f), oldY = (int)(yf+0.5f);
 						int newX, newY;
-						float xVel = vx[y][x]*0.125f, yVel = vy[y][x]*0.125f;
+						float xVel = sim->air->vx[y][x]*0.125f, yVel = sim->air->vy[y][x]*0.125f;
 						// there is no velocity here, draw a streamline and continue
 						if (!xVel && !yVel)
 						{
@@ -2949,8 +2948,8 @@ void draw_walls(pixel *vid)
 							{
 								int wallX = newX/CELL;
 								int wallY = newY/CELL;
-								xVel = vx[wallY][wallX]*0.125f;
-								yVel = vy[wallY][wallX]*0.125f;
+								xVel = sim->air->vx[wallY][wallX]*0.125f;
+								yVel = sim->air->vy[wallY][wallX]*0.125f;
 								if (wallX != x && wallY != y && bmap[wallY][wallX] == WL_STREAM)
 									break;
 							}
@@ -3091,14 +3090,14 @@ void draw_walls(pixel *vid)
 			}
 }
 
-void render_signs(pixel *vid_buf)
+void render_signs(pixel *vid_buf, Simulation * sim)
 {
 	int x, y, w, h;
 	Sign::Justification ju;
 	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
 	{
 		Sign *sign = *iter;
-		sign->GetPos(x, y, w, h);
+		sign->GetPos(sim, x, y, w, h);
 		clearrect(vid_buf, x+1, y+1, w-1, h-1);
 		drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
 
@@ -3108,7 +3107,7 @@ void render_signs(pixel *vid_buf)
 			textCol = COLPACK(0xD3D328);
 		else if (sign->GetType() != Sign::Normal)
 			textCol = COLPACK(0x00BFFF);
-		drawtext(vid_buf, x+3, y+3, sign->GetDisplayText().c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
+		drawtext(vid_buf, x+3, y+3, sign->GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
 
 		// draw the little line on the buttom
 		Point realPos = sign->GetRealPos();

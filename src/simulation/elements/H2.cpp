@@ -26,13 +26,13 @@ int H2_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = (r&0xFF);
-				if (pv[y/CELL][x/CELL] > 8.0f && rt == PT_DESL) // This will not work. DESL turns to fire above 5.0 pressure
+				if (sim->air->pv[y/CELL][x/CELL] > 8.0f && rt == PT_DESL) // This will not work. DESL turns to fire above 5.0 pressure
 				{
 					part_change_type(r>>8,x+rx,y+ry,PT_WATR);
 					part_change_type(i,x,y,PT_OIL);
 					return 1;
 				}
-				if (pv[y/CELL][x/CELL] > 45.0f)
+				if (sim->air->pv[y/CELL][x/CELL] > 45.0f)
 				{
 					if (parts[r>>8].temp > 2273.15)
 						continue;
@@ -57,12 +57,12 @@ int H2_update(UPDATE_FUNC_ARGS)
 						sim->part_create(i,x,y,PT_FIRE);
 						parts[i].temp += (rand()%100);
 						parts[i].tmp |= 1;
-						pv[y/CELL][x/CELL] += 0.1f;
+						sim->air->pv[y/CELL][x/CELL] += 0.1f;
 						return 1;
 					}
 				}
 			}
-	if (parts[i].temp > 2273.15f && pv[y/CELL][x/CELL] > 50.0f)
+	if (parts[i].temp > 2273.15f && sim->air->pv[y/CELL][x/CELL] > 50.0f)
 	{
 		if (!(rand()%5))
 		{
@@ -99,7 +99,7 @@ int H2_update(UPDATE_FUNC_ARGS)
 			}
 
 			parts[i].temp = temp+750+rand()%500;
-			pv[y/CELL][x/CELL] += 30;
+			sim->air->pv[y/CELL][x/CELL] += 30;
 			return 1;
 		}
 	}

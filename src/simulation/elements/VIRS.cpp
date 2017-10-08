@@ -72,13 +72,13 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 				}
 				else if ((r&0xFF) == PT_PLSM)
 				{
-					if (surround_space && 10 + (int)(pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
+					if (surround_space && 10 + (int)(sim->air->pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
 					{
 						globalSim->part_create(i, x, y, PT_PLSM);
 						return 1;
 					}
 				}
-				else if ((r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				else if ((r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE))
 				{
 					if (!(rndstore & 0x7))
 					{

@@ -19,14 +19,14 @@ int BREL_update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].life)
 	{
-		if (pv[y/CELL][x/CELL] > 10.0f)
+		if (sim->air->pv[y/CELL][x/CELL] > 10.0f)
 		{
-			if (parts[i].temp>9000 && (pv[y/CELL][x/CELL] > 30.0f) && !(rand()%200))
+			if (parts[i].temp>9000 && (sim->air->pv[y/CELL][x/CELL] > 30.0f) && !(rand()%200))
 			{
 				part_change_type(i, x, y, PT_EXOT);
 				parts[i].life = 1000;
 			}
-			parts[i].temp += (pv[y/CELL][x/CELL])/8;
+			parts[i].temp += (sim->air->pv[y/CELL][x/CELL])/8;
 		}
 	}
 	return 0;

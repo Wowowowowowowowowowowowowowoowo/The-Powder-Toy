@@ -21,17 +21,17 @@ int SING_update(UPDATE_FUNC_ARGS)
 	int singularity = -parts[i].life;
 	float angle, v;
 
-	if (pv[y/CELL][x/CELL]<singularity)
-		pv[y/CELL][x/CELL] += 0.1f*(singularity-pv[y/CELL][x/CELL]);
-	if (pv[y/CELL+1][x/CELL]<singularity)
-		pv[y/CELL+1][x/CELL] += 0.1f*(singularity-pv[y/CELL+1][x/CELL]);
-	if (pv[y/CELL-1][x/CELL]<singularity)
-		pv[y/CELL-1][x/CELL] += 0.1f*(singularity-pv[y/CELL-1][x/CELL]);
+	if (sim->air->pv[y/CELL][x/CELL]<singularity)
+		sim->air->pv[y/CELL][x/CELL] += 0.1f*(singularity-sim->air->pv[y/CELL][x/CELL]);
+	if (sim->air->pv[y/CELL+1][x/CELL]<singularity)
+		sim->air->pv[y/CELL+1][x/CELL] += 0.1f*(singularity-sim->air->pv[y/CELL+1][x/CELL]);
+	if (sim->air->pv[y/CELL-1][x/CELL]<singularity)
+		sim->air->pv[y/CELL-1][x/CELL] += 0.1f*(singularity-sim->air->pv[y/CELL-1][x/CELL]);
 
-	pv[y/CELL][x/CELL+1] += 0.1f*(singularity-pv[y/CELL][x/CELL+1]);
-	pv[y/CELL+1][x/CELL+1] += 0.1f*(singularity-pv[y/CELL+1][x/CELL+1]);
-	pv[y/CELL][x/CELL-1] += 0.1f*(singularity-pv[y/CELL][x/CELL-1]);
-	pv[y/CELL-1][x/CELL-1] += 0.1f*(singularity-pv[y/CELL-1][x/CELL-1]);
+	sim->air->pv[y/CELL][x/CELL+1] += 0.1f*(singularity-sim->air->pv[y/CELL][x/CELL+1]);
+	sim->air->pv[y/CELL+1][x/CELL+1] += 0.1f*(singularity-sim->air->pv[y/CELL+1][x/CELL+1]);
+	sim->air->pv[y/CELL][x/CELL-1] += 0.1f*(singularity-sim->air->pv[y/CELL][x/CELL-1]);
+	sim->air->pv[y/CELL-1][x/CELL-1] += 0.1f*(singularity-sim->air->pv[y/CELL-1][x/CELL-1]);
 
 	if (parts[i].life<1)
 	{
@@ -43,7 +43,7 @@ int SING_update(UPDATE_FUNC_ARGS)
 			{
 				cry = (y/CELL)+ry;
 				if (cry >= 0 && crx >= 0 && crx < (XRES/CELL) && cry < (YRES/CELL))
-					pv[cry][crx] += (float)parts[i].tmp;
+					sim->air->pv[cry][crx] += (float)parts[i].tmp;
 			}
 		}
 		spawncount = std::abs(parts[i].tmp);

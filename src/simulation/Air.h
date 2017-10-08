@@ -14,31 +14,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef AIR_H
 #define AIR_H
+
 #include "defines.h"
 
 class Simulation;
 
-extern float vx[YRES/CELL][XRES/CELL], ovx[YRES/CELL][XRES/CELL];
-extern float vy[YRES/CELL][XRES/CELL], ovy[YRES/CELL][XRES/CELL];
-extern float pv[YRES/CELL][XRES/CELL], opv[YRES/CELL][XRES/CELL];
-extern unsigned char bmap_blockair[YRES/CELL][XRES/CELL];
-extern unsigned char bmap_blockairh[YRES/CELL][XRES/CELL];
+class Air
+{
+	// used to calculate & store new air maps off of the old ones
+	float opv[YRES/CELL][XRES/CELL];
+	float ovx[YRES/CELL][XRES/CELL];
+	float ovy[YRES/CELL][XRES/CELL];
 
-extern float fvx[YRES/CELL][XRES/CELL], fvy[YRES/CELL][XRES/CELL];
+public:
+	float pv[YRES/CELL][XRES/CELL];
+	float vx[YRES/CELL][XRES/CELL];
+	float vy[YRES/CELL][XRES/CELL];
+	unsigned char bmap_blockair[YRES/CELL][XRES/CELL];
+	unsigned char bmap_blockairh[YRES/CELL][XRES/CELL];
 
-extern float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL]; // Ambient Heat
-extern float outside_temp;
+	// Fan velocity
+	float fvx[YRES/CELL][XRES/CELL], fvy[YRES/CELL][XRES/CELL];
 
-extern float kernel[9];
+	// Ambient Heat
+	float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL];
+	float outside_temp;
 
-void make_kernel(void);
+	float kernel[9];
 
-void update_airh(void);
+	Air();
+	void MakeKernel();
 
-void update_air(void);
+	void Clear();
 
-void RecalculateBlockAirMaps(Simulation * sim);
+	void UpdateAirHeat();
+	void UpdateAir();
+
+	void RecalculateBlockAirMaps(Simulation * sim);
+};
 
 #endif

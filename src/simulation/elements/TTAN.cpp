@@ -17,24 +17,28 @@
 
 int TTAN_update(UPDATE_FUNC_ARGS)
 {
-	int nx, ny, ttan = 0;
-	if(nt<=2)
+	int ttan = 0;
+	if (nt <= 2)
 		ttan = 2;
-	else if(parts[i].tmp)
+	else if (parts[i].tmp)
 		ttan = 2;
-	else if(nt<=6)
-		for (nx=-1; nx<2; nx++) {
-			for (ny=-1; ny<2; ny++) {
-				if ((!nx != !ny) && x+nx>=0 && y+ny>=0 && x+nx<XRES && y+ny<YRES) {
-					if((pmap[y+ny][x+nx]&0xFF)==PT_TTAN)
+	else if (nt <= 6)
+		for (int nx=-1; nx <= 1; nx++)
+		{
+			for (int ny = -1; ny <= 1; ny++)
+			{
+				if ((!nx != !ny) && x+nx >= 0 && y+ny >= 0 && x+nx < XRES && y+ny < YRES)
+				{
+					if ((pmap[y+ny][x+nx]&0xFF) == PT_TTAN)
 						ttan++;
 				}
 			}
 		}
 		
-	if(ttan>=2) {
-		bmap_blockair[y/CELL][x/CELL] = 1;
-		bmap_blockairh[y/CELL][x/CELL] = 0x8;
+	if (ttan >= 2)
+	{
+		sim->air->bmap_blockair[y/CELL][x/CELL] = 1;
+		sim->air->bmap_blockairh[y/CELL][x/CELL] = 0x8;
 	}
 	return 0;
 }

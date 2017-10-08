@@ -63,13 +63,15 @@ Simulation::Simulation():
 	lightningRecreate(0)
 {
 	std::fill(&elementData[0], &elementData[PT_NUM], static_cast<ElementDataContainer*>(NULL));
+
+	air = new Air();
+
 	Clear();
 }
 
 Simulation::~Simulation()
 {
-	int t;
-	for (t=0; t<PT_NUM; t++)
+	for (int t = 0; t < PT_NUM; t++)
 	{
 		if (elementData[t])
 		{
@@ -77,6 +79,7 @@ Simulation::~Simulation()
 			elementData[t] = NULL;
 		}
 	}
+	delete air;
 }
 
 void Simulation::InitElements()
@@ -90,6 +93,7 @@ void Simulation::InitElements()
 
 void Simulation::Clear()
 {
+	air->Clear();
 	for (int t = 0; t < PT_NUM; t++)
 	{
 		if (elementData[t])
@@ -511,8 +515,8 @@ void Simulation::UpdateBefore()
 		{
 			if (emap[y][x])
 				emap[y][x]--;
-			bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || (bmap[y][x]==WL_EWALL && !emap[y][x]));
-			bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x])) ? 0x8:0;
+			air->bmap_blockair[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || (bmap[y][x]==WL_EWALL && !emap[y][x]));
+			air->bmap_blockairh[y][x] = (bmap[y][x]==WL_WALL || bmap[y][x]==WL_WALLELEC || bmap[y][x]==WL_BLOCKAIR || bmap[y][x]==WL_GRAV || (bmap[y][x]==WL_EWALL && !emap[y][x])) ? 0x8:0;
 		}
 	}
 
@@ -689,23 +693,23 @@ bool Simulation::UpdateParticle(int i)
 		return false;
 
 	//adding to velocity from the particle's velocity
-	vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*elements[t].AirLoss + elements[t].AirDrag*parts[i].vx;
-	vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*elements[t].AirLoss + elements[t].AirDrag*parts[i].vy;
+	air->vx[y/CELL][x/CELL] = air->vx[y/CELL][x/CELL]*elements[t].AirLoss + elements[t].AirDrag*parts[i].vx;
+	air->vy[y/CELL][x/CELL] = air->vy[y/CELL][x/CELL]*elements[t].AirLoss + elements[t].AirDrag*parts[i].vy;
 
 	if (elements[t].HotAir)
 	{
 		if (t == PT_GAS || t == PT_NBLE)
 		{
-			if (pv[y/CELL][x/CELL] < 3.5f)
-				pv[y/CELL][x/CELL] += elements[t].HotAir*(3.5f - pv[y/CELL][x/CELL]);
-			if (y+CELL < YRES && pv[y/CELL+1][x/CELL] < 3.5f)
-				pv[y/CELL+1][x/CELL] += elements[t].HotAir*(3.5f - pv[y/CELL+1][x/CELL]);
+			if (air->pv[y/CELL][x/CELL] < 3.5f)
+				air->pv[y/CELL][x/CELL] += elements[t].HotAir*(3.5f - air->pv[y/CELL][x/CELL]);
+			if (y+CELL < YRES && air->pv[y/CELL+1][x/CELL] < 3.5f)
+				air->pv[y/CELL+1][x/CELL] += elements[t].HotAir*(3.5f - air->pv[y/CELL+1][x/CELL]);
 			if (x+CELL < XRES)
 			{
-				if (pv[y/CELL][x/CELL+1] < 3.5f)
-					pv[y/CELL][x/CELL+1] += elements[t].HotAir*(3.5f - pv[y/CELL][x/CELL+1]);
-				if (y+CELL<YRES && pv[y/CELL+1][x/CELL+1] < 3.5f)
-					pv[y/CELL+1][x/CELL+1] += elements[t].HotAir*(3.5f - pv[y/CELL+1][x/CELL+1]);
+				if (air->pv[y/CELL][x/CELL+1] < 3.5f)
+					air->pv[y/CELL][x/CELL+1] += elements[t].HotAir*(3.5f - air->pv[y/CELL][x/CELL+1]);
+				if (y+CELL<YRES && air->pv[y/CELL+1][x/CELL+1] < 3.5f)
+					air->pv[y/CELL+1][x/CELL+1] += elements[t].HotAir*(3.5f - air->pv[y/CELL+1][x/CELL+1]);
 			}
 		}
 		//add the hotair variable to the pressure map, like black hole, or white hole.
@@ -713,14 +717,14 @@ bool Simulation::UpdateParticle(int i)
 		{
 			float value = elements[t].HotAir;
 			value = restrict_flt(value, -256.0f, 256.0f);
-			pv[y/CELL][x/CELL] += value;
+			air->pv[y/CELL][x/CELL] += value;
 			if (y+CELL < YRES)
-				pv[y/CELL+1][x/CELL] += value;
+				air->pv[y/CELL+1][x/CELL] += value;
 			if (x+CELL < XRES)
 			{
-				pv[y/CELL][x/CELL+1] += value;
+				air->pv[y/CELL][x/CELL+1] += value;
 				if (y+CELL < YRES)
-					pv[y/CELL+1][x/CELL+1] += value;
+					air->pv[y/CELL+1][x/CELL+1] += value;
 			}
 		}
 	}
@@ -762,8 +766,8 @@ bool Simulation::UpdateParticle(int i)
 	parts[i].vx *= elements[t].Loss;
 	parts[i].vy *= elements[t].Loss;
 	//particle gets velocity from the vx and vy maps
-	parts[i].vx += elements[t].Advection*vx[y/CELL][x/CELL] + pGravX;
-	parts[i].vy += elements[t].Advection*vy[y/CELL][x/CELL] + pGravY;
+	parts[i].vx += elements[t].Advection*air->vx[y/CELL][x/CELL] + pGravX;
+	parts[i].vy += elements[t].Advection*air->vy[y/CELL][x/CELL] + pGravY;
 
 
 	if (elements[t].Diffusion)//the random diffusion that gases have
@@ -861,13 +865,13 @@ bool Simulation::UpdateParticle(int i)
 	}
 
 	//the basic explosion, from the .explosive variable
-	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].Explosive&2) && pv[y/CELL][x/CELL] > 2.5f)
+	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].Explosive&2) && air->pv[y/CELL][x/CELL] > 2.5f)
 	{
 		parts[i].life = rand()%80 + 180;
 		parts[i].temp = restrict_flt(elements[PT_FIRE].DefaultProperties.temp + (elements[t].Flammable/2), MIN_TEMP, MAX_TEMP);
 		t = PT_FIRE;
 		part_change_type(i, x, y, t);
-		pv[y/CELL][x/CELL] += 0.25f * CFDS;
+		air->pv[y/CELL][x/CELL] += 0.25f * CFDS;
 	}
 
 	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].HighPressureTransitionThreshold != -1 || elements[t].HighPressureTransitionElement != -1))
@@ -955,7 +959,7 @@ bool Simulation::UpdateParticle(int i)
 		if (!(rand()%10))
 		{
 			parts[i].flags &= ~FLAG_EXPLODE;
-			pv[y/CELL][x/CELL] += 5.0f;
+			air->pv[y/CELL][x/CELL] += 5.0f;
 			if(!(rand()%3))
 			{
 				if(!(rand()%2))
@@ -1941,8 +1945,8 @@ void Simulation::CreateWall(int x, int y, int wall)
 	//reset fan velocity, as if new fan walls had been created
 	if (wall == WL_FAN)
 	{
-		fvx[y][x] = 0.0f;
-		fvy[y][x] = 0.0f;
+		air->fvx[y][x] = 0.0f;
+		air->fvy[y][x] = 0.0f;
 	}
 	//streamlines can't be drawn next to each other
 	else if (wall == WL_STREAM)
@@ -2135,12 +2139,12 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 	}
 	else if (tool == TOOL_AIR)
 	{
-		pv[y/CELL][x/CELL] += strength*.05f;
+		air->pv[y/CELL][x/CELL] += strength*.05f;
 		return -1;
 	}
 	else if (tool == TOOL_VAC)
 	{
-		pv[y/CELL][x/CELL] -= strength*.05f;
+		air->pv[y/CELL][x/CELL] -= strength*.05f;
 		return -1;
 	}
 	else if (tool == TOOL_PGRV)
@@ -2241,8 +2245,8 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int tool, float 
 			for (int i = -rx; i <= rx; i++)
 				if (x1+i>0 && y1+j>0 && x1+i<XRES && y1+j<YRES && brush->IsInside(i, j))
 				{
-					vx[(y1+j)/CELL][(x1+i)/CELL] += (x2-x1)*strength;
-					vy[(y1+j)/CELL][(x1+i)/CELL] += (y2-y1)*strength;
+					air->vx[(y1+j)/CELL][(x1+i)/CELL] += (x2-x1)*strength;
+					air->vy[(y1+j)/CELL][(x1+i)/CELL] += (y2-y1)*strength;
 				}
 		return;
 	}

@@ -81,7 +81,7 @@ int FIRW_update(UPDATE_FUNC_ARGS)
 				parts[np].dcolour = parts[i].dcolour;
 			}
 		}
-		pv[y/CELL][x/CELL] += 8.0f;
+		sim->air->pv[y/CELL][x/CELL] += 8.0f;
 		kill_part(i);
 		return 1;
 	}

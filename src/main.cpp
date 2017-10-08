@@ -69,7 +69,6 @@
 #include "interface.h"
 #include "md5.h"
 #include "update.h"
-#include "air.h"
 #include "console.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
@@ -339,8 +338,7 @@ void dump_frame(pixel *src, int w, int h, int pitch)
 
 void clear_sim()
 {
-	int i, x, y;
-	for (i=0; i<NPART; i++)
+	for (int i = 0; i < NPART; i++)
 	{
 		if (parts[i].animations)
 		{
@@ -353,18 +351,10 @@ void clear_sim()
 	memset(emap, 0, sizeof(emap));
 	ClearSigns();
 	memset(parts, 0, sizeof(particle)*NPART);
-	for (i=0; i<NPART-1; i++)
+	for (int i = 0; i < NPART-1; i++)
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
 	memset(pmap, 0, sizeof(pmap));
-	memset(pv, 0, sizeof(pv));
-	memset(vx, 0, sizeof(vx));
-	memset(vy, 0, sizeof(vy));
-	std::fill(&bmap_blockair[0][0], &bmap_blockair[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
-	std::fill(&bmap_blockairh[0][0], &bmap_blockairh[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
-	memset(fvx, 0, sizeof(fvx));
-	memset(fvy, 0, sizeof(fvy));
-	make_kernel();
 	memset(photons, 0, sizeof(photons));
 	memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 	memset(fire_r, 0, sizeof(fire_r));
@@ -381,11 +371,6 @@ void clear_sim()
 	if(gravp)
 		memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 	gravity_cleared = 1;
-	for(x = 0; x < XRES/CELL; x++){
-		for(y = 0; y < YRES/CELL; y++){
-			hv[y][x] = outside_temp; //Set to room temperature (or whatever the default air temp was changed to)
-		}
-	}
 	finding &= 0x8;
 #ifdef LUACONSOLE
 	if (LuaCode)
@@ -526,7 +511,7 @@ char* stamp_save(int x, int y, int w, int h, bool includePressure)
 		stampInfo["links"].append(authors);
 	}
 
-	void *s = build_save(&n, x, y, w, h, bmap, vx, vy, pv, fvx, fvy, signs, parts, &stampInfo, false, includePressure);
+	void *s = build_save(&n, x, y, w, h, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &stampInfo, false, includePressure);
 	if (!s)
 		return NULL;
 
@@ -575,7 +560,7 @@ void tab_save(int num, char reloadButton)
 	SaveAuthorInfo(&tabInfo);
 
 	//build the tab
-	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &tabInfo, true);
+	saveData = build_save(&fileSize, 0, 0, XRES, YRES, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &tabInfo, true);
 	if (!saveData)
 		return;
 
@@ -657,7 +642,7 @@ int tab_load(int tabNum, bool del)
 		if (del)
 			remove(fileName); //prevent crash loops on startup
 		Snapshot::TakeSnapshot(globalSim);
-		parse_save(saveData, saveSize, 2, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+		parse_save(saveData, saveSize, 2, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
 		if (!svf_last) //only free if reload button isn't active
 		{
 			free(saveData);
@@ -1315,8 +1300,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	make_kernel();
-
 	stamp_init();
 
 	if (!sdl_open())
@@ -1424,9 +1407,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			part_vbuf = vid_buf;
 		}
 
-		render_before(part_vbuf);
+		render_before(part_vbuf, globalSim);
 		globalSim->Tick(); //update everything
-		render_after(part_vbuf, vid_buf, Point(mx, my));
+		render_after(part_vbuf, vid_buf, globalSim, Point(mx, my));
 
 		// draw preview of stamp
 		if (the_game->GetStampState() == PowderToy::LOAD && !the_game->PlacingZoomWindow())
@@ -1530,11 +1513,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		if (the_game->ZoomWindowShown())
 			render_zoom(vid_buf);
 
-		if (!sys_pause||framerender) //only update air if not paused
+		// Only update air if not paused
+		if (!sys_pause||framerender)
 		{
-			update_air();
-			if(aheat_enable)
-				update_airh();
+			globalSim->air->UpdateAir();
+			globalSim->air->UpdateAirHeat();
 		}
 
 		if (gravwl_timeout)
@@ -1580,7 +1563,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			
 			svf_last = saveDataOpen;
 			svf_lsize = saveDataOpenSize;
-			if(parse_save(saveDataOpen, saveDataOpenSize, 1, 0, 0, bmap, fvx, fvy, vx, vy, pv, signs, parts, pmap, &authors))
+			if(parse_save(saveDataOpen, saveDataOpenSize, 1, 0, 0, bmap, globalSim->air->fvx, globalSim->air->fvy, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, signs, parts, pmap, &authors))
 			{
 				saveOpenError = 1;
 				svf_last = NULL;
@@ -1691,7 +1674,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					{
 						Snapshot::TakeSnapshot(globalSim);
 						Json::Value tempStampInfo;
-						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempStampInfo);
+						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &tempStampInfo);
 						MergeStampAuthorInfo(tempStampInfo);
 					}
 					else if (!(sdl_mod & (KMOD_CTRL|KMOD_META|KMOD_SHIFT)))
@@ -1703,7 +1686,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				if (the_game->GetStampState() != PowderToy::LOAD)
 				{
 					Snapshot::TakeSnapshot(globalSim);
-					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+					parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
 				}
 			}
 			if (sdl_key=='o')
@@ -1835,9 +1818,9 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					for (int nx = 0; nx < XRES/CELL; nx++)
 						for (int ny = 0; ny < YRES/CELL; ny++)
 						{
-							pv[ny][nx] = 0;
-							vx[ny][nx] = 0;
-							vy[ny][nx] = 0;
+							globalSim->air->pv[ny][nx] = 0;
+							globalSim->air->vx[ny][nx] = 0;
+							globalSim->air->vy[ny][nx] = 0;
 						}
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUNG)
@@ -2106,7 +2089,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 		if (mx < XRES && my < YRES)
 		{
-			int signID = InsideSign(mx, my, false);
+			int signID = InsideSign(globalSim, mx, my, false);
 			if (signID != -1 && signs[signID]->GetType() != Sign::Normal && signs[signID]->GetType() != Sign::Spark)
 			{
 				std::stringstream tooltip;
@@ -2337,13 +2320,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		if (hud_enable)
 		{
-			SetLeftHudText(FPSB2);
-			SetRightHudText(x, y);
+			SetLeftHudText(globalSim, FPSB2);
+			SetRightHudText(globalSim, x, y);
 
 			DrawHud(GetToolTipAlpha(INTROTIP), GetToolTipAlpha(QTIP));
 
 			if (drawinfo)
-				DrawRecordsInfo();
+				DrawRecordsInfo(globalSim);
 
 			DrawLuaLogs();
 		}

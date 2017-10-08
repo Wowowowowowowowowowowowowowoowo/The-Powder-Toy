@@ -17,7 +17,7 @@
 
 int RFRG_update(UPDATE_FUNC_ARGS)
 {
-	float new_pressure = pv[y/CELL][x/CELL];
+	float new_pressure = sim->air->pv[y/CELL][x/CELL];
 	float *old_pressure = (float *)&parts[i].tmp;
 	if (std::isnan(*old_pressure))
 	{

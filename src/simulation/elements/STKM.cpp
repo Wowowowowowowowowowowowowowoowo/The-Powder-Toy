@@ -70,7 +70,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 		parts[i].temp += 1;
 
 	// If his HP is less than 0 or there is very big wind...
-	if (parts[i].life < 1 || (pv[y/CELL][x/CELL] >= 4.5f && playerp->elem != SPC_AIR))
+	if (parts[i].life < 1 || (sim->air->pv[y/CELL][x/CELL] >= 4.5f && playerp->elem != SPC_AIR))
 	{
 		for (int r = -2; r <= 1; r++)
 		{
@@ -414,14 +414,14 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 					{
 						int x = rx + 3*((((int)playerp->pcomm)&0x02) == 0x02) - 3*((((int)playerp->pcomm)&0x01) == 0x01)+j;
 						int y = ry+k;
-						pv[y/CELL][x/CELL] += 0.03f;
+						sim->air->pv[y/CELL][x/CELL] += 0.03f;
 						if (y+CELL<YRES)
-							pv[y/CELL+1][x/CELL] += 0.03f;
+							sim->air->pv[y/CELL+1][x/CELL] += 0.03f;
 						if (x+CELL<XRES)
 						{
-							pv[y/CELL][x/CELL+1] += 0.03f;
+							sim->air->pv[y/CELL][x/CELL+1] += 0.03f;
 							if (y+CELL<YRES)
-								pv[y/CELL+1][x/CELL+1] += 0.03f;
+								sim->air->pv[y/CELL+1][x/CELL+1] += 0.03f;
 						}
 
 						//sim->CreateTool(x, y, TOOL_AIR);

@@ -50,7 +50,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 							rr = (rand()%228+128)/127.0f;
 						parts[r>>8].vx = rr*cosf(rrr);
 						parts[r>>8].vy = rr*sinf(rrr);
-						pv[y/CELL][x/CELL] -= 15.0f * CFDS;
+						sim->air->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 					}
 				}
 				else if ((r&0xFF) == PT_QRTZ || (r&0xFF) == PT_PQRT)

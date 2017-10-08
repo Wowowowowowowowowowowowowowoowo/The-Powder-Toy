@@ -87,10 +87,10 @@ void Snapshot::ClearSnapshots()
 Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 {
 	Snapshot * snap = new Snapshot();
-	snap->AirPressure.insert(snap->AirPressure.begin(), &pv[0][0], &pv[0][0]+((XRES/CELL)*(YRES/CELL)));
-	snap->AirVelocityX.insert(snap->AirVelocityX.begin(), &vx[0][0], &vx[0][0]+((XRES/CELL)*(YRES/CELL)));
-	snap->AirVelocityY.insert(snap->AirVelocityY.begin(), &vy[0][0], &vy[0][0]+((XRES/CELL)*(YRES/CELL)));
-	snap->AmbientHeat.insert(snap->AmbientHeat.begin(), &hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->AirPressure.insert(snap->AirPressure.begin(), &sim->air->pv[0][0], &sim->air->pv[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->AirVelocityX.insert(snap->AirVelocityX.begin(), &sim->air->vx[0][0], &sim->air->vx[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->AirVelocityY.insert(snap->AirVelocityY.begin(), &sim->air->vy[0][0], &sim->air->vy[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->AmbientHeat.insert(snap->AmbientHeat.begin(), &sim->air->hv[0][0], &sim->air->hv[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->Particles.insert(snap->Particles.begin(), parts, parts+sim->parts_lastActiveIndex+1);
 	snap->GravVelocityX.insert(snap->GravVelocityX.begin(), gravx, gravx+((XRES/CELL)*(YRES/CELL)));
 	snap->GravVelocityY.insert(snap->GravVelocityY.begin(), gravy, gravy+((XRES/CELL)*(YRES/CELL)));
@@ -98,8 +98,8 @@ Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 	snap->GravMap.insert(snap->GravMap.begin(), gravmap, gravmap+((XRES/CELL)*(YRES/CELL)));
 	snap->BlockMap.insert(snap->BlockMap.begin(), &bmap[0][0], &bmap[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->ElecMap.insert(snap->ElecMap.begin(), &emap[0][0], &emap[0][0]+((XRES/CELL)*(YRES/CELL)));
-	snap->FanVelocityX.insert(snap->FanVelocityX.begin(), &fvx[0][0], &fvx[0][0]+((XRES/CELL)*(YRES/CELL)));
-	snap->FanVelocityY.insert(snap->FanVelocityY.begin(), &fvy[0][0], &fvy[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->FanVelocityX.insert(snap->FanVelocityX.begin(), &sim->air->fvx[0][0], &sim->air->fvx[0][0]+((XRES/CELL)*(YRES/CELL)));
+	snap->FanVelocityY.insert(snap->FanVelocityY.begin(), &sim->air->fvy[0][0], &sim->air->fvy[0][0]+((XRES/CELL)*(YRES/CELL)));
 	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
 		snap->Signs.push_back(new Sign(**iter));
 	snap->Authors = authors;
@@ -117,10 +117,10 @@ Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 
 void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 {
-	std::copy(snap.AirPressure.begin(), snap.AirPressure.end(), &pv[0][0]);
-	std::copy(snap.AirVelocityX.begin(), snap.AirVelocityX.end(), &vx[0][0]);
-	std::copy(snap.AirVelocityY.begin(), snap.AirVelocityY.end(), &vy[0][0]);
-	std::copy(snap.AmbientHeat.begin(), snap.AmbientHeat.end(), &hv[0][0]);
+	std::copy(snap.AirPressure.begin(), snap.AirPressure.end(), &sim->air->pv[0][0]);
+	std::copy(snap.AirVelocityX.begin(), snap.AirVelocityX.end(), &sim->air->vx[0][0]);
+	std::copy(snap.AirVelocityY.begin(), snap.AirVelocityY.end(), &sim->air->vy[0][0]);
+	std::copy(snap.AmbientHeat.begin(), snap.AmbientHeat.end(), &sim->air->hv[0][0]);
 	for (int i = 0; i < NPART; i++)
 		parts[i].type = 0;
 	std::copy(snap.Particles.begin(), snap.Particles.end(), parts);
@@ -135,8 +135,8 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 	}
 	std::copy(snap.BlockMap.begin(), snap.BlockMap.end(), &bmap[0][0]);
 	std::copy(snap.ElecMap.begin(), snap.ElecMap.end(), &emap[0][0]);
-	std::copy(snap.FanVelocityX.begin(), snap.FanVelocityX.end(), &fvx[0][0]);
-	std::copy(snap.FanVelocityY.begin(), snap.FanVelocityY.end(), &fvy[0][0]);
+	std::copy(snap.FanVelocityX.begin(), snap.FanVelocityX.end(), &sim->air->fvx[0][0]);
+	std::copy(snap.FanVelocityY.begin(), snap.FanVelocityY.end(), &sim->air->fvy[0][0]);
 	ClearSigns();
 	for (std::vector<Sign*>::const_iterator iter = snap.Signs.begin(), end = snap.Signs.end(); iter != end; ++iter)
 		signs.push_back(new Sign(**iter));

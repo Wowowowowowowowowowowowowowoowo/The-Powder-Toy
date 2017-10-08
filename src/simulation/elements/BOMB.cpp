@@ -46,7 +46,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 								{
 									if (nt)
 										sim->part_kill(pmap[ynxj][xnxi]>>8);
-									pv[ynxj/CELL][xnxi/CELL] += 0.1f;
+									sim->air->pv[ynxj/CELL][xnxi/CELL] += 0.1f;
 									nb = sim->part_create(-3, xnxi, ynxj, PT_EMBR);
 									if (nb != -1)
 									{

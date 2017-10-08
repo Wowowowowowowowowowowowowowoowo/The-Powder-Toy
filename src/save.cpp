@@ -94,7 +94,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			globalSim->forceStackingCheck = 1;//check for excessive stacking of particles next time update_particles is run
 			((PPIP_ElementDataContainer*)globalSim->elementData[PT_PPIP])->ppip_changed = 1;
-			RecalculateBlockAirMaps(globalSim);
+			globalSim->air->RecalculateBlockAirMaps(globalSim);
 		}
 		return ret;
 	}
@@ -855,7 +855,7 @@ void *build_save(int *size, int orig_x0, int orig_y0, int orig_w, int orig_h, un
 
 			if (aheat_enable)
 			{
-				int tempTemp = (int)(hv[y][x]+0.5f);
+				int tempTemp = (int)(globalSim->air->hv[y][x]+0.5f);
 				ambientData[ambientDataLen++] = tempTemp;
 				ambientData[ambientDataLen++] = tempTemp >> 8;
 			}
@@ -2086,7 +2086,7 @@ int parse_save_OPS(void *save, int size, int replace, int x0, int y0, unsigned c
 			{
 				tempTemp = ambientData[j++];
 				tempTemp |= (((unsigned)ambientData[j++]) << 8);
-				hv[blockY+y][blockX+x] = tempTemp;
+				globalSim->air->hv[blockY+y][blockX+x] = tempTemp;
 			}
 		}
 	}

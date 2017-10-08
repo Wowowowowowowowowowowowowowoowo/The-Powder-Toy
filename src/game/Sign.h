@@ -4,6 +4,7 @@
 #include <vector>
 #include "common/Point.h"
 
+class Simulation;
 class Sign
 {
 public:
@@ -22,7 +23,7 @@ public:
 	void SetText(std::string newText);
 	std::string GetText() { return text; }
 	std::string GetLinkText() { return linkText; }
-	std::string GetDisplayText();
+	std::string GetDisplayText(Simulation * sim);
 
 	void SetJustification(Justification newJustification) { ju = newJustification; }
 	Justification GetJustification() { return ju; }
@@ -30,7 +31,7 @@ public:
 	Type GetType() { return type; }
 
 	Point GetRealPos() { return Point(x, y); }
-	void GetPos(int & x0, int & y0, int & w, int & h);
+	void GetPos(Simulation * sim, int & x0, int & y0, int & w, int & h);
 	void SetPos(Point newPos) { x = newPos.X; y = newPos.Y; }
 	bool IsSignInArea(Point topLeft, Point bottomRight);
 };
@@ -41,6 +42,6 @@ extern int MSIGN;
 
 void ClearSigns();
 void DeleteSignsInArea(Point topLeft, Point bottomRight);
-int InsideSign(int mx, int my, bool allsigns);
+int InsideSign(Simulation * sim, int mx, int my, bool allsigns);
 
 #endif

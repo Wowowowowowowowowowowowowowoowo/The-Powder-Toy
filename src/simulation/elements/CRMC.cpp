@@ -17,7 +17,7 @@
 
 int CRMC_update(UPDATE_FUNC_ARGS)
 {
-	if (pv[y/CELL][x/CELL] < -30.0f)
+	if (sim->air->pv[y/CELL][x/CELL] < -30.0f)
 		sim->part_create(i, x, y, PT_CLST);
 	return 0;
 }

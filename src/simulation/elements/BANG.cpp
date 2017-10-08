@@ -55,7 +55,7 @@ int BANG_update(UPDATE_FUNC_ARGS)
 	{
 		float otemp = parts[i].temp-273.15f;
 		//Explode!!
-		pv[y/CELL][x/CELL] += 0.5f;
+		sim->air->pv[y/CELL][x/CELL] += 0.5f;
 		parts[i].tmp = 0;
 		if(!(rand()%3))
 		{

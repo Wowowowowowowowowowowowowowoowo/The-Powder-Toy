@@ -19,32 +19,32 @@
 
 int PBCN_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt;
-	if (!parts[i].tmp2 && pv[y/CELL][x/CELL]>4.0f)
+	if (!parts[i].tmp2 && sim->air->pv[y/CELL][x/CELL] > 4.0f)
 		parts[i].tmp2 = rand()%40+80;
 	if (parts[i].tmp2)
 	{
-		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
-		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
+		parts[i].vx += ADVECTION * sim->air->vx[y/CELL][x/CELL];
+		parts[i].vy += ADVECTION * sim->air->vy[y/CELL][x/CELL];
 		parts[i].tmp2--;
-		if(!parts[i].tmp2){
+		if (!parts[i].tmp2)
+		{
 			kill_part(i);
 			return 1;
 		}
 	}
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+	if (parts[i].ctype <= 0 || parts[i].ctype >= PT_NUM || !sim->elements[parts[i].ctype].Enabled || (parts[i].ctype == PT_LIFE && (parts[i].tmp < 0 || parts[i].tmp >= NGOL)))
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry=-1; ry <= 1; ry++)
 				if (BOUNDS_CHECK)
 				{
-					r = photons[y+ry][x+rx];
+					int r = photons[y+ry][x+rx];
 					if (!r)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
-					if (!(ptypes[rt].properties&PROP_CLONE) &&
-						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
+					int rt = r&0xFF;
+					if (!(sim->elements[rt].Properties&PROP_CLONE) &&
+						!(sim->elements[rt].Properties&PROP_BREAKABLECLONE) &&
 				        rt != PT_SPRK && rt != PT_NSCN && 
 						rt != PT_PSCN && rt != PT_STKM && 
 						rt != PT_STKM2)
@@ -54,17 +54,17 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 							parts[i].tmp = parts[r>>8].ctype;
 					}
 				}
-	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && parts[i].life==10)
+	if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM && sim->elements[parts[i].ctype].Enabled && parts[i].life == 10)
 	{
 		//create photons a different way
 		if (parts[i].ctype == PT_PHOT)
 		{
-			for (rx=-1; rx<2; rx++)
-				for (ry=-1; ry<2; ry++)
+			for (int rx = -1; rx <= 1; rx++)
+				for (int ry = -1; ry <= 1; ry++)
 					if (rx || ry)
 					{
 						int r = sim->part_create(-1, x+rx, y+ry, PT_PHOT);
-						if (r!=-1)
+						if (r != -1)
 						{
 							parts[r].vx = rx*3.0f;
 							parts[r].vy = ry*3.0f;
@@ -79,10 +79,9 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 		//create life a different way
 		else if (parts[i].ctype == PT_LIFE)
 		{
-			for (rx=-1; rx<2; rx++)
-				for (ry=-1; ry<2; ry++)
+			for (int rx = -1; rx <= 1; rx++)
+				for (int ry = -1; ry <= 1; ry++)
 				{
-					// TODO: change this create_part
 					sim->part_create(-1, x+rx, y+ry, PT_LIFE, parts[i].tmp);
 				}
 		}

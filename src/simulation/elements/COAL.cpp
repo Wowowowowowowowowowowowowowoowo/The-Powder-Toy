@@ -27,7 +27,7 @@ int COAL_update(UPDATE_FUNC_ARGS)
 		parts[i].life--;
 		sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
 	}
-	if ((pv[y/CELL][x/CELL] > 4.3f)&&parts[i].tmp>40)
+	if ((sim->air->pv[y/CELL][x/CELL] > 4.3f)&&parts[i].tmp>40)
 		parts[i].tmp=39;
 	else if (parts[i].tmp<40&&parts[i].tmp>0)
 		parts[i].tmp--;

@@ -175,9 +175,9 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 	if (aheat_enable)
 	{
-		hv[y/CELL][x/CELL]+=powderful/50;
-		if (hv[y/CELL][x/CELL]>MAX_TEMP)
-			hv[y/CELL][x/CELL]=MAX_TEMP;
+		sim->air->hv[y/CELL][x/CELL] += powderful/50;
+		if (sim->air->hv[y/CELL][x/CELL] > MAX_TEMP)
+			sim->air->hv[y/CELL][x/CELL] = MAX_TEMP;
 	}
 
 	for (rx=-2; rx<3; rx++)
@@ -209,7 +209,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				case PT_PLUT:
 					//start nuclear reactions
 					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
-					pv[y/CELL][x/CELL] += powderful/35;
+					sim->air->pv[y/CELL][x/CELL] += powderful/35;
 					if (!(rand()%3))
 					{
 						part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
@@ -247,7 +247,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				{
 					sim->spark_conductive(r>>8, x+rx, y+ry);
 				}
-				pv[y/CELL][x/CELL] += powderful/400;
+				sim->air->pv[y/CELL][x/CELL] += powderful/400;
 				if (sim->elements[rt].HeatConduct)
 					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3f, MIN_TEMP, MAX_TEMP);
 			}

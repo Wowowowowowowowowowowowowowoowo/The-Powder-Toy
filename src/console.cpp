@@ -384,7 +384,7 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					for (nx = 0; nx<XRES/CELL; nx++)
 						for (ny = 0; ny<YRES/CELL; ny++)
 						{
-							pv[ny][nx] = 0;
+							globalSim->air->pv[ny][nx] = 0;
 						}
 				}
 				else if (strcmp(console3, "velocity")==0)
@@ -392,8 +392,8 @@ int process_command_old(pixel *vid_buf, char *command, char **result)
 					for (nx = 0; nx<XRES/CELL; nx++)
 						for (ny = 0; ny<YRES/CELL; ny++)
 						{
-							vx[ny][nx] = 0;
-							vy[ny][nx] = 0;
+							globalSim->air->vx[ny][nx] = 0;
+							globalSim->air->vy[ny][nx] = 0;
 						}
 				}
 				else if (strcmp(console3, "sparks")==0)

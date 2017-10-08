@@ -18,7 +18,7 @@
 int PSNS_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
-	if (pv[y/CELL][x/CELL] > parts[i].temp-273.15f)
+	if (sim->air->pv[y/CELL][x/CELL] > parts[i].temp-273.15f)
 	{
 		parts[i].life = 0;
 		for (rx=-2; rx<3; rx++)

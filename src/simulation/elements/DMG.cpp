@@ -17,42 +17,40 @@
 
 int DMG_update(UPDATE_FUNC_ARGS)
 {
-	int r, rr, rx, ry, nxi, nxj, t, dist;
-	int rad = 25;
-	float angle, fx, fy;
+	const int rad = 25;
 
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_DMG && (r&0xFF)!=PT_EMBR && (r&0xFF)!=PT_DMND && (r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN && (r&0xFF)!=PT_BCLN)
+				if ((r&0xFF) != PT_DMG && (r&0xFF) != PT_EMBR && (r&0xFF) != PT_DMND && (r&0xFF) != PT_CLNE && (r&0xFF) != PT_PCLN && (r&0xFF) != PT_BCLN)
 				{
-					kill_part(i);
-					for (nxj=-rad; nxj<=rad; nxj++)
-						for (nxi=-rad; nxi<=rad; nxi++)
+					sim->part_kill(i);
+					for (int nxj = -rad; nxj <= rad; nxj++)
+						for (int nxi = -rad; nxi <= rad; nxi++)
 							if (x+nxi>=0 && y+nxj>=0 && x+nxi<XRES && y+nxj<YRES && (nxi || nxj))
 							{
-								dist = (int)(sqrt(pow((float)nxi, 2.0f)+pow((float)nxj, 2.0f)));//;(pow((float)nxi,2))/(pow((float)rad,2))+(pow((float)nxj,2))/(pow((float)rad,2));
+								int dist = (int)(sqrt(pow((float)nxi, 2.0f)+pow((float)nxj, 2.0f)));
 								if (!dist || (dist <= rad))
 								{
-									rr = pmap[y+nxj][x+nxi];
+									int rr = pmap[y+nxj][x+nxi];
 									if (rr)
 									{
-										angle = atan2((float)nxj, (float)nxi);
-										fx = cos(angle) * 7.0f;
-										fy = sin(angle) * 7.0f;
+										float angle = atan2((float)nxj, (float)nxi);
+										float fx = cos(angle) * 7.0f;
+										float fy = sin(angle) * 7.0f;
 
 										parts[rr>>8].vx += fx;
 										parts[rr>>8].vy += fy;
 
-										vx[(y+nxj)/CELL][(x+nxi)/CELL] += fx;
-										vy[(y+nxj)/CELL][(x+nxi)/CELL] += fy;
-										pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
+										sim->air->vx[(y+nxj)/CELL][(x+nxi)/CELL] += fx;
+										sim->air->vy[(y+nxj)/CELL][(x+nxi)/CELL] += fy;
+										sim->air->pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
 										
-										t = rr&0xFF;
+										int t = rr&0xFF;
 										if (t && sim->elements[t].HighPressureTransitionThreshold>-1 && sim->elements[t].HighPressureTransitionThreshold<PT_NUM)
 											sim->part_change_type(rr>>8, x+nxi, y+nxj, sim->elements[t].HighPressureTransitionElement);
 										else if (t == PT_BMTL)

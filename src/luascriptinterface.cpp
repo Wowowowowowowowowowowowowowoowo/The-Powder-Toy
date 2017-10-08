@@ -66,7 +66,7 @@ int simulation_signIndex(lua_State *l)
 	if (!key.compare("text"))
 		return lua_pushstring(l, signs[id]->GetText().c_str()), 1;
 	else if (!key.compare("displayText"))
-		return lua_pushstring(l, signs[id]->GetDisplayText().c_str()), 1;
+		return lua_pushstring(l, signs[id]->GetDisplayText(globalSim).c_str()), 1;
 	else if (!key.compare("linkText"))
 		return lua_pushstring(l, signs[id]->GetLinkText().c_str()), 1;
 	else if (!key.compare("justification"))
@@ -78,28 +78,28 @@ int simulation_signIndex(lua_State *l)
 	else if (!key.compare("screenX"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(x, y, w, h);
+		signs[id]->GetPos(globalSim, x, y, w, h);
 		lua_pushnumber(l, x);
 		return 1;
 	}
 	else if (!key.compare("screenY"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(x, y, w, h);
+		signs[id]->GetPos(globalSim, x, y, w, h);
 		lua_pushnumber(l, y);
 		return 1;
 	}
 	else if (!key.compare("width"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(x, y, w, h);
+		signs[id]->GetPos(globalSim, x, y, w, h);
 		lua_pushnumber(l, w);
 		return 1;
 	}
 	else if (!key.compare("height"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(x, y, w, h);
+		signs[id]->GetPos(globalSim, x, y, w, h);
 		lua_pushnumber(l, h);
 		return 1;
 	}
@@ -568,7 +568,7 @@ int simulation_pressure(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, pv[y][x]);
+		lua_pushnumber(l, globalSim->air->pv[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -604,7 +604,7 @@ int simulation_ambientHeat(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, hv[y][x]);
+		lua_pushnumber(l, globalSim->air->hv[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -640,7 +640,7 @@ int simulation_velocityX(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, vx[y][x]);
+		lua_pushnumber(l, globalSim->air->vx[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -676,7 +676,7 @@ int simulation_velocityY(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, vy[y][x]);
+		lua_pushnumber(l, globalSim->air->vy[y][x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -1088,7 +1088,7 @@ int simulation_resetPressure(lua_State * l)
 	for (int nx = x1; nx<x1+width; nx++)
 		for (int ny = y1; ny<y1+height; ny++)
 		{
-			pv[ny][nx] = 0;
+			globalSim->air->pv[ny][nx] = 0.0f;
 		}
 	return 0;
 }
@@ -1135,7 +1135,7 @@ int simulation_loadStamp(lua_State* l)
 
 	int oldPause = sys_pause;
 	Json::Value luaStampAuthors;
-	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &luaStampAuthors, includePressure))
+	if (!parse_save(load_data, stamp_size, 0, x, y, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &luaStampAuthors, includePressure))
 	{
 		lua_pushinteger(l, 1);
 		
@@ -1207,7 +1207,7 @@ int simulation_loadSave(lua_State * l)
 int simulation_reloadSave(lua_State * l)
 {
 	Snapshot::TakeSnapshot(globalSim);
-	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &authors);
+	parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &authors);
 	if (!authors.size())
 		DefaultSaveInfo();
 	return 0;
@@ -1338,10 +1338,10 @@ int simulation_ambientAirTemp(lua_State * l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, outside_temp);
+		lua_pushnumber(l, globalSim->air->outside_temp);
 		return 1;
 	}
-	outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
+	globalSim->air->outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
 	return 0;
 }
 

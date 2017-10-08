@@ -3,15 +3,17 @@
 
 #include "graphics/ARGBColour.h"
 
+class Simulation;
+
 void HudDefaults();
 void SetCurrentHud();
 
-void SetRightHudText(int x, int y);
-void SetLeftHudText(float FPSB2);
+void SetRightHudText(Simulation * sim, int x, int y);
+void SetLeftHudText(Simulation * sim, float FPSB2);
 void DrawHud(int introTextAlpha, int qTipAlpha);
 void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl);
 
-void DrawRecordsInfo();
+void DrawRecordsInfo(Simulation * sim);
 
 void DrawLuaLogs();
 

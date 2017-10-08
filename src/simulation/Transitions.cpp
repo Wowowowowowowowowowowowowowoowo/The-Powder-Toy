@@ -37,24 +37,24 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 		{
 			if (realistic)
 			{
-				c_heat = parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + hv[y/CELL][x/CELL]*100*(pv[y/CELL][x/CELL]+273.15f)/256;
-				c_Cm = 96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + 100*(pv[y/CELL][x/CELL]+273.15f)/256;
+				c_heat = parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + air->hv[y/CELL][x/CELL]*100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
+				c_Cm = 96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + 100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
 				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp = pt;
 				//Pressure increase from heat (temporary)
-				pv[y/CELL][x/CELL] += (pt-hv[y/CELL][x/CELL])*0.004f;
-				hv[y/CELL][x/CELL] = pt;
+				air->pv[y/CELL][x/CELL] += (pt-air->hv[y/CELL][x/CELL])*0.004f;
+				air->hv[y/CELL][x/CELL] = pt;
 
 				c_heat = 0.0f;
 				c_Cm = 0.0f;
 			}
 			else
 			{
-				c_heat = (hv[y/CELL][x/CELL]-parts[i].temp)*0.04f;
+				c_heat = (air->hv[y/CELL][x/CELL]-parts[i].temp)*0.04f;
 				c_heat = restrict_flt(c_heat, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp += c_heat;
-				hv[y/CELL][x/CELL] -= c_heat;
+				air->hv[y/CELL][x/CELL] -= c_heat;
 
 				c_heat= 0.0f;
 			}
@@ -122,9 +122,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 		ctemph = ctempl = pt;
 		// change boiling point with pressure
 		if (((elements[t].Properties&TYPE_LIQUID) && globalSim->IsElementOrNone(elements[t].HighTemperatureTransitionElement) && (elements[elements[t].HighTemperatureTransitionElement].Properties&TYPE_GAS)) || t==PT_LNTG || t==PT_SLTW)
-			ctemph -= 2.0f*pv[y/CELL][x/CELL];
+			ctemph -= 2.0f*air->pv[y/CELL][x/CELL];
 		else if (((elements[t].Properties&TYPE_GAS) && globalSim->IsElementOrNone(elements[t].LowTemperatureTransitionElement) && (elements[elements[t].LowTemperatureTransitionElement].Properties&TYPE_LIQUID)) || t==PT_WTRV)
-			ctempl -= 2.0f*pv[y/CELL][x/CELL];
+			ctempl -= 2.0f*air->pv[y/CELL][x/CELL];
 		s = 1;
 
 		if (!(elements[t].Properties&PROP_INDESTRUCTIBLE))
@@ -255,7 +255,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				}
 				else if (t == PT_CRMC)
 				{
-					float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
+					float pres = std::max((air->pv[y/CELL][x/CELL]+air->pv[(y-2)/CELL][x/CELL]+air->pv[(y+2)/CELL][x/CELL]+air->pv[y/CELL][(x-2)/CELL]+air->pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
 					if (ctemph < pres+elements[PT_CRMC].HighTemperatureTransitionThreshold)
 						s = 0;
 					else
@@ -313,7 +313,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 						}
 						else if (parts[i].ctype == PT_CRMC)
 						{
-							float pres = std::max((pv[y/CELL][x/CELL]+pv[(y-2)/CELL][x/CELL]+pv[(y+2)/CELL][x/CELL]+pv[y/CELL][(x-2)/CELL]+pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
+							float pres = std::max((air->pv[y/CELL][x/CELL]+air->pv[(y-2)/CELL][x/CELL]+air->pv[(y+2)/CELL][x/CELL]+air->pv[y/CELL][(x-2)/CELL]+air->pv[y/CELL][(x+2)/CELL])*2.0f, 0.0f);
 							if (ctemph >= pres+elements[PT_CRMC].HighTemperatureTransitionThreshold)
 								s = 0;
 						}
@@ -374,7 +374,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 					parts[i].tmp = 0;
 				}
 				if ((elements[t].Properties&TYPE_GAS) && !(elements[parts[i].type].Properties&TYPE_GAS))
-					pv[y/CELL][x/CELL] += 0.50f;
+					air->pv[y/CELL][x/CELL] += 0.50f;
 				if (t==PT_NONE)
 				{
 					part_kill(i);
@@ -416,8 +416,8 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 	}
 	else
 	{
-		if (!(bmap_blockairh[y/CELL][x/CELL]&0x8))
-			bmap_blockairh[y/CELL][x/CELL]++;
+		if (!(air->bmap_blockairh[y/CELL][x/CELL]&0x8))
+			air->bmap_blockairh[y/CELL][x/CELL]++;
 
 		parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
 		return false;
@@ -430,22 +430,22 @@ bool Simulation::CheckPressureTransitions(int i, int t)
 	float gravtot = std::fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+std::fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
 
 	// particle type change due to high pressure
-	if (elements[t].HighPressureTransitionElement > -1 && pv[y/CELL][x/CELL] > elements[t].HighPressureTransitionThreshold)
+	if (elements[t].HighPressureTransitionElement > -1 && air->pv[y/CELL][x/CELL] > elements[t].HighPressureTransitionThreshold)
 	{
 		if (elements[t].HighPressureTransitionElement != PT_NUM)
 			t = elements[t].HighPressureTransitionElement;
 		else if (t == PT_BMTL)
 		{
-			if (pv[y/CELL][x/CELL] > 2.5f)
+			if (air->pv[y/CELL][x/CELL] > 2.5f)
 				t = PT_BRMT;
-			else if (pv[y/CELL][x/CELL] > 1.0f && parts[i].tmp == 1)
+			else if (air->pv[y/CELL][x/CELL] > 1.0f && parts[i].tmp == 1)
 				t = PT_BRMT;
 			else
 				return false;
 		}
 	}
 	// particle type change due to low pressure
-	else if (elements[t].LowPressureTransitionElement > -1 && pv[y/CELL][x/CELL] < elements[t].LowPressureTransitionThreshold && gravtot <= elements[t].HighPressureTransitionThreshold/4.0f)
+	else if (elements[t].LowPressureTransitionElement > -1 && air->pv[y/CELL][x/CELL] < elements[t].LowPressureTransitionThreshold && gravtot <= elements[t].HighPressureTransitionThreshold/4.0f)
 	{
 		if (elements[t].LowPressureTransitionElement != PT_NUM)
 			t = elements[t].LowPressureTransitionElement;

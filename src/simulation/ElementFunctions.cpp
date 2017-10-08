@@ -26,7 +26,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 							part_change_type(r>>8,x+rx,y+ry,PT_WATR);
 					}
 				}
-		if (pv[y/CELL][x/CELL] > 4.0f)
+		if (sim->air->pv[y/CELL][x/CELL] > 4.0f)
 			part_change_type(i,x,y,PT_DSTW);
 		break;
 	case PT_WATR:
@@ -92,15 +92,15 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 				}
 		break;
 	case PT_OIL:
-		if (pv[y/CELL][x/CELL] < -6.0f)
+		if (sim->air->pv[y/CELL][x/CELL] < -6.0f)
 			part_change_type(i,x,y,PT_GAS);
 		break;
 	case PT_GAS:
-		if (pv[y/CELL][x/CELL] > 6.0f)
+		if (sim->air->pv[y/CELL][x/CELL] > 6.0f)
 			part_change_type(i,x,y,PT_OIL);
 		break;
 	case PT_DESL:
-		if (pv[y/CELL][x/CELL] > 12.0f)
+		if (sim->air->pv[y/CELL][x/CELL] > 12.0f)
 		{
 			part_change_type(i,x,y,PT_FIRE);
 			parts[i].life = rand()%50+120;

@@ -37,7 +37,7 @@ int TUNG_update(UPDATE_FUNC_ARGS)
 	{
 		if(!(rand()%50))
 		{
-			pv[y/CELL][x/CELL] += 50.0f;
+			sim->air->pv[y/CELL][x/CELL] += 50.0f;
 		}
 		else if(!(rand()%100))
 		{
@@ -60,7 +60,7 @@ int TUNG_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 	parts[i].pavg[0] = parts[i].pavg[1];
-	parts[i].pavg[1] = pv[y/CELL][x/CELL];
+	parts[i].pavg[1] = sim->air->pv[y/CELL][x/CELL];
 	float diff = parts[i].pavg[1] - parts[i].pavg[0];
 	if (diff > 0.50f || diff < -0.50f)
 	{

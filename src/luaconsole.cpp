@@ -1516,13 +1516,13 @@ void set_map(int x, int y, int width, int height, float value, int map)
 		for (ny = y; ny<y+height; ny++)
 		{
 			if (map == 1)
-				pv[ny][nx] = value;
+				globalSim->air->pv[ny][nx] = value;
 			else if (map == 2)
-				hv[ny][nx] = value;
+				globalSim->air->hv[ny][nx] = value;
 			else if (map == 3)
-				vx[ny][nx] = value;
+				globalSim->air->vx[ny][nx] = value;
 			else if (map == 4)
-				vy[ny][nx] = value;
+				globalSim->air->vy[ny][nx] = value;
 			else if (map == 5)
 				gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
 
@@ -1648,8 +1648,8 @@ int luatpt_reset_velocity(lua_State* l)
 	for (nx = x1; nx<x1+width; nx++)
 		for (ny = y1; ny<y1+height; ny++)
 		{
-			vx[ny][nx] = 0;
-			vy[ny][nx] = 0;
+			globalSim->air->vx[ny][nx] = 0;
+			globalSim->air->vy[ny][nx] = 0;
 		}
 	return 0;
 }

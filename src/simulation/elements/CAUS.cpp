@@ -27,7 +27,7 @@ int CAUS_update(UPDATE_FUNC_ARGS)
 					continue;
 				if ((r&0xFF) == PT_GAS)
 				{
-					if (pv[(y+ry)/CELL][(x+rx)/CELL] > 3)
+					if (sim->air->pv[(y+ry)/CELL][(x+rx)/CELL] > 3)
 					{
 						sim->part_change_type(r>>8, x+rx, y+ry, PT_RFRG);
 						sim->part_change_type(i, x, y, PT_RFRG);

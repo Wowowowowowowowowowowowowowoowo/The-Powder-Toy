@@ -5670,7 +5670,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				Snapshot::TakeSnapshot(globalSim);
 				// Do Open!
 				Json::Value tempSaveInfo;
-				int status = parse_save(data, data_size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempSaveInfo);
+				int status = parse_save(data, data_size, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &tempSaveInfo);
 				if (!status)
 				{
 					if(svf_last)
@@ -6305,7 +6305,7 @@ int execute_save(pixel *vid_buf)
 	serverSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
 	SaveAuthorInfo(&serverSaveInfo);
 
-	uploadparts[2] = (char*)build_save(&len, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &serverSaveInfo);
+	uploadparts[2] = (char*)build_save(&len, 0, 0, XRES, YRES, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &serverSaveInfo);
 	plens[2] = len;
 	if (!uploadparts[2])
 	{
@@ -7690,7 +7690,7 @@ int save_filename_ui(pixel *vid_buf)
 	localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
 	SaveAuthorInfo(&localSaveInfo);
 
-	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, vx, vy, pv, fvx, fvy, signs, parts, &localSaveInfo);
+	save_data = build_save(&save_size, 0, 0, XRES, YRES, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, &localSaveInfo);
 	if (!save_data)
 	{
 		error_ui(vid_buf, 0, "Unable to create save file");
@@ -7930,7 +7930,7 @@ void catalogue_ui(pixel * vid_buf)
 						{
 							Snapshot::TakeSnapshot(globalSim);
 							Json::Value tempLocalSaveInfo;
-							status = parse_save(data, size, 1, 0, 0, bmap, vx, vy, pv, fvx, fvy, signs, parts, pmap, &tempLocalSaveInfo);
+							status = parse_save(data, size, 1, 0, 0, bmap, globalSim->air->vx, globalSim->air->vy, globalSim->air->pv, globalSim->air->fvx, globalSim->air->fvy, signs, parts, pmap, &tempLocalSaveInfo);
 							if (!status)
 							{
 								//svf_filename[0] = 0;

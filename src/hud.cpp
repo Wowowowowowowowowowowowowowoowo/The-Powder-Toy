@@ -48,7 +48,7 @@ void SetCurrentHud()
 		memcpy(currentHud, debugHud, sizeof(currentHud));
 }
 
-void SetRightHudText(int x, int y)
+void SetRightHudText(Simulation * sim, int x, int y)
 {
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
@@ -88,7 +88,7 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype].name.c_str());
 				}
-				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && globalSim->IsElement(parts[cr>>8].ctype))
+				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && sim->IsElement(parts[cr>>8].ctype))
 				{
 					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
 				}
@@ -100,9 +100,9 @@ void SetRightHudText(int x, int y)
 					else
 						sprintf(nametext, "FILT (unknown mode), ");
 				}
-				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && globalSim->IsElement(parts[cr>>8].tmp&0xFF))
+				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && sim->IsElement(parts[cr>>8].tmp&0xFF))
 				{
-					sprintf(nametext, "%s (%s), ", globalSim->elements[cr&0xFF].Name.c_str(), ptypes[parts[cr>>8].tmp&0xFF].name);
+					sprintf(nametext, "%s (%s), ", sim->elements[cr&0xFF].Name.c_str(), ptypes[parts[cr>>8].tmp&0xFF].name);
 				}
 				else if (currentHud[11])
 				{
@@ -117,7 +117,7 @@ void SetRightHudText(int x, int y)
 					{
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype>>8].name.c_str());
 					}
-					else if (!tctype || globalSim->IsElement(tctype))
+					else if (!tctype || sim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
 					else
 						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);
@@ -215,7 +215,7 @@ void SetRightHudText(int x, int y)
 		}
 		if (currentHud[26])
 		{
-			sprintf(tempstring,"Pressure: %0.*f, ",currentHud[27],pv[y/CELL][x/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f, ",currentHud[27],sim->air->pv[y/CELL][x/CELL]);
 			strappend(heattext,tempstring);
 		}
 		if (strlen(heattext) > 1)
@@ -241,17 +241,17 @@ void SetRightHudText(int x, int y)
 		}
 		if (currentHud[34] && aheat_enable)
 		{
-			sprintf(tempstring,"A.Heat: %0.*f K ",currentHud[35],hv[y/CELL][x/CELL]);
+			sprintf(tempstring,"A.Heat: %0.*f K ",currentHud[35],sim->air->hv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[32])
 		{
-			sprintf(tempstring,"Pressure: %0.*f ",currentHud[33],pv[y/CELL][x/CELL]);
+			sprintf(tempstring,"Pressure: %0.*f ",currentHud[33],sim->air->pv[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[43])
 		{
-			sprintf(tempstring,"VX: %0.*f VY: %0.*f ",currentHud[44],vx[y/CELL][x/CELL],currentHud[44],vy[y/CELL][x/CELL]);
+			sprintf(tempstring,"VX: %0.*f VY: %0.*f ",currentHud[44],sim->air->vx[y/CELL][x/CELL],currentHud[44],sim->air->vy[y/CELL][x/CELL]);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[52])
@@ -271,7 +271,7 @@ void SetRightHudText(int x, int y)
 	}
 }
 
-void SetLeftHudText(float FPSB2)
+void SetLeftHudText(Simulation * sim, float FPSB2)
 {
 #ifdef BETA
 	if (currentHud[0] && currentHud[1])
@@ -318,7 +318,7 @@ void SetLeftHudText(float FPSB2)
 	}
 	if (currentHud[5])
 	{
-		sprintf(tempstring,"Generation:%d ", ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->golGeneration);
+		sprintf(tempstring,"Generation:%d ", ((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->golGeneration);
 		strappend(uitext,tempstring);
 	}
 	if (currentHud[6])
@@ -361,7 +361,7 @@ void SetLeftHudText(float FPSB2)
 	}
 	if (active_menu == SC_DECO && frameNum)
 	{
-		sprintf(tempstring,"[Frame %i/%i] ",frameNum,globalSim->maxFrames);
+		sprintf(tempstring,"[Frame %i/%i] ",frameNum,sim->maxFrames);
 		strappend(uitext, tempstring);
 		frameNum = 0;
 	}
@@ -466,9 +466,9 @@ void DrawPhotonWavelengths(pixel *vid, int x, int y, int h, int wl)
 	}
 }
 
-void DrawRecordsInfo()
+void DrawRecordsInfo(Simulation * sim)
 {
-	int ytop = 244, num_parts = 0, totalselected = 0, x, y;
+	int ytop = 244, num_parts = 0, totalselected = 0;
 	float totaltemp = 0, totalpressure = 0;
 	for (int i = 0; i < NPART; i++)
 	{
@@ -488,10 +488,10 @@ void DrawRecordsInfo()
 		else if (parts[i].type == ((ElementTool*)activeTools[0])->GetID())
 			totalselected++;
 	}
-	for (y=0; y<YRES/CELL; y++)
-		for (x=0; x<XRES/CELL; x++)
+	for (int y = 0; y < YRES/CELL; y++)
+		for (int x = 0; x < XRES/CELL; x++)
 		{
-			totalpressure += pv[y][x];
+			totalpressure += sim->air->pv[y][x];
 		}
 
 	GetTimeString(currentTime-totalafktime-afktime, timeinfotext, 0);

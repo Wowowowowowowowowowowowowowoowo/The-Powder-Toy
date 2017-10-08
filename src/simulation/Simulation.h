@@ -19,6 +19,7 @@
 #include <cstddef> // offsetof, for FloodProp
 #include "graphics/ARGBColour.h"
 #include "graphics/Pixel.h"
+#include "simulation/Air.h"
 #include "simulation/Element.h"
 #include "powder.h"
 
@@ -48,6 +49,8 @@ public:
 	int parts_lastActiveIndex;
 	int debug_currentParticle;
 	bool forceStackingCheck;
+	
+	Air * air;
 
 	// settings
 	signed char edgeMode;

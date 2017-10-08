@@ -56,7 +56,7 @@ int CO2_update(UPDATE_FUNC_ARGS)
 					}
 				}
 			}
-	if (parts[i].temp > 9773.15 && pv[y/CELL][x/CELL] > 200.0f)
+	if (parts[i].temp > 9773.15 && sim->air->pv[y/CELL][x/CELL] > 200.0f)
 	{
 		if (!(rand()%5))
 		{
@@ -74,7 +74,7 @@ int CO2_update(UPDATE_FUNC_ARGS)
 			}
 
 			parts[i].temp = MAX_TEMP;
-			pv[y/CELL][x/CELL] += 100;
+			sim->air->pv[y/CELL][x/CELL] += 100;
 		}
 	}
 	return 0;

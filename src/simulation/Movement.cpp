@@ -493,7 +493,7 @@ unsigned char Simulation::EvalMove(int pt, int nx, int ny, unsigned *rr)
 			else
 				pressureResistance = 4.0f;
 
-			if (pv[ny/CELL][nx/CELL] < -pressureResistance || pv[ny/CELL][nx/CELL] > pressureResistance)
+			if (air->pv[ny/CELL][nx/CELL] < -pressureResistance || air->pv[ny/CELL][nx/CELL] > pressureResistance)
 				result = 2;
 			else
 				result = 0;
@@ -698,7 +698,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 				else
 					pressureResistance = 4.0f;
 
-				if (pv[ny/CELL][nx/CELL] >= -pressureResistance && pv[ny/CELL][nx/CELL] <= pressureResistance)
+				if (air->pv[ny/CELL][nx/CELL] >= -pressureResistance && air->pv[ny/CELL][nx/CELL] <= pressureResistance)
 				{
 					part_change_type(i, x, y, PT_NEUT);
 					parts[i].ctype = 0;

@@ -17,7 +17,6 @@
 #ifndef POWDER_H
 #define POWDER_H
 
-#include "air.h"
 #include "defines.h"
 #include "misc.h"
 

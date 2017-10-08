@@ -19,17 +19,17 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	float limit = parts[i].temp / 100;
-	if (pv[y / CELL][x / CELL] < limit)
-		pv[y / CELL][x / CELL] += 0.001f*(limit - pv[y / CELL][x / CELL]);
-	if (pv[y / CELL + 1][x / CELL] < limit)
-		pv[y / CELL + 1][x / CELL] += 0.001f*(limit - pv[y / CELL + 1][x / CELL]);
-	if (pv[y / CELL - 1][x / CELL] < limit)
-		pv[y / CELL - 1][x / CELL] += 0.001f*(limit - pv[y / CELL - 1][x / CELL]);
+	if (sim->air->pv[y / CELL][x / CELL] < limit)
+		sim->air->pv[y / CELL][x / CELL] += 0.001f*(limit - sim->air->pv[y / CELL][x / CELL]);
+	if (sim->air->pv[y / CELL + 1][x / CELL] < limit)
+		sim->air->pv[y / CELL + 1][x / CELL] += 0.001f*(limit - sim->air->pv[y / CELL + 1][x / CELL]);
+	if (sim->air->pv[y / CELL - 1][x / CELL] < limit)
+		sim->air->pv[y / CELL - 1][x / CELL] += 0.001f*(limit - sim->air->pv[y / CELL - 1][x / CELL]);
 
-	pv[y / CELL][x / CELL + 1] += 0.001f*(limit - pv[y / CELL][x / CELL + 1]);
-	pv[y / CELL + 1][x / CELL + 1] += 0.001f*(limit - pv[y / CELL + 1][x / CELL + 1]);
-	pv[y / CELL][x / CELL - 1] += 0.001f*(limit - pv[y / CELL][x / CELL - 1]);
-	pv[y / CELL - 1][x / CELL - 1] += 0.001f*(limit - pv[y / CELL - 1][x / CELL - 1]);
+	sim->air->pv[y / CELL][x / CELL + 1] += 0.001f*(limit - sim->air->pv[y / CELL][x / CELL + 1]);
+	sim->air->pv[y / CELL + 1][x / CELL + 1] += 0.001f*(limit - sim->air->pv[y / CELL + 1][x / CELL + 1]);
+	sim->air->pv[y / CELL][x / CELL - 1] += 0.001f*(limit - sim->air->pv[y / CELL][x / CELL - 1]);
+	sim->air->pv[y / CELL - 1][x / CELL - 1] += 0.001f*(limit - sim->air->pv[y / CELL - 1][x / CELL - 1]);
 
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -49,7 +49,7 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 					{
 						kill_part(r>>8);
 						part_change_type(i, x, y, PT_WATR);
-						pv[y/CELL][x/CELL] += 4.0;
+						sim->air->pv[y/CELL][x/CELL] += 4.0;
 					}
 				}
 			}

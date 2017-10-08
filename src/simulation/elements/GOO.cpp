@@ -19,12 +19,12 @@
 
 int GOO_update(UPDATE_FUNC_ARGS)
 {
-	if (!parts[i].life && pv[y/CELL][x/CELL]>1.0f)
-		parts[i].life = rand()%80+300;
+	if (!parts[i].life && sim->air->pv[y/CELL][x/CELL] > 1.0f)
+		parts[i].life = rand()%80 + 300;
 	if (parts[i].life)
 	{
-		parts[i].vx += ADVECTION*vx[y/CELL][x/CELL];
-		parts[i].vy += ADVECTION*vy[y/CELL][x/CELL];
+		parts[i].vx += ADVECTION * sim->air->vx[y/CELL][x/CELL];
+		parts[i].vy += ADVECTION * sim->air->vy[y/CELL][x/CELL];
 	}
 	return 0;
 }
@@ -56,7 +56,7 @@ void GOO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 75;
 	elem->Latent = 0;
 	elem->Description = "Deforms and disappears under pressure.";

@@ -29,7 +29,7 @@ int PUMP_update(UPDATE_FUNC_ARGS)
 			for (ry=-1; ry<2; ry++)
 				if (!(rx && ry))
 				{
-					pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15f)-pv[(y/CELL)+ry][(x/CELL)+rx]);
+					sim->air->pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15f)-sim->air->pv[(y/CELL)+ry][(x/CELL)+rx]);
 				}
 	}
 	return 0;

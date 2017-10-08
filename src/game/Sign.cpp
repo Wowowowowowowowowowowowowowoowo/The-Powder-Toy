@@ -3,6 +3,7 @@
 #include "Sign.h"
 #include "powder.h"
 #include "graphics/VideoBuffer.h"
+#include "simulation/Simulation.h"
 
 std::vector<Sign*> signs;
 int MSIGN = -1;
@@ -31,12 +32,12 @@ void DeleteSignsInArea(Point topLeft, Point bottomRight)
 
 // returns -1 if mouse is not inside a link sign, else returns the sign id
 // allsigns argument makes it return whether inside any sign (not just link signs)
-int InsideSign(int mx, int my, bool allsigns)
+int InsideSign(Simulation * sim, int mx, int my, bool allsigns)
 {
 	int x, y, w, h;
 	for (int i = (int)signs.size()-1; i >= 0; i--)
 	{
-		signs[i]->GetPos(x, y, w, h);
+		signs[i]->GetPos(sim, x, y, w, h);
 		if (mx >= x && mx <= x+w && my >= y && my <= y+h)
 		{
 			if (allsigns || signs[i]->GetType() != Sign::Normal)
@@ -108,7 +109,7 @@ void Sign::SetText(std::string newText)
 	}
 }
 
-std::string Sign::GetDisplayText()
+std::string Sign::GetDisplayText(Simulation * sim)
 {
 	if (type == Normal && text.length() && text[0] == '{')
 	{
@@ -118,14 +119,14 @@ std::string Sign::GetDisplayText()
 		{
 			float pressure = 0.0f;
 			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-				pressure = pv[y/CELL][x/CELL];
+				pressure = sim->air->pv[y/CELL][x/CELL];
 			displayTextStream << std::fixed << std::setprecision(2) << "Pressure: " << pressure;
 		}
 		else if (text == "{aheat}")
 		{
 			float aheat = 0.0f;
 			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-				aheat = hv[y/CELL][x/CELL]-273.15f;
+				aheat = sim->air->hv[y/CELL][x/CELL]-273.15f;
 			displayTextStream << std::fixed << std::setprecision(2) << aheat;
 		}
 		else if (text == "{t}")
@@ -144,9 +145,9 @@ std::string Sign::GetDisplayText()
 	return displayText;
 }
 
-void Sign::GetPos(int & x0, int & y0, int & w, int & h)
+void Sign::GetPos(Simulation * sim, int & x0, int & y0, int & w, int & h)
 {
-	w = VideoBuffer::TextSize(GetDisplayText()).X + 4;
+	w = VideoBuffer::TextSize(GetDisplayText(sim)).X + 4;
 	h = 14;
 	x0 = (ju == Right) ? x - w :
 		  (ju == Left) ? x : x - w/2;
