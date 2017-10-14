@@ -836,3 +836,6 @@ Fix issue where cursor type (wall/brush) wouldn't update when switching
 between left/right click. Fix elem.allocate being able to delete lua keywords 
 and overwrite strings. Update to TPT 92.5. Now uses luajit, which gives a 
 10-40% speed boost when running lua scripts.
+
+Version 37.1 10/14/17
+Fix mac version. Large code refactoring (air sim / simulation).
