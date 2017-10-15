@@ -1125,6 +1125,14 @@ int main(int argc, char *argv[])
 	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
+	// initialize hud with defaults before loading powder.pref
+	HudDefaults();
+	memcpy(currentHud,normalHud,sizeof(currentHud));
+
+	render_mode = Renderer::Ref().GetRenderModesRaw();
+	display_mode = Renderer::Ref().GetDisplayModesRaw();
+	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
+
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost
 	
@@ -1133,9 +1141,6 @@ int main(int argc, char *argv[])
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
-
-	HudDefaults();
-	memcpy(currentHud,normalHud,sizeof(currentHud));
 
 	gravity_init();
 
@@ -1147,10 +1152,7 @@ int main(int argc, char *argv[])
 #ifdef LUACONSOLE
 	luacon_open();
 #endif
-	
-	render_mode = Renderer::Ref().GetRenderModesRaw();
-	display_mode = Renderer::Ref().GetDisplayModesRaw();
-	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
+
 	TRON_init_graphics();
 	init_color_boxes();
 

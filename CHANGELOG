@@ -839,3 +839,7 @@ and overwrite strings. Update to TPT 92.5. Now uses luajit, which gives a
 
 Version 37.1 10/14/17
 Fix mac version. Large code refactoring (air sim / simulation).
+
+Version 37.2 10/14/17
+Fix custom HUDs resetting to default on startup. .tmp and .tmp2 show in debug 
+HUD by default. Fix color mode resetting on startup.
