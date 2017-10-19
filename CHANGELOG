@@ -843,3 +843,6 @@ Fix mac version. Large code refactoring (air sim / simulation).
 Version 37.2 10/14/17
 Fix custom HUDs resetting to default on startup. .tmp and .tmp2 show in debug 
 HUD by default. Fix color mode resetting on startup.
+
+Version 37.2 (build 89) 10/18/17
+Really fix the mac version.
