@@ -2150,7 +2150,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			// horizontal invert
 			else if (shiftHeld)
 				TransformSave(-1, 0, 0, 1);
-			// rotate anticlockwise 90 degrees
+			// rotate counterclockwise 90 degrees
 			else
 				TransformSave(0, 1, -1, 0);
 			break;
@@ -2167,19 +2167,6 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			TranslateSave(Point(0, 1));
 			break;
 		}
-
-		/*if (doTransform)
-		{
-			int size = stampData->GetSaveSize();
-			char *newData = (char*)transform_save((char*)stampData->GetSaveData(), &size, transform, translate);
-			if (!newData)
-				return;
-			delete stampData;
-			stampData = new Save(newData, size);
-			free(stampImg);
-			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
-			return;
-		}*/
 	}
 
 	// handle normal keypresses

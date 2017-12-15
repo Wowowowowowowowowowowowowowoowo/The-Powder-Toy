@@ -2721,7 +2721,7 @@ void Save::Transform(matrix2d transform, vector2d translate, vector2d translateR
 	ambientHeat = ambientHeatNew;
 
 	// invalidate save data
-	delete saveData;
+	delete[] saveData;
 	saveData = NULL;
 }
 

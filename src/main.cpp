@@ -613,6 +613,7 @@ Save *stamp_load(int i, int reorder)
 	if (!data)
 		return NULL;
 	Save *save = new Save(data, size);
+	free(data);
 
 	if (reorder && i>0)
 	{

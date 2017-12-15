@@ -193,7 +193,7 @@ typedef int bson_bool_t;
 typedef struct {
     const char *cur;
     bson_bool_t first;
-	const char *last;
+    const char *last;
 } bson_iterator;
 
 typedef struct {
