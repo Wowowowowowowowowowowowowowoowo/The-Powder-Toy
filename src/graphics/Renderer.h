@@ -31,6 +31,10 @@ struct RenderPreset
 // This class is mostly unused at the moment, but is used for controlling render / display modes
 class Renderer : public Singleton<Renderer>
 {
+	bool recording;
+	int recordingIndex;
+	int recordingFolder;
+
 	std::set<unsigned int> renderModes;
 	std::set<unsigned int> displayModes;
 	unsigned int colorMode;
@@ -41,6 +45,11 @@ class Renderer : public Singleton<Renderer>
 
 public:
 	Renderer();
+
+	std::string TakeScreenshot(bool includeUI, int format);
+	void RecordingTick();
+	int StartRecording();
+	void StopRecording();
 
 	bool LoadRenderPreset(int preset);
 	std::string GetRenderPresetToolTip(int preset);

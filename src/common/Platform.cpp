@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <direct.h>
 #else
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -489,6 +490,15 @@ int CheckLoadedPtsave()
 	return SDL_ANDROID_GetPtsaveOpen();
 #endif
 	return 0;
+}
+
+void MakeDirectory(std::string dir)
+{
+#ifdef WIN
+	_mkdir(dir.c_str());
+#else
+	mkdir(dir.c_str(), 0755);
+#endif
 }
 
 }

@@ -1612,6 +1612,7 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 			buf->DrawText(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
 		}*/
 	}
+	Renderer::Ref().RecordingTick();
 }
 
 void PowderToy::OnMouseMove(int x, int y, Point difference)
@@ -2256,6 +2257,13 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			Engine::Ref().ShowWindow(confirm);
 		}
 		break;
+	case 'p':
+	case SDLK_F2:
+		if (Renderer::Ref().TakeScreenshot(ctrlHeld, 0).length())
+			SetInfoTip("Saved screenshot");
+		else
+			SetInfoTip("Error saving screenshot");
+		break;
 	case 'a':
 		if (ctrlHeld && (svf_mod || svf_admin))
 		{
@@ -2367,12 +2375,10 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		if (sdl_mod & (KMOD_CTRL|KMOD_META))
 		{
 			decorations_enable = !decorations_enable;
-			std::string tooltip;
 			if (decorations_enable)
-				tooltip = "Decorations layer: On";
+				SetInfoTip("Decorations layer: On");
 			else
-				tooltip = "Decorations layer: Off";
-			UpdateToolTip(tooltip, Point(XCNTR-VideoBuffer::TextSize(tooltip).X/2, YCNTR-10), INFOTIP, 255);
+				SetInfoTip("Decorations layer: Off");
 		}
 		else if (active_menu == SC_DECO)
 		{

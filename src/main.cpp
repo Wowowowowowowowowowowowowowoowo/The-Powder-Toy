@@ -311,31 +311,6 @@ int core_count()
 
 int kiosk_enable = 0;
 
-int frame_idx=0;
-void dump_frame(pixel *src, int w, int h, int pitch)
-{
-	char frame_name[32];
-	int j,i;
-	unsigned char c[3];
-	FILE *f;
-	sprintf(frame_name,"frame%04d.ppm",frame_idx);
-	f=fopen(frame_name,"wb");
-	fprintf(f,"P6\n%d %d\n255\n",w,h);
-	for (j=0; j<h; j++)
-	{
-		for (i=0; i<w; i++)
-		{
-			c[0] = PIXR(src[i]);
-			c[1] = PIXG(src[i]);
-			c[2] = PIXB(src[i]);
-			fwrite(c,3,1,f);
-		}
-		src+=pitch;
-	}
-	fclose(f);
-	frame_idx++;
-}
-
 void clear_sim()
 {
 	for (int i = 0; i < NPART; i++)
@@ -1914,8 +1889,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						start_grav_async();
 				}
 			}
-			if (sdl_key=='p' || sdl_key == SDLK_F2)
-				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
 			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
 			/*else if (sdl_key=='c')
 			{

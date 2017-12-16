@@ -268,7 +268,6 @@ extern char http_proxy_string[256];
 void thumb_cache_inval(char *id);
 void thumb_cache_add(char *id, void *thumb, int size);
 bool thumb_cache_find(char *id, void **thumb, int *size);
-void dump_frame(pixel *src, int w, int h, int pitch);
 void clear_sim();
 void NewSim();
 char* stamp_save(int x, int y, int w, int h, bool includePressure);
@@ -281,7 +280,6 @@ int tab_load(int tabNum, bool del = false, bool showException = true);
 void stamp_init();
 void del_stamp(int d);
 int set_scale(int scale, int kiosk);
-void dump_frame(pixel *src, int w, int h, int pitch);
 void ctrlzSnapshot();
 
 extern bool sendNewEvents;

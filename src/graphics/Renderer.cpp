@@ -1,10 +1,22 @@
 #include <cstring>
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 #include "graphics.h"
 #include "powdergraphics.h"
 #include "Renderer.h"
+
+#include "common/Format.h"
+#include "common/Platform.h"
 #include "game/Save.h"
+#include "graphics/VideoBuffer.h"
 
 Renderer::Renderer():
+	recording(false),
+	recordingIndex(0),
+	recordingFolder(0),
 	renderModes(std::set<unsigned int>()),
 	displayModes(std::set<unsigned int>()),
 	colorMode(0)
@@ -15,6 +27,104 @@ Renderer::Renderer():
 	AddRenderMode(RENDER_BASC);
 
 	InitRenderPresets();
+}
+
+std::string Renderer::TakeScreenshot(bool includeUI, int format)
+{
+	int w = includeUI ? XRES+BARSIZE : XRES;
+	int h = includeUI ? YRES+MENUSIZE : YRES;
+	VideoBuffer *vid = new VideoBuffer(w, h);
+	vid->CopyBufferFrom(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, w, h);
+
+	std::vector<char> screenshotData;
+	std::string fileExtension = "";
+	if (format == 0)
+	{
+		screenshotData = Format::VideoBufferToPNG(*vid);
+		fileExtension = ".png";
+	}
+	else if (format == 1)
+	{
+		screenshotData = Format::VideoBufferToBMP(*vid);
+		fileExtension = ".bmp";
+	}
+	else if (format == 2)
+	{
+		screenshotData = Format::VideoBufferToPPM(*vid);
+		fileExtension = ".ppm";
+	}
+	delete vid;
+
+	std::stringstream fileName;
+	fileName << "powdertoy-" << time(NULL) << fileExtension;
+	try
+	{
+		std::ofstream screenshot;
+		screenshot.open(fileName.str(), std::ios::binary);
+		if (screenshot.is_open())
+		{
+			screenshot.write(&screenshotData[0], screenshotData.size());
+			screenshot.close();
+		}
+		else
+			return "";
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Error saving screenshot: " << e.what() << std::endl;
+		return "";
+	}
+	return fileName.str();
+}
+
+void Renderer::RecordingTick()
+{
+	if (!recording)
+		return;
+
+	VideoBuffer *screenshot = new VideoBuffer(XRES, YRES);
+	screenshot->CopyBufferFrom(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES, YRES);
+
+	std::vector<char> screenshotData = Format::VideoBufferToPPM(*screenshot);
+
+	std::stringstream fileName;
+	fileName << "recordings" << PATH_SEP << recordingFolder << PATH_SEP << "frame_"
+	         << std::setfill('0') << std::setw(6) << (recordingIndex++) << ".ppm";
+
+	try
+	{
+		std::ofstream screenshot;
+		screenshot.open(fileName.str(), std::ios::binary);
+		if (screenshot.is_open())
+		{
+			screenshot.write(&screenshotData[0], screenshotData.size());
+			screenshot.close();
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Error saving screenshot: " << e.what() << std::endl;
+	}
+}
+
+int Renderer::StartRecording()
+{
+	time_t startTime = time(NULL);
+	recordingFolder = startTime;
+	std::stringstream recordingDir;
+	recordingDir << "recordings" << PATH_SEP << recordingFolder;
+	Platform::MakeDirectory("recordings");
+	Platform::MakeDirectory(recordingDir.str());
+	recording = true;
+	recordingIndex = 0;
+	return recordingFolder;
+}
+
+void Renderer::StopRecording()
+{
+	recording = false;
+	recordingIndex = 0;
+	recordingFolder = 0;
 }
 
 void Renderer::InitRenderPresets()

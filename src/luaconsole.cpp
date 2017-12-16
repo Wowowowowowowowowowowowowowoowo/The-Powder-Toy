@@ -137,6 +137,7 @@ void luacon_open()
 		{"setwindowsize",&luatpt_setwindowsize},
 		{"watertest",&luatpt_togglewater},
 		{"screenshot",&luatpt_screenshot},
+		{"record",&luatpt_record},
 		{"get_clipboard",&platform_clipboardCopy},
 		{"set_clipboard",&platform_clipboardPaste},
 		{"element",&luatpt_getelement},
@@ -2528,16 +2529,29 @@ int luatpt_setwindowsize(lua_State* l)
 int luatpt_screenshot(lua_State* l)
 {
 	int captureUI = luaL_optint(l, 1, 0);
+	int fileType = luaL_optint(l, 2, 0);
+	if (fileType < 0 || fileType > 2)
+		return luaL_error(l, "Invalid screenshot format");
+	std::string filename = Renderer::Ref().TakeScreenshot(captureUI, fileType);
+	lua_pushstring(l, filename.c_str());
+	return 1;
+}
 
-	if(captureUI)
+int luatpt_record(lua_State* l)
+{
+	if (!lua_isboolean(l, -1))
+		return luaL_typerror(l, 1, lua_typename(l, LUA_TBOOLEAN));
+	bool record = lua_toboolean(l, -1);
+	if (record)
+		record = confirm_ui(vid_buf, "Recording", "You're about to start recording all drawn frames. This will use a lot of disk space", "Confirm");
+	if (!record)
 	{
-		dump_frame(lua_vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES+BARSIZE);
+		Renderer::Ref().StopRecording();
+		return 0;
 	}
-	else
-	{
-		dump_frame(lua_vid_buf, XRES, YRES, XRES+BARSIZE);
-	}
-	return 0;
+	int recordingFolder = Renderer::Ref().StartRecording();
+	lua_pushinteger(l, recordingFolder);
+	return 1;
 }
 
 int luatpt_bubble(lua_State* l)

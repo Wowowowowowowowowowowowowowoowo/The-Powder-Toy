@@ -16,6 +16,9 @@ namespace Platform
 	bool IsOnScreenKeyboardShown();
 	void Vibrate(int milliseconds);
 	int CheckLoadedPtsave();
+
+	// Filesystem stuff (TODO: add more stuff)
+	void MakeDirectory(std::string dir);
 }
 
 

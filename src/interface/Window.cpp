@@ -197,7 +197,7 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
 	if (copyBuf)
-		videoBuffer->CopyVideoBuffer(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
+		videoBuffer->CopyBufferInto(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
 }
 
 void Window_::DoMouseMove(int x, int y, int dx, int dy)
