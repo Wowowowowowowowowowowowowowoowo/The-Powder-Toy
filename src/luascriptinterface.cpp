@@ -1799,7 +1799,7 @@ int renderer_renderModes(lua_State * l)
 	{
 		int size = 0;
 		luaL_checktype(l, 1, LUA_TTABLE);
-		size = luaL_getn(l, 1);
+		size = lua_objlen(l, 1);
 
 		Renderer::Ref().ClearRenderModes();
 		for (int i = 1; i <= size; i++)
@@ -1832,7 +1832,7 @@ int renderer_displayModes(lua_State * l)
 	{
 		int size = 0;
 		luaL_checktype(l, 1, LUA_TTABLE);
-		size = luaL_getn(l, 1);
+		size = lua_objlen(l, 1);
 
 		Renderer::Ref().ClearDisplayModes();
 		for (int i = 1; i <= size; i++)
