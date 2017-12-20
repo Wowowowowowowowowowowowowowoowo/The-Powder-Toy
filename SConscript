@@ -367,8 +367,9 @@ if not msvc:
 if platform == "Windows":
 	env.Append(CPPDEFINES=["WIN", "_WIN32_WINNT=0x0501", "_USING_V110_SDK71_"])
 	if msvc:
-		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc', '/FS', '/GS']) #enable minimal rebuild, ?, enable exceptions, allow -j to work in debug builds, enable security check
+		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc', '/FS', '/GS']) # Enable minimal rebuild, ?, enable exceptions, allow -j to work in debug builds, enable security check
 		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS,"5.01"', '/OPT:REF', '/OPT:ICF'])
+		env.Append(CPPDEFINES=['_SCL_SECURE_NO_WARNINGS']) # Disable warnings about 'std::print'
 		if GetOption('static'):
 			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrt.lib', '/LTCG'])
 		elif not GetOption('debugging'):
@@ -435,7 +436,10 @@ elif GetOption('release'):
 
 if GetOption('static'):
 	if platform == "Windows":
-		env.Append(CPPDEFINES=['PTW32_STATIC_LIB'])
+		if compilePlatform == "Windows" and not msvc:
+			env.Append(CPPDEFINES=['_PTW32_STATIC_LIB'])
+		else:
+			env.Append(CPPDEFINES=['PTW32_STATIC_LIB'])
 		if msvc:
 			env.Append(CPPDEFINES=['ZLIB_WINAPI'])
 		else:
