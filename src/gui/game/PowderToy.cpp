@@ -2395,6 +2395,32 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			SwapToDecoToolset();
 		}
 		break;
+	case 'n':
+		if (ctrlHeld)
+		{
+			if (num_tabs < 22-GetNumMenus())
+			{
+				tab_save(tab_num);
+				num_tabs++;
+				tab_num = num_tabs;
+				NewSim();
+				tab_save(tab_num);
+			}
+		}
+		else
+		{
+			if (ngrav_enable)
+			{
+				stop_grav_async();
+				SetInfoTip("Newtonian Gravity: Off");
+			}
+			else
+			{
+				start_grav_async();
+				SetInfoTip("Newtonian Gravity: On");
+			}
+		}
+		break;
 	case SDLK_SPACE:
 		TogglePause();
 		break;

@@ -1868,27 +1868,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
 				}
 			}
-			if (sdl_key=='n')
-			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-				{
-					if (num_tabs < 22-GetNumMenus())
-					{
-						tab_save(tab_num);
-						num_tabs++;
-						tab_num = num_tabs;
-						NewSim();
-						tab_save(tab_num);
-					}
-				}
-				else
-				{
-					if(ngrav_enable)
-						stop_grav_async();
-					else
-						start_grav_async();
-				}
-			}
 			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
 			/*else if (sdl_key=='c')
 			{
