@@ -47,6 +47,7 @@ config.log
 /Saves/
 /scripts/
 /tabs/
+/recordings/
 /ipch/
 /font/
 /build/
