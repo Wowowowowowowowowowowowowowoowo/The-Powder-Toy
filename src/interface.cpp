@@ -977,13 +977,16 @@ int markup_getregion(char *text, char *action, char *data, char *atext){
 	int minit;
 	if (sregexp(text, "^{a:.*|.*}")==0)
 	{
-		*action = text[1];
 		for (minit=3; text[minit-1] != '|'; minit++)
 			datamarker = minit + 1;
 		for (minit=datamarker; text[minit-1] != '}'; minit++)
 			terminator = minit + 1;
-		strncpy(data, text+3, datamarker-4);
-		strncpy(atext, text+datamarker, terminator-datamarker-1);
+		if (terminator-datamarker-1 > 0 && datamarker-4 > 0)
+		{
+			strncpy(data, text+3, datamarker-4);
+			strncpy(atext, text+datamarker, terminator-datamarker-1);
+		}
+		*action = text[1];
 		return terminator;
 	}
 	else
@@ -3307,8 +3310,8 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 	{
 		while(i < num_tabs + 2 && i < 23-GetNumMenus())
 		{
-			char num[8];
-			sprintf(num,"%d",i);
+			char num[10];
+			sprintf(num, "%d", i);
 			drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
 			if (i == 0)
 			{
@@ -4471,7 +4474,7 @@ int search_ui(pixel *vid_buf)
 				if (is_p1)
 				{
 					if (motdswap)
-						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/FacialTurd/The-Powder-Toy/tree/develop|TPT latest github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
+						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/ThePowderToy/The-Powder-Toy|Official TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
 					motdswap = !motdswap;
 				}
 				ui_richtext_settext(server_motd, &motd);
