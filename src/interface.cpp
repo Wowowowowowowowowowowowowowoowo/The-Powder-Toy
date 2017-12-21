@@ -1153,6 +1153,8 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 	ed.autoCorrect = 0;
 	strcpy(ed.def, "[element name]");
 
+	std::string toolTip = "";
+	int toolTipAlpha = 0;
 
 	while (!sdl_poll())
 	{
@@ -1292,9 +1294,20 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 			break;
 #endif
 		}
+		if (hover != -1)
+		{
+			toolTip = globalSim->elements[hover].Description;
+			if (toolTipAlpha < 120)
+				toolTipAlpha += 2;
+		}
+		else if (toolTipAlpha > 0)
+			toolTipAlpha--;
 		
 		drawtext(vid_buf, x0+5, y0+windowHeight-12, "Dismiss", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+windowHeight-16, windowWidth, 16, 192, 192, 192, 255);
+		fillrect(vid_buf, 8, YRES+3, XRES+BARSIZE, 12, 0, 0, 0, 255);
+		if (toolTipAlpha)
+			drawtext(vid_buf, 10, YRES+5, toolTip.c_str(), 255, 255, 255, toolTipAlpha > 51 ? 255 : toolTipAlpha*5);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
 		if (b && !bq)
