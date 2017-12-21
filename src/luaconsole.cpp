@@ -2519,8 +2519,10 @@ int luatpt_getscript(lua_State* l)
 int luatpt_setwindowsize(lua_State* l)
 {
 	int result, scale = luaL_optint(l,1,1), kiosk = luaL_optint(l,2,0);
-	if (scale!=2) scale = 1;
-	if (kiosk!=1) kiosk = 0;
+	if (scale < 1 || scale > 5)
+		scale = 1;
+	if (kiosk != 1)
+		kiosk = 0;
 	result = set_scale(scale, kiosk);
 	lua_pushnumber(l, result);
 	return 1;

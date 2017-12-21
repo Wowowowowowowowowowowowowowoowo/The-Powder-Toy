@@ -8054,7 +8054,7 @@ void simulation_ui(pixel * vid_buf)
 #ifdef ANDROID
 	cb3.checked = (ngrav_completedisable)?1:0;
 #else
-	cb3.checked = (sdl_scale==2)?1:0;
+	cb3.checked = (sdl_scale>=2)?1:0;
 #endif
 	
 #ifndef ANDROID

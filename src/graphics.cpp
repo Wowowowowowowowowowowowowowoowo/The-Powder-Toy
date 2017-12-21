@@ -267,7 +267,7 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 	pixel *dst, *src = vid;
 	pixel px, lastpx, nextpx;
 	int j, depth3d = Engine::Ref().Get3dDepth();
-	int i,k;
+	int i, k, sx;
 	if (SDL_MUSTLOCK(sdl_scrn))
 		if (SDL_LockSurface(sdl_scrn)<0)
 			return;
@@ -312,8 +312,8 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 						green = (PIXG(px)>>fmt->Gloss)<<fmt->Gshift;
 						blue = (PIXB(px)>>fmt->Bloss)<<fmt->Bshift;
 					}
-					dst[i*2] = red|green|blue;
-					dst[i*2+1] = red|green|blue;
+					for (sx = 0; sx < sdl_scale; sx++)
+						dst[i*sdl_scale+sx] = red|green|blue;
 				}
 				dst+=sdl_scrn->pitch/PIXELSIZE;
 			}
@@ -341,8 +341,8 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 							blueshift = 255;
 						px = PIXRGB((int)(PIXR(lastpx)*.69f+redshift*.3f), (int)(PIXG(nextpx)*.3f), (int)(PIXB(nextpx)*.69f+blueshift*.3f));
 					}
-					dst[i*2] = px;
-					dst[i*2+1] = px;
+					for (sx = 0; sx < sdl_scale; sx++)
+						dst[i*sdl_scale+sx] = px;
 				}
 				dst+=sdl_scrn->pitch/PIXELSIZE;
 			}
@@ -356,7 +356,7 @@ void sdl_blit_2(int x, int y, int w, int h, pixel *vid, int pitch)
 
 void sdl_blit(int x, int y, int w, int h, pixel *src, int pitch)
 {
-	if (sdl_scale == 2)
+	if (sdl_scale >= 2)
 		sdl_blit_2(x, y, w, h, src, pitch);
 	else
 		sdl_blit_1(x, y, w, h, src, pitch);
@@ -3786,7 +3786,10 @@ void SetSDLVideoMode(int width, int height)
 		sdl_scrn = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
 #endif
 }
-int set_scale(int scale, int kiosk){
+int set_scale(int scale, int kiosk)
+{
+	if (scale > 5)
+		return 0;
 	int old_scale = sdl_scale, old_kiosk = kiosk_enable;
 	sdl_scale = scale;
 	kiosk_enable = kiosk;
