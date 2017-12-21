@@ -846,3 +846,12 @@ HUD by default. Fix color mode resetting on startup.
 
 Version 37.2 (build 89) 10/18/17
 Really fix the mac version.
+
+Version 38.0 12/20/17
+Fix SPNG description error. Fix elem.PROP_LIFE_KILL_DEC being missing. Massive 
+rewrite of save building / loading / transforming entirely into C++. Move to 
+C++11. Stamps now automatically expand when shifted out of bounds. Walls and 
+other grids now shift when stamps are shifted far enough. Screenshots now 
+saved as .png files. Add tpt.record and make tpt.screenshot work like tpt++.
+Display tooltips in element search UI. Allow scale modes higher than 2 (set 
+via console or powder.pref editing).
