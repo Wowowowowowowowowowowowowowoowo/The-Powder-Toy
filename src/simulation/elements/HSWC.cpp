@@ -15,6 +15,28 @@
 
 #include "simulation/ElementsCommon.h"
 
+int HSWC_update(UPDATE_FUNC_ARGS)
+{
+	if (parts[i].life == 10 && parts[i].tmp == 1)
+	{
+		for (int rx = -2; rx <= 2; rx++)
+			for (int ry = -2; ry <=2; ry++)
+				if (BOUNDS_CHECK && (rx || ry))
+				{
+					int r = pmap[y+ry][x+rx];
+					if (!r)
+						r = photons[y + ry][x + rx];
+					if (!r)
+						continue;
+					if ((r&0xFF) == PT_FILT || (r&0xFF) == PT_PHOT || (r&0xFF) == PT_BRAY)
+					{
+						parts[i].temp = parts[r>>8].ctype - 0x10000000;
+					}
+				}
+	}
+	return 0;
+}
+
 int HSWC_graphics(GRAPHICS_FUNC_ARGS)
 {
 	int lifemod = ((cpart->life>10?10:cpart->life)*19);
