@@ -986,6 +986,8 @@ int markup_getregion(char *text, char *action, char *data, char *atext){
 			strncpy(data, text+3, datamarker-4);
 			strncpy(atext, text+datamarker, terminator-datamarker-1);
 		}
+		else
+			return 0;
 		*action = text[1];
 		return terminator;
 	}
