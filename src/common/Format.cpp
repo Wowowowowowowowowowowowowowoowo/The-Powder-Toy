@@ -343,7 +343,7 @@ std::vector<char> Format::VideoBufferToPNG(const VideoBuffer & vidBuf)
     );
 
     if (result != Z_OK)
-		throw PngException("zlib deflate error (not Z_OK): " + result);
+		throw PngException("zlib deflate error (not Z_OK): " + NumberToString<int>(result));
 
     zipStream.next_in = uncompressedData;
     zipStream.avail_in = dataPos;
@@ -354,7 +354,7 @@ std::vector<char> Format::VideoBufferToPNG(const VideoBuffer & vidBuf)
 
     result = deflate(&zipStream, Z_FINISH);
     if (result != Z_STREAM_END)
-		throw PngException("zlib deflate error (not Z_STREAM_END): " + result);
+		throw PngException("zlib deflate error (not Z_STREAM_END): " + NumberToString<int>(result));
 
     int compressedSize = compressedBufferSize-zipStream.avail_out;
 	PNGChunk *IDATChunk = new PNGChunk(compressedSize, "IDAT");
