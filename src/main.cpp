@@ -556,6 +556,7 @@ void tab_save(int num)
 		return;
 	fwrite(tab->GetSaveData(), tab->GetSaveSize(), 1, f);
 	fclose(f);
+	the_game->SetReloadPoint(tab);
 	delete tab;
 
 	//set the tab's name

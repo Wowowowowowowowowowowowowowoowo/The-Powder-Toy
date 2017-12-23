@@ -2229,6 +2229,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			else if (!shiftHeld)
 				((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->golGeneration = 0;
 		}
+		break;
 	case 'y':
 		// ctrl + y
 		if (ctrlHeld)
