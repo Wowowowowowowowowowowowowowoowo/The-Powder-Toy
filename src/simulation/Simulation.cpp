@@ -232,6 +232,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		tempPart.y += (float)loadY;
 		int x = int(tempPart.x + 0.5f);
 		int y = int(tempPart.y + 0.5f);
+		if (!InBounds(x, y))
+			continue;
 
 		if (tempPart.type >= 0 && tempPart.type < PT_NUM)
 		{
@@ -423,7 +425,10 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		if (save->signs[i].GetText().length())
 		{
 			Sign tempSign = save->signs[i];
-			tempSign.SetPos(tempSign.GetRealPos() + Point(loadX, loadY));
+			Point pos = tempSign.GetRealPos() + Point(loadX, loadY);
+			if (!InBounds(pos.X, pos.Y))
+				continue;
+			tempSign.SetPos(pos);
 			signs.push_back(new Sign(tempSign));
 		}
 	}
@@ -431,6 +436,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	{
 		for (unsigned int saveBlockY = 0; saveBlockY < save->blockHeight; saveBlockY++)
 		{
+			if (!InBounds((saveBlockX+blockX)*CELL, (saveBlockY+blockY)*CELL))
+				continue;
+
 			if (save->blockMap[saveBlockY][saveBlockX])
 			{
 				bmap[saveBlockY+blockY][saveBlockX+blockX] = save->blockMap[saveBlockY][saveBlockX];

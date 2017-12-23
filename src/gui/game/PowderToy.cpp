@@ -1033,10 +1033,10 @@ void PowderToy::SetReloadPoint(Save * reloadSave_)
 
 void PowderToy::UpdateStampCoordinates(Point cursor, Point offset)
 {
-	loadPos.X = CELL*((cursor.X-loadSize.X/2+CELL/2)/CELL);
-	loadPos.Y = CELL*((cursor.Y-loadSize.Y/2+CELL/2)/CELL);
+	loadPos.X = cursor.X;
+	loadPos.Y = cursor.Y;
 	loadPos -= offset;
-	loadPos.Clamp(Point(0, 0), Point(XRES, YRES)-loadSize);
+	loadPos.Clamp(loadSize/2, Point(XRES, YRES)-loadSize/2);
 }
 
 void PowderToy::ResetStampState()
@@ -1059,27 +1059,43 @@ void PowderToy::ResetStampState()
 
 void PowderToy::TranslateSave(Point point)
 {
-	if (stampData)
+	try
 	{
-		Matrix::vector2d translate = Matrix::v2d_new(point.X, point.Y);
-		Matrix::vector2d translated = stampData->Translate(translate);
-		stampOffset += Point(translated.x, translated.y);
-
-		free(stampImg);
-		stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
+		if (stampData)
+		{
+			Matrix::vector2d translate = Matrix::v2d_new(point.X, point.Y);
+			Matrix::vector2d translated = stampData->Translate(translate);
+			stampOffset += Point(translated.x, translated.y);
+	
+			free(stampImg);
+			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
+		}
+	}
+	catch (BuildException e)
+	{
+		ResetStampState();
+		SetInfoTip("Exception while translating stamp: " + std::string(e.what()));
 	}
 }
 
 void PowderToy::TransformSave(int a, int b, int c, int d)
 {
-	if (stampData)
+	try
 	{
-		Matrix::matrix2d transform = Matrix::m2d_new(a, b, c, d);
-		Matrix::vector2d translate = Matrix::v2d_zero;
-		stampData->Transform(transform, translate);
-
-		free(stampImg);
-		stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
+		if (stampData)
+		{
+			Matrix::matrix2d transform = Matrix::m2d_new(a, b, c, d);
+			Matrix::vector2d translate = Matrix::v2d_zero;
+			stampData->Transform(transform, translate);
+	
+			free(stampImg);
+			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
+		}
+	}
+	catch (BuildException e)
+	{
+		ResetStampState();
+		SetInfoTip("Exception while transforming stamp: " + std::string(e.what()));
 	}
 }
 
@@ -1883,7 +1899,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 
 		try
 		{
-			Point realLoadPos = GetStampPos();
+			Point realLoadPos = GetStampPos() / CELL * CELL;
 			sim->LoadSave(realLoadPos.X, realLoadPos.Y, stampData, 0, !shiftHeld);
 			MergeStampAuthorInfo(stampData->authors);
 		}

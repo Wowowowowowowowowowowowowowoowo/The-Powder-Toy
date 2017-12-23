@@ -1886,7 +1886,7 @@ void Save::BuildSave()
 	auto ambientData = std::unique_ptr<unsigned char[]>(new unsigned char[blockWidth*blockHeight*2]);
 	std::fill(&ambientData[0], &ambientData[blockWidth*blockHeight*2], 0);
 	if (!wallData || !fanData || !pressData || !vxData || !vyData || !ambientData)
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, out of memory (blockmaps)");
 
 	// Copy wall and fan data
 	unsigned int fanDataLen = 0, pressDataLen = 0, vxDataLen = 0, vyDataLen = 0, ambientDataLen = 0;
@@ -1946,7 +1946,7 @@ void Save::BuildSave()
 	auto partsPosCount = std::unique_ptr<unsigned[]>(new unsigned[fullW*fullH]);
 	auto partsPosLink = std::unique_ptr<unsigned[]>(new unsigned[NPART]);
 	if (!partsPosFirstMap || !partsPosLastMap || !partsPosCount || !partsPosLink)
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, out of memory  (partmaps)");
 	std::fill(&partsPosFirstMap[0], &partsPosFirstMap[fullW*fullH], 0);
 	std::fill(&partsPosLastMap[0], &partsPosLastMap[fullW*fullH], 0);
 	std::fill(&partsPosCount[0], &partsPosCount[fullW*fullH], 0);
@@ -1978,7 +1978,7 @@ void Save::BuildSave()
 	auto partsPosData = std::unique_ptr<unsigned char[]>(new unsigned char[fullW*fullH*3]);
 	unsigned int partsPosDataLen = 0;
 	if (!partsPosData)
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, out of memory (partposdata)");
 	for (int y = 0; y < fullH; y++)
 	{
 		for (int x = 0; x < fullW; x++)
@@ -2001,7 +2001,7 @@ void Save::BuildSave()
 	auto partsSaveIndex = std::unique_ptr<unsigned[]>(new unsigned[NPART]);
 	unsigned int partsCount = 0;
 	if (!partsData || !partsSaveIndex)
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, out of memory (partsdata)");
 	std::fill(&partsSaveIndex[0], &partsSaveIndex[NPART], 0);
 	for (int y = 0; y < fullH; y++)
 	{
@@ -2191,7 +2191,7 @@ void Save::BuildSave()
 	{
 		movsData = new unsigned char[MOVSdata.size()*2];
 		if (!movsData)
-			throw BuildException("Save error, out of memory");
+			throw BuildException("Save error, out of memory (BALL)");
 		movsDataPtr = std::move(std::unique_ptr<unsigned char[]>(movsData));
 		for (MOVSdataItem movs : MOVSdata)
 		{
@@ -2210,7 +2210,7 @@ void Save::BuildSave()
 
 		animData = new unsigned char[ANIMsize];
 		if (!animData)
-			throw BuildException("Save error, out of memory");
+			throw BuildException("Save error, out of memory (ANIM)");
 		animDataPtr = std::move(std::unique_ptr<unsigned char[]>(animData));
 		
 		for (ANIMdataItem anim : ANIMdata)
@@ -2234,7 +2234,7 @@ void Save::BuildSave()
 	{
 		soapLinkData = new unsigned char[3*soapCount];
 		if (!soapLinkData)
-			throw BuildException("Save error, out of memory");
+			throw BuildException("Save error, out of memory (SOAP)");
 		soapLinkDataPtr = std::move(std::unique_ptr<unsigned char[]>(soapLinkData));
 		
 		// Iterate through particles in the same order that they were saved
