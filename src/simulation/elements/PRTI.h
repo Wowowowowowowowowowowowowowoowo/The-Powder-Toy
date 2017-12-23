@@ -24,6 +24,7 @@
 
 extern const int portal_rx[8];
 extern const int portal_ry[8];
+static float (*tptabs)(float) = & std::abs;
 
 class PortalChannel
 {
@@ -113,7 +114,7 @@ public:
 		if (rx>1 || ry>1 || rx<-1 || ry<-1)
 		{
 			// scale down if larger than +-1
-			float rmax = (float)std::max(std::abs(rx), std::abs(ry));
+			float rmax = (float)std::max(tptabs(rx), tptabs(ry));
 			rx = (int)(rx/rmax);
 			ry = (int)(ry/rmax);
 		}

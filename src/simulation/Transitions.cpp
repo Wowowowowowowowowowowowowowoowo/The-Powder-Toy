@@ -4,6 +4,7 @@
 #include "Simulation.h"
 #include "gravity.h"
 
+static float (*tptabs)(float) = & std::abs;
 
 bool Simulation::TransferHeat(int i, int t, int surround[8])
 {
@@ -37,8 +38,8 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 		{
 			if (realistic)
 			{
-				c_heat = parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + air->hv[y/CELL][x/CELL]*100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
-				c_Cm = 96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight) + 100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
+				c_heat = parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight) + air->hv[y/CELL][x/CELL]*100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
+				c_Cm = 96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight) + 100*(air->pv[y/CELL][x/CELL]+273.15f)/256;
 				pt = c_heat/c_Cm;
 				pt = restrict_flt(pt, -MAX_TEMP+MIN_TEMP, MAX_TEMP-MIN_TEMP);
 				parts[i].temp = pt;
@@ -80,8 +81,8 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 						gel_scale = parts[r>>8].tmp*2.55f;
 					else gel_scale = 1.0f;
 
-					c_heat += parts[r>>8].temp*96.645f/elements[rt].HeatConduct*std::abs(elements[rt].Weight);
-					c_Cm += 96.645f/elements[rt].HeatConduct*std::abs(elements[rt].Weight);
+					c_heat += parts[r>>8].temp*96.645f/elements[rt].HeatConduct*tptabs(elements[rt].Weight);
+					c_Cm += 96.645f/elements[rt].HeatConduct*tptabs(elements[rt].Weight);
 				}
 				else
 				{
@@ -99,9 +100,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 			if (t == PT_PHOT)
 				pt = (c_heat+parts[i].temp*96.645f)/(c_Cm+96.645f);
 			else
-				pt = (c_heat+parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight))/(c_Cm+96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight));
-			c_heat += parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight);
-			c_Cm += 96.645f/elements[t].HeatConduct*gel_scale*std::abs(elements[t].Weight);
+				pt = (c_heat+parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight))/(c_Cm+96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight));
+			c_heat += parts[i].temp*96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight);
+			c_Cm += 96.645f/elements[t].HeatConduct*gel_scale*tptabs(elements[t].Weight);
 			parts[i].temp = restrict_flt(pt, MIN_TEMP, MAX_TEMP);
 		}
 		else
