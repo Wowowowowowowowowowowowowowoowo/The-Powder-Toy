@@ -5145,7 +5145,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				cJSON *root, *commentobj, *tmpobj;
 				for (int i = comment_page*20; i < comment_page*20+20 && i < NUM_COMMENTS; i++)
 				{
-					if (info->comments[i].str) { info->comments[i].str[0] = 0; }
+					info->comments[i].str[0] = 0;
 					if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 					if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
@@ -5263,7 +5263,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				for (cc=0; cc<info->comment_count; cc++)
 				{
 					 //Try not to draw off the screen
-					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56 && info->comments[cc].str)
+					if (ccy + 72 + comment_scroll<YRES+MENUSIZE-56)
 					{
 						if (ccy+comment_scroll >= 0 && info->commentauthors[cc]) //Don't draw above the screen either
 						{
@@ -5581,7 +5581,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 						for (int i = 0; i < NUM_COMMENTS; i++)
 						{
-							if (info->comments[i].str) { info->comments[i].str[0] = 0; }
+							info->comments[i].str[0] = 0;
 							if (info->commentauthors[i]) { free(info->commentauthors[i]); info->commentauthors[i] = NULL; }
 							if (info->commentauthorsunformatted[i]) { free(info->commentauthorsunformatted[i]); info->commentauthorsunformatted[i] = NULL; }
 							if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
@@ -8248,7 +8248,7 @@ void simulation_ui(pixel * vid_buf)
 				int ret = system(workingDirectory);
 				if (ret)
 					std::cout << "Error, could not open data directory" << std::endl;
-				delete workingDirectory;
+				delete[] workingDirectory;
 			}
 			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
 				break;

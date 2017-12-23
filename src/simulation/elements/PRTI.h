@@ -16,6 +16,7 @@
 #ifndef SIMULATION_ELEMENTS_PRTI_H
 #define SIMULATION_ELEMENTS_PRTI_H 
 
+#include <cmath>
 #include <cstring>
 #include "common/tpt-minmax.h"
 #include "simulation/ElementDataContainer.h"
