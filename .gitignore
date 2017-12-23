@@ -52,9 +52,11 @@ config.log
 /font/
 /build/
 /updatepackager/
+/generated/
 /includes/SDL/*
 /includes/lua5.1/*
 /includes/lua5.2/*
+/includes/luajit-2.0/*
 /includes/bzlib.h
 /includes/fftw3.h
 /includes/pthread.h
