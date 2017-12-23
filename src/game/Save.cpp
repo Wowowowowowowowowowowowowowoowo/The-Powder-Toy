@@ -2436,7 +2436,7 @@ void Save::BuildSave()
 	unsigned int finalDataLen = bson_size(&b);
 	auto outputData = std::unique_ptr<unsigned char[]>(new unsigned char[finalDataLen*2+12]);
 	if (!outputData)
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, out of memory (finalData): " + Format::NumberToString<unsigned int>(finalDataLen*2+12));
 
 	outputData[0] = 'O';
 	outputData[1] = 'P';
@@ -2451,10 +2451,10 @@ void Save::BuildSave()
 	outputData[10] = finalDataLen >> 16;
 	outputData[11] = finalDataLen >> 24;
 
-	unsigned int compressedSize;
-	if (BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0) != BZ_OK)
+	unsigned int compressedSize, bz2ret;
+	if ((bz2ret = BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0)) != BZ_OK)
 	{
-		throw BuildException("Save error, out of memory");
+		throw BuildException("Save error, could not compress, ret " + Format::NumberToString<int>(bz2ret));
 	}
 
 	saveSize = compressedSize + 12;
