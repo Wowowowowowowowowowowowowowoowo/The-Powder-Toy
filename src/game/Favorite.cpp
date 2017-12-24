@@ -3,7 +3,7 @@
 
 Favorite::Favorite():
 	favorites(std::vector<std::string>()),
-	recents(std::vector<std::string>())
+	recents(std::deque<std::string>())
 {
 	
 }
@@ -28,7 +28,11 @@ bool Favorite::IsFavorite(std::string identifier)
 void Favorite::AddRecent(std::string identifier)
 {
 	if (!IsRecent(identifier) && !IsFavorite(identifier))
+	{
 		recents.push_back(identifier);
+		if (recents.size() > 20)
+			recents.pop_front();
+	}
 }
 
 void Favorite::RemoveRecent(std::string identifier)
@@ -52,8 +56,8 @@ int Favorite::GetSize(bool favoritesOnly)
 std::vector<std::string> Favorite::BuildFavoritesList(bool favoritesOnly)
 {
 	std::vector<std::string> builtList = std::vector<std::string>();
+	builtList.insert(builtList.end(), favorites.begin(), favorites.end());
 	if (!favoritesOnly)
 		builtList.insert(builtList.end(), recents.begin(), recents.end());
-	builtList.insert(builtList.end(), favorites.begin(), favorites.end());
 	return builtList;
 }

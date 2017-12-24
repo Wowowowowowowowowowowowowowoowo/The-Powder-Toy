@@ -3,12 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include "common/Singleton.h"
 
 class Favorite : public Singleton<Favorite>
 {
 	std::vector<std::string> favorites;
-	std::vector<std::string> recents;
+	std::deque<std::string> recents;
 public:
 	Favorite();
 	
