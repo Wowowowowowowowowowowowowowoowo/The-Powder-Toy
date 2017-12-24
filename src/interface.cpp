@@ -7906,6 +7906,7 @@ void catalogue_ui(pixel * vid_buf)
 								strncpy(svf_filename, csave->name, 255);
 								svf_fileopen = 1;
 								authors = localSave->authors;
+								the_game->SetReloadPoint(localSave);
 								success = true;
 							}
 							catch (ParseException e)
