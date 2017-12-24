@@ -2275,6 +2275,11 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		break;
 	case 'p':
+		if (ctrlHeld)
+		{
+			openProp = true;
+			break;
+		}
 	case SDLK_F2:
 		if (Renderer::Ref().TakeScreenshot(ctrlHeld, 0).length())
 			SetInfoTip("Saved screenshot");
