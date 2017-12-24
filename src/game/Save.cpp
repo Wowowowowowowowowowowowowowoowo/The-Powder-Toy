@@ -511,9 +511,10 @@ void Save::ParseSaveOPS()
 	// (bson_iterator_key returns a pointer into bsonData, which is then used with strcmp)
 	bsonData[bsonDataLen] = 0;
 
-	if (BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned*)(&bsonDataLen), (char*)saveData+12, saveSize-12, 0, 0) || !bsonData[0])
+	int bz2ret;
+	if ((bz2ret = BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned*)(&bsonDataLen), (char*)saveData+12, saveSize-12, 0, 0)) != BZ_OK || !bsonData[0])
 	{
-		throw ParseException("Unable to decompress");
+		throw ParseException("Unable to decompress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
 
 	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
@@ -1313,12 +1314,10 @@ void Save::ParseSavePSv()
 	if (!data)
 		throw ParseException("Cannot allocate memory");
 
-	int bzStatus = 0;
-	if ((bzStatus = BZ2_bzBuffToBuffDecompress((char *)data, (unsigned *)&size, (char *)(saveData+12), saveSize-12, 0, 0)))
+	int bz2ret;
+	if ((bz2ret = BZ2_bzBuffToBuffDecompress((char *)data, (unsigned *)&size, (char *)(saveData+12), saveSize-12, 0, 0)) != BZ_OK)
 	{
-		std::stringstream bzStatusStr;
-		bzStatusStr << bzStatus;
-		throw ParseException("Cannot decompress: " + bzStatusStr.str());
+		throw BuildException("Could not compress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
 
 	if (size < bw*bh)
@@ -2451,8 +2450,8 @@ void Save::BuildSave()
 	outputData[10] = finalDataLen >> 16;
 	outputData[11] = finalDataLen >> 24;
 
-	unsigned int compressedSize, bz2ret;
-	if ((bz2ret = BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0)))
+	unsigned int compressedSize = finalDataLen*2, bz2ret;
+	if ((bz2ret = BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0)) != BZ_OK)
 	{
 		throw BuildException("Save error, could not compress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
