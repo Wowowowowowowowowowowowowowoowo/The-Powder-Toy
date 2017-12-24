@@ -359,17 +359,23 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					{
 						rem2 = sim->part_create(-1, (int)(nx+18*cosf(i/5.0f)), (int)(ny+18*sinf(i/5.0f)), PT_SOAP);
 
-						parts[rem1].ctype = 7;
-						parts[rem1].tmp = rem2;
-						parts[rem2].tmp2 = rem1;
+						if (rem1 != -1 && rem2 != -1)
+						{
+							parts[rem1].ctype = 7;
+							parts[rem1].tmp = rem2;
+							parts[rem2].tmp2 = rem1;
+						}
 
 						rem1 = rem2;
 					}
 
-					parts[rem1].ctype = 7;
-					parts[rem1].tmp = first;
-					parts[first].tmp2 = rem1;
-					parts[first].ctype = 7;
+					if (rem1 != -1 && first != -1)
+					{
+						parts[rem1].ctype = 7;
+						parts[rem1].tmp = first;
+						parts[first].tmp2 = rem1;
+						parts[first].ctype = 7;
+					}
 				}
 			}
 			else if ((strcmp(console2, "delete")==0 || strcmp(console2, "kill")==0) && console3[0])
