@@ -855,3 +855,11 @@ other grids now shift when stamps are shifted far enough. Screenshots now
 saved as .png files. Add tpt.record and make tpt.screenshot work like tpt++.
 Display tooltips in element search UI. Allow scale modes higher than 2 (set 
 via console or powder.pref editing).
+
+Version 38.1 12/23/17
+Attempt to fix "out of memory" error when creating saves. I don't actually know 
+what caused it or how I fixed it. Fix stamps not loading in the right position. 
+Fix stamps being allowed out of bounds. Fix ctrl+r redoing instead of 
+reloading. Fix ctrl+s not creating a reload point. Fix reload button being 
+disabled when loading local saves. Fix !bubble crash. Cap recents menu to 20 
+elements. Ctrl+p shortcut to open PROP tool.

@@ -2452,9 +2452,9 @@ void Save::BuildSave()
 	outputData[11] = finalDataLen >> 24;
 
 	unsigned int compressedSize, bz2ret;
-	if ((bz2ret = BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0)) != BZ_OK)
+	if ((bz2ret = BZ2_bzBuffToBuffCompress((char*)(outputData.get()+12), &compressedSize, (char*)finalData, bson_size(&b), 9, 0, 0)))
 	{
-		throw BuildException("Save error, could not compress, ret " + Format::NumberToString<int>(bz2ret));
+		throw BuildException("Save error, could not compress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
 
 	saveSize = compressedSize + 12;
