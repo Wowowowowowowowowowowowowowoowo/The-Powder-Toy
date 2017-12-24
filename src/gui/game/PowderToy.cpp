@@ -2231,10 +2231,21 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		break;
 	case 'y':
-		// ctrl + y
 		if (ctrlHeld)
 		{
 			Snapshot::RestoreRedoSnapshot(sim);
+		}
+		break;
+	case 'u':
+		if (ctrlHeld)
+			Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+		else
+		{
+			aheat_enable = !aheat_enable;
+			if (aheat_enable)
+				SetInfoTip("Ambient Heat: On");
+			else
+				SetInfoTip("Ambient Heat: Off");
 		}
 		break;
 	case 'i':

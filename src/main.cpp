@@ -1846,14 +1846,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			if (sdl_key=='t')
 				show_tabs = !show_tabs;
-			if (sdl_key=='u')
-			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
-					Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
-				else
-					aheat_enable = !aheat_enable;
-
-			}
 			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
 			{
 				hud_enable = !hud_enable;
