@@ -1869,7 +1869,7 @@ int renderer_colorMode(lua_State * l)
 	}
 	else
 	{
-		Renderer::Ref().GetColorMode();
+		lua_pushnumber(l, Renderer::Ref().GetColorMode());
 		return 1;
 	}
 }
