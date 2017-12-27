@@ -1557,9 +1557,10 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			catch (ParseException e)
 			{
-				Engine::Ref().ShowWindow(new ErrorPrompt("Unable to open save file", e.what()));
+				Engine::Ref().ShowWindow(new ErrorPrompt("Unable to open save file: " + std::string(e.what())));
 			}
 			delete saveDataOpen;
+			saveDataOpen = NULL;
 		}
 
 		if(saveURIOpen)

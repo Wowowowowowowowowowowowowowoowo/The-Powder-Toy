@@ -517,6 +517,7 @@ void Save::ParseSaveOPS()
 		throw ParseException("Unable to decompress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
 
+	set_bson_err_handler([](const char* err) { throw ParseException("BSON error when parsing save: " + std::string(err)); });
 	bson_init_data_size(&b, (char*)bsonData, bsonDataLen);
 	bson_iterator_init(&iter, &b);
 	while (bson_iterator_next(&iter))
@@ -1177,6 +1178,9 @@ void Save::ParseSaveOPS()
 					particlesCount++;
 				}
 			}
+
+			if (i != partsDataLen)
+				throw ParseException(ParseException::Corrupt, "Didn't reach end of particle data buffer");
 		}
 #ifndef NOMOD
 		if (movsData)
@@ -2277,6 +2281,7 @@ void Save::BuildSave()
 	// Use unique_ptr with a custom deleter to ensure that bson_destroy is called even when an exception is thrown
 	std::unique_ptr<bson, decltype(bson_deleter)> b_ptr(&b, bson_deleter);
 
+	set_bson_err_handler([](const char* err) { throw BuildException("BSON error when building save: " + std::string(err)); });
 	bson_init(&b);
 	bson_append_start_object(&b, "origin");
 	bson_append_int(&b, "majorVersion", SAVE_VERSION);
@@ -2428,7 +2433,8 @@ void Save::BuildSave()
 		ConvertJsonToBson(&b, authors);
 		bson_append_finish_object(&b);
 	}
-	bson_finish(&b);
+	if (bson_finish(&b) == BSON_ERROR)
+		throw BuildException("Error building bson data");
 	//bson_print(&b);
 	
 	unsigned char *finalData = (unsigned char*)bson_data(&b);
