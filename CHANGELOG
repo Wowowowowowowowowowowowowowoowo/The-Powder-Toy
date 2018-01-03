@@ -863,3 +863,7 @@ Fix stamps being allowed out of bounds. Fix ctrl+r redoing instead of
 reloading. Fix ctrl+s not creating a reload point. Fix reload button being 
 disabled when loading local saves. Fix !bubble crash. Cap recents menu to 20 
 elements. Ctrl+p shortcut to open PROP tool.
+
+Version 38.2 2018-01-02
+Fix ren.colorMode() crash. Fix crash when opening saves from the command line. 
+Improve bson error handling. Fix being unable to load certain saves.
