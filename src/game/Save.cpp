@@ -512,7 +512,7 @@ void Save::ParseSaveOPS()
 	bsonData[bsonDataLen] = 0;
 
 	int bz2ret;
-	if ((bz2ret = BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned*)(&bsonDataLen), (char*)saveData+12, saveSize-12, 0, 0)) != BZ_OK || !bsonData[0])
+	if ((bz2ret = BZ2_bzBuffToBuffDecompress((char*)bsonData, (unsigned*)(&bsonDataLen), (char*)saveData+12, saveSize-12, 0, 0)) != BZ_OK)
 	{
 		throw ParseException("Unable to decompress (ret " + Format::NumberToString<int>(bz2ret) + ")");
 	}
@@ -1178,10 +1178,10 @@ void Save::ParseSaveOPS()
 					particlesCount++;
 				}
 			}
-
-			if (i != partsDataLen)
-				throw ParseException(ParseException::Corrupt, "Didn't reach end of particle data buffer");
 		}
+		if (i != partsDataLen)
+			throw ParseException("Didn't reach end of particle data buffer");
+
 #ifndef NOMOD
 		if (movsData)
 		{
