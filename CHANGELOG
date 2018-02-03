@@ -866,4 +866,5 @@ elements. Ctrl+p shortcut to open PROP tool.
 
 Version 38.2 2018-01-02
 Fix ren.colorMode() crash. Fix crash when opening saves from the command line. 
-Improve bson error handling. Fix being unable to load certain saves.
+Improve bson error handling. Fix "Unable to decompress (ret 0)" error when 
+attempting to load certain saves.

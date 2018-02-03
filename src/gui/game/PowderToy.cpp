@@ -431,7 +431,7 @@ void PowderToy::DelayedHttpInitialization()
 	if (sessionCheck)
 		sessionCheck->Start();
 #ifndef TOUCHUI
-	if (prevDNS != prevDNSalt)
+	if (prevDNS != prevDNSalt && prevDNS != 0 && prevDNSalt != 0)
 	{
 		class SwapDNSAction : public ButtonAction
 		{
@@ -456,7 +456,7 @@ void PowderToy::DelayedHttpInitialization()
 		notification->SetCallback(new SwapDNSAction());
 		AddComponent(notification);
 	}
-	if (prevDNSstatic != prevDNSstaticalt)
+	if (prevDNSstatic != prevDNSstaticalt && prevDNSstatic != 0 && prevDNSstaticalt != 0)
 	{
 		class SwapDNSStaticAction : public ButtonAction
 		{
