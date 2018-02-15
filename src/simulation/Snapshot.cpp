@@ -157,5 +157,6 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 
 	sim->parts_lastActiveIndex = NPART-1;
 	sim->forceStackingCheck = true;
+	gravwl_timeout = 1;
 	sim->RecountElements();
 }
