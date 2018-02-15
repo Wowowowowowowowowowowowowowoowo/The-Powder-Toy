@@ -374,7 +374,11 @@ if platform == "Windows":
 	env.Append(CPPDEFINES=["WIN", "_WIN32_WINNT=0x0501", "_USING_V110_SDK71_"])
 	if msvc:
 		env.Append(CCFLAGS=['/Gm', '/Zi', '/EHsc', '/FS', '/GS']) # Enable minimal rebuild, ?, enable exceptions, allow -j to work in debug builds, enable security check
-		env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS,"5.01"', '/OPT:REF', '/OPT:ICF'])
+		if GetOption('renderer'):
+			env.Append(LINKFLAGS=['/SUBSYSTEM:CONSOLE'])
+		else:
+			env.Append(LINKFLAGS=['/SUBSYSTEM:WINDOWS,"5.01"'])
+		env.Append(LINKFLAGS=['/OPT:REF', '/OPT:ICF'])
 		env.Append(CPPDEFINES=['_SCL_SECURE_NO_WARNINGS']) # Disable warnings about 'std::print'
 		if GetOption('static'):
 			env.Append(LINKFLAGS=['/NODEFAULTLIB:msvcrt.lib', '/LTCG'])
