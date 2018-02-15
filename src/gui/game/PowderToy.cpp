@@ -2289,7 +2289,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		if (ctrlHeld)
 		{
 			openProp = true;
-			activeTools[0] = GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
+			activeTools[shiftHeld ? 1 : 0] = GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
 			break;
 		}
 	case SDLK_F2:
