@@ -7551,43 +7551,41 @@ savelist_e *get_local_saves(const char *folder, const char *search, int *results
 {
 	int results = 0;
 	savelist_e *new_savelist = NULL;
-	savelist_e *current_item = NULL, *new_item = NULL;
-	char *fname;
-	struct dirent *derp;
-	DIR *directory = opendir(folder);
-	if(!directory)
+	savelist_e *current_item = NULL;
+
+	std::string searchTerm;
+	if (search)
+		searchTerm = search;
+	std::vector<std::string> saves = Platform::DirectorySearch(folder, searchTerm, {".cps"});
+
+	std::sort(saves.rbegin(), saves.rend(), [](std::string a, std::string b) {
+		std::transform(a.begin(), a.end(), a.begin(), ::tolower);
+		std::transform(b.begin(), b.end(), b.begin(), ::tolower);
+		return a < b;
+	});
+
+	for (std::string save : saves)
 	{
-		printf("Unable to open directory\n");
-		*results_ret = 0;
-		return NULL;
-	}
-	while ((derp = readdir(directory)))
-	{
-		fname = derp->d_name;
-		if(strlen(fname)>4)
+		savelist_e *new_item = (savelist_e*)malloc(sizeof(savelist_e));
+		new_item->filename = (char*)malloc(strlen(folder) + save.length() + 1);
+		sprintf(new_item->filename, "%s%s", folder, save.c_str());
+		new_item->name = mystrdup(save.c_str());
+		new_item->image = NULL;
+		new_item->next = NULL;
+		if (new_savelist == NULL)
 		{
-			char *ext = fname+(strlen(fname)-4);
-			if((!strncmp(ext, ".cps", 4) || !strncmp(ext, ".stm", 4)) && (search==NULL || strstr(fname, search)))
-			{
-				new_item = (savelist_e*)malloc(sizeof(savelist_e));
-				new_item->filename = (char*)malloc(strlen(folder)+strlen(fname)+1);
-				sprintf(new_item->filename, "%s%s", folder, fname);
-				new_item->name = mystrdup(fname);
-				new_item->image = NULL;
-				new_item->next = NULL;
-				if(new_savelist==NULL){
-					new_savelist = new_item;
-					new_item->prev = NULL;
-				} else {
-					current_item->next = new_item;
-					new_item->prev = current_item;
-				}
-				current_item = new_item;
-				results++;
-			}
+			new_savelist = new_item;
+			new_item->prev = NULL;
 		}
+		else
+		{
+			current_item->next = new_item;
+			new_item->prev = current_item;
+		}
+		current_item = new_item;
+		results++;
 	}
-	closedir(directory);
+
 	*results_ret = results;
 	return new_savelist;
 }

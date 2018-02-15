@@ -2,6 +2,7 @@
 #define PLATFORM_H
 
 #include <string>
+#include <vector>
 
 namespace Platform
 {
@@ -19,6 +20,7 @@ namespace Platform
 
 	// Filesystem stuff (TODO: add more stuff)
 	void MakeDirectory(std::string dir);
+	std::vector<std::string> DirectorySearch(std::string directory, std::string search, std::vector<std::string> extensions);
 }
 
 

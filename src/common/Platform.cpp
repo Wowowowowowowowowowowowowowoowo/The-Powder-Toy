@@ -2,7 +2,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 #include <sstream>
+#include <dirent.h>
 
 #ifdef WIN
 #include <shlobj.h>
@@ -492,6 +494,7 @@ int CheckLoadedPtsave()
 	return 0;
 }
 
+
 void MakeDirectory(std::string dir)
 {
 #ifdef WIN
@@ -499,6 +502,87 @@ void MakeDirectory(std::string dir)
 #else
 	mkdir(dir.c_str(), 0755);
 #endif
+}
+
+// Returns a list of all files in a directory matching a search
+// search - list of search terms. extensions - list of extensions to also match
+std::vector<std::string> DirectorySearch(std::string directory, std::string search, std::vector<std::string> extensions)
+{
+	// Get full file listing
+	// Normalise directory string, ensure / or \ is present
+	if (*directory.rbegin() != '/' && *directory.rbegin() != '\\')
+		directory += PATH_SEP;
+	std::vector<std::string> directoryList;
+#if defined(WIN) && !defined(__GNUC__)
+	//Windows
+	struct _finddata_t currentFile;
+	intptr_t findFileHandle;
+	std::string fileMatch = directory + "*.*";
+	findFileHandle = _findfirst(fileMatch.c_str(), &currentFile);
+	if (findFileHandle == -1L)
+	{
+#ifdef DEBUG
+		printf("Unable to open directory: %s\n", directory.c_str());
+#endif
+		return std::vector<std::string>();
+	}
+	do
+	{
+		std::string currentFileName = std::string(currentFile.name);
+		if(currentFileName.length()>4)
+			directoryList.push_back(currentFileName);
+	}
+	while (_findnext(findFileHandle, &currentFile) == 0);
+	_findclose(findFileHandle);
+#else
+	//Linux or MinGW
+	struct dirent * directoryEntry;
+	DIR *directoryHandle = opendir(directory.c_str());
+	if(!directoryHandle)
+	{
+#ifdef DEBUG
+		printf("Unable to open directory: %s\n", directory.c_str());
+#endif
+		return std::vector<std::string>();
+	}
+	while ((directoryEntry = readdir(directoryHandle)))
+	{
+		std::string currentFileName = std::string(directoryEntry->d_name);
+		if(currentFileName.length()>4)
+			directoryList.push_back(currentFileName);
+	}
+	closedir(directoryHandle);
+#endif
+
+	std::vector<std::string> searchResults;
+	for (std::string filename : directoryList)
+	{
+		std::string originalFilename = filename;
+		bool extensionMatch = !extensions.size();
+		for (std::string extension : extensions)
+		{
+			size_t filenameLength = filename.length() - extension.length();
+			if (filename.find(extension, filenameLength) == filenameLength)
+			{
+				extensionMatch = true;
+				filename = filename.substr(0, filenameLength);
+				break;
+			}
+		}
+
+		std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+		std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+
+		bool searchMatch = !search.size();
+		if (search.size() && filename.find(search) != std::string::npos)
+			searchMatch = true;
+
+		if (searchMatch && extensionMatch)
+			searchResults.push_back(originalFilename);
+	}
+
+	//Filter results
+	return searchResults;
 }
 
 }
