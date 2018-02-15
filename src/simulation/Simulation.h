@@ -95,7 +95,7 @@ public:
 	void CreateWallBox(int x1, int y1, int x2, int y2, int wall);
 	int FloodWalls(int x, int y, int wall, int replace);
 
-	int CreateTool(int x, int y, int tool, float strength);
+	int CreateTool(int x, int y, int brushX, int brushY, int tool, float strength);
 	void CreateToolBrush(int x, int y, int tool, float strength, Brush* brush);
 	void CreateToolLine(int x1, int y1, int x2, int y2, int tool, float strength, Brush* brush);
 	void CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength);

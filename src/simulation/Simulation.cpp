@@ -2744,7 +2744,7 @@ int Simulation::FloodWalls(int x, int y, int wall, int replace)
 	return 1;
 }
 
-int Simulation::CreateTool(int x, int y, int tool, float strength)
+int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float strength)
 {
 	if (!InBounds(x, y))
 		return -2;
@@ -2836,6 +2836,36 @@ int Simulation::CreateTool(int x, int y, int tool, float strength)
 		parts[thisPart>>8].y = newY;
 		return -1;
 	}
+	else if (tool == TOOL_CYCL)
+	{
+		/* 
+			Air velocity calculation.
+			Air velocity X = cosine of cell angle
+			Angle of cell is calculated via cells X/Y relation to the brush center and arctangent
+			Angle has 1.57 radians added to it (90 degrees) in order to make the velocity be at 90 degrees to the centerpoint.
+			Ditto for X, except X uses sine
+		*/
+		// only trigger once per cell (less laggy)
+		if ((x%CELL) == 0 && (y%CELL) == 0)
+		{
+			float *vx = &air->vx[y/CELL][x/CELL];
+			float *vy = &air->vy[y/CELL][x/CELL];
+
+			*vx -= (strength / 16) * (cos(1.57f + (atan2(brushY - y, brushX - x))));
+			*vy -= (strength / 16) * (sin(1.57f + (atan2(brushY - y, brushX - x))));
+
+			// Clamp velocities
+			if (*vx > 256.0f)
+				*vx = 256.0f;
+			else if (*vx < -256.0f)
+				*vx = -256.0f;
+			if (*vy > 256.0f)
+				*vy = 256.0f;
+			else if (*vy < -256.0f)
+				*vy = -256.0f;
+		}
+		return -1;
+	}
 	return -1;
 }
 
@@ -2845,7 +2875,7 @@ void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* 
 	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
-			CreateTool(x, j, tool, strength);
+			CreateTool(x, j, x, y, tool, strength);
 	}
 	else
 	{
@@ -2870,10 +2900,10 @@ void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* 
 				jmax = 2*y - tempy;
 			for (j = tempy; j <= jmax; j++)
 			{
-				CreateTool(i, j, tool, strength);
+				CreateTool(i, j, x, y, tool, strength);
 				//don't create twice in the vertical center line
 				if (i != x)
-					CreateTool(2*x-i, j, tool, strength);
+					CreateTool(2*x-i, j, x, y, tool, strength);
 			}
 		}
 	}
@@ -2946,6 +2976,8 @@ void Simulation::CreateToolLine(int x1, int y1, int x2, int y2, int tool, float 
 
 void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength)
 {
+	int brushX = ((x1 + x2) / 2);
+	int brushY = ((y1 + y2) / 2);
 	if (x1 > x2)
 	{
 		int temp = x2;
@@ -2960,7 +2992,7 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool, float s
 	}
 	for (int j = y1; j <= y2; j++)
 		for (int i = x1; i <= x2; i++)
-			CreateTool(i, j, tool, strength);
+			CreateTool(i, j, brushX, brushY, tool, strength);
 }
 
 int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
