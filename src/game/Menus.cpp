@@ -161,14 +161,14 @@ void FillMenus()
 		menuSections[SC_DECO]->AddTool(new DecoTool(i));
 	}
 
-	for (int n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
+	for (int n = 0; n < NUM_COLOR_PRESETS; n++)
 	{
-		menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, n, colorlist[n-DECO_PRESET_START].identifier));
+		menuSections[SC_OTHER]->AddTool(new DecoPresetTool(n));
 	}
 
 	//Fill up fav. related menus somehow ...
 #ifndef NOMOD
-	menuSections[SC_FAV]->AddTool(new Tool(INVALID_TOOL, FAV_MORE, "DEFAULT_FAV_MORE"));
+	menuSections[SC_FAV]->AddTool(new FavTool(0));
 #endif
 	std::vector<std::string> favorites = Favorite::Ref().BuildFavoritesList();
 	for (std::vector<std::string>::iterator iter = favorites.begin(); iter != favorites.end(); ++iter)
@@ -178,13 +178,13 @@ void FillMenus()
 			menuSections[SC_FAV]->AddTool(tool);
 	}
 #ifndef NOMOD
-	for (int i = FAV_START+1; i < FAV_END; i++)
+	for (int i = 1; i < NUM_FAV_BUTTONS; i++)
 	{
-		menuSections[SC_FAV2]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(fav[i-FAV_START].name)));
+		menuSections[SC_FAV2]->AddTool(new FavTool(i));
 	}
-	for (int i = HUD_START; i < HUD_START+HUD_NUM; i++)
+	for (int i = 0; i < HUD_NUM; i++)
 	{
-		menuSections[SC_HUD]->AddTool(new Tool(INVALID_TOOL, i, "DEFAULT_FAV_" + std::string(hud_menu[i-HUD_START].name)));
+		menuSections[SC_HUD]->AddTool(new HudTool(i));
 	}
 #endif
 

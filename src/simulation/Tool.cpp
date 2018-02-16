@@ -2,6 +2,7 @@
 #include "Tool.h"
 #include "defines.h"
 #include "graphics.h"
+#include "hud.h"
 #include "interface.h"
 #include "powder.h"
 #include "graphics/ARGBColour.h"
@@ -363,4 +364,48 @@ Tool* DecoTool::Sample(Simulation *sim, Point position)
 	currR = cr, currG = cg, currB = cb, currA = 255;
 	RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 	return this;
+}
+
+InvalidTool::InvalidTool(int type, int ID, std::string identifier):
+Tool(type, ID, identifier)
+{
+
+}
+int InvalidTool::DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength)
+{
+	return 0;
+}
+void InvalidTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
+{
+
+}
+void InvalidTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
+{
+
+}
+int InvalidTool::FloodFill(Simulation *sim, Brush *brush, Point position)
+{
+	return 0;
+}
+Tool* InvalidTool::Sample(Simulation *sim, Point position)
+{
+	return nullptr;
+}
+
+DecoPresetTool::DecoPresetTool(int decoPresetID):
+InvalidTool(DECO_PRESET, decoPresetID, colorlist[decoPresetID].identifier)
+{
+
+}
+
+FavTool::FavTool(int favID):
+InvalidTool(FAV_MENU_BUTTON, favID, std::string(fav[favID].identifier))
+{
+
+}
+
+HudTool::HudTool(int hudID):
+InvalidTool(HUD_MENU_BUTTON, hudID, "DEFAULT_HUD_" + std::string(hud_menu[hudID].name))
+{
+
 }

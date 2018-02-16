@@ -21,10 +21,10 @@ void GetTimeString(int currtime, char *string, int length);
 
 struct hud
 {
-	const char *name;
+	std::string name;
 	ARGBColour color;
 	int menunum;
-	const char *description;
+	std::string description;
 };
 typedef struct hud hud;
 
@@ -98,8 +98,12 @@ const hud hud_menu[] =
 	{"EMAP", COLPACK(0x000000), 3, "Show the value of emap, used in conductive walls"},
 };
 
-#define HUD_START 400
-#define HUD_REALSTART 405
+#define HUD_BACK 0
+#define HUD_UI 1
+#define HUD_INFO 2
+#define HUD_COORD 3
+#define HUD_RESET 4
+#define HUD_REALSTART 5
 #define HUD_NUM 58
 #define HUD_OPTIONS 53
 

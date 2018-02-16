@@ -2844,14 +2844,14 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		decoration_editor(vid_buf, b, bq, mx, my);
 
 		int presetx = 6;
-		for (int n = DECO_PRESET_START; n < DECO_PRESET_START+NUM_COLOR_PRESETS; n++)
+		for (int n = 0; n < NUM_COLOR_PRESETS; n++)
 		{
 			if (mx>=presetx-1 && mx<presetx+27 && my>=y && my< y+15)
 			{
 				drawrect(vid_buf, presetx-1, y-1, 29, 17, 255, 55, 55, 255);
-				over =  GetToolFromIdentifier(colorlist[n-DECO_PRESET_START].identifier);
+				over =  GetToolFromIdentifier(colorlist[n].identifier);
 			}
-			draw_tool_button(vid_buf, presetx, y, PIXPACK(colorlist[n-DECO_PRESET_START].colour), "");
+			draw_tool_button(vid_buf, presetx, y, PIXPACK(colorlist[n].colour), "");
 			presetx += 31;
 		}
 	}
@@ -2910,7 +2910,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 		if (i == SC_FAV || i == SC_FAV2 || i == SC_HUD)
 		{
 			last_fav_menu = i;
-			if (i == SC_HUD && hud_menu[current->GetID()-HUD_START].menunum != hud_menunum && current->GetID() != HUD_START)
+			if (i == SC_HUD && hud_menu[current->GetID()].menunum != hud_menunum && current->GetID() != 0)
 				continue;
 		}
 #endif
@@ -2938,7 +2938,7 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
 				over = current;
 			}
-			else if (current->GetID() >= HUD_REALSTART && currentHud[current->GetID()-HUD_REALSTART] && !strstr(hud_menu[current->GetID()-HUD_START].name, "#"))
+			else if (current->GetID() >= HUD_REALSTART && currentHud[current->GetID()-HUD_REALSTART] && hud_menu[current->GetID()].name.find("#") == hud_menu[current->GetID()].name.npos)
 			{
 				drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 0, 255);
 			}
@@ -2998,18 +2998,18 @@ void menu_draw_text(Tool* over, int y)
 	{
 		toolTip << ptypes[toolID].descs;
 	}
-	else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
+	else if (over->GetType() == HUD_MENU_BUTTON)
 	{
-		if (!strstr(hud_menu[toolID-HUD_START].name,"#"))
-			toolTip << hud_menu[toolID-HUD_START].description;
+		if (hud_menu[toolID].name.find("#") == hud_menu[toolID].name.npos)
+			toolTip << hud_menu[toolID].description;
 		else
 		{
-			toolTip << hud_menu[toolID-HUD_START].description << currentHud[toolID-HUD_REALSTART] << " decimal places";
+			toolTip << hud_menu[toolID].description << currentHud[toolID-HUD_REALSTART] << " decimal places";
 		}
 	}
-	else if (toolID >= FAV_START && toolID < FAV_END)
+	else if (over->GetType() == FAV_MENU_BUTTON)
 	{
-		toolTip << fav[toolID-FAV_START].description;
+		toolTip << fav[toolID].description;
 		if (toolID == FAV_ROTATE)
 		{
 			if (globalSim->msRotation)
@@ -3026,13 +3026,6 @@ void menu_draw_text(Tool* over, int y)
 			else
 				toolTip << "manual: " << lowesttemp-273 << "C - " << highesttemp-273 << "C";
 		}
-		/*else if (toolID == FAV_AUTOSAVE)
-		{
-			if (!autosave)
-				toolTip << "off";
-			else
-				toolTip << "every " << autosave << " frames";
-		}*/
 		else if (toolID == FAV_REAL)
 		{
 			if (realistic)
@@ -3056,8 +3049,8 @@ void menu_draw_text(Tool* over, int y)
 	}
 	else if (over->GetType() == GOL_TOOL)
 		toolTip << golTypes[toolID].description;
-	else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START + NUM_COLOR_PRESETS)
-		toolTip << colorlist[toolID-DECO_PRESET_START].descs;
+	else if (over->GetType() == DECO_PRESET)
+		toolTip << colorlist[toolID].descs;
 	else if (over->GetType() == WALL_TOOL)
 		toolTip << wallTypes[toolID].descs;
 	else if (over->GetType() == TOOL_TOOL)
@@ -3075,7 +3068,7 @@ void menu_select_element(int b, Tool* over)
 	int toolID = over->GetID();
 	if (b==1 && over)
 	{
-		if (toolID >= FAV_START && toolID <= FAV_END)
+		if (over->GetType() == FAV_MENU_BUTTON)
 		{
 			if (toolID == FAV_MORE)
 				active_menu = SC_FAV2;
@@ -3106,12 +3099,6 @@ void menu_select_element(int b, Tool* over)
 #endif
 			else if (toolID == FAV_CUSTOMHUD)
 				active_menu = SC_HUD;
-			/*else if (toolID == FAV_AUTOSAVE)
-			{
-				autosave = atoi(input_ui(vid_buf,"Autosave","Input number of frames between saves, 0 = off","",""));
-				if (autosave < 0)
-					autosave = 0;
-			}*/
 			else if (toolID == FAV_REAL)
 			{
 				realistic = !realistic;
@@ -3146,16 +3133,16 @@ void menu_select_element(int b, Tool* over)
 				FillMenus();
 			}
 		}
-		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
+		else if (over->GetType() == HUD_MENU_BUTTON)
 		{
-			if (toolID == HUD_START)
+			if (toolID == HUD_BACK)
 			{
 				if (hud_menunum != 0)
 					hud_menunum = 0;
 				else
 					active_menu = SC_FAV2;
 			}
-			else if (toolID == HUD_START + 4)
+			else if (toolID == HUD_RESET)
 			{
 				HudDefaults();
 				SetCurrentHud();
@@ -3163,14 +3150,14 @@ void menu_select_element(int b, Tool* over)
 			}
 			else if (toolID < HUD_REALSTART)
 			{
-				hud_menunum = toolID - HUD_START;
+				hud_menunum = toolID;
 			}
 			else
 			{
 				char hud_curr[16];
 				sprintf(hud_curr,"%i",currentHud[toolID-HUD_REALSTART]);
-				if (strstr(hud_menu[toolID-HUD_START].name,"#"))
-					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,hud_menu[toolID-HUD_START].name,"Enter number of decimal places",hud_curr,""));
+				if (hud_menu[toolID].name.find("#") != hud_menu[toolID].name.npos)
+					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,hud_menu[toolID].name.c_str(),"Enter number of decimal places",hud_curr,""));
 				else
 					currentHud[toolID-HUD_REALSTART] = !currentHud[toolID-HUD_REALSTART];
 				if (DEBUG_MODE)
@@ -3180,9 +3167,9 @@ void menu_select_element(int b, Tool* over)
 				save_presets();
 			}
 		}
-		else if (toolID >= DECO_PRESET_START && toolID < DECO_PRESET_START+NUM_COLOR_PRESETS)
+		else if (over->GetType() == DECO_PRESET)
 		{
-			ARGBColour newDecoColor = colorlist[toolID-DECO_PRESET_START].colour;
+			ARGBColour newDecoColor = colorlist[((DecoPresetTool*)over)->GetID()].colour;
 			if (newDecoColor != decocolor)
 				decocolor = newDecoColor;
 			else
@@ -3216,7 +3203,7 @@ void menu_select_element(int b, Tool* over)
 	}
 	if (b==4 && over)
 	{
-		if (toolID >= FAV_START && toolID <= FAV_END)
+		if (over->GetType() == FAV_MENU_BUTTON)
 		{
 			if (toolID == FAV_HEAT)
 			{
@@ -3236,7 +3223,7 @@ void menu_select_element(int b, Tool* over)
 					dateformat -= 6;
 			}
 		}
-		else if (toolID >= HUD_START && toolID < HUD_START+HUD_NUM)
+		else if (over->GetType() == HUD_MENU_BUTTON)
 		{
 		}
 		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)

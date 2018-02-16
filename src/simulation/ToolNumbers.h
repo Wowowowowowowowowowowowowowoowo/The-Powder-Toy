@@ -97,62 +97,48 @@ const decoPreset colorlist[] =
 	{COLPACK(0xFFFFFF), "DEFAULT_DECOR_PRESET_WHITE", "White"},
 	{COLPACK(0x000000), "DEFAULT_DECOR_PRESET_BLACK", "Black"},
 };
-#define DECO_PRESET_RED 260
-#define DECO_PRESET_GREEN 261
-#define DECO_PRESET_BLUE 262
-#define DECO_PRESET_YELLOW 263
-#define DECO_PRESET_PINK 264
-#define DECO_PRESET_CYAN 265
-#define DECO_PRESET_WHITE 266
-#define DECO_PRESET_BLACK 267
-
-#define DECO_PRESET_START 260
 #define NUM_COLOR_PRESETS 8
 
 
 //fav menu stuff since doesn't go anywhere else
-#define FAV_START 300
-#define FAV_MORE 300
-#define FAV_BACK 301
-#define FAV_FIND 302
-#define FAV_INFO 303
-#define FAV_ROTATE 304
-#define FAV_HEAT 305
-//#define FAV_SAVE 306
-#define FAV_LUA 306
-#define FAV_CUSTOMHUD 307
-//#define FAV_AUTOSAVE 308
-#define FAV_REAL 308
-#define FAV_FIND2 309
-#define FAV_DATE 310
-#define FAV_SECR 311
-#define FAV_END 312
+#define FAV_MORE 0
+#define FAV_BACK 1
+#define FAV_FIND 2
+#define FAV_INFO 3
+#define FAV_ROTATE 4
+#define FAV_HEAT 5
+#define FAV_LUA 6
+#define FAV_CUSTOMHUD 7
+#define FAV_REAL 8
+#define FAV_FIND2 9
+#define FAV_DATE 10
+#define FAV_SECR 11
+#define FAV_END 12
+#define NUM_FAV_BUTTONS 12
 
 struct fav_menu
 {
 	const char *name;
 	ARGBColour colour;
-	const char *description;
+	std::string description;
+	std::string identifier;
 };
 typedef struct fav_menu fav_menu;
 
 const fav_menu fav[] =
 {
-	{"MORE", COLPACK(0xFF7F00), "Display different options"},
-	{"BACK", COLPACK(0xFF7F00), "Go back to the favorites menu"},
-	//{"HUD",  COLPACK(0x20D8FF), "Left click to toggle a different HUD. Now using the "},
-	{"FIND", COLPACK(0xFF0000), "Highlights the currently selected element in red (ctrl+f)"},
-	{"INFO", COLPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display"},
-	{"SPIN", COLPACK(0x0010A0), "Makes moving solids rotate. Currently "},
-	{"HEAT", COLPACK(0xFF00D4), "Changes heat display mode. Right click to set manual temperatures. Current mode: "},
-	//{"SAVE", COLPACK(0x2B1AC9), "Makes saves/stamps compatible with: "},
-	{"LUA",  COLPACK(0xFFFF00), "Add Lua code to a save"},
-	{"HUD2", COLPACK(0x20D8FF), "Make a custom HUD"},
-	//{"AUTO", COLPACK(0xDF1BFF), "Sets how often your work is autosaved. Currently: "},
-	{"REAL", COLPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now "},
-	{"FND2", COLPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now "},
-	{"DATE", COLPACK(0x3FBB3F), "Change date and time format. Right click to toggle always showing time. Example: "},
-	{"", COLPACK(0x000000), ""}
+	{"MORE", COLPACK(0xFF7F00), "Display different options", "DEFAULT_FAV_MORE"},
+	{"BACK", COLPACK(0xFF7F00), "Go back to the favorites menu", "DEFAULT_FAV_BACK"},
+	{"FIND", COLPACK(0xFF0000), "Highlights the currently selected element in red (ctrl+f)", "DEFAULT_FAV_FIND"},
+	{"INFO", COLPACK(0x00FF00), "Displays statistics and records about The Powder Toy. Left click to toggle display", "DEFAULT_FAV_INFO"},
+	{"SPIN", COLPACK(0x0010A0), "Makes moving solids rotate. Currently ", "DEFAULT_FAV_SPIN"},
+	{"HEAT", COLPACK(0xFF00D4), "Changes heat display mode. Right click to set manual temperatures. Current mode: ", "DEFAULT_FAV_HEAT"},
+	{"LUA",  COLPACK(0xFFFF00), "Add Lua code to a save", "DEFAULT_FAV_LUA"},
+	{"HUD2", COLPACK(0x20D8FF), "Make a custom HUD", "DEFAULT_FAV_HUD2"},
+	{"REAL", COLPACK(0xFF6800), "Turns on realistic heat mode, by savask. Now ", "DEFAULT_FAV_REAL"},
+	{"FND2", COLPACK(0xDF0000), "Alternate find mode, looks different but may find things better. Now ", "DEFAULT_FAV_FND2"},
+	{"DATE", COLPACK(0x3FBB3F), "Change date and time format. Right click to toggle always showing time. Example: ", "DEFAULT_FAV_DATE"},
+	{"", COLPACK(0x000000), "", "DEFAULT_FAV_SECRET"}
 };
 
 #endif

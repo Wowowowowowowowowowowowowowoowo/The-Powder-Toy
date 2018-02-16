@@ -403,12 +403,13 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	int i, j;
 	if (x > menuStartPosition-28 || x < -26)
 		return 26;
+	int toolID = current->GetID();
 	if (current->GetType() == ELEMENT_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[current->GetID()].Colour), globalSim->elements[current->GetID()].Name);
+		draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[toolID].Colour), globalSim->elements[toolID].Name);
 
 		//special case for erase tool
-		if (!current->GetID())
+		if (!toolID)
 		{
 			for (j=4; j<12; j++)
 			{
@@ -421,9 +422,9 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == WALL_TOOL)
 	{
-		int ds = wallTypes[current->GetID()].drawstyle;
-		pixel color = PIXPACK(wallTypes[current->GetID()].colour);
-		pixel glowColor = PIXPACK(wallTypes[current->GetID()].eglow);
+		int ds = wallTypes[toolID].drawstyle;
+		pixel color = PIXPACK(wallTypes[toolID].colour);
+		pixel glowColor = PIXPACK(wallTypes[toolID].eglow);
 		
 		if (ds==1)
 		{
@@ -455,7 +456,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXPACK(0x202020);
 		}
 		else
-		switch (current->GetID())
+		switch (toolID)
 		{
 		case WL_WALLELEC:
 			for (j=1; j<15; j++)
@@ -572,7 +573,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == TOOL_TOOL)
 	{
-		if (current->GetID() == TOOL_SIGN)
+		if (toolID == TOOL_SIGN)
 		{
 			for (j=1; j<15; j++)
 			{
@@ -585,29 +586,29 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			drawtext(vid_buf, x+9, y+5, "\xA0", 255, 255, 255, 255);
 		}
 		else
-			draw_tool_button(vid_buf, x, y, PIXPACK(toolTypes[current->GetID()].color), toolTypes[current->GetID()].name.c_str());
+			draw_tool_button(vid_buf, x, y, PIXPACK(toolTypes[toolID].color), toolTypes[toolID].name);
 	}
 	else if (current->GetType() == DECO_TOOL)
 	{
-		pixel color = PIXPACK(decoTypes[current->GetID()].color);
+		pixel color = PIXPACK(decoTypes[toolID].color);
 		for (j=1; j<15; j++)
 		{
 			for (i=1; i<27; i++)
 			{
-				if (current->GetID() == DECO_LIGHTEN)
+				if (toolID == DECO_LIGHTEN)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)-10*j, PIXG(color)-10*j, PIXB(color)-10*j);
-				else if (current->GetID() == DECO_DARKEN)
+				else if (toolID == DECO_DARKEN)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color)+10*j, PIXG(color)+10*j, PIXB(color)+10*j);
-				else if (current->GetID() == DECO_SMUDGE)
+				else if (toolID == DECO_SMUDGE)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXRGB(PIXR(color), PIXG(color)-5*i, PIXB(color)+5*i);
-				else if (current->GetID() == DECO_DRAW || current->GetID() == DECO_CLEAR)
+				else if (toolID == DECO_DRAW || toolID == DECO_CLEAR)
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = PIXPACK(decocolor);
 				else
 					vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
 			}
 		}
 
-		if (current->GetID() == DECO_CLEAR)
+		if (toolID == DECO_CLEAR)
 		{
 			color = PIXRGB((COLR(decocolor)+127)%256, (COLG(decocolor)+127)%256, (COLB(decocolor)+127)%256);
 			for (j=4; j<12; j++)
@@ -618,30 +619,29 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				vid_buf[(XRES+BARSIZE)*(y+j)+(x-j+22)] = color;
 			}
 		}
-		else if (current->GetID() == DECO_ADD)
+		else if (toolID == DECO_ADD)
 			drawtext(vid_buf, x+12, y+5, "+", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
-		else if (current->GetID() == DECO_SUBTRACT)
+		else if (toolID == DECO_SUBTRACT)
 			drawtext(vid_buf, x+12, y+5, "-", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
-		else if (current->GetID() == DECO_MULTIPLY)
+		else if (toolID == DECO_MULTIPLY)
 			drawtext(vid_buf, x+12, y+4, "x", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
-		else if (current->GetID() == DECO_DIVIDE)
+		else if (toolID == DECO_DIVIDE)
 			drawtext(vid_buf, x+12, y+5, "/", COLR(decocolor), COLG(decocolor), COLB(decocolor), 255);
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, PIXPACK(golTypes[current->GetID()].colour), golTypes[current->GetID()].name.c_str());
+		draw_tool_button(vid_buf, x, y, PIXPACK(golTypes[toolID].colour), golTypes[toolID].name);
 	}
-	else if (current->GetType() == INVALID_TOOL)
+	else if (current->GetType() == FAV_MENU_BUTTON)
 	{
-		if (current->GetID() >= FAV_START && current->GetID() < FAV_END)
-			draw_tool_button(vid_buf, x, y, PIXPACK(fav[current->GetID()-FAV_START].colour), fav[current->GetID()-FAV_START].name);
-		else if (current->GetID() >= HUD_START && current->GetID() < HUD_START+HUD_NUM)
-		{
-			if (hud_menu[current->GetID()-HUD_START].color != COLPACK(0x000000))
-				draw_tool_button(vid_buf, x, y, PIXPACK(hud_menu[current->GetID()-HUD_START].color), hud_menu[current->GetID()-HUD_START].name);
-			else
-				draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((current->GetID()-HUD_START)*53)%(PT_NUM-1)+1].Colour), hud_menu[current->GetID()-HUD_START].name);
-		}
+		draw_tool_button(vid_buf, x, y, PIXPACK(fav[toolID].colour), fav[toolID].name);
+	}
+	else if (current->GetType() == HUD_MENU_BUTTON)
+	{
+		if (hud_menu[toolID].color != COLPACK(0x000000))
+			draw_tool_button(vid_buf, x, y, PIXPACK(hud_menu[toolID].color), hud_menu[toolID].name);
+		else
+			draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((toolID)*53)%(PT_NUM-1)+1].Colour), hud_menu[toolID].name);
 	}
 	return 26;
 }

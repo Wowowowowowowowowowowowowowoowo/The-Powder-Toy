@@ -21,7 +21,7 @@
 #include "defines.h"
 
 
-enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL };
+enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL, DECO_PRESET, FAV_MENU_BUTTON, HUD_MENU_BUTTON };
 
 struct Point;
 class Brush;
@@ -142,6 +142,41 @@ public:
 	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
 	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
 	virtual Tool* Sample(Simulation *sim, Point position);
+};
+
+class InvalidTool : public Tool
+{
+protected:
+	InvalidTool(int type, int ID, std::string identifier);
+public:
+	int GetID() { return -1; }
+
+	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) final;
+	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) final;
+	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) final;
+	virtual int FloodFill(Simulation *sim, Brush *brush, Point position) final;
+	virtual Tool* Sample(Simulation *sim, Point position) final;
+};
+
+class DecoPresetTool : public InvalidTool
+{
+public:
+	DecoPresetTool(int presetID);
+	int GetID() { if (type == DECO_PRESET) return ID; else return -1; }
+};
+
+class FavTool : public InvalidTool
+{
+public:
+	FavTool(int favID);
+	int GetID() { if (type == FAV_MENU_BUTTON) return ID; else return -1; }
+};
+
+class HudTool : public InvalidTool
+{
+public:
+	HudTool(int hudID);
+	int GetID() { if (type == HUD_MENU_BUTTON) return ID; else return -1; }
 };
 
 #endif
