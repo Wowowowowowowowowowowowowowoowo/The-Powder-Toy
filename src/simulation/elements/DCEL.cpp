@@ -30,12 +30,12 @@ int DCEL_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if(!r)
 					r = photons[y+ry][x+rx];
-				if ((r>>8)>=NPART || !r)
+				if ((ID(r))>=NPART || !r)
 					continue;
 				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
-					parts[r>>8].vx *= multiplier;
-					parts[r>>8].vy *= multiplier;
+					parts[ID(r)].vx *= multiplier;
+					parts[ID(r)].vy *= multiplier;
 					parts[i].tmp = 1;
 				}
 			}

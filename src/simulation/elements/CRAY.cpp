@@ -57,7 +57,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 					if ((r&0xFF)!=PT_CRAY && (r&0xFF)!=PT_PSCN && (r&0xFF)!=PT_INST && (r&0xFF)!=PT_METL && (r&0xFF)!=PT_SPRK && (r&0xFF)<PT_NUM)
 					{
 						parts[i].ctype = r&0xFF;
-						parts[i].temp = parts[r>>8].temp;
+						parts[i].temp = parts[ID(r)].temp;
 					}
 				}
 	}
@@ -70,11 +70,11 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 					int r = pmap[y+ry][x+rx];
 					if (!(r&0xFF))
 						continue;
-					if ((r&0xFF)==PT_SPRK && parts[r>>8].life==3) { //spark found, start creating
+					if ((r&0xFF)==PT_SPRK && parts[ID(r)].life==3) { //spark found, start creating
 						ARGBColour colored = COLARGB(0, 0, 0, 0);
-						int destroy = parts[r>>8].ctype==PT_PSCN;
-						int nostop = parts[r>>8].ctype==PT_INST;
-						int createSpark = (parts[r>>8].ctype==PT_INWR);
+						int destroy = parts[ID(r)].ctype==PT_PSCN;
+						int nostop = parts[ID(r)].ctype==PT_INST;
+						int createSpark = (parts[ID(r)].ctype==PT_INWR);
 						int partsRemaining = 255;
 						if (parts[i].tmp) //how far it shoots
 							partsRemaining = parts[i].tmp;
@@ -97,19 +97,19 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 										docontinue = 0;
 								}
 							} else if ((r&0xFF)==PT_FILT) { // get color if passed through FILT
-								if (parts[r>>8].dcolour == COLRGB(0, 0, 0))
+								if (parts[ID(r)].dcolour == COLRGB(0, 0, 0))
 									colored = COLRGB(0, 0, 0);
-								else if (parts[r>>8].tmp == 0)
+								else if (parts[ID(r)].tmp == 0)
 								{
-									colored = wavelengthToDecoColour(getWavelengths(&parts[r>>8]));
+									colored = wavelengthToDecoColour(getWavelengths(&parts[ID(r)]));
 								}
 								else if (colored == COLRGB(0, 0, 0))
 									colored = COLARGB(0, 0, 0, 0);
-								parts[r>>8].life = 4;
+								parts[ID(r)].life = 4;
 							} else if ((r&0xFF) == PT_CRAY || nostop) {
 								docontinue = 1;
 							} else if(destroy && r && ((r&0xFF) != PT_DMND)) {
-								kill_part(r>>8);
+								kill_part(ID(r));
 								if(!--partsRemaining)
 									docontinue = 0;
 							}

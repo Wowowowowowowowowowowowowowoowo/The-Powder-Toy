@@ -31,7 +31,7 @@ int DSTW_update(UPDATE_FUNC_ARGS)
 						part_change_type(i, x, y, PT_SLTW);
 						// on average, convert 3 DSTW to SLTW before SALT turns into SLTW
 						if (rand()%3==0)
-							part_change_type(r>>8, x+rx, y+ry, PT_SLTW);
+							part_change_type(ID(r), x+rx, y+ry, PT_SLTW);
 					}
 					break;
 				case PT_SLTW:
@@ -55,7 +55,7 @@ int DSTW_update(UPDATE_FUNC_ARGS)
 					}
 					break;
 				case PT_FIRE:
-					kill_part(r>>8);
+					kill_part(ID(r));
 					if (!(rand()%30))
 					{
 						kill_part(i);

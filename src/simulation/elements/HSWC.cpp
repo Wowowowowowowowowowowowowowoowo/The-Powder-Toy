@@ -30,7 +30,7 @@ int HSWC_update(UPDATE_FUNC_ARGS)
 						continue;
 					if ((r&0xFF) == PT_FILT || (r&0xFF) == PT_PHOT || (r&0xFF) == PT_BRAY)
 					{
-						parts[i].temp = parts[r>>8].ctype - 0x10000000;
+						parts[i].temp = parts[ID(r)].ctype - 0x10000000;
 					}
 				}
 	}

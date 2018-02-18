@@ -29,10 +29,10 @@ int RPEL_update(UPDATE_FUNC_ARGS)
 
 			if (r && !(sim->elements[r&0xFF].Properties & TYPE_SOLID))
 			{
-				if (!parts[i].ctype || parts[i].ctype == parts[r>>8].type)
+				if (!parts[i].ctype || parts[i].ctype == parts[ID(r)].type)
 				{
-					parts[r>>8].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
-					parts[r>>8].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
+					parts[ID(r)].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
+					parts[ID(r)].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
 				}
 			}
 		}

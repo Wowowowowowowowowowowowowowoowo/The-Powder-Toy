@@ -27,9 +27,9 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = r&0xFF;
-				if ((ptypes[rt].properties&PROP_CONDUCTS) && parts[r>>8].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[r>>8].ctype!=PT_SPRK)
+				if ((ptypes[rt].properties&PROP_CONDUCTS) && parts[ID(r)].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[ID(r)].ctype!=PT_SPRK)
 				{
-					sim->spark_conductive(r>>8, x+rx, y+ry);
+					sim->spark_conductive(ID(r), x+rx, y+ry);
 					kill = true;
 				}
 				else if (rt!=PT_THDR && rt!=PT_SPRK && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)

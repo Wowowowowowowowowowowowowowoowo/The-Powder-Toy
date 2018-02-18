@@ -191,17 +191,17 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				else if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP) && parts[r>>8].ctype!=notctype && (parts[r>>8].tmp&0xFF)==0)
+				else if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP) && parts[ID(r)].ctype!=notctype && (parts[ID(r)].tmp&0xFF)==0)
 				{
-					PIPE_transfer_pipe_to_pipe(parts+i, parts+(r>>8));
-					if (r>>8 > original)
-						parts[r>>8].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
+					PIPE_transfer_pipe_to_pipe(parts+i, parts+(ID(r)));
+					if (ID(r) > original)
+						parts[ID(r)].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
 					count++;
-					pushParticle(sim, r>>8,count,original);
+					pushParticle(sim, ID(r),count,original);
 				}
 				else if ((r&0xFF) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
 				{
-					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
+					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 					int slot = PRTI_ElementDataContainer::GetSlot(-rx, -ry);
 					particle *storePart = channel->AllocParticle(slot);
 					if (storePart)
@@ -218,17 +218,17 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 	{
 		int coords = 7 - ((parts[i].tmp>>10)&7);
 		r = pmap[y+ pos_1_ry[coords]][x+ pos_1_rx[coords]];
-		if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP) && parts[r>>8].ctype!=notctype && (parts[r>>8].tmp&0xFF)==0)
+		if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP) && parts[ID(r)].ctype!=notctype && (parts[ID(r)].tmp&0xFF)==0)
 		{
-			PIPE_transfer_pipe_to_pipe(parts+i, parts+(r>>8));
-			if (r>>8 > original)
-				parts[r>>8].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
+			PIPE_transfer_pipe_to_pipe(parts+i, parts+(ID(r)));
+			if (ID(r) > original)
+				parts[ID(r)].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
 			count++;
-			pushParticle(sim, r>>8,count,original);
+			pushParticle(sim, ID(r),count,original);
 		}
 		else if ((r&0xFF) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 			int slot = PRTI_ElementDataContainer::GetSlot(-pos_1_rx[coords], -pos_1_ry[coords]);
 			particle *storePart = channel->AllocParticle(slot);
 			if (storePart)
@@ -286,9 +286,9 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 						if ((r&0xFF) == PT_BRCK)
 						{
 							if (parts[i].tmp & PPIP_TMPFLAG_PAUSED)
-								parts[r>>8].tmp = 0;
+								parts[ID(r)].tmp = 0;
 							else
-								parts[r>>8].tmp = 1; //make surrounding BRCK glow
+								parts[ID(r)].tmp = 1; //make surrounding BRCK glow
 						}
 					}
 				}
@@ -329,24 +329,24 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 						if (!r)
 							continue;
-						if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP)&&parts[r>>8].ctype==1)
+						if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP)&&parts[ID(r)].ctype==1)
 						{
-							parts[r>>8].ctype = (((parts[i].ctype)%3)+2);//reverse
-							parts[r>>8].life = 6;
+							parts[ID(r)].ctype = (((parts[i].ctype)%3)+2);//reverse
+							parts[ID(r)].life = 6;
 							if ( parts[i].tmp&0x100)//is a single pixel pipe
 							{
-								parts[r>>8].tmp |= 0x200;//will transfer to a single pixel pipe
-								parts[r>>8].tmp |= count<<10;//coords of where it came from
+								parts[ID(r)].tmp |= 0x200;//will transfer to a single pixel pipe
+								parts[ID(r)].tmp |= count<<10;//coords of where it came from
 								parts[i].tmp |= ((7-count)<<14);
 								parts[i].tmp |= 0x2000;
 							}
 							neighborcount ++;
-							lastneighbor = r>>8;
+							lastneighbor = ID(r);
 						}
-						else if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP)&&parts[r>>8].ctype!=(((parts[i].ctype-1)%3)+2))
+						else if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP)&&parts[ID(r)].ctype!=(((parts[i].ctype-1)%3)+2))
 						{
 							neighborcount ++;
-							lastneighbor = r>>8;
+							lastneighbor = ID(r);
 						}
 						count++;
 					}
@@ -388,14 +388,14 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 					else if ((parts[i].tmp&0xFF) == 0 && (ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
 						if ((r&0xFF)==PT_SOAP)
-							detach(r>>8);
-						PIPE_transfer_part_to_pipe(parts+(r>>8), parts+i);
-						kill_part(r>>8);
+							detach(ID(r));
+						PIPE_transfer_part_to_pipe(parts+(ID(r)), parts+i);
+						kill_part(ID(r));
 					}
-					else if ((parts[i].tmp&0xFF) == 0 && (r&0xFF)==PT_STOR && sim->IsElement(parts[r>>8].tmp) && (ptypes[parts[r>>8].tmp].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
+					else if ((parts[i].tmp&0xFF) == 0 && (r&0xFF)==PT_STOR && sim->IsElement(parts[ID(r)].tmp) && (ptypes[parts[ID(r)].tmp].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
 						// STOR stores properties in the same places as PIPE does
-						PIPE_transfer_pipe_to_pipe(parts+(r>>8), parts+i);
+						PIPE_transfer_pipe_to_pipe(parts+(ID(r)), parts+i);
 					}
 				}
 			}

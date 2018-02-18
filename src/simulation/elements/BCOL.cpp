@@ -42,19 +42,19 @@ int BCOL_update(UPDATE_FUNC_ARGS)
 			r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if (((r&0xFF)==PT_COAL || (r&0xFF)==PT_BCOL)&&(parts[i].tmp2>parts[r>>8].tmp2)&&parts[i].tmp2>0)//diffusion
+			if (((r&0xFF)==PT_COAL || (r&0xFF)==PT_BCOL)&&(parts[i].tmp2>parts[ID(r)].tmp2)&&parts[i].tmp2>0)//diffusion
 			{
-				int temp = parts[i].tmp2 - parts[r>>8].tmp2;
+				int temp = parts[i].tmp2 - parts[ID(r)].tmp2;
 				if(temp < 10)
 					continue;
 				if (temp ==1)
 				{
-					parts[r>>8].tmp2 ++;
+					parts[ID(r)].tmp2 ++;
 					parts[i].tmp2 --;
 				}
 				else if (temp>0)
 				{
-					parts[r>>8].tmp2 += temp/2;
+					parts[ID(r)].tmp2 += temp/2;
 					parts[i].tmp2 -= temp/2;
 				}
 			}

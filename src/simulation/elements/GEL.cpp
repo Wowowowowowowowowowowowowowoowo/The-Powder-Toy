@@ -41,14 +41,14 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					if (parts[i].tmp<100 && 500>rand()%absorbChanceDenom)
 					{
 						parts[i].tmp++;
-						kill_part(r>>8);
+						kill_part(ID(r));
 					}
 					break;
 				case PT_PSTE:
 					if (parts[i].tmp<100 && 20>rand()%absorbChanceDenom)
 					{
 						parts[i].tmp++;
-						sim->part_create(r>>8, x+rx, y+ry, PT_CLST);
+						sim->part_create(ID(r), x+rx, y+ry, PT_CLST);
 					}
 					break;
 				case PT_SLTW:
@@ -56,38 +56,38 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].tmp++;
 						if (rand()%4)
-							kill_part(r>>8);
+							kill_part(ID(r));
 						else
-							part_change_type(r>>8, x+rx, y+ry, PT_SALT);
+							part_change_type(ID(r), x+rx, y+ry, PT_SALT);
 					}
 					break;
 				case PT_CBNW:
 					if (parts[i].tmp<100 && 100>rand()%absorbChanceDenom)
 					{
 						parts[i].tmp++;
-						part_change_type(r>>8, x+rx, y+ry, PT_CO2);
+						part_change_type(ID(r), x+rx, y+ry, PT_CO2);
 					}
 					break;
 				case PT_SPNG:
 					// Concentration diffusion
-					if (parts[r>>8].life>0 && parts[i].tmp<100 && ((parts[r>>8].life+1)>parts[i].tmp))
+					if (parts[ID(r)].life>0 && parts[i].tmp<100 && ((parts[ID(r)].life+1)>parts[i].tmp))
 					{
 						// SPNG -> GEL
-						parts[r>>8].life--;
+						parts[ID(r)].life--;
 						parts[i].tmp++;
 					}
-					else if (parts[i].tmp>0 && parts[r>>8].life+1 < parts[i].tmp)
+					else if (parts[i].tmp>0 && parts[ID(r)].life+1 < parts[i].tmp)
 					{
 						// SPNG <- GEL (saturation limit of SPNG is ignored here)
-						parts[r>>8].life++;
+						parts[ID(r)].life++;
 						parts[i].tmp--;
 					}
 					break;
 				case PT_GEL:
 					//Concentration diffusion
-					if ((parts[r>>8].tmp+1) < parts[i].tmp)
+					if ((parts[ID(r)].tmp+1) < parts[i].tmp)
 					{
-						parts[r>>8].tmp++;
+						parts[ID(r)].tmp++;
 						parts[i].tmp--;
 					}
 					break;
@@ -95,8 +95,8 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					break;
 				}
 
-				dx = parts[i].x - parts[r>>8].x;
-				dy = parts[i].y - parts[r>>8].y;
+				dx = parts[i].x - parts[ID(r)].x;
+				dy = parts[i].y - parts[ID(r)].y;
 
 				//Stickness
 				if ((dx*dx + dy*dy)>1.5 && (rt == PT_GEL || !sim->elements[rt].Falldown || (fabs((float)rx)<2 && fabs((float)ry)<2)))
@@ -113,8 +113,8 @@ int GEL_update(UPDATE_FUNC_ARGS)
 
 					if (sim->elements[rt].Properties&TYPE_PART || rt==PT_GOO)
 					{
-						parts[r>>8].vx -= dx;
-						parts[r>>8].vy -= dy;
+						parts[ID(r)].vx -= dx;
+						parts[ID(r)].vy -= dy;
 					}
 				}
 			}

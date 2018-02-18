@@ -40,8 +40,8 @@ int ACEL_update(UPDATE_FUNC_ARGS)
 					continue;
 				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
-					parts[r>>8].vx *= multiplier;
-					parts[r>>8].vy *= multiplier;
+					parts[ID(r)].vx *= multiplier;
+					parts[ID(r)].vy *= multiplier;
 					parts[i].tmp = 1;
 				}
 			}

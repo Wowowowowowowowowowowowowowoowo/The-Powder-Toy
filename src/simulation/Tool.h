@@ -31,14 +31,14 @@ class Tool
 	std::string identifier;
 protected:
 	int type;
-	int ID;
+	int toolID;
 public:
 	Tool(int toolID, std::string toolIdentifier);
 	Tool(int toolType, int toolID, std::string toolIdentifier);
 	virtual ~Tool() {}
 
 	int GetType() { return type; }
-	int GetID() { return ID; }
+	int GetID() { return toolID; }
 	std::string GetIdentifier() { return identifier; }
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
@@ -84,7 +84,7 @@ class WallTool : public Tool
 {
 public:
 	WallTool(int wallID);
-	int GetID() { if (type == WALL_TOOL) return ID; else return -1; }
+	int GetID() { if (type == WALL_TOOL) return toolID; else return -1; }
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
 	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
@@ -106,7 +106,7 @@ class ToolTool : public Tool
 {
 public:
 	ToolTool(int toolID);
-	int GetID() { if (type == TOOL_TOOL) return ID; else return -1; }
+	int GetID() { if (type == TOOL_TOOL) return toolID; else return -1; }
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
 	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
@@ -135,7 +135,7 @@ class DecoTool : public Tool
 {
 public:
 	DecoTool(int decoID);
-	int GetID() { if (type == DECO_TOOL) return ID; else return -1; }
+	int GetID() { if (type == DECO_TOOL) return toolID; else return -1; }
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
 	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
@@ -162,21 +162,21 @@ class DecoPresetTool : public InvalidTool
 {
 public:
 	DecoPresetTool(int presetID);
-	int GetID() { if (type == DECO_PRESET) return ID; else return -1; }
+	int GetID() { if (type == DECO_PRESET) return toolID; else return -1; }
 };
 
 class FavTool : public InvalidTool
 {
 public:
 	FavTool(int favID);
-	int GetID() { if (type == FAV_MENU_BUTTON) return ID; else return -1; }
+	int GetID() { if (type == FAV_MENU_BUTTON) return toolID; else return -1; }
 };
 
 class HudTool : public InvalidTool
 {
 public:
 	HudTool(int hudID);
-	int GetID() { if (type == HUD_MENU_BUTTON) return ID; else return -1; }
+	int GetID() { if (type == HUD_MENU_BUTTON) return toolID; else return -1; }
 };
 
 #endif

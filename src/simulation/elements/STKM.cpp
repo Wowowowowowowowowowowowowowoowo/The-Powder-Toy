@@ -362,14 +362,14 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 						parts[i].life += 5;
 					else
 						parts[i].life = 100;
-					sim->part_kill(r>>8);
+					sim->part_kill(ID(r));
 				}
 
 				if ((r&0xFF) == PT_NEUT)
 				{
 					if (parts[i].life<=100) parts[i].life -= (102-parts[i].life)/2;
 					else parts[i].life = (int)(parts[i].life*0.9f);
-					sim->part_kill(r>>8);
+					sim->part_kill(ID(r));
 				}
 				if (bmap[(ry+y)/CELL][(rx+x)/CELL] == WL_FAN)
 					playerp->elem = SPC_AIR;
@@ -588,7 +588,7 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 			parts[i].life -= (int)(rand()*20/RAND_MAX)+32;
 		}
 
-		if (sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10) && ((playerp->elem!=PT_LIGH && parts[r>>8].temp>=323) || parts[r>>8].temp<=243) && (!playerp->rocketBoots || (r&0xFF)!=PT_PLSM))
+		if (sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[ID(r)].life==10) && ((playerp->elem!=PT_LIGH && parts[ID(r)].temp>=323) || parts[ID(r)].temp<=243) && (!playerp->rocketBoots || (r&0xFF)!=PT_PLSM))
 		{
 			parts[i].life -= 2;
 			playerp->accs[3] -= 1;
@@ -615,7 +615,7 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 		{
 			int t = parts[i].type;
 			unsigned char tmp = parts[i].tmp&0xFF;
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, r>>8);
+			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 			if (channel->StoreParticle(sim, i, 1))//slot=1 gives rx=0, ry=1 in PRTO_update
 			{
 				//stop new STKM/fighters being created to replace the ones in the portal:
@@ -630,11 +630,11 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 		{
 			if (!legacy_enable)
 			{
-				parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);
+				parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);
 			}
 			sim->part_kill(i);
 		}
-		if (((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life==10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==parts[i].type)!=(parts[r>>8].tmp&1)) && parts[i].type)
+		if (((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[ID(r)].life==10)) && (!parts[ID(r)].ctype || (parts[ID(r)].ctype==parts[i].type)!=(parts[ID(r)].tmp&1)) && parts[i].type)
 		{
 			sim->part_kill(i);
 		}

@@ -38,7 +38,7 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].ctype = r&0xFF;
 						if (rt==PT_LIFE || rt==PT_LAVA)
-							parts[i].tmp = parts[r>>8].ctype;
+							parts[i].tmp = parts[ID(r)].ctype;
 					}
 				}
 	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && parts[i].life==10)

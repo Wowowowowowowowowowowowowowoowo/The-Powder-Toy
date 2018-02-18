@@ -34,25 +34,25 @@ int DEST_update(UPDATE_FUNC_ARGS)
 		sim->air->pv[y/CELL][x/CELL]+=20.0f;
 		if (rand()%2)
 		{
-			sim->part_create(r>>8, x+rx, y+ry, PT_NEUT);
-			parts[r>>8].temp = MAX_TEMP;
+			sim->part_create(ID(r), x+rx, y+ry, PT_NEUT);
+			parts[ID(r)].temp = MAX_TEMP;
 			sim->air->pv[y/CELL][x/CELL] += 10.0f;
 			parts[i].life-=4;
 		}
 	}
 	else if ((r&0xFF)==PT_INSL)
 	{
-		sim->part_create(r>>8, x+rx, y+ry, PT_PLSM);
+		sim->part_create(ID(r), x+rx, y+ry, PT_PLSM);
 	}
 	else if (!(rand()%3))
 	{
-		kill_part(r>>8);
+		kill_part(ID(r));
 		parts[i].life -= 4*((sim->elements[r&0xFF].Properties&TYPE_SOLID)?3:1);
 		if (parts[i].life<=0)
 			parts[i].life=1;
 	}
 	else if (sim->elements[r&0xFF].HeatConduct)
-		parts[r>>8].temp = MAX_TEMP;
+		parts[ID(r)].temp = MAX_TEMP;
 	parts[i].temp = MAX_TEMP;
 	sim->air->pv[y/CELL][x/CELL]+=80.0f;
 	return 0;

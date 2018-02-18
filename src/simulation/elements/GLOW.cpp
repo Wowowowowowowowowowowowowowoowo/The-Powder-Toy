@@ -27,8 +27,8 @@ int GLOW_update(UPDATE_FUNC_ARGS)
 				if ((r&0xFF) == PT_WATR && !(rand()%400))
 				{
 					kill_part(i);
-					part_change_type(r>>8, x+rx, y+ry, PT_DEUT);
-					parts[r>>8].life = 10;
+					part_change_type(ID(r), x+rx, y+ry, PT_DEUT);
+					parts[ID(r)].life = 10;
 					return 1;
 				}
 			}

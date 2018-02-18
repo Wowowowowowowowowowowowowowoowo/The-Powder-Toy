@@ -27,11 +27,11 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 					int r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF) == PT_SPRK && parts[r>>8].life == 3)
+					if ((r&0xFF) == PT_SPRK && parts[ID(r)].life == 3)
 					{
 						bool isBlackDeco = false;
-						int destroy = (parts[r>>8].ctype==PT_PSCN) ? 1 : 0;
-						int nostop = (parts[r>>8].ctype==PT_INST) ? 1 : 0;
+						int destroy = (parts[ID(r)].ctype==PT_PSCN) ? 1 : 0;
+						int nostop = (parts[ID(r)].ctype==PT_INST) ? 1 : 0;
 						int colored = 0, rt;
 						for (docontinue = 1, nxx = 0, nyy = 0, nxi = rx*-1, nyi = ry*-1; docontinue; nyy+=nyi, nxx+=nxi)
 						{
@@ -40,7 +40,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 
 							r = pmap[y+nyi+nyy][x+nxi+nxx];
 							rt = r & 0xFF;
-							r = r >> 8;
+							r = ID(r);
 							if (!rt)
 							{
 								int nr = sim->part_create(-1, x+nxi+nxx, y+nyi+nyy, PT_BRAY);

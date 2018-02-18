@@ -27,11 +27,11 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 				{
 				case PT_SALT:
 					if (!(rand()%2000))
-						part_change_type(r>>8, x+rx, y+ry, PT_SLTW);
+						part_change_type(ID(r), x+rx, y+ry, PT_SLTW);
 					break;
 				case PT_PLNT:
 					if (!(rand()%40))
-						kill_part(r>>8);
+						kill_part(ID(r));
 					break;
 				case PT_RBDM:
 				case PT_LRBD:
@@ -43,9 +43,9 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 					}
 					break;
 				case PT_FIRE:
-					if (parts[r>>8].ctype != PT_WATR)
+					if (parts[ID(r)].ctype != PT_WATR)
 					{
-						kill_part(r>>8);
+						kill_part(ID(r));
 						if (!(rand()%30))
 						{
 							kill_part(i);

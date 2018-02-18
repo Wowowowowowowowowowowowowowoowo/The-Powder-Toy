@@ -30,10 +30,10 @@ int RIME_update(UPDATE_FUNC_ARGS)
 					part_change_type(i,x,y,PT_FOG);
 					parts[i].life = rand()%50 + 60;
 				}
-				else if ((r&0xFF)==PT_FOG&&parts[r>>8].life>0)
+				else if ((r&0xFF)==PT_FOG&&parts[ID(r)].life>0)
 				{
 					part_change_type(i,x,y,PT_FOG);
-					parts[i].life = parts[r>>8].life;
+					parts[i].life = parts[ID(r)].life;
 				}
 			}
 	return 0;

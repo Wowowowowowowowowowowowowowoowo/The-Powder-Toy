@@ -26,7 +26,7 @@ int EXPL_update(UPDATE_FUNC_ARGS)
 				if (!(r&0xFF))
 					continue;
 				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF) != PT_EMBR) {
-					parts[r>>8].flags |= FLAG_EXPLODE;
+					parts[ID(r)].flags |= FLAG_EXPLODE;
 				}
 			}
 	return 0;

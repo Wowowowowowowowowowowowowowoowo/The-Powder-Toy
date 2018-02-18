@@ -113,8 +113,8 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 						if (!r)
 							continue;
 
-						if ((parts[r>>8].type == PT_SOAP) && (parts[r>>8].ctype&1) && !(parts[r>>8].ctype&4))
-							attach(i, r>>8);
+						if ((parts[ID(r)].type == PT_SOAP) && (parts[ID(r)].ctype&1) && !(parts[ID(r)].ctype&4))
+							attach(i, ID(r));
 					}
 		}
 		else
@@ -140,25 +140,25 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 							if ((r&0xFF) == PT_SOAP)
 							{
-								if (parts[r>>8].ctype == 1)
+								if (parts[ID(r)].ctype == 1)
 								{
 									int buf = parts[i].tmp;
 
-									parts[i].tmp = r>>8;
+									parts[i].tmp = ID(r);
 									if (parts[buf].type == PT_SOAP)
-										parts[buf].tmp2 = r>>8;
-									parts[r>>8].tmp2 = i;
-									parts[r>>8].tmp = buf;
-									parts[r>>8].ctype = 7;
+										parts[buf].tmp2 = ID(r);
+									parts[ID(r)].tmp2 = i;
+									parts[ID(r)].tmp = buf;
+									parts[ID(r)].ctype = 7;
 								}
-								else if (parts[r>>8].ctype == 7 && parts[i].tmp != r>>8 && parts[i].tmp2 != r>>8)
+								else if (parts[ID(r)].ctype == 7 && parts[i].tmp != ID(r) && parts[i].tmp2 != ID(r))
 								{
 									if (parts[parts[i].tmp].type == PT_SOAP)
-										parts[parts[i].tmp].tmp2 = parts[r>>8].tmp2;
-									if (parts[parts[r>>8].tmp2].type == PT_SOAP)
-										parts[parts[r>>8].tmp2].tmp = parts[i].tmp;
-									parts[r>>8].tmp2 = i;
-									parts[i].tmp = r>>8;
+										parts[parts[i].tmp].tmp2 = parts[ID(r)].tmp2;
+									if (parts[parts[ID(r)].tmp2].type == PT_SOAP)
+										parts[parts[ID(r)].tmp2].tmp = parts[i].tmp;
+									parts[ID(r)].tmp2 = i;
+									parts[i].tmp = ID(r);
 								}
 							}
 						}
@@ -211,8 +211,8 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 					if ((r&0xFF) == PT_OIL)
 					{
-						parts[i].vx = parts[r>>8].vx = (parts[i].vx*0.5f + parts[r>>8].vx)/2;
-						parts[i].vy = parts[r>>8].vy = ((parts[i].vy-0.1f)*0.5f + parts[r>>8].vy)/2;
+						parts[i].vx = parts[ID(r)].vx = (parts[i].vx*0.5f + parts[ID(r)].vx)/2;
+						parts[i].vy = parts[ID(r)].vy = ((parts[i].vy-0.1f)*0.5f + parts[ID(r)].vy)/2;
 					}
 				}
 	}
@@ -226,17 +226,17 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 					continue;
 				if ((r&0xFF)!=PT_SOAP)
 				{
-					ta = (float)COLA(parts[r>>8].dcolour);
-					tr = (float)COLR(parts[r>>8].dcolour);
-					tg = (float)COLG(parts[r>>8].dcolour);
-					tb = (float)COLB(parts[r>>8].dcolour);
+					ta = (float)COLA(parts[ID(r)].dcolour);
+					tr = (float)COLR(parts[ID(r)].dcolour);
+					tg = (float)COLG(parts[ID(r)].dcolour);
+					tb = (float)COLB(parts[ID(r)].dcolour);
 					
 					na = (int)(ta*BLEND);
 					nr = (int)(tr*BLEND);
 					ng = (int)(tg*BLEND);
 					nb = (int)(tb*BLEND);
 					
-					parts[r>>8].dcolour = COLARGB(na, nr, ng, nb);
+					parts[ID(r)].dcolour = COLARGB(na, nr, ng, nb);
 				}
 			}
 

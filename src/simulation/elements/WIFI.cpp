@@ -77,12 +77,12 @@ int WIFI_update(UPDATE_FUNC_ARGS)
 				// channel[1] - whether channel should be active on next frame
 				if (channel[0])
 				{
-					if (((r&0xFF)==PT_NSCN||(r&0xFF)==PT_PSCN||(r&0xFF)==PT_INWR) && !parts[r>>8].life)
+					if (((r&0xFF)==PT_NSCN||(r&0xFF)==PT_PSCN||(r&0xFF)==PT_INWR) && !parts[ID(r)].life)
 					{
-						sim->spark_conductive(r>>8, x+rx, y+ry);
+						sim->spark_conductive(ID(r), x+rx, y+ry);
 					}
 				}
-				if ((r&0xFF)==PT_SPRK && parts[r>>8].ctype!=PT_NSCN && parts[r>>8].life>=3)
+				if ((r&0xFF)==PT_SPRK && parts[ID(r)].ctype!=PT_NSCN && parts[ID(r)].life>=3)
 				{
 					channel[1] = 1;
 				}

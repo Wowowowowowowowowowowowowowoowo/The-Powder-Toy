@@ -28,11 +28,11 @@ int PSNS_update(UPDATE_FUNC_ARGS)
 					if (!r)
 						continue;
 					int rt = r&0xFF;
-					if (parts_avg(i, r>>8, PT_INSL) != PT_INSL)
+					if (parts_avg(i, ID(r), PT_INSL) != PT_INSL)
 					{
-						if ((sim->elements[rt].Properties&PROP_CONDUCTS) && !(rt==PT_WATR || rt==PT_SLTW || rt==PT_NTCT || rt==PT_PTCT || rt==PT_INWR) && parts[r>>8].life == 0)
+						if ((sim->elements[rt].Properties&PROP_CONDUCTS) && !(rt==PT_WATR || rt==PT_SLTW || rt==PT_NTCT || rt==PT_PTCT || rt==PT_INWR) && parts[ID(r)].life == 0)
 						{
-							sim->spark_conductive(r>>8, x+rx, y+ry);
+							sim->spark_conductive(ID(r), x+rx, y+ry);
 						}
 					}
 				}

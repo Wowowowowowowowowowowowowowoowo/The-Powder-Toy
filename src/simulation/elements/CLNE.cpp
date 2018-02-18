@@ -37,7 +37,7 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].ctype = rt;
 						if (rt==PT_LIFE || rt==PT_LAVA)
-							parts[i].tmp = parts[r>>8].ctype;
+							parts[i].tmp = parts[ID(r)].ctype;
 					}
 				}
 	}

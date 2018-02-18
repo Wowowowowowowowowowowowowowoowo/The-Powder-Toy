@@ -52,14 +52,14 @@ public:
 				}
 				if ((r&0xFF) == PT_LIFE)
 				{
-					unsigned char golnum = (unsigned char)(parts[r>>8].ctype+1);
+					unsigned char golnum = (unsigned char)(parts[ID(r)].ctype+1);
 					if (golnum <= 0 || golnum > NGOL)
 					{
-						sim->part_kill(r>>8);
+						sim->part_kill(ID(r));
 						continue;
 					}
 					gol[ny][nx] = golnum;
-					if (parts[r>>8].tmp == grule[golnum][9]-1)
+					if (parts[ID(r)].tmp == grule[golnum][9]-1)
 					{
 						for (int nnx = -1; nnx <= 1; nnx++)
 						{
@@ -93,7 +93,7 @@ public:
 					}
 					else
 					{
-						parts[r>>8].tmp--;
+						parts[ID(r)].tmp--;
 					}
 				}
 			}
@@ -132,16 +132,16 @@ public:
 					//subtract 1 because it counted itself
 					else if (grule[golnum][neighbors-1] == 0 || grule[golnum][neighbors-1] == 2)
 					{
-						if (parts[r>>8].tmp == grule[golnum][9]-1)
-							parts[r>>8].tmp--;
+						if (parts[ID(r)].tmp == grule[golnum][9]-1)
+							parts[ID(r)].tmp--;
 					}
 					//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
 					for (int z = 0; z < 9; z++)
 						gol2[ny][nx][z] = 0;
 				}
 				//we still need to kill things with 0 neighbors (higher state life)
-				if (r && parts[r>>8].tmp <= 0)
-					sim->part_kill(r>>8);
+				if (r && parts[ID(r)].tmp <= 0)
+					sim->part_kill(ID(r));
 			}
 		}
 		if (createdSomething)

@@ -27,8 +27,8 @@ int FRZZ_update(UPDATE_FUNC_ARGS)
 					continue;
 				if ((r&0xFF)==PT_WATR&& !(rand()%20))
 				{
-					part_change_type(r>>8,x+rx,y+ry,PT_FRZW);
-					parts[r>>8].life = 100;
+					part_change_type(ID(r),x+rx,y+ry,PT_FRZW);
+					parts[ID(r)].life = 100;
 					kill_part(i);
 					return 1;
 				}

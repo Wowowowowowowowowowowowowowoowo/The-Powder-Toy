@@ -42,14 +42,14 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].vx *= 0.90f;
 						parts[i].vy *= 0.90f;
-						sim->part_create(r>>8, x+rx, y+ry, PT_PHOT);
+						sim->part_create(ID(r), x+rx, y+ry, PT_PHOT);
 						rrr = (rand()%360)*M_PI/180.0f;
 						if ((r&0xFF) == PT_ISOZ)
 							rr = (rand()%128+128)/127.0f;
 						else
 							rr = (rand()%228+128)/127.0f;
-						parts[r>>8].vx = rr*cosf(rrr);
-						parts[r>>8].vy = rr*sinf(rrr);
+						parts[ID(r)].vx = rr*cosf(rrr);
+						parts[ID(r)].vy = rr*sinf(rrr);
 						sim->air->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 					}
 				}
@@ -80,7 +80,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 				}
 				else if ((r&0xFF) == PT_FILT)
 				{
-					if (parts[r>>8].tmp == 9)
+					if (parts[ID(r)].tmp == 9)
 					{
 						parts[i].vx += ((float)(rand()%1000-500))/1000.0f;
 						parts[i].vy += ((float)(rand()%1000-500))/1000.0f;

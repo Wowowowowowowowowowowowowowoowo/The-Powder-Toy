@@ -35,8 +35,8 @@ int SHLD4_update(UPDATE_FUNC_ARGS)
 				}
 				else if ((r&0xFF)==PT_SHLD2 && parts[i].life>3)
 				{
-					part_change_type(r>>8,x+rx,y+ry,PT_SHLD3);
-					parts[r>>8].life = 7;
+					part_change_type(ID(r),x+rx,y+ry,PT_SHLD3);
+					parts[ID(r)].life = 7;
 				}
 				else if ((r&0xFF)==PT_SPRK && !parts[i].life)
 					for (nnx=-1; nnx<2; nnx++)

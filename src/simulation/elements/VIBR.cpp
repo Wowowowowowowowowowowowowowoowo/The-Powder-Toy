@@ -57,9 +57,9 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			ry = (rndstore>>2)%3-1;
 			rndstore = rndstore >> 4;
 			r = pmap[y+ry][x+rx];
-			if ((r&0xFF) && (r&0xFF) != PT_BREL && (sim->elements[r&0xFF].Properties&PROP_CONDUCTS) && !parts[r>>8].life)
+			if ((r&0xFF) && (r&0xFF) != PT_BREL && (sim->elements[r&0xFF].Properties&PROP_CONDUCTS) && !parts[ID(r)].life)
 			{
-				sim->spark_conductive(r>>8, x+rx, y+ry);
+				sim->spark_conductive(ID(r), x+rx, y+ry);
 			}
 		}
 		//Release all heat
@@ -70,9 +70,9 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			if(BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
-				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[r>>8].life==10))
+				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[ID(r)].life==10))
 				{
-					parts[r>>8].temp += parts[i].tmp*3;
+					parts[ID(r)].temp += parts[i].tmp*3;
 					parts[i].tmp = 0;
 				}
 			}
@@ -122,11 +122,11 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 					//Makes VIBR/BVBR around it get tmp to start exploding too
 					if (((r&0xFF)==PT_VIBR  || (r&0xFF)==PT_BVBR))
 					{
-						if (!parts[r>>8].life)
-							parts[r>>8].tmp += 45;
+						if (!parts[ID(r)].life)
+							parts[ID(r)].tmp += 45;
 						else if (parts[i].tmp2 && parts[i].life > 75 && rand()%2)
 						{
-							parts[r>>8].tmp2 = 1;
+							parts[ID(r)].tmp2 = 1;
 							parts[i].tmp = 0;
 						}
 					}
@@ -166,10 +166,10 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			r = pmap[y+ry][x+rx];
 			if ((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR)
 				continue;
-			if (parts[i].tmp > parts[r>>8].tmp)
+			if (parts[i].tmp > parts[ID(r)].tmp)
 			{
-				transfer = parts[i].tmp - parts[r>>8].tmp;
-				parts[r>>8].tmp += transfer/2;
+				transfer = parts[i].tmp - parts[ID(r)].tmp;
+				parts[ID(r)].tmp += transfer/2;
 				parts[i].tmp -= transfer/2;
 				break;
 			}

@@ -52,7 +52,7 @@ int contact_part(int i, int tp)
 				if (!r)
 					continue;
 				if ((r&0xFF)==tp)
-					return r>>8;
+					return ID(r);
 			}
 	return -1;
 }
@@ -78,7 +78,7 @@ int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tm
 	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
 		int r = pmap[y][x];
-		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[r>>8].life >= 10)) && (!parts[r>>8].ctype || (parts[r>>8].ctype==c)!=(parts[r>>8].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
+		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[ID(r)].life >= 10)) && (!parts[ID(r)].ctype || (parts[ID(r)].ctype==c)!=(parts[ID(r)].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
 			return 1;
 	}
 	else
@@ -192,7 +192,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				if (ptypes[rt].properties & PROP_INDESTRUCTIBLE)
 				{
 					if (sim->elements[rt].HeatConduct)
-						parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+						parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful/10, MIN_TEMP, MAX_TEMP);
 					continue;
 				}
 				switch (rt)
@@ -203,53 +203,53 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				case PT_THDR:
 				case PT_CLNE:
 				case PT_FIRE:
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful/10, MIN_TEMP, MAX_TEMP);
 					continue;
 				case PT_DEUT:
 				case PT_PLUT:
 					//start nuclear reactions
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful, MIN_TEMP, MAX_TEMP);
+					parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful, MIN_TEMP, MAX_TEMP);
 					sim->air->pv[y/CELL][x/CELL] += powderful/35;
 					if (!(rand()%3))
 					{
-						part_change_type(r>>8,x+rx,y+ry,PT_NEUT);
-						parts[r>>8].life = rand()%480+480;
-						parts[r>>8].vx=rand()%10-5.0f;
-						parts[r>>8].vy=rand()%10-5.0f;
+						part_change_type(ID(r),x+rx,y+ry,PT_NEUT);
+						parts[ID(r)].life = rand()%480+480;
+						parts[ID(r)].vx=rand()%10-5.0f;
+						parts[ID(r)].vy=rand()%10-5.0f;
 					}
 					break;
 				case PT_COAL:
 				case PT_BCOL:
 					//ignite coal
-					if (parts[r>>8].life > 100)
-						parts[r>>8].life = 99;
+					if (parts[ID(r)].life > 100)
+						parts[ID(r)].life = 99;
 					break;
 				case PT_STKM:
 					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->elem != PT_LIGH)
-						parts[r>>8].life -= powderful/100;
+						parts[ID(r)].life -= powderful/100;
 					break;
 				case PT_STKM2:
 					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->elem != PT_LIGH)
-						parts[r>>8].life -= powderful/100;
+						parts[ID(r)].life -= powderful/100;
 					break;
 				case PT_HEAC:
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/10, MIN_TEMP, MAX_TEMP);
-					if (parts[r>>8].temp > sim->elements[PT_HEAC].HighTemperatureTransitionThreshold)
+					parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful/10, MIN_TEMP, MAX_TEMP);
+					if (parts[ID(r)].temp > sim->elements[PT_HEAC].HighTemperatureTransitionThreshold)
 					{
-						sim->part_change_type(r>>8, x+rx, y+ry, PT_LAVA);
-						parts[r>>8].ctype = PT_HEAC;
+						sim->part_change_type(ID(r), x+rx, y+ry, PT_LAVA);
+						parts[ID(r)].ctype = PT_HEAC;
 					}
 					break;
 				default:
 					break;
 				}
-				if ((ptypes[rt].properties&PROP_CONDUCTS) && !parts[r>>8].life)
+				if ((ptypes[rt].properties&PROP_CONDUCTS) && !parts[ID(r)].life)
 				{
-					sim->spark_conductive(r>>8, x+rx, y+ry);
+					sim->spark_conductive(ID(r), x+rx, y+ry);
 				}
 				sim->air->pv[y/CELL][x/CELL] += powderful/400;
 				if (sim->elements[rt].HeatConduct)
-					parts[r>>8].temp = restrict_flt(parts[r>>8].temp+powderful/1.3f, MIN_TEMP, MAX_TEMP);
+					parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful/1.3f, MIN_TEMP, MAX_TEMP);
 			}
 	if (parts[i].tmp2 == 3)
 	{

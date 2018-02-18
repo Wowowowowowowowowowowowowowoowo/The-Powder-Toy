@@ -29,7 +29,7 @@ int CAUS_update(UPDATE_FUNC_ARGS)
 				{
 					if (sim->air->pv[(y+ry)/CELL][(x+rx)/CELL] > 3)
 					{
-						sim->part_change_type(r>>8, x+rx, y+ry, PT_RFRG);
+						sim->part_change_type(ID(r), x+rx, y+ry, PT_RFRG);
 						sim->part_change_type(i, x, y, PT_RFRG);
 					}
 				}
@@ -37,7 +37,7 @@ int CAUS_update(UPDATE_FUNC_ARGS)
 				{
 					if ((!(sim->elements[r&0xFF].Properties&PROP_CLONE) && sim->elements[r&0xFF].Hardness>(rand()%1000))&&parts[i].life>=50)
 					{
-						if (parts_avg(i, r>>8,PT_GLAS)!= PT_GLAS)//GLAS protects stuff from acid
+						if (parts_avg(i, ID(r),PT_GLAS)!= PT_GLAS)//GLAS protects stuff from acid
 						{
 							float newtemp = ((60.0f-(float)sim->elements[r&0xFF].Hardness))*7.0f;
 							if(newtemp < 0){
@@ -45,7 +45,7 @@ int CAUS_update(UPDATE_FUNC_ARGS)
 							}
 							parts[i].temp += newtemp;
 							parts[i].life--;
-							sim->part_kill(r>>8);
+							sim->part_kill(ID(r));
 							continue;
 						}
 					}

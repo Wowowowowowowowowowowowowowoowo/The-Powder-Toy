@@ -28,15 +28,15 @@ int BTRY_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = (r&0xFF);
-				if (parts_avg(i,r>>8,PT_INSL) != PT_INSL)
+				if (parts_avg(i,ID(r),PT_INSL) != PT_INSL)
 				{
-					if (/*(parts[i].tmp == 0 || (parts[i].ctype != 0 && parts[i].life >= 10)) &&*/ (ptypes[rt].properties&PROP_CONDUCTS) /*&& !((rt==PT_METL||rt==PT_PSCN||rt==PT_NSCN)&&parts[i].tmp)*/ && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0)
+					if (/*(parts[i].tmp == 0 || (parts[i].ctype != 0 && parts[i].life >= 10)) &&*/ (ptypes[rt].properties&PROP_CONDUCTS) /*&& !((rt==PT_METL||rt==PT_PSCN||rt==PT_NSCN)&&parts[i].tmp)*/ && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[ID(r)].life==0)
 					{
-						sim->spark_conductive(r>>8, x+rx, y+ry);
+						sim->spark_conductive(ID(r), x+rx, y+ry);
 						//if (parts[i].ctype)
 						//	parts[i].ctype--;
 					}
-					/*if (parts[i].ctype < parts[i].tmp && rt == PT_SPRK && parts[r>>8].ctype == PT_METL && parts[r>>8].life == 3)
+					/*if (parts[i].ctype < parts[i].tmp && rt == PT_SPRK && parts[ID(r)].ctype == PT_METL && parts[ID(r)].life == 3)
 					{
 						parts[i].ctype++;
 					}*/

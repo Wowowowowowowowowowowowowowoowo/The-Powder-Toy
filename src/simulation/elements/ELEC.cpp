@@ -47,7 +47,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 					sim->part_kill(i);
 					return 1;
 				case PT_LCRY:
-					parts[r>>8].tmp2 = 5+rand()%5;
+					parts[ID(r)].tmp2 = 5+rand()%5;
 					break;
 				case PT_WATR:
 				case PT_DSTW:
@@ -55,39 +55,39 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 				case PT_CBNW:
 					if (!(rand()%3))
 					{
-						sim->part_create(r>>8, x+rx, y+ry, PT_O2);
+						sim->part_create(ID(r), x+rx, y+ry, PT_O2);
 					}
 					else
 					{
-						sim->part_create(r>>8, x+rx, y+ry, PT_H2);
+						sim->part_create(ID(r), x+rx, y+ry, PT_H2);
 					}
 					sim->part_kill(i);
 					return 1;
 				case PT_PROT:
-					if (parts[r>>8].tmp2&0x1)
+					if (parts[ID(r)].tmp2&0x1)
 						continue;
 				case PT_NEUT:
-					sim->part_change_type(r>>8, x+rx, y+ry, PT_H2);
-					parts[r>>8].life = 0;
-					parts[r>>8].ctype = 0;
+					sim->part_change_type(ID(r), x+rx, y+ry, PT_H2);
+					parts[ID(r)].life = 0;
+					parts[ID(r)].ctype = 0;
 					sim->part_kill(i);
 					break;
 				case PT_DEUT:
-					if (parts[r>>8].life < 6000)
-						parts[r>>8].life += 1;
-					parts[r>>8].temp = 0;
+					if (parts[ID(r)].life < 6000)
+						parts[ID(r)].life += 1;
+					parts[ID(r)].temp = 0;
 					sim->part_kill(i);
 					return 1;
 				case PT_EXOT:
-					parts[r>>8].tmp2 += 5;
-					parts[r>>8].life = 1000;
+					parts[ID(r)].tmp2 += 5;
+					parts[ID(r)].life = 1000;
 					break;
 				case PT_NONE: //seems to speed up ELEC even if it isn't used
 					break;
 				default:
 					if (sim->elements[rt].Properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
 					{
-						sim->spark_conductive_attempt(r>>8, x+rx, y+ry);
+						sim->spark_conductive_attempt(ID(r), x+rx, y+ry);
 						sim->part_kill(i);
 						return 1;
 					}

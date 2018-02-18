@@ -60,9 +60,9 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 				continue;// Handling these is a bit more complicated, and is done in STKM_interact()
 
 			if ((r&0xFF) == PT_SOAP)
-				detach(r>>8);
+				detach(ID(r));
 
-			if (channel->StoreParticle(sim, r>>8, count))
+			if (channel->StoreParticle(sim, ID(r), count))
 				fe = 1;
 		}
 	}

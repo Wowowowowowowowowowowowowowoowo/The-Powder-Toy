@@ -38,7 +38,7 @@ int CONV_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].ctype = r&0xFF;
 						if ((r&0xFF)==PT_LIFE)
-							parts[i].ctype |= (parts[r>>8].ctype << 8);
+							parts[i].ctype |= (parts[ID(r)].ctype << 8);
 					}
 				}
 	}
@@ -56,7 +56,7 @@ int CONV_update(UPDATE_FUNC_ARGS)
 						continue;
 					if((r&0xFF)!=PT_CONV && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=ctype)
 					{
-						sim->part_create(r>>8, x+rx, y+ry, ctype, ctypeExtra);
+						sim->part_create(ID(r), x+rx, y+ry, ctype, ctypeExtra);
 					}
 				}
 	}

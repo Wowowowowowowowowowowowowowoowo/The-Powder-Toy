@@ -31,13 +31,13 @@ int CLST_update(UPDATE_FUNC_ARGS)
 					if (!(rand()%1500))
 					{
 						sim->part_create(i, x, y, PT_PSTS);
-						kill_part(r>>8);
+						kill_part(ID(r));
 					}
 				}
 				else if ((r&0xFF) == PT_NITR)
 				{
 					sim->part_create(i, x, y, PT_BANG);
-					sim->part_create(r>>8, x+rx, y+ry, PT_BANG);
+					sim->part_create(ID(r), x+rx, y+ry, PT_BANG);
 				}
 				else if ((r&0xFF) == PT_CLST)
 				{

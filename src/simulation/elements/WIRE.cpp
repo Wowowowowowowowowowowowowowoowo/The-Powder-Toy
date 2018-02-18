@@ -44,14 +44,14 @@ int WIRE_update(UPDATE_FUNC_ARGS)
 				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF) == PT_SPRK && parts[r>>8].life == 3 && parts[r>>8].ctype == PT_PSCN)
+				if ((r&0xFF) == PT_SPRK && parts[ID(r)].life == 3 && parts[ID(r)].ctype == PT_PSCN)
 				{
 					parts[i].ctype = 1;
 					return 0;
 				}
 				else if ((r&0xFF) == PT_NSCN && parts[i].tmp == 1)
-					sim->spark_conductive_attempt(r>>8, x+rx, y+ry);
-				else if ((r&0xFF) == PT_WIRE && ((r>>8) > i ? parts[r>>8].ctype == 1 : parts[r>>8].tmp == 1) && !parts[i].tmp)
+					sim->spark_conductive_attempt(ID(r), x+rx, y+ry);
+				else if ((r&0xFF) == PT_WIRE && ((ID(r)) > i ? parts[ID(r)].ctype == 1 : parts[ID(r)].tmp == 1) && !parts[i].tmp)
 					count++;
 			}
 		}

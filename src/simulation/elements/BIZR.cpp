@@ -32,10 +32,10 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 						continue;
 					if ((r&0xFF)!=PT_BIZR && (r&0xFF)!=PT_BIZRG  && (r&0xFF)!=PT_BIZRS)
 					{
-						ta = (float)COLA(parts[r>>8].dcolour);
-						tr = (float)COLR(parts[r>>8].dcolour);
-						tg = (float)COLG(parts[r>>8].dcolour);
-						tb = (float)COLB(parts[r>>8].dcolour);
+						ta = (float)COLA(parts[ID(r)].dcolour);
+						tr = (float)COLR(parts[ID(r)].dcolour);
+						tg = (float)COLG(parts[ID(r)].dcolour);
+						tb = (float)COLB(parts[ID(r)].dcolour);
 
 						ma = (float)COLA(parts[i].dcolour);
 						mr = (float)COLR(parts[i].dcolour);
@@ -47,7 +47,7 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 						nb = (int)((tb*BLEND) + (mb*(1 - BLEND)));
 						na = (int)((ta*BLEND) + (ma*(1 - BLEND)));
 						
-						parts[r>>8].dcolour = COLARGB(na, nr, ng, nb);
+						parts[ID(r)].dcolour = COLARGB(na, nr, ng, nb);
 					}
 				}
 	}

@@ -35,12 +35,12 @@ int WARP_update(UPDATE_FUNC_ARGS)
 				continue;
 			if ((r&0xFF) != PT_WARP && (r&0xFF) != PT_STKM && (r&0xFF) != PT_STKM2 && !(sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[r&0xFF].Properties&PROP_CLONE))
 			{
-				parts[i].x = parts[r>>8].x;
-				parts[i].y = parts[r>>8].y;
-				parts[r>>8].x = (float)x;
-				parts[r>>8].y = (float)y;
-				parts[r>>8].vx = (rand()%4)-1.5f;
-				parts[r>>8].vy = (rand()%4)-2.0f;
+				parts[i].x = parts[ID(r)].x;
+				parts[i].y = parts[ID(r)].y;
+				parts[ID(r)].x = (float)x;
+				parts[ID(r)].y = (float)y;
+				parts[ID(r)].vx = (rand()%4)-1.5f;
+				parts[ID(r)].vy = (rand()%4)-2.0f;
 				parts[i].life += 4;
 				pmap[y][x] = r;
 				pmap[y+ry][x+rx] = (i<<8) | parts[i].type;
