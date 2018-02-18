@@ -109,7 +109,7 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 						if (!n)
 							continue;
 						int ntype = n&0xFF;
-						n = n >> 8;
+						n = ID(n);
 						//Some elements should only be affected by wire/swch, or by a spark on inst/semiconductor
 						//So not affected by spark on metl, watr etc
 						if (is_elec)

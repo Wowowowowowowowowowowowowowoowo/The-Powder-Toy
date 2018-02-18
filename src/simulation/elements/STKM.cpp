@@ -401,7 +401,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 		if (sim->elements[r&0xFF].Properties&TYPE_SOLID)
 		{
 			if (pmap[ry][rx])
-				sim->spark_conductive_attempt(pmap[ry][rx]>>8, rx, ry);
+				sim->spark_conductive_attempt(ID(pmap[ry][rx]), rx, ry);
 			playerp->frames = 0;
 		}
 		else

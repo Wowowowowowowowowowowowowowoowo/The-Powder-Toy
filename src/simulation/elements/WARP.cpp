@@ -43,7 +43,7 @@ int WARP_update(UPDATE_FUNC_ARGS)
 				parts[ID(r)].vy = (rand()%4)-2.0f;
 				parts[i].life += 4;
 				pmap[y][x] = r;
-				pmap[y+ry][x+rx] = (i<<8) | parts[i].type;
+				pmap[y+ry][x+rx] = PMAP(i, parts[i].type);
 				trade = 5;
 			}
 		}

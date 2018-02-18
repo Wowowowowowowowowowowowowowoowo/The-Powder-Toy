@@ -39,7 +39,7 @@ int BANG_update(UPDATE_FUNC_ARGS)
 	}
 	else if(parts[i].tmp == 1)
 	{
-		if ((pmap[y][x]>>8 == (unsigned int)i))
+		if (ID(pmap[y][x]) == (unsigned)i)
 		{
 			PropertyValue tempValue;
 			tempValue.Integer = 2;

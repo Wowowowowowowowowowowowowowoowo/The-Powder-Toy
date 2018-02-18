@@ -19,13 +19,13 @@
 //INST that can be sparked
 bool contains_sparkable_INST(Simulation *sim, int x, int y)
 {
-	return (pmap[y][x]&0xFF) == PT_INST && parts[pmap[y][x]>>8].life <= 0;
+	return (pmap[y][x]&0xFF) == PT_INST && parts[ID(pmap[y][x])].life <= 0;
 }
 
 //Any INST or SPRK(INST) regardless of life
 bool part_cmp_conductive(unsigned int p, int t)
 {
-	return ((p&0xFF)==(unsigned int)t || ((p&0xFF)==PT_SPRK && parts[p>>8].ctype==t));
+	return ((p&0xFF)==(unsigned int)t || ((p&0xFF)==PT_SPRK && parts[ID(p)].ctype==t));
 }
 
 int INST_flood_spark(Simulation *sim, int x, int y)
@@ -63,7 +63,7 @@ int INST_flood_spark(Simulation *sim, int x, int y)
 			{
 				if (contains_sparkable_INST(sim, x, y))
 				{
-					sim->spark_conductive(pmap[y][x]>>8, x, y);
+					sim->spark_conductive(ID(pmap[y][x]), x, y);
 					created_something = 1;
 				}
 			}

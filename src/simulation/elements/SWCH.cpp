@@ -17,7 +17,7 @@
 
 bool isRedBRAY(UPDATE_FUNC_ARGS, int xc, int yc)
 {
-	return (pmap[yc][xc]&0xFF) == PT_BRAY && parts[pmap[yc][xc]>>8].tmp == 2;
+	return (pmap[yc][xc]&0xFF) == PT_BRAY && parts[ID(pmap[yc][xc])].tmp == 2;
 }
 
 int SWCH_update(UPDATE_FUNC_ARGS)

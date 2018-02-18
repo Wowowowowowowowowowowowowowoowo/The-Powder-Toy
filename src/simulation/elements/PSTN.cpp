@@ -118,20 +118,20 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 		{
 			posY = stackY + (c*newY);
 			posX = stackX + (c*newX);
-			MoveStack(sim, posX, posY, directionX, directionY, maxSize, amount, retract, block, !parts[pmap[posY][posX]>>8].tmp, 1);
+			MoveStack(sim, posX, posY, directionX, directionY, maxSize, amount, retract, block, !parts[ID(pmap[posY][posX])].tmp, 1);
 		}
 		for (c = 1; c < maxLeft; c++)
 		{
 			posY = stackY - (c*newY);
 			posX = stackX - (c*newX);
-			MoveStack(sim, posX, posY, directionX, directionY, maxSize, amount, retract, block, !parts[pmap[posY][posX]>>8].tmp, 1);
+			MoveStack(sim, posX, posY, directionX, directionY, maxSize, amount, retract, block, !parts[ID(pmap[posY][posX])].tmp, 1);
 		}
 
 		//Remove arm section if retracting with FRME
 		if (retract)
 			for (j = 1; j <= amount; j++)
-				sim->part_kill(pmap[stackY+(directionY*-j)][stackX+(directionX*-j)]>>8);
-		return MoveStack(sim, stackX, stackY, directionX, directionY, maxSize, amount, retract, block, !parts[pmap[stackY][stackX]>>8].tmp, 1);
+				sim->part_kill(ID(pmap[stackY+(directionY*-j)][stackX+(directionX*-j)]));
+		return MoveStack(sim, stackX, stackY, directionX, directionY, maxSize, amount, retract, block, !parts[ID(pmap[stackY][stackX])].tmp, 1);
 	}
 	if (retract)
 	{
@@ -140,7 +140,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 		//Remove arm section if retracting without FRME
 		if (!callDepth)
 			for (j = 1; j <= amount; j++)
-				sim->part_kill(pmap[stackY+(directionY*-j)][stackX+(directionX*-j)]>>8);
+				sim->part_kill(ID(pmap[stackY+(directionY*-j)][stackX+(directionX*-j)]));
 		for (posX = stackX, posY = stackY; currentPos < maxSize && currentPos < XRES-1; posX += directionX, posY += directionY)
 		{
 			if (!(posX < XRES && posY < YRES && posX >= 0 && posY >= 0))
@@ -169,7 +169,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 				pmap[srcY][srcX] = 0;
 				parts[jP].x = (float)destX;
 				parts[jP].y = (float)destY;
-				pmap[destY][destX] = parts[jP].type|(jP<<8);
+				pmap[destY][destX] = PMAP(jP, parts[jP].type);
 			}
 			return amount;
 		}
@@ -197,7 +197,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 				pmap[srcY][srcX] = 0;
 				parts[jP].x = (float)destX;
 				parts[jP].y = (float)destY;
-				pmap[destY][destX] = parts[jP].type|(jP<<8);
+				pmap[destY][destX] = PMAP(jP, parts[jP].type);
 			}
 			return possibleMovement;
 		}

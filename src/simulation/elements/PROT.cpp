@@ -41,30 +41,31 @@ int PROT_update(UPDATE_FUNC_ARGS)
 	sim->air->pv[y/CELL][x/CELL] -= .003f;
 	int under = pmap[y][x];
 	int utype = under & 0xFF;
+	int uID = ID(under);
 	switch (utype)
 	{
 	case PT_SPRK:
 	{
 		//remove active sparks
-		int sparked = parts[under>>8].ctype;
+		int sparked = parts[uID].ctype;
 		if (sparked > 0 && sparked < PT_NUM && sim->elements[sparked].Enabled)
 		{
-			sim->part_change_type(under>>8, x, y, sparked);
-			parts[under>>8].life = 44 + parts[under>>8].life;
-			parts[under>>8].ctype = 0;
+			sim->part_change_type(uID, x, y, sparked);
+			parts[uID].life = 44 + parts[uID].life;
+			parts[uID].ctype = 0;
 		}
 		break;
 	}
 	case PT_DEUT:
-		if ((-((int)sim->air->pv[y/CELL][x/CELL]-4)+(parts[under>>8].life/100)) > rand()%200)
+		if ((-((int)sim->air->pv[y/CELL][x/CELL]-4)+(parts[uID].life/100)) > rand()%200)
 		{
-			DeutImplosion(sim, parts[under>>8].life, x, y, restrict_flt(parts[under>>8].temp + parts[under>>8].life*500, MIN_TEMP, MAX_TEMP), PT_PROT);
-			kill_part(under>>8);
+			DeutImplosion(sim, parts[uID].life, x, y, restrict_flt(parts[uID].temp + parts[uID].life*500, MIN_TEMP, MAX_TEMP), PT_PROT);
+			kill_part(uID);
 		}
 		break;
 	case PT_LCRY:
 		//Powered LCRY reaction: PROT->PHOT
-		if (parts[under>>8].life > 5 && !(rand() % 10))
+		if (parts[uID].life > 5 && !(rand() % 10))
 		{
 			part_change_type(i, x, y, PT_PHOT);
 			parts[i].life *= 2;
@@ -72,7 +73,7 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		}
 		break;
 	case PT_EXOT:
-		parts[under>>8].ctype = PT_PROT;
+		parts[uID].ctype = PT_PROT;
 		break;
 	case PT_NONE:
 		if (parts[i].life && !--parts[i].life)
@@ -85,26 +86,26 @@ int PROT_update(UPDATE_FUNC_ARGS)
 		else if (parts[i].temp>473.15f) change = 1000.0f;
 		else if (parts[i].temp>373.15f) change = 100.0f;
 		else change = 0.0f;
-		parts[under>>8].temp = restrict_flt(parts[under>>8].temp+change, MIN_TEMP, MAX_TEMP);
+		parts[uID].temp = restrict_flt(parts[uID].temp+change, MIN_TEMP, MAX_TEMP);
 		break;
 	default:
 		//set off explosives (only when hot because it wasn't as fun when it made an entire save explode)
 		if (parts[i].temp > 273.15f+500.0f && (sim->elements[under&0xFF].Flammable || sim->elements[under&0xFF].Explosive || (under&0xFF) == PT_BANG))
 		{
-			sim->part_create(under>>8, x, y, PT_FIRE);
-			parts[under>>8].temp += restrict_flt(sim->elements[under&0xFF].Flammable*5.0f, MIN_TEMP, MAX_TEMP);
+			sim->part_create(uID, x, y, PT_FIRE);
+			parts[uID].temp += restrict_flt(sim->elements[under&0xFF].Flammable*5.0f, MIN_TEMP, MAX_TEMP);
 			sim->air->pv[y/CELL][x/CELL] += 1.00f;
 		}
 		//prevent inactive sparkable elements from being sparked
-		else if ((sim->elements[under&0xFF].Properties&PROP_CONDUCTS) && parts[under>>8].life <= 4)
+		else if ((sim->elements[under&0xFF].Properties&PROP_CONDUCTS) && parts[uID].life <= 4)
 		{
-			parts[under>>8].life = 40+parts[under>>8].life;
+			parts[uID].life = 40+parts[uID].life;
 		}
 		break;
 	}
 	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
 	if (utype && utype != PT_WIFI)
-		parts[under>>8].temp = restrict_flt(parts[under>>8].temp-(parts[under>>8].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
+		parts[uID].temp = restrict_flt(parts[uID].temp-(parts[uID].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
 	
 	//if this proton has collided with another last frame, change it into a heavier element
 	if (parts[i].tmp)
@@ -134,17 +135,17 @@ int PROT_update(UPDATE_FUNC_ARGS)
 	}
 	//collide with other protons to make heavier materials
 	int ahead = photons[y][x];
-	if ((ahead>>8) != i && (ahead&0xFF) == PT_PROT)
+	if (ID(ahead) != i && (ahead&0xFF) == PT_PROT)
 	{
 		float velocity1 = powf(parts[i].vx, 2.0f)+powf(parts[i].vy, 2.0f);
-		float velocity2 = powf(parts[ahead>>8].vx, 2.0f)+powf(parts[ahead>>8].vy, 2.0f);
+		float velocity2 = powf(parts[ID(ahead)].vx, 2.0f)+powf(parts[ID(ahead)].vy, 2.0f);
 		float direction1 = atan2f(-parts[i].vy, parts[i].vx);
-		float direction2 = atan2f(-parts[ahead>>8].vy, parts[ahead>>8].vx);
+		float direction2 = atan2f(-parts[ID(ahead)].vy, parts[ID(ahead)].vx);
 		float difference = direction1 - direction2; if (difference < 0) difference += 6.28319f;
 
 		if (difference > 3.12659f && difference < 3.15659f && velocity1 + velocity2 > 10.0f)
 		{
-			parts[ahead>>8].tmp += (int)(velocity1 + velocity2);
+			parts[ID(ahead)].tmp += (int)(velocity1 + velocity2);
 			kill_part(i);
 			return 1;
 		}

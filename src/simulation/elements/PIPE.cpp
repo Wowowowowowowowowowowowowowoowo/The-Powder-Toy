@@ -54,7 +54,7 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 	else if (sparkedBy==PT_NSCN) prop = PPIP_TMPFLAG_TRIGGER_OFF << 3;
 	else if (sparkedBy==PT_INST) prop = PPIP_TMPFLAG_TRIGGER_REVERSE << 3;
 
-	if (prop==0 || (pmap[y][x]&0xFF)!=PT_PPIP || (parts[pmap[y][x]>>8].tmp & prop))
+	if (prop==0 || (pmap[y][x]&0xFF)!=PT_PPIP || (parts[ID(pmap[y][x])].tmp & prop))
 		return;
 
 	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
@@ -89,9 +89,9 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 		// fill span
 		for (x=x1; x<=x2; x++)
 		{
-			if (!(parts[pmap[y][x]>>8].tmp & prop))
+			if (!(parts[ID(pmap[y][x])].tmp & prop))
 				((PPIP_ElementDataContainer*)sim->elementData[PT_PPIP])->ppip_changed = 1;
-			parts[pmap[y][x]>>8].tmp |= prop;
+			parts[ID(pmap[y][x])].tmp |= prop;
 		}
 
 		// add adjacent pixels to stack
@@ -99,7 +99,7 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 		// Don't need to check x bounds here, because already limited to [CELL, XRES-CELL]
 		if (y>=CELL+1)
 			for (x=x1-1; x<=x2+1; x++)
-				if ((pmap[y-1][x]&0xFF)==PT_PPIP && !(parts[pmap[y-1][x]>>8].tmp & prop))
+				if ((pmap[y-1][x]&0xFF)==PT_PPIP && !(parts[ID(pmap[y-1][x])].tmp & prop))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y-1;
@@ -112,7 +112,7 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 				}
 		if (y<YRES-CELL-1)
 			for (x=x1-1; x<=x2+1; x++)
-				if ((pmap[y+1][x]&0xFF)==PT_PPIP && !(parts[pmap[y+1][x]>>8].tmp & prop))
+				if ((pmap[y+1][x]&0xFF)==PT_PPIP && !(parts[ID(pmap[y+1][x])].tmp & prop))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y+1;

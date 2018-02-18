@@ -17,7 +17,7 @@
 
 int DRAY_update(UPDATE_FUNC_ARGS)
 {
-	int ctype = parts[i].ctype&0xFF, ctypeExtra = parts[i].ctype>>8, copyLength = parts[i].tmp, copySpaces = parts[i].tmp2;
+	int ctype = parts[i].ctype&0xFF, ctypeExtra = ID(parts[i].ctype), copyLength = parts[i].tmp, copySpaces = parts[i].tmp2;
 	if (copySpaces < 0)
 		copySpaces = parts[i].tmp2  = 0;
 	if (copyLength < 0)
@@ -69,7 +69,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							//  1: if .tmp isn't set, and the element in this spot is the ctype, then stop
 							//  2: if .tmp is set, stop when the length limit reaches 0
 							//  3. Stop when we are out of bounds
-							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[rr>>8].ctype == ctypeExtra))
+							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
 									|| !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
 								copyLength -= partsRemaining;
@@ -96,12 +96,12 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 								if (isEnergy)
 								{
 									if (photons[yCopyTo][xCopyTo])
-										sim->part_kill(photons[yCopyTo][xCopyTo]>>8);
+										sim->part_kill(ID(photons[yCopyTo][xCopyTo]));
 								}
 								else
 								{
 									if (pmap[yCopyTo][xCopyTo])
-										sim->part_kill(pmap[yCopyTo][xCopyTo]>>8);
+										sim->part_kill(ID(pmap[yCopyTo][xCopyTo]));
 								}
 							}
 							if (type == PT_SPRK) // spark hack
@@ -117,9 +117,9 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 								if (type == PT_SPRK) // spark hack
 									sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
 								if (isEnergy)
-									parts[p] = parts[photons[yCurrent][xCurrent]>>8];
+									parts[p] = parts[ID(photons[yCurrent][xCurrent])];
 								else
-									parts[p] = parts[pmap[yCurrent][xCurrent]>>8];
+									parts[p] = parts[ID(pmap[yCurrent][xCurrent])];
 
 								parts[p].x = (float)xCopyTo;
 								parts[p].y = (float)yCopyTo;

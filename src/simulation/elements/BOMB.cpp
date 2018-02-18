@@ -45,7 +45,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 								if (nt!=PT_VIBR && !(sim->elements[nt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[nt].Properties&PROP_CLONE) && !(sim->elements[nt].Properties&PROP_BREAKABLECLONE))
 								{
 									if (nt)
-										sim->part_kill(pmap[ynxj][xnxi]>>8);
+										sim->part_kill(ID(pmap[ynxj][xnxi]));
 									sim->air->pv[ynxj/CELL][xnxi/CELL] += 0.1f;
 									nb = sim->part_create(-3, xnxi, ynxj, PT_EMBR);
 									if (nb != -1)
