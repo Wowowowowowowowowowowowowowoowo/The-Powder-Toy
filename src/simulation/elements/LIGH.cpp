@@ -51,7 +51,7 @@ int contact_part(int i, int tp)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==tp)
+				if (TYP(r)==tp)
 					return ID(r);
 			}
 	return -1;
@@ -78,7 +78,7 @@ int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tm
 	else if (x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
 		int r = pmap[y][x];
-		if ((((r&0xFF)==PT_VOID || ((r&0xFF)==PT_PVOD && parts[ID(r)].life >= 10)) && (!parts[ID(r)].ctype || (parts[ID(r)].ctype==c)!=(parts[ID(r)].tmp&1))) || (r&0xFF)==PT_BHOL || (r&0xFF)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
+		if (((TYP(r)==PT_VOID || (TYP(r)==PT_PVOD && parts[ID(r)].life >= 10)) && (!parts[ID(r)].ctype || (parts[ID(r)].ctype==c)!=(parts[ID(r)].tmp&1))) || TYP(r)==PT_BHOL || TYP(r)==PT_NBHL) // VOID, PVOD, VACU, and BHOL eat LIGH here
 			return 1;
 	}
 	else
@@ -187,7 +187,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = r&0xFF;
+				rt = TYP(r);
 
 				if (ptypes[rt].properties & PROP_INDESTRUCTIBLE)
 				{

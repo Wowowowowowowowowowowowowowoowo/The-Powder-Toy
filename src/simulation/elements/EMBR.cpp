@@ -17,17 +17,16 @@
 
 int EMBR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((ptypes[r&0xFF].properties & (TYPE_SOLID | TYPE_PART | TYPE_LIQUID)) && !(ptypes[r&0xFF].properties & PROP_SPARKSETTLE))
+				if ((sim->elements[TYP(r)].Properties & (TYPE_SOLID | TYPE_PART | TYPE_LIQUID)) && !(sim->elements[TYP(r)].Properties & PROP_SPARKSETTLE))
 				{
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				}
 			}
@@ -36,18 +35,22 @@ int EMBR_update(UPDATE_FUNC_ARGS)
 
 int EMBR_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if (cpart->ctype&0xFFFFFF)
+	if (cpart->ctype & 0xFFFFFF)
 	{
-		int maxComponent;
-		*colr = (cpart->ctype&0xFF0000)>>16;
-		*colg = (cpart->ctype&0x00FF00)>>8;
-		*colb = (cpart->ctype&0x0000FF);
-		maxComponent = *colr;
-		if (*colg>maxComponent) maxComponent = *colg;
-		if (*colb>maxComponent) maxComponent = *colb;
-		if (maxComponent<60)//make sure it isn't too dark to see
+		*colr = (cpart->ctype & 0xFF0000)>>16;
+		*colg = (cpart->ctype & 0x00FF00)>>8;
+		*colb = (cpart->ctype & 0x0000FF);
+
+		int maxComponent = *colr;
+		if (*colg > maxComponent)
+			maxComponent = *colg;
+		if (*colb > maxComponent)
+			maxComponent = *colb;
+
+		// Make sure it isn't too dark to see
+		if (maxComponent < 60)
 		{
-			float multiplier = 60.0f/maxComponent;
+			float multiplier = 60.0f / maxComponent;
 			*colr = (int)(*colr*multiplier);
 			*colg = (int)(*colg*multiplier);
 			*colb = (int)(*colb*multiplier);
@@ -69,13 +72,13 @@ int EMBR_graphics(GRAPHICS_FUNC_ARGS)
 	*fireg = *colg;
 	*fireb = *colb;
 
-	if (cpart->tmp==1)
+	if (cpart->tmp == 1)
 	{
 		*pixel_mode = FIRE_ADD | PMODE_BLEND | PMODE_GLOW;
-		*firea = (cpart->life-15)*4;
-		*cola = (cpart->life+15)*4;
+		*firea = (cpart->life - 15) * 4;
+		*cola = (cpart->life + 15) * 4;
 	}
-	else if (cpart->tmp==2)
+	else if (cpart->tmp == 2)
 	{
 		*pixel_mode = PMODE_FLAT | FIRE_ADD;
 		*firea = 255;
@@ -83,7 +86,8 @@ int EMBR_graphics(GRAPHICS_FUNC_ARGS)
 	else
 	{
 		*pixel_mode = PMODE_SPARK | PMODE_ADD;
-		if (cpart->life<64) *cola = 4*cpart->life;
+		if (cpart->life < 64)
+			*cola = 4 * cpart->life;
 	}
 	return 0;
 }
@@ -114,7 +118,7 @@ void EMBR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 30;
 
-	elem->DefaultProperties.temp = 500.0f	+273.15f;
+	elem->DefaultProperties.temp = 500.0f+273.15f;
 	elem->HeatConduct = 29;
 	elem->Latent = 0;
 	elem->Description = "Sparks. Formed by explosions.";

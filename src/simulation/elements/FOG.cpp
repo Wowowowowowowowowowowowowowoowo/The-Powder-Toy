@@ -25,11 +25,11 @@ int FOG_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((sim->elements[r&0xFF].Properties&TYPE_SOLID) && !(rand()%10) && !parts[i].life && !(sim->elements[r&0xFF].Properties&PROP_CLONE))
+				if ((sim->elements[TYP(r)].Properties&TYPE_SOLID) && !(rand()%10) && !parts[i].life && !(sim->elements[TYP(r)].Properties&PROP_CLONE))
 				{
 					part_change_type(i,x,y,PT_RIME);
 				}
-				if ((r&0xFF)==PT_SPRK)
+				if (TYP(r)==PT_SPRK)
 				{
 					parts[i].life += rand()%20;
 				}

@@ -21,7 +21,7 @@ int DEST_update(UPDATE_FUNC_ARGS)
 	int ry=rand()%5-2;
 
 	int r = pmap[y+ry][x+rx];
-	if (!r || (r&0xFF)==PT_DEST || (sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE) || (sim->elements[r&0xFF].Properties&PROP_CLONE) || (sim->elements[r&0xFF].Properties&PROP_BREAKABLECLONE))
+	if (!r || TYP(r)==PT_DEST || (sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) || (sim->elements[TYP(r)].Properties&PROP_CLONE) || (sim->elements[TYP(r)].Properties&PROP_BREAKABLECLONE))
 		return 0;
 
 	if (parts[i].life<=0 || parts[i].life>37)
@@ -29,7 +29,7 @@ int DEST_update(UPDATE_FUNC_ARGS)
 		parts[i].life=30+rand()%20;
 		sim->air->pv[y/CELL][x/CELL]+=60.0f;
 	}
-	if ((r&0xFF)==PT_PLUT || (r&0xFF)==PT_DEUT)
+	if (TYP(r)==PT_PLUT || TYP(r)==PT_DEUT)
 	{
 		sim->air->pv[y/CELL][x/CELL]+=20.0f;
 		if (rand()%2)
@@ -40,18 +40,18 @@ int DEST_update(UPDATE_FUNC_ARGS)
 			parts[i].life-=4;
 		}
 	}
-	else if ((r&0xFF)==PT_INSL)
+	else if (TYP(r)==PT_INSL)
 	{
 		sim->part_create(ID(r), x+rx, y+ry, PT_PLSM);
 	}
 	else if (!(rand()%3))
 	{
 		kill_part(ID(r));
-		parts[i].life -= 4*((sim->elements[r&0xFF].Properties&TYPE_SOLID)?3:1);
+		parts[i].life -= 4*((sim->elements[TYP(r)].Properties&TYPE_SOLID)?3:1);
 		if (parts[i].life<=0)
 			parts[i].life=1;
 	}
-	else if (sim->elements[r&0xFF].HeatConduct)
+	else if (sim->elements[TYP(r)].HeatConduct)
 		parts[ID(r)].temp = MAX_TEMP;
 	parts[i].temp = MAX_TEMP;
 	sim->air->pv[y/CELL][x/CELL]+=80.0f;

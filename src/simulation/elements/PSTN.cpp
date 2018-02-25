@@ -47,7 +47,7 @@ StackData CanMoveStack(Simulation * sim, int stackX, int stackY, int directionX,
 			break;
 
 		r = pmap[posY][posX];
-		if (sim->IsWallBlocking(posX, posY, 0) || (block && (r&0xFF) == block))
+		if (sim->IsWallBlocking(posX, posY, 0) || (block && TYP(r) == block))
 			return StackData(currentPos - spaces, spaces);
 		if (!r)
 		{
@@ -58,7 +58,7 @@ StackData CanMoveStack(Simulation * sim, int stackX, int stackY, int directionX,
 		}
 		else
 		{
-			if (currentPos - spaces < maxSize && (!retract || ((r&0xFF) == PT_FRME && posX == stackX && posY == stackY)))
+			if (currentPos - spaces < maxSize && (!retract || (TYP(r) == PT_FRME && posX == stackX && posY == stackY)))
 				tempParts[currentPos++] = ID(r);
 			else
 				return StackData(currentPos - spaces, spaces);
@@ -72,7 +72,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 	int posX, posY, r;
 	int c, j;
 	r = pmap[stackY][stackX];
-	if (!callDepth && (r&0xFF) == PT_FRME)
+	if (!callDepth && TYP(r) == PT_FRME)
 	{
 		int newY = !!directionX, newX = !!directionY;
 		int realDirectionX = retract?-directionX:directionX;
@@ -148,7 +148,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 				break;
 			}
 			r = pmap[posY][posX];
-			if (!r || (r&0xFF) == block || (!sticky && (r&0xFF) != PT_FRME))
+			if (!r || TYP(r) == block || (!sticky && TYP(r) != PT_FRME))
 			{
 				break;
 			}
@@ -223,7 +223,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF)==PT_SPRK && parts[ID(r)].life==3)
+					if (TYP(r)==PT_SPRK && parts[ID(r)].life==3)
 					{
 						if (parts[ID(r)].ctype == PT_PSCN)
 							state = PISTON_EXTEND;
@@ -241,7 +241,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF) == PT_PSTN)
+					if (TYP(r) == PT_PSTN)
 					{
 						int movedPiston = 0;
 						int foundEnd = 0;
@@ -258,7 +258,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 								break;
 							}
 							r = pmap[y+nyy][x+nxx];
-							if ((r&0xFF)==PT_PSTN)
+							if (TYP(r)==PT_PSTN)
 							{
 								if (parts[ID(r)].life)
 									armCount++;

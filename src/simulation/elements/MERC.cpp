@@ -36,7 +36,7 @@ int MERC_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r || (parts[i].tmp >= maxtmp))
 						continue;
-					if ((r&0xFF)==PT_MERC && !(rand()%3))
+					if (TYP(r)==PT_MERC && !(rand()%3))
 					{
 						if ((parts[i].tmp + parts[ID(r)].tmp + 1) <= maxtmp)
 						{
@@ -75,7 +75,7 @@ int MERC_update(UPDATE_FUNC_ARGS)
 			if (!r)
 				continue;
 			//diffusion
-			if ((r&0xFF) == PT_MERC && parts[i].tmp > parts[ID(r)].tmp && parts[i].tmp > 0)
+			if (TYP(r) == PT_MERC && parts[i].tmp > parts[ID(r)].tmp && parts[i].tmp > 0)
 			{
 				int temp = parts[i].tmp - parts[ID(r)].tmp;
 				if (temp == 1)

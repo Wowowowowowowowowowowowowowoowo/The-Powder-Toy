@@ -18,26 +18,24 @@
 
 int CONV_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	int ctype = parts[i].ctype&0xFF, ctypeExtra = ID(parts[i].ctype);
-	if (ctype<=0 || ctype>=PT_NUM || !ptypes[ctype].enabled || ctype==PT_CONV || (ctype==PT_LIFE && (ctypeExtra<0 || ctypeExtra>=NGOL)))
+	int ctype = TYP(parts[i].ctype), ctypeExtra = ID(parts[i].ctype);
+	if (ctype <= 0 || ctype >= PT_NUM || !ptypes[ctype].enabled || ctype == PT_CONV || (ctype == PT_LIFE && (ctypeExtra < 0 || ctypeExtra >= NGOL)))
 	{
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK)
 				{
-					r = photons[y+ry][x+rx];
+					int r = photons[y+ry][x+rx];
 					if (!r)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (!(ptypes[r&0xFF].properties&PROP_CLONE) &&
-						!(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) &&
-				        (r&0xFF)!=PT_STKM && (r&0xFF)!=PT_STKM2 && 
-						(r&0xFF)!=PT_CONV && (r&0xFF)<PT_NUM)
+					int rt = TYP(r);
+					if (!(sim->elements[rt].Properties&PROP_CLONE) && !(sim->elements[rt].Properties&PROP_BREAKABLECLONE) &&
+					    rt != PT_STKM && rt != PT_STKM2 && rt != PT_CONV)
 					{
-						parts[i].ctype = r&0xFF;
-						if ((r&0xFF)==PT_LIFE)
+						parts[i].ctype = rt;
+						if (rt == PT_LIFE)
 							parts[i].ctype |= PMAPID(parts[ID(r)].ctype);
 					}
 				}
@@ -45,16 +43,16 @@ int CONV_update(UPDATE_FUNC_ARGS)
 	else
 	{
 		int restrictElement = sim->IsElement(parts[i].tmp) ? parts[i].tmp : 0;
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK)
 				{
-					r = photons[y+ry][x+rx];
-					if (!r || (restrictElement && (r&0xFF)!=restrictElement))
+					int r = photons[y+ry][x+rx];
+					if (!r || (restrictElement && TYP(r) != restrictElement))
 						r = pmap[y+ry][x+rx];
-					if (!r || (restrictElement && (r&0xFF)!=restrictElement))
+					if (!r || (restrictElement && TYP(r) != restrictElement))
 						continue;
-					if((r&0xFF)!=PT_CONV && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=ctype)
+					if (TYP(r) != PT_CONV && !(sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) && TYP(r) != ctype)
 					{
 						sim->part_create(ID(r), x+rx, y+ry, ctype, ctypeExtra);
 					}

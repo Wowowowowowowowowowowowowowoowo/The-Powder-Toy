@@ -17,9 +17,8 @@
 
 int ACEL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
 	float multiplier;
-	if (parts[i].life!=0)
+	if (parts[i].life != 0)
 	{
 		float change = (float)(parts[i].life > 1000 ? 1000 : (parts[i].life < 0 ? 0 : parts[i].life));
 		multiplier = 1.0f+(change/100.0f);
@@ -29,16 +28,16 @@ int ACEL_update(UPDATE_FUNC_ARGS)
 		multiplier = 1.1f;
 	}
 	parts[i].tmp = 0;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (!rx != !ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if(!r)
 					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
-				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
+				if (sim->elements[TYP(r)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
 					parts[ID(r)].vx *= multiplier;
 					parts[ID(r)].vy *= multiplier;
@@ -50,7 +49,7 @@ int ACEL_update(UPDATE_FUNC_ARGS)
 
 int ACEL_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if(cpart->tmp)
+	if (cpart->tmp)
 		*pixel_mode |= PMODE_GLOW;
 	return 0;
 }

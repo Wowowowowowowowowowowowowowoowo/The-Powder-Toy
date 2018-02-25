@@ -38,12 +38,12 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR)
+				if (TYP(r)==PT_WATR)
 				{
 					if (!(rand()%30))
 						part_change_type(ID(r),x+rx,y+ry,PT_FOG);
 				}
-				else if ((r&0xFF)==PT_O2)
+				else if (TYP(r)==PT_O2)
 				{
 					if (!(rand()%9))
 					{

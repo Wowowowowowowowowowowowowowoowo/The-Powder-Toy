@@ -17,21 +17,21 @@
 
 int ELEC_update(UPDATE_FUNC_ARGS)
 {
-	int r, rt, rx, ry, nb, rrx, rry;
-	for (rx=-2; rx<=2; rx++)
-		for (ry=-2; ry<=2; ry++)
-			if (BOUNDS_CHECK) {
+	int r, nb;
+	for (int rx = -2; rx <= 2; rx++)
+		for (int ry = -2; ry <= 2; ry++)
+			if (BOUNDS_CHECK)
+			{
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = r&0xFF;
-				switch (r&0xFF)
+				switch (TYP(r))
 				{
 				case PT_GLAS:
-					for (rrx=-1; rrx<=1; rrx++)
-						for (rry=-1; rry<=1; rry++)
+					for (int rrx = -1; rrx <= 1; rrx++)
+						for (int rry = -1; rry <= 1; rry++)
 							if (x+rx+rrx>=0 && y+ry+rry>=0 && x+rx+rrx<XRES && y+ry+rry<YRES)
 							{
 								nb = sim->part_create(-1, x+rx+rrx, y+ry+rry, PT_EMBR);
@@ -85,7 +85,7 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 				case PT_NONE: //seems to speed up ELEC even if it isn't used
 					break;
 				default:
-					if (sim->elements[rt].Properties & PROP_CONDUCTS && (rt!=PT_NBLE || parts[i].temp<2273.15))
+					if (sim->elements[TYP(r)].Properties & PROP_CONDUCTS && (TYP(r) != PT_NBLE || parts[i].temp < 2273.15f))
 					{
 						sim->spark_conductive_attempt(ID(r), x+rx, y+ry);
 						sim->part_kill(i);

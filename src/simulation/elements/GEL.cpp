@@ -30,7 +30,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = r&0xFF;
+				rt = TYP(r);
 
 				//Desaturation
 				switch (rt)
@@ -104,7 +104,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					float per, nd = dx*dx + dy*dy - 0.5f;
 
 					per = 5*(1 - parts[i].tmp/100)*(nd/(dx*dx + dy*dy + nd) - 0.5f);
-					if (sim->elements[r&0xFF].Properties&TYPE_LIQUID)
+					if (sim->elements[TYP(r)].Properties&TYPE_LIQUID)
 						per *= 0.1f;
 					
 					dx *= per; dy *= per;

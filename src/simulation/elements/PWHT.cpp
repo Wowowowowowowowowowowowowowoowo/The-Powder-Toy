@@ -77,7 +77,7 @@ int PWHT_update(UPDATE_FUNC_ARGS)
 	if (parts[i].life < 10)
 		return 0;
 	int r = pmap[y-1][x];
-	if (r&0xFF)
+	if TYP(r)
 	{
 		if (!parts[i].ctype && !parts[i].tmp2)
 		{

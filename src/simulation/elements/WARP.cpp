@@ -33,7 +33,7 @@ int WARP_update(UPDATE_FUNC_ARGS)
 			int r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if ((r&0xFF) != PT_WARP && (r&0xFF) != PT_STKM && (r&0xFF) != PT_STKM2 && !(sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[r&0xFF].Properties&PROP_CLONE))
+			if (TYP(r) != PT_WARP && TYP(r) != PT_STKM && TYP(r) != PT_STKM2 && !(sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[TYP(r)].Properties&PROP_CLONE))
 			{
 				parts[i].x = parts[ID(r)].x;
 				parts[i].y = parts[ID(r)].y;

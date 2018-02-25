@@ -44,7 +44,7 @@ int FSEP_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (((r&0xFF)==PT_SPRK || (parts[i].temp>=(273.15+400.0f))) && !(rand()%15))
+					if ((TYP(r)==PT_SPRK || (parts[i].temp>=(273.15+400.0f))) && !(rand()%15))
 					{
 						parts[i].life = 39;
 						return 0;

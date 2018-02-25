@@ -36,7 +36,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_ISOZ || (r&0xFF)==PT_ISZS)
+				if (TYP(r)==PT_ISOZ || TYP(r)==PT_ISZS)
 				{
 					if (!(rand()%400))
 					{
@@ -44,7 +44,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						parts[i].vy *= 0.90f;
 						sim->part_create(ID(r), x+rx, y+ry, PT_PHOT);
 						rrr = (rand()%360)*M_PI/180.0f;
-						if ((r&0xFF) == PT_ISOZ)
+						if (TYP(r) == PT_ISOZ)
 							rr = (rand()%128+128)/127.0f;
 						else
 							rr = (rand()%228+128)/127.0f;
@@ -53,7 +53,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						sim->air->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
 					}
 				}
-				else if ((r&0xFF) == PT_QRTZ || (r&0xFF) == PT_PQRT)
+				else if (TYP(r) == PT_QRTZ || TYP(r) == PT_PQRT)
 				{
 					if (!ry && !rx)
 					{
@@ -66,7 +66,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 							parts[i].life++; //Delay death
 					}
 				}
-				else if ((r&0xFF) == PT_BGLA)
+				else if (TYP(r) == PT_BGLA)
 				{
 					if (!ry && !rx)
 					{
@@ -78,7 +78,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 						parts[i].vy = vy;
 					}
 				}
-				else if ((r&0xFF) == PT_FILT)
+				else if (TYP(r) == PT_FILT)
 				{
 					if (parts[ID(r)].tmp == 9)
 					{

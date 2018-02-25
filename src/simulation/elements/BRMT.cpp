@@ -30,7 +30,7 @@ int BRMT_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF) == PT_BREL && !(rand()%tempFactor))
+					if (TYP(r) == PT_BREL && !(rand()%tempFactor))
 					{
 						if(rand()%2)
 						{

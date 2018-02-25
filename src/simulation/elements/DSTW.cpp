@@ -17,48 +17,47 @@
 
 int DSTW_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				switch (r&0xFF)
+				int r = pmap[y+ry][x+rx];
+				switch (TYP(r))
 				{
 				case PT_SALT:
 					if (!(rand()%50))
 					{
-						part_change_type(i, x, y, PT_SLTW);
+						sim->part_change_type(i, x, y, PT_SLTW);
 						// on average, convert 3 DSTW to SLTW before SALT turns into SLTW
 						if (rand()%3==0)
-							part_change_type(ID(r), x+rx, y+ry, PT_SLTW);
+							sim->part_change_type(ID(r), x+rx, y+ry, PT_SLTW);
 					}
 					break;
 				case PT_SLTW:
 					if (!(rand()%2000))
 					{
-						part_change_type(i, x, y, PT_SLTW);
+						sim->part_change_type(i, x, y, PT_SLTW);
 					}
 					// no break here intentionally
 				case PT_WATR:
 					if (!(rand()%100))
 					{
-						part_change_type(i, x, y, PT_WATR);
+						sim->part_change_type(i, x, y, PT_WATR);
 					}
 					break;
 				case PT_RBDM:
 				case PT_LRBD:
-					if ((legacy_enable||parts[i].temp>12.0f) && !(rand()%100))
+					if ((legacy_enable || parts[i].temp > 12.0f) && !(rand()%100))
 					{
-						part_change_type(i, x, y, PT_FIRE);
+						sim->part_change_type(i, x, y, PT_FIRE);
 						parts[i].life = 4;
 					}
 					break;
 				case PT_FIRE:
-					kill_part(ID(r));
+					sim->part_kill(ID(r));
 					if (!(rand()%30))
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 					break;
@@ -95,7 +94,7 @@ void DSTW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 30;
 
-	elem->DefaultProperties.temp = R_TEMP-2.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP-2.0f+273.15f;
 	elem->HeatConduct = 23;
 	elem->Latent = 7500;
 	elem->Description = "Distilled water, does not conduct electricity.";

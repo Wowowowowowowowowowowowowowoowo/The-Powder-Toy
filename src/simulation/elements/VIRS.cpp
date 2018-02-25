@@ -57,20 +57,20 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 					continue;
 
 				//spread "being cured" state
-				if (parts[ID(r)].pavg[0] && ((r&0xFF) == PT_VIRS || (r&0xFF) == PT_VRSS || (r&0xFF) == PT_VRSG))
+				if (parts[ID(r)].pavg[0] && (TYP(r) == PT_VIRS || TYP(r) == PT_VRSS || TYP(r) == PT_VRSG))
 				{
 					parts[i].pavg[0] = parts[ID(r)].pavg[0] + ((rndstore & 0x3) ? 2:1);
 					return 0;
 				}
 				//soap cures virus
-				else if ((r&0xFF) == PT_SOAP)
+				else if (TYP(r) == PT_SOAP)
 				{
 					parts[i].pavg[0] += 10;
 					if (!(rndstore & 0x3))
 						sim->part_kill(ID(r));
 					return 0;
 				}
-				else if ((r&0xFF) == PT_PLSM)
+				else if (TYP(r) == PT_PLSM)
 				{
 					if (surround_space && 10 + (int)(sim->air->pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
 					{
@@ -78,11 +78,11 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 						return 1;
 					}
 				}
-				else if ((r&0xFF) != PT_VIRS && (r&0xFF) != PT_VRSS && (r&0xFF) != PT_VRSG && !(sim->elements[r&0xFF].Properties&PROP_INDESTRUCTIBLE))
+				else if (TYP(r) != PT_VIRS && TYP(r) != PT_VRSS && TYP(r) != PT_VRSG && !(sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE))
 				{
 					if (!(rndstore & 0x7))
 					{
-						parts[ID(r)].tmp2 = (r&0xFF);
+						parts[ID(r)].tmp2 = TYP(r);
 						parts[ID(r)].pavg[0] = 0;
 						if (parts[i].pavg[1])
 							parts[ID(r)].pavg[1] = parts[i].pavg[1] + 1;

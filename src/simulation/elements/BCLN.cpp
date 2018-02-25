@@ -38,7 +38,7 @@ int BCLN_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					int rt = r&0xFF;
+					int rt = TYP(r);
 					if (!(sim->elements[rt].Properties&PROP_CLONE) &&
 						!(sim->elements[rt].Properties&PROP_BREAKABLECLONE) &&
 				        rt!=PT_STKM && rt!=PT_STKM2)

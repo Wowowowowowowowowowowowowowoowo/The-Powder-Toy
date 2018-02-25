@@ -28,7 +28,7 @@ int HSWC_update(UPDATE_FUNC_ARGS)
 						r = photons[y + ry][x + rx];
 					if (!r)
 						continue;
-					if ((r&0xFF) == PT_FILT || (r&0xFF) == PT_PHOT || (r&0xFF) == PT_BRAY)
+					if (TYP(r) == PT_FILT || TYP(r) == PT_PHOT || TYP(r) == PT_BRAY)
 					{
 						parts[i].temp = parts[ID(r)].ctype - 0x10000000;
 					}

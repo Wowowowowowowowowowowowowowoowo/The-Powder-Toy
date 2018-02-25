@@ -24,7 +24,7 @@ int GLOW_update(UPDATE_FUNC_ARGS)
 				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF) == PT_WATR && !(rand()%400))
+				if (TYP(r) == PT_WATR && !(rand()%400))
 				{
 					kill_part(i);
 					part_change_type(ID(r), x+rx, y+ry, PT_DEUT);

@@ -29,7 +29,7 @@ int STOR_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if ((ID(r))>=NPART || !r)
 					continue;
-				if (!parts[i].tmp && !parts[i].life && (r&0xFF)!=PT_STOR && !(ptypes[(r&0xFF)].properties&TYPE_SOLID) && (!parts[i].ctype || (r&0xFF)==parts[i].ctype))
+				if (!parts[i].tmp && !parts[i].life && TYP(r)!=PT_STOR && !(ptypes[TYP(r)].properties&TYPE_SOLID) && (!parts[i].ctype || TYP(r)==parts[i].ctype))
 				{
 					parts[i].tmp = parts[ID(r)].type;
 					parts[i].temp = parts[ID(r)].temp;
@@ -38,7 +38,7 @@ int STOR_update(UPDATE_FUNC_ARGS)
 					parts[i].pavg[1] = (float)parts[ID(r)].ctype;
 					kill_part(ID(r));
 				}
-				if(parts[i].tmp && (r&0xFF)==PT_SPRK && parts[ID(r)].ctype==PT_PSCN && parts[ID(r)].life>0 && parts[ID(r)].life<4)
+				if(parts[i].tmp && TYP(r)==PT_SPRK && parts[ID(r)].ctype==PT_PSCN && parts[ID(r)].life>0 && parts[ID(r)].life<4)
 				{
 					for(ry1 = 1; ry1 >= -1; ry1--){
 						for(rx1 = 0; rx1 >= -1 && rx1 <= 1; rx1 = -rx1-rx1+1){ // Oscilate the X starting at 0, 1, -1, 3, -5, etc (Though stop at -1)

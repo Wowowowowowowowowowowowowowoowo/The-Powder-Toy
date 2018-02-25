@@ -29,7 +29,7 @@ int SHLD2_update(UPDATE_FUNC_ARGS)
 						sim->part_create(-1,x+rx,y+ry,PT_SHLD1);
 					continue;
 				}
-				else if ((r&0xFF)==PT_SPRK && !parts[i].life)
+				else if (TYP(r)==PT_SPRK && !parts[i].life)
 				{
 					if (!(rand()%8))
 					{
@@ -47,7 +47,7 @@ int SHLD2_update(UPDATE_FUNC_ARGS)
 							}
 						}
 				}
-				else if ((r&0xFF)==PT_SHLD4 && 2>rand()%5)
+				else if (TYP(r)==PT_SHLD4 && 2>rand()%5)
 				{
 					part_change_type(i,x,y,PT_SHLD3);
 					parts[i].life = 7;

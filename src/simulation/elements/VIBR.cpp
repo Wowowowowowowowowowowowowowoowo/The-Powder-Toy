@@ -57,7 +57,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			ry = (rndstore>>2)%3-1;
 			rndstore = rndstore >> 4;
 			r = pmap[y+ry][x+rx];
-			if ((r&0xFF) && (r&0xFF) != PT_BREL && (sim->elements[r&0xFF].Properties&PROP_CONDUCTS) && !parts[ID(r)].life)
+			if (TYP(r) && TYP(r) != PT_BREL && (sim->elements[TYP(r)].Properties&PROP_CONDUCTS) && !parts[ID(r)].life)
 			{
 				sim->spark_conductive(ID(r), x+rx, y+ry);
 			}
@@ -70,7 +70,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 			if(BOUNDS_CHECK)
 			{
 				r = pmap[y+ry][x+rx];
-				if ((r&0xFF) && (r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR && sim->elements[r&0xFF].HeatConduct && ((r&0xFF)!=PT_HSWC||parts[ID(r)].life==10))
+				if (TYP(r) && TYP(r) != PT_VIBR && TYP(r) != PT_BVBR && sim->elements[TYP(r)].HeatConduct && (TYP(r)!=PT_HSWC||parts[ID(r)].life==10))
 				{
 					parts[ID(r)].temp += parts[i].tmp*3;
 					parts[i].tmp = 0;
@@ -120,7 +120,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 				if (parts[i].life)
 				{
 					//Makes VIBR/BVBR around it get tmp to start exploding too
-					if (((r&0xFF)==PT_VIBR  || (r&0xFF)==PT_BVBR))
+					if ((TYP(r)==PT_VIBR  || TYP(r)==PT_BVBR))
 					{
 						if (!parts[ID(r)].life)
 							parts[ID(r)].tmp += 45;
@@ -131,7 +131,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 						}
 					}
 					//CFLM defuses it
-					else if ((r&0xFF)==PT_HFLM)
+					else if (TYP(r)==PT_HFLM)
 					{
 						parts[i].tmp2 = 1;
 						parts[i].tmp = 0;
@@ -140,14 +140,14 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 				else
 				{
 					//Melts into EXOT
-					if ((r&0xFF) == PT_EXOT && !(rand()%25))
+					if (TYP(r) == PT_EXOT && !(rand()%25))
 					{
 						sim->part_create(i, x, y, PT_EXOT);
 						return 1;
 					}
 				}
 				//VIBR+ANAR=BVBR
-				if (parts[i].type != PT_BVBR && (r&0xFF) == PT_ANAR)
+				if (parts[i].type != PT_BVBR && TYP(r) == PT_ANAR)
 				{
 					part_change_type(i,x,y,PT_BVBR);
 					sim->air->pv[y/CELL][x/CELL] -= 1;
@@ -164,7 +164,7 @@ int VIBR_update(UPDATE_FUNC_ARGS)
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];
-			if ((r&0xFF) != PT_VIBR && (r&0xFF) != PT_BVBR)
+			if (TYP(r) != PT_VIBR && TYP(r) != PT_BVBR)
 				continue;
 			if (parts[i].tmp > parts[ID(r)].tmp)
 			{

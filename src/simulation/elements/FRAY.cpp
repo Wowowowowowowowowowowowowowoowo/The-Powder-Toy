@@ -30,7 +30,7 @@ int FRAY_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_SPRK) {
+				if (TYP(r)==PT_SPRK) {
 					for (nxx = 0, nyy = 0, nxi = rx*-1, nyi = ry*-1, len = 0; ; nyy+=nyi, nxx+=nxi, len++) {
 						if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0) || len>curlen) {
 							break;
@@ -39,7 +39,7 @@ int FRAY_update(UPDATE_FUNC_ARGS)
 						if (!r)
 							r = photons[y+nyi+nyy][x+nxi+nxx];
 			
-						if (r && !(ptypes[r&0xFF].properties & TYPE_SOLID))
+						if (r && !(ptypes[TYP(r)].properties & TYPE_SOLID))
 						{
 							parts[ID(r)].vx += nxi*((parts[i].temp-273.15f)/10.0f);
 							parts[ID(r)].vy += nyi*((parts[i].temp-273.15f)/10.0f);

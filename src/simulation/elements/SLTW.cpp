@@ -23,7 +23,7 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				r = pmap[y+ry][x+rx];
-				switch (r&0xFF)
+				switch (TYP(r))
 				{
 				case PT_SALT:
 					if (!(rand()%2000))

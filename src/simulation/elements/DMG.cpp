@@ -26,7 +26,7 @@ int DMG_update(UPDATE_FUNC_ARGS)
 				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF) != PT_DMG && (r&0xFF) != PT_EMBR && (r&0xFF) != PT_DMND && (r&0xFF) != PT_CLNE && (r&0xFF) != PT_PCLN && (r&0xFF) != PT_BCLN)
+				if (TYP(r) != PT_DMG && TYP(r) != PT_EMBR && TYP(r) != PT_DMND && TYP(r) != PT_CLNE && TYP(r) != PT_PCLN && TYP(r) != PT_BCLN)
 				{
 					sim->part_kill(i);
 					for (int nxj = -rad; nxj <= rad; nxj++)
@@ -50,7 +50,7 @@ int DMG_update(UPDATE_FUNC_ARGS)
 										sim->air->vy[(y+nxj)/CELL][(x+nxi)/CELL] += fy;
 										sim->air->pv[(y+nxj)/CELL][(x+nxi)/CELL] += 1.0f;
 										
-										int t = rr&0xFF;
+										int t = TYP(rr);
 										if (t && sim->elements[t].HighPressureTransitionThreshold>-1 && sim->elements[t].HighPressureTransitionThreshold<PT_NUM)
 											sim->part_change_type(ID(rr), x+nxi, y+nxj, sim->elements[t].HighPressureTransitionElement);
 										else if (t == PT_BMTL)

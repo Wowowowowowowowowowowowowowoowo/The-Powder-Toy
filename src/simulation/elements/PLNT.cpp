@@ -17,26 +17,26 @@
 
 int PLNT_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np, rndstore;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				switch (r&0xFF)
+				int r = pmap[y+ry][x+rx];
+				switch (TYP(r))
 				{
 				case PT_WATR:
 					if (!(rand()%50))
 					{
-						np = sim->part_create(ID(r), x+rx, y+ry, PT_PLNT);
-						if (np<0) continue;
+						int np = sim->part_create(ID(r), x+rx, y+ry, PT_PLNT);
+						if (np < 0)
+							continue;
 						parts[np].life = 0;
 					}
 					break;
 				case PT_LAVA:
 					if (!(rand()%50))
 					{
-						part_change_type(i, x, y, PT_FIRE);
+						sim->part_change_type(i, x, y, PT_FIRE);
 						parts[i].life = 4;
 					}
 					break;
@@ -44,13 +44,14 @@ int PLNT_update(UPDATE_FUNC_ARGS)
 				case PT_CO2:
 					if (!(rand()%50))
 					{
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 						parts[i].life = rand()%60 + 60;
 					}
 					break;
 				case PT_WOOD:
-					rndstore = rand();
-					if (surround_space && abs(rx+ry)<=2 && parts[i].tmp==1 && !(rndstore%4))
+				{
+					int rndstore = rand();
+					if (surround_space && abs(rx+ry) <= 2 && parts[i].tmp == 1 && !(rndstore%4))
 					{
 						rndstore >>= 3;
 						int nnx = (rndstore%3) -1;
@@ -60,26 +61,27 @@ int PLNT_update(UPDATE_FUNC_ARGS)
 						{
 							if (pmap[y+ry+nny][x+rx+nnx])
 								continue;
-							np = sim->part_create(-1, x+rx+nnx, y+ry+nny, PT_VINE);
+							int np = sim->part_create(-1, x+rx+nnx, y+ry+nny, PT_VINE);
 							if (np < 0)
 								continue;
 							parts[np].temp = parts[i].temp;
 						}
 					}
 					break;
+				}
 				default:
 					continue;
 				}
 			}
-	if (parts[i].life==2)
+	if (parts[i].life == 2)
 	{
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
-					r = pmap[y+ry][x+rx];
+					int r = pmap[y+ry][x+rx];
 					if (!r)
-						sim->part_create(-1,x+rx,y+ry,PT_O2);
+						sim->part_create(-1, x+rx, y+ry, PT_O2);
 				}
 		parts[i].life = 0;
 	}
@@ -134,7 +136,7 @@ void PLNT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 65;
 	elem->Latent = 0;
 	elem->Description = "Plant, drinks water and grows.";

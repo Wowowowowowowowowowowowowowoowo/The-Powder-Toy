@@ -28,7 +28,7 @@ int FIRE_update_legacy(UPDATE_FUNC_ARGS)
 					continue;
 				if (bmap[(y+ry)/CELL][(x+rx)/CELL] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_STREAM)
 					continue;
-				int rt = r&0xFF;
+				int rt = TYP(r);
 				int lpv = (int)sim->air->pv[(y+ry)/CELL][(x+rx)/CELL];
 				if (lpv < 1) lpv = 1;
 				if (sim->elements[rt].Meltable && ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK) && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR)) && sim->elements[rt].Meltable*lpv>(rand()%1000))
@@ -133,7 +133,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				int rt = r&0xFF;
+				int rt = TYP(r);
 				//THRM burning
 				if (rt==PT_THRM && (t==PT_FIRE || t==PT_PLSM || t==PT_LAVA))
 				{

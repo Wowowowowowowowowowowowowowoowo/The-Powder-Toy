@@ -31,7 +31,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					int r = pmap[y+ry][x+rx];
-					if ((r&0xFF) == PT_SPRK && parts[ID(r)].life == 3) //spark found, start creating
+					if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3) //spark found, start creating
 					{
 						bool overwrite = parts[ID(r)].ctype == PT_PSCN;
 						int partsRemaining = copyLength, xCopyTo, yCopyTo; //positions where the line will start being copied at
@@ -69,7 +69,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							//  1: if .tmp isn't set, and the element in this spot is the ctype, then stop
 							//  2: if .tmp is set, stop when the length limit reaches 0
 							//  3. Stop when we are out of bounds
-							if ((!copyLength && (rr&0xFF) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
+							if ((!copyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
 									|| !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
 								copyLength -= partsRemaining;

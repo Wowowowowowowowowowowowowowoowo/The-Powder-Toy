@@ -17,8 +17,7 @@
 
 int CBNW_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	if (sim->air->pv[y/CELL][x/CELL]<=3)
+	if (sim->air->pv[y/CELL][x/CELL] <= 3)
 	{
 		if (sim->air->pv[y/CELL][x/CELL] <= -0.5 || !(rand()%4000))
 		{
@@ -38,8 +37,8 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 
 	if (parts[i].tmp > 0)
 	{
-		//Explode
-		if (parts[i].tmp==1 && rand()%4)
+		// Explode
+		if (parts[i].tmp == 1 && rand()%4)
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
@@ -47,19 +46,20 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 		}
 		parts[i].tmp--;
 	}
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (ptypes[r&0xFF].properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))
+				int rt = TYP(r);
+				if (sim->elements[rt].Properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))
 				{
 					//Start explode
 					parts[i].tmp = rand()%25;//(rand()%100)+50;
 				}
-				else if (ptypes[r&0xFF].properties&TYPE_SOLID && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF)!=PT_GLAS && parts[i].tmp == 0 && (2-sim->air->pv[y/CELL][x/CELL])>(rand()%6667))
+				else if (sim->elements[rt].Properties&TYPE_SOLID && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && rt != PT_GLAS && parts[i].tmp == 0 && (2 - sim->air->pv[y/CELL][x/CELL]) > (rand()%6667))
 				{
 					if (rand()%2)
 					{
@@ -68,37 +68,40 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 						sim->air->pv[y/CELL][x/CELL] += 0.2f;
 					}
 				}
-				if ((r&0xFF)==PT_CBNW)
+				if (rt == PT_CBNW)
 				{
 					if (!parts[i].tmp)
 					{
 						if (parts[ID(r)].tmp)
 						{
 							parts[i].tmp = parts[ID(r)].tmp;
-							if ((ID(r))>i) //If the other particle hasn't been life updated
+							// If the other particle hasn't been life updated
+							if ((ID(r)) > i)
 								parts[i].tmp--;
 						}
 					}
 					else if (!parts[ID(r)].tmp)
 					{
 						parts[ID(r)].tmp = parts[i].tmp;
-						if ((ID(r))>i) //If the other particle hasn't been life updated
+						// If the other particle hasn't been life updated
+						if ((ID(r)) > i)
 							parts[ID(r)].tmp++;
 					}
 				}
-				else if ((r&0xFF)==PT_RBDM || (r&0xFF)==PT_LRBD)
+				else if (rt == PT_RBDM || rt == PT_LRBD)
 				{
-					if ((legacy_enable||parts[i].temp>(273.15f+12.0f)) && !(rand()%166))
+					if ((legacy_enable || parts[i].temp > (273.15f + 12.0f)) && !(rand()%166))
 					{
 						part_change_type(i, x, y, PT_FIRE);
 						parts[i].life = 4;
 						parts[i].ctype = PT_WATR;
 					}
 				}
-				else if ((r&0xFF)==PT_FIRE && parts[ID(r)].ctype!=PT_WATR)
+				else if (rt == PT_FIRE && parts[ID(r)].ctype != PT_WATR)
 				{
 					kill_part(ID(r));
-					if (!(rand()%50)){
+					if (!(rand()%50))
+					{
 						kill_part(i);
 						return 1;
 					}

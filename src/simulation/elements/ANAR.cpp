@@ -25,7 +25,7 @@ int ANAR_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF) == PT_HFLM && !(rand()%4))
+				if (TYP(r) == PT_HFLM && !(rand()%4))
 				{
 					part_change_type(i, x, y, PT_HFLM);
 					parts[i].life = rand()%150+50;

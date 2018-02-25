@@ -25,10 +25,10 @@ int O2_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if(parts[ID(r)].tmp&1&&(r&0xFF)==PT_PLSM)
+				if(parts[ID(r)].tmp&1&&TYP(r)==PT_PLSM)
 					continue;
 
-				if ((r&0xFF)==PT_FIRE)
+				if (TYP(r)==PT_FIRE)
 				{
 					parts[ID(r)].temp += (rand()%100);
 					if (parts[ID(r)].tmp & 0x01)
@@ -39,7 +39,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 					parts[i].temp+=(rand()/(RAND_MAX/100));
 					parts[i].tmp |= 2;
 				}
-				else if ((r&0xFF)==PT_PLSM && !(parts[ID(r)].tmp&4))
+				else if (TYP(r)==PT_PLSM && !(parts[ID(r)].tmp&4))
 				{
 					sim->part_create(i,x,y,PT_FIRE);
 					parts[i].temp+=(rand()/(RAND_MAX/100));

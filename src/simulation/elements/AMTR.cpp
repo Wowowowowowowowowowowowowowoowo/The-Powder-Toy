@@ -17,26 +17,26 @@
 
 int AMTR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, rt;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = (r&0xFF);
-				//would a table lookup be faster than 11 checks?
-				if (rt!=PT_AMTR && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && !(ptypes[rt].properties&PROP_CLONE) && rt!=PT_NONE && rt!=PT_VOID && rt!=PT_BHOL && rt!=PT_NBHL && rt!=PT_PRTI && rt!=PT_PRTO)
+				int rt = TYP(r);
+				// Would a table lookup be faster than 11 checks?
+				if (rt != PT_AMTR && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[rt].Properties&PROP_CLONE)
+				        && rt != PT_NONE && rt != PT_VOID && rt != PT_BHOL && rt != PT_NBHL && rt != PT_PRTI && rt != PT_PRTO)
 				{
 #ifndef NOMOD
 					if (rt == PT_PPTI || rt == PT_PPTO)
 						continue;
 #endif
-					if(!parts[i].ctype || (parts[i].ctype==(r&0xFF))!=(parts[i].tmp&1))
+					if (!parts[i].ctype || (parts[i].ctype == TYP(r)) != (parts[i].tmp&1))
 					{
 						parts[i].life++;
-						if (parts[i].life==4)
+						if (parts[i].life == 4)
 						{
 							kill_part(i);
 							return 1;

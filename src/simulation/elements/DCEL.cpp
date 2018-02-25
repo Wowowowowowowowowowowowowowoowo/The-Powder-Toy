@@ -17,22 +17,21 @@
 
 int DCEL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
 	float multiplier = 1.0f/1.1f;
 	if (parts[i].life)
 		multiplier = 1.0f - ((parts[i].life > 100 ? 100 : (parts[i].life < 0 ? 0 : parts[i].life)) / 100.0f);
 
 	parts[i].tmp = 0;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry) && !(rx && ry))
 			{
-				r = pmap[y+ry][x+rx];
-				if(!r)
+				int r = pmap[y+ry][x+rx];
+				if (!r)
 					r = photons[y+ry][x+rx];
-				if ((ID(r))>=NPART || !r)
+				if ((ID(r)) >= NPART || !r)
 					continue;
-				if(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
+				if (sim->elements[TYP(r)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY))
 				{
 					parts[ID(r)].vx *= multiplier;
 					parts[ID(r)].vy *= multiplier;

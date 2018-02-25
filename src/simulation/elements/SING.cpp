@@ -84,9 +84,9 @@ int SING_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_BREAKABLECLONE) && !(rand()%3))
+				if (!(ptypes[TYP(r)].properties&PROP_INDESTRUCTIBLE) && !(ptypes[TYP(r)].properties&PROP_CLONE) && !(ptypes[TYP(r)].properties&PROP_BREAKABLECLONE) && !(rand()%3))
 				{
-					if ((r&0xFF)==PT_SING && parts[ID(r)].life >10)
+					if (TYP(r)==PT_SING && parts[ID(r)].life >10)
 					{
 						if (parts[i].life+parts[ID(r)].life > 255)
 							continue;

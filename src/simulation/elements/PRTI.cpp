@@ -47,19 +47,19 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			int r = pmap[y+ry][x+rx];
-			if (!r || (r&0xFF) == PT_STOR)
+			if (!r || TYP(r) == PT_STOR)
 				fe = 1;
-			if (!r || (!(ptypes[r&0xFF].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && (r&0xFF)!=PT_SPRK && (r&0xFF)!=PT_STOR))
+			if (!r || (!(ptypes[TYP(r)].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && TYP(r)!=PT_SPRK && TYP(r)!=PT_STOR))
 			{
 				r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
 			}
 
-			if ((r&0xFF) == PT_STKM || (r&0xFF) == PT_STKM2 || (r&0xFF) == PT_FIGH)
+			if (TYP(r) == PT_STKM || TYP(r) == PT_STKM2 || TYP(r) == PT_FIGH)
 				continue;// Handling these is a bit more complicated, and is done in STKM_interact()
 
-			if ((r&0xFF) == PT_SOAP)
+			if (TYP(r) == PT_SOAP)
 				detach(ID(r));
 
 			if (channel->StoreParticle(sim, ID(r), count))

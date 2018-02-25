@@ -25,7 +25,7 @@ int FRZW_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_WATR && !(rand()%14))
+				if (TYP(r)==PT_WATR && !(rand()%14))
 				{
 					part_change_type(ID(r),x+rx,y+ry,PT_FRZW);
 				}

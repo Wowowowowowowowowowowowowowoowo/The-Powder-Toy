@@ -60,7 +60,7 @@ int LCRY_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_LCRY && parts[ID(r)].tmp == check)
+				if (TYP(r)==PT_LCRY && parts[ID(r)].tmp == check)
 				{
 					parts[ID(r)].tmp = setto;
 				}

@@ -30,7 +30,7 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
+					rt = TYP(r);
 					if (!(ptypes[rt].properties&PROP_CLONE) &&
 						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
 				        rt!=PT_STKM && rt!=PT_STKM2)

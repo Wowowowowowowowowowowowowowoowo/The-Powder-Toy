@@ -17,18 +17,18 @@
 
 int GBMB_update(UPDATE_FUNC_ARGS)
 {
-	int rx,ry,r;
 	if (parts[i].life <= 0)
 	{
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if(!r)
 					continue;
-				if((r&0xFF)!=PT_BOMB && (r&0xFF)!=PT_GBMB && !(ptypes[r&0xFF].properties&PROP_CLONE) && !(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE))
+				if (TYP(r) !=PT_BOMB && TYP(r) != PT_GBMB && !(sim->elements[TYP(r)].Properties & PROP_CLONE)
+				        && !(sim->elements[TYP(r)].Properties & PROP_INDESTRUCTIBLE))
 				{
-					parts[i].life=60;
+					parts[i].life = 60;
 					break;
 				}
 			}
@@ -42,13 +42,10 @@ int GBMB_update(UPDATE_FUNC_ARGS)
 
 int GBMB_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if (cpart->life <= 0) {
+	if (cpart->life <= 0)
 		*pixel_mode |= PMODE_FLARE;
-	}
 	else
-	{
 		*pixel_mode |= PMODE_SPARK;
-	}
 	return 0;
 }
 
@@ -78,7 +75,7 @@ void GBMB_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 30;
 
-	elem->DefaultProperties.temp = R_TEMP-2.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP-2.0f+273.15f;
 	elem->HeatConduct = 29;
 	elem->Latent = 0;
 	elem->Description = "Gravity bomb. Sticks to the first object it touches then produces a strong gravity push.";

@@ -50,7 +50,7 @@ public:
 					gol[ny][nx] = 0;
 					continue;
 				}
-				if ((r&0xFF) == PT_LIFE)
+				if (TYP(r) == PT_LIFE)
 				{
 					unsigned char golnum = (unsigned char)(parts[ID(r)].ctype+1);
 					if (golnum <= 0 || golnum > NGOL)
@@ -104,7 +104,7 @@ public:
 			for (int nx = CELL; nx < XRES-CELL; nx++)
 			{
 				int r = pmap[ny][nx];
-				if (r && (r&0xFF) != PT_LIFE)
+				if (r && TYP(r) != PT_LIFE)
 					continue;
 				int neighbors = gol2[ny][nx][0];
 				if (neighbors)

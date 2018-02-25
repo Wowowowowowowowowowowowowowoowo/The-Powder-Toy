@@ -27,7 +27,7 @@ int RPEL_update(UPDATE_FUNC_ARGS)
 			if (!r)
 				r = photons[y+ry][x+rx];
 
-			if (r && !(sim->elements[r&0xFF].Properties & TYPE_SOLID))
+			if (r && !(sim->elements[TYP(r)].Properties & TYPE_SOLID))
 			{
 				if (!parts[i].ctype || parts[i].ctype == parts[ID(r)].type)
 				{

@@ -28,7 +28,7 @@ int FIRW_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
+					rt = TYP(r);
 					if (rt==PT_FIRE || rt==PT_PLSM || rt==PT_THDR)
 					{
 						float gx, gy, multiplier;

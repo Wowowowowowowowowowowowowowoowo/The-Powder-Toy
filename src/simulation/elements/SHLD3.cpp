@@ -33,12 +33,12 @@ int SHLD3_update(UPDATE_FUNC_ARGS)
 						part_change_type(i,x,y,PT_SHLD2);
 					}
 				}
-				else if ((r&0xFF)==PT_SHLD1 && parts[i].life>3)
+				else if (TYP(r)==PT_SHLD1 && parts[i].life>3)
 				{
 					part_change_type(ID(r),x+rx,y+ry,PT_SHLD2);
 					parts[ID(r)].life=7;
 				}
-				else if ((r&0xFF)==PT_SPRK && !parts[i].life)
+				else if (TYP(r)==PT_SPRK && !parts[i].life)
 				{
 					if (3>rand()%500)
 					{

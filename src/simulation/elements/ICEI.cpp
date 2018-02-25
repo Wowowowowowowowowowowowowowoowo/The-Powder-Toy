@@ -29,7 +29,7 @@ int ICE_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==PT_SALT || (r&0xFF)==PT_SLTW)
+				if (TYP(r)==PT_SALT || TYP(r)==PT_SLTW)
 				{
 					if (parts[i].temp > sim->elements[PT_SLTW].LowTemperatureTransitionThreshold && !(rand()%200))
 					{
@@ -38,7 +38,7 @@ int ICE_update(UPDATE_FUNC_ARGS)
 						return 0;
 					}
 				}
-				else if (((r&0xFF)==PT_FRZZ) && !(rand()%200))
+				else if ((TYP(r)==PT_FRZZ) && !(rand()%200))
 				{
 					sim->part_change_type(ID(r),x+rx,y+ry,PT_ICEI);
 					parts[ID(r)].ctype = PT_FRZW;

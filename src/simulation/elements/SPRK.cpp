@@ -125,7 +125,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 			r = pmap[y+ry][x+rx];
 			if (!r)
 				continue;
-			if ((r&0xFF) == PT_DSTW || (r&0xFF) == PT_SLTW || ((r&0xFF) == PT_WATR))
+			if (TYP(r) == PT_DSTW || TYP(r) == PT_SLTW || (TYP(r) == PT_WATR))
 			{
 				int rnd = rand()%100;
 				if (!rnd)
@@ -153,7 +153,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				//receiver is the element SPRK is trying to conduct to
 				//sender is the element the SPRK is on
 				//pavg is the element in the middle of them both
-				receiver = r&0xFF;
+				receiver = TYP(r);
 				sender = ct;
 				pavg = parts_avg(ID(r), i,PT_INSL);
 

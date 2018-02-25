@@ -30,7 +30,7 @@ int BIZR_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((r&0xFF)!=PT_BIZR && (r&0xFF)!=PT_BIZRG  && (r&0xFF)!=PT_BIZRS)
+					if (TYP(r)!=PT_BIZR && TYP(r)!=PT_BIZRG  && TYP(r)!=PT_BIZRS)
 					{
 						ta = (float)COLA(parts[ID(r)].dcolour);
 						tr = (float)COLR(parts[ID(r)].dcolour);

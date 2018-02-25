@@ -39,7 +39,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					else if ((r&0xFF)==PT_SLTW && !(rand()%500))
+					else if (TYP(r)==PT_SLTW && !(rand()%500))
 					{
 						kill_part(ID(r));
 						parts[i].tmp++;
@@ -90,7 +90,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)==t && (parts[i].tmp > parts[ID(r)].tmp) && parts[ID(r)].tmp>=0)//diffusion
+				if (TYP(r)==t && (parts[i].tmp > parts[ID(r)].tmp) && parts[ID(r)].tmp>=0)//diffusion
 				{
 					tmp = parts[i].tmp - parts[ID(r)].tmp;
 					if (tmp == 1)

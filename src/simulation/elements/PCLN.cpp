@@ -29,14 +29,14 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					rt = r&0xFF;
+					rt = TYP(r);
 					if (!(ptypes[rt].properties&PROP_CLONE) &&
 						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
 				        rt != PT_SPRK && rt != PT_NSCN && 
 						rt != PT_PSCN && rt != PT_STKM && 
 						rt != PT_STKM2)
 					{
-						parts[i].ctype = r&0xFF;
+						parts[i].ctype = TYP(r);
 						if (rt==PT_LIFE || rt==PT_LAVA)
 							parts[i].tmp = parts[ID(r)].ctype;
 					}

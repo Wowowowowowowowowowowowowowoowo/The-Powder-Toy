@@ -17,15 +17,15 @@
 
 int EXPL_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				if (!(r&0xFF))
+				int r = pmap[y+ry][x+rx];
+				if (!r)
 					continue;
-				if (!(ptypes[r&0xFF].properties&PROP_INDESTRUCTIBLE) && (r&0xFF) != PT_EMBR) {
+				if (!(sim->elements[TYP(r)].Properties & PROP_INDESTRUCTIBLE) && TYP(r) != PT_EMBR)
+				{
 					parts[ID(r)].flags |= FLAG_EXPLODE;
 				}
 			}
@@ -64,7 +64,7 @@ void EXPL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 99;
 
-	elem->DefaultProperties.temp = R_TEMP -2.0f + 273.15f;
+	elem->DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
 	elem->HeatConduct = 29;
 	elem->Latent = 0;
 	elem->Description = "Explosion, causes everything it touches to explode.";

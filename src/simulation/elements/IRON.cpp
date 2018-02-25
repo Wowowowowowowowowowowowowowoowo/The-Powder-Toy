@@ -17,15 +17,14 @@
 
 int IRON_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry;
 	if (parts[i].life)
 		return 0;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				switch (r&0xFF)
+				int r = pmap[y+ry][x+rx];
+				switch (TYP(r))
 				{
 				case PT_SALT:
 					if (!(rand()%47))
@@ -51,8 +50,8 @@ int IRON_update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 succ:
-	sim->part_change_type(i,x,y,PT_BMTL);
-	parts[i].tmp = (rand()%10)+20;
+	sim->part_change_type(i, x, y, PT_BMTL);
+	parts[i].tmp = (rand() % 10) + 20;
 	return 0;
 }
 
@@ -82,7 +81,7 @@ void IRON_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f +273.15f;
+	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 251;
 	elem->Latent = 0;
 	elem->Description = "Rusts with salt, can be used for electrolysis of WATR.";

@@ -25,7 +25,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				rt = r&0xFF;
+				rt = TYP(r);
 				if (rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_VIBR && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[rt].Properties&PROP_CLONE) && !(sim->elements[rt].Properties&PROP_BREAKABLECLONE))
 				{
 					int rad = 8, nt;

@@ -66,9 +66,9 @@ int new_tronhead(Simulation *sim, int x, int y, int i, int direction)
 
 int canmovetron(int r, int len)
 {
-	if (!r || ((r&0xFF) == PT_SWCH && parts[ID(r)].life >= 10) || ((r&0xFF) == PT_INVIS && parts[ID(r)].tmp2 == 1))
+	if (!r || (TYP(r) == PT_SWCH && parts[ID(r)].life >= 10) || (TYP(r) == PT_INVIS && parts[ID(r)].tmp2 == 1))
 		return 1;
-	if ((((ptypes[r&0xFF].properties & PROP_LIFE_KILL_DEC) && parts[ID(r)].life > 0) || ((ptypes[r&0xFF].properties & PROP_LIFE_KILL) && (ptypes[r&0xFF].properties & PROP_LIFE_DEC))) && parts[ID(r)].life < len)
+	if ((((ptypes[TYP(r)].properties & PROP_LIFE_KILL_DEC) && parts[ID(r)].life > 0) || ((ptypes[TYP(r)].properties & PROP_LIFE_KILL) && (ptypes[TYP(r)].properties & PROP_LIFE_DEC))) && parts[ID(r)].life < len)
 		return 1;
 	return 0;
 }

@@ -131,14 +131,14 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 							if (parts[i].temp>SOAP_FREEZING)
 							{
 								if (bmap[(y+ry)/CELL][(x+rx)/CELL] ||
-								    (r && !(sim->elements[r&0xFF].Properties&TYPE_GAS) && (r&0xFF) != PT_SOAP && (r&0xFF) != PT_GLAS))
+								    (r && !(sim->elements[TYP(r)].Properties&TYPE_GAS) && TYP(r) != PT_SOAP && TYP(r) != PT_GLAS))
 								{
 									detach(i);
 									continue;
 								}
 							}
 
-							if ((r&0xFF) == PT_SOAP)
+							if (TYP(r) == PT_SOAP)
 							{
 								if (parts[ID(r)].ctype == 1)
 								{
@@ -209,7 +209,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 					if (!r)
 						continue;
 
-					if ((r&0xFF) == PT_OIL)
+					if (TYP(r) == PT_OIL)
 					{
 						parts[i].vx = parts[ID(r)].vx = (parts[i].vx*0.5f + parts[ID(r)].vx)/2;
 						parts[i].vy = parts[ID(r)].vy = ((parts[i].vy-0.1f)*0.5f + parts[ID(r)].vy)/2;
@@ -224,7 +224,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if ((r&0xFF)!=PT_SOAP)
+				if (TYP(r)!=PT_SOAP)
 				{
 					ta = (float)COLA(parts[ID(r)].dcolour);
 					tr = (float)COLR(parts[ID(r)].dcolour);
