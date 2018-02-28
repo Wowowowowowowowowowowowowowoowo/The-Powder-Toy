@@ -19,7 +19,7 @@
 int CONV_update(UPDATE_FUNC_ARGS)
 {
 	int ctype = TYP(parts[i].ctype), ctypeExtra = ID(parts[i].ctype);
-	if (ctype <= 0 || ctype >= PT_NUM || !ptypes[ctype].enabled || ctype == PT_CONV || (ctype == PT_LIFE && (ctypeExtra < 0 || ctypeExtra >= NGOL)))
+	if (ctype <= 0 || !ptypes[ctype].enabled || ctype == PT_CONV || (ctype == PT_LIFE && (ctypeExtra < 0 || ctypeExtra >= NGOL)))
 	{
 		for (int rx = -1; rx <= 1; rx++)
 			for (int ry = -1; ry <= 1; ry++)

@@ -69,7 +69,7 @@ public:
 								int adx = ((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL;
 								int ady = ((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL;
 								int rt = pmap[ady][adx];
-								if (!rt || (rt&0xFF) == PT_LIFE)
+								if (!rt || TYP(rt) == PT_LIFE)
 								{
 									//the total neighbor count is in 0
 									gol2[ady][adx][0]++;

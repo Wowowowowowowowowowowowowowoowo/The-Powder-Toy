@@ -47,7 +47,7 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 			sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_LIFE, parts[i].tmp);
 		else if (parts[i].ctype != PT_LIGH || (rand()%30) == 0)
 		{
-			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype&0xFF);
+			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, TYP(parts[i].ctype));
 			if (np>=0)
 			{
 				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransitionElement==PT_LAVA)

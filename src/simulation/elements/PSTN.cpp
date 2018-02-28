@@ -69,9 +69,9 @@ StackData CanMoveStack(Simulation * sim, int stackX, int stackY, int directionX,
 
 int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int directionY, int maxSize, int amount, bool retract, int block, int sticky, int callDepth)
 {
-	int posX, posY, r;
+	int posX, posY;
 	int c, j;
-	r = pmap[stackY][stackX];
+	int r = pmap[stackY][stackX];
 	if (!callDepth && TYP(r) == PT_FRME)
 	{
 		int newY = !!directionX, newX = !!directionY;
@@ -84,7 +84,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 		{
 			posY = stackY + (c*newY);
 			posX = stackX + (c*newX);
-			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME)
+			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && TYP(pmap[posY][posX]) == PT_FRME)
 			{
 				int spaces = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block).spaces;
 				if (spaces < amount)
@@ -100,7 +100,7 @@ int MoveStack(Simulation *sim, int stackX, int stackY, int directionX, int direc
 		{
 			posY = stackY - (c*newY);
 			posX = stackX - (c*newX);
-			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && (pmap[posY][posX]&0xFF) == PT_FRME)
+			if (posX < XRES && posY < YRES && posX >= 0 && posY >= 0 && TYP(pmap[posY][posX]) == PT_FRME)
 			{
 				int spaces = CanMoveStack(sim, posX, posY, realDirectionX, realDirectionY, maxSize, amount, retract, block).spaces;
 				if (spaces < amount)

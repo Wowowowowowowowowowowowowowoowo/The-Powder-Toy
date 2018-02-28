@@ -50,11 +50,14 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 	// Separate flags for on and off in case PPIP is sparked by PSCN and NSCN on the same frame
 	// - then PSCN can override NSCN and behaviour is not dependent on particle order
 	int prop = 0;
-	if (sparkedBy==PT_PSCN) prop = PPIP_TMPFLAG_TRIGGER_ON << 3;
-	else if (sparkedBy==PT_NSCN) prop = PPIP_TMPFLAG_TRIGGER_OFF << 3;
-	else if (sparkedBy==PT_INST) prop = PPIP_TMPFLAG_TRIGGER_REVERSE << 3;
+	if (sparkedBy == PT_PSCN)
+		prop = PPIP_TMPFLAG_TRIGGER_ON << 3;
+	else if (sparkedBy == PT_NSCN)
+		prop = PPIP_TMPFLAG_TRIGGER_OFF << 3;
+	else if (sparkedBy == PT_INST)
+		prop = PPIP_TMPFLAG_TRIGGER_REVERSE << 3;
 
-	if (prop==0 || (pmap[y][x]&0xFF)!=PT_PPIP || (parts[ID(pmap[y][x])].tmp & prop))
+	if (prop == 0 || TYP(pmap[y][x]) != PT_PPIP || (parts[ID(pmap[y][x])].tmp & prop))
 		return;
 
 	coord_stack = (unsigned short(*)[2])malloc(sizeof(unsigned short)*2*coord_stack_limit);
@@ -69,25 +72,25 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 		y = coord_stack[coord_stack_size][1];
 		x1 = x2 = x;
 		// go left as far as possible
-		while (x1>=CELL)
+		while (x1 >=CELL)
 		{
-			if ((pmap[y][x1-1]&0xFF)!=PT_PPIP)
+			if (TYP(pmap[y][x1-1]) != PT_PPIP)
 			{
 				break;
 			}
 			x1--;
 		}
 		// go right as far as possible
-		while (x2<XRES-CELL)
+		while (x2 < XRES - CELL)
 		{
-			if ((pmap[y][x2+1]&0xFF)!=PT_PPIP)
+			if (TYP(pmap[y][x2+1]) != PT_PPIP)
 			{
 				break;
 			}
 			x2++;
 		}
 		// fill span
-		for (x=x1; x<=x2; x++)
+		for (x = x1; x <= x2; x++)
 		{
 			if (!(parts[ID(pmap[y][x])].tmp & prop))
 				((PPIP_ElementDataContainer*)sim->elementData[PT_PPIP])->ppip_changed = 1;
@@ -97,39 +100,39 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 		// add adjacent pixels to stack
 		// +-1 to x limits to include diagonally adjacent pixels
 		// Don't need to check x bounds here, because already limited to [CELL, XRES-CELL]
-		if (y>=CELL+1)
-			for (x=x1-1; x<=x2+1; x++)
-				if ((pmap[y-1][x]&0xFF)==PT_PPIP && !(parts[ID(pmap[y-1][x])].tmp & prop))
+		if (y >= CELL+1)
+			for (x = x1-1; x <= x2 + 1; x++)
+				if (TYP(pmap[y-1][x])==PT_PPIP && !(parts[ID(pmap[y-1][x])].tmp & prop))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y-1;
 					coord_stack_size++;
-					if (coord_stack_size>=coord_stack_limit)
+					if (coord_stack_size >= coord_stack_limit)
 					{
 						free(coord_stack);
 						return;
 					}
 				}
-		if (y<YRES-CELL-1)
-			for (x=x1-1; x<=x2+1; x++)
-				if ((pmap[y+1][x]&0xFF)==PT_PPIP && !(parts[ID(pmap[y+1][x])].tmp & prop))
+		if (y < YRES - CELL - 1)
+			for (x = x1 - 1; x <= x2 + 1; x++)
+				if (TYP(pmap[y+1][x]) == PT_PPIP && !(parts[ID(pmap[y+1][x])].tmp & prop))
 				{
 					coord_stack[coord_stack_size][0] = x;
 					coord_stack[coord_stack_size][1] = y+1;
 					coord_stack_size++;
-					if (coord_stack_size>=coord_stack_limit)
+					if (coord_stack_size >= coord_stack_limit)
 					{
 						free(coord_stack);
 						return;
 					}
 				}
-	} while (coord_stack_size>0);
+	} while (coord_stack_size > 0);
 	free(coord_stack);
 }
 
 void PIPE_transfer_pipe_to_part(particle *pipe, particle *part)
 {
-	part->type = (pipe->tmp & 0xFF);
+	part->type = TYP(pipe->tmp);
 	part->temp = pipe->temp;
 	part->life = pipe->tmp2;
 	part->tmp = (int)pipe->pavg[0];
@@ -159,7 +162,7 @@ void PIPE_transfer_part_to_pipe(particle *part, particle *pipe)
 
 void PIPE_transfer_pipe_to_pipe(particle *src, particle *dest)
 {
-	dest->tmp = (dest->tmp&~0xFF) | (src->tmp&0xFF);
+	dest->tmp = (dest->tmp&~0xFF) | TYP(src->tmp);
 	dest->temp = src->temp;
 	dest->tmp2 = src->tmp2;
 	dest->pavg[0] = src->pavg[0];
@@ -169,37 +172,41 @@ void PIPE_transfer_pipe_to_pipe(particle *src, particle *dest)
 
 void pushParticle(Simulation *sim, int i, int count, int original)
 {
-	int rndstore, rnd, rx, ry, r, x, y, np, q, notctype=(((parts[i].ctype)%3)+2);
-	if ((parts[i].tmp&0xFF) == 0 || count >= 2)//don't push if there is nothing there, max speed of 2 per frame
+	int notctype=(((parts[i].ctype)%3)+2);
+	// Don't push if there is nothing there, max speed of 2 per frame
+	if (TYP(parts[i].tmp) == 0 || count >= 2)
 		return;
-	x = (int)(parts[i].x+0.5f);
-	y = (int)(parts[i].y+0.5f);
-	if( !(parts[i].tmp&0x200) )
+	int x = (int)(parts[i].x + 0.5f);
+	int y = (int)(parts[i].y + 0.5f);
+	if (!(parts[i].tmp & 0x200))
 	{ 
 		//normal random push
-		rndstore = rand();
+		int rndstore = rand();
 		// RAND_MAX is at least 32767 on all platforms i.e. pow(8,5)-1
 		// so can go 5 cycles without regenerating rndstore
-		for (q=0; q<3; q++)//try to push 3 times
+		// Try to push 3 times
+		for (int q = 0; q < 3; q++)
 		{
-			rnd = rndstore&7;
+			int rnd = rndstore&7;
 			rndstore = rndstore>>3;
-			rx = pos_1_rx[rnd];
-			ry = pos_1_ry[rnd];
+			int rx = pos_1_rx[rnd];
+			int ry = pos_1_ry[rnd];
 			if (BOUNDS_CHECK)
 			{
-				r = pmap[y+ry][x+rx];
+				int r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				else if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype!=notctype && (parts[ID(r)].tmp&0xFF)==0)
+				else if ((TYP(r) == PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype != notctype && TYP(parts[ID(r)].tmp) == 0)
 				{
-					PIPE_transfer_pipe_to_pipe(parts+i, parts+(ID(r)));
+					PIPE_transfer_pipe_to_pipe(parts + i, parts + (ID(r)));
+					// Skip particle push, normalizes speed
 					if (ID(r) > original)
-						parts[ID(r)].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
+						parts[ID(r)].flags |= PFLAG_NORMALSPEED;
 					count++;
-					pushParticle(sim, ID(r),count,original);
+					pushParticle(sim, ID(r), count, original);
 				}
-				else if (TYP(r) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
+				// Pass particles into PRTI for a pipe speed increase
+				else if (TYP(r) == PT_PRTI)
 				{
 					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 					int slot = PRTI_ElementDataContainer::GetSlot(-rx, -ry);
@@ -214,19 +221,22 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 			}
 		}
 	}
-	else //predefined 1 pixel thick pipe movement
+	// Predefined 1 pixel thick pipe movement
+	else
 	{
-		int coords = 7 - ((parts[i].tmp>>10)&7);
-		r = pmap[y+ pos_1_ry[coords]][x+ pos_1_rx[coords]];
-		if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype!=notctype && (parts[ID(r)].tmp&0xFF)==0)
+		int coords = 7 - ((parts[i].tmp >> 10) & 7);
+		int r = pmap[y+ pos_1_ry[coords]][x+ pos_1_rx[coords]];
+		if ((TYP(r) == PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype != notctype && TYP(parts[ID(r)].tmp) == 0)
 		{
-			PIPE_transfer_pipe_to_pipe(parts+i, parts+(ID(r)));
+			PIPE_transfer_pipe_to_pipe(parts + i, parts + (ID(r)));
+			// Skip particle push, normalizes speed
 			if (ID(r) > original)
-				parts[ID(r)].flags |= PFLAG_NORMALSPEED;//skip particle push, normalizes speed
+				parts[ID(r)].flags |= PFLAG_NORMALSPEED;
 			count++;
 			pushParticle(sim, ID(r),count,original);
 		}
-		else if (TYP(r) == PT_PRTI) //Pass particles into PRTI for a pipe speed increase
+		// Pass particles into PRTI for a pipe speed increase
+		else if (TYP(r) == PT_PRTI)
 		{
 			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 			int slot = PRTI_ElementDataContainer::GetSlot(-pos_1_rx[coords], -pos_1_ry[coords]);
@@ -237,12 +247,13 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 				count++;
 			}
 		}
-		else if (TYP(r) == PT_NONE) //Move particles out of pipe automatically, much faster at ends
+		// Move particles out of pipe automatically, much faster at ends
+		else if (TYP(r) == PT_NONE)
 		{
-			rx = pos_1_rx[coords];
-			ry = pos_1_ry[coords];
-			np = sim->part_create(-1,x+rx,y+ry,parts[i].tmp&0xFF);
-			if (np!=-1)
+			int rx = pos_1_rx[coords];
+			int ry = pos_1_ry[coords];
+			int np = sim->part_create(-1, x + rx, y + ry, TYP(parts[i].tmp));
+			if (np != -1)
 			{
 				PIPE_transfer_pipe_to_part(parts+i, parts+np);
 			}
@@ -255,14 +266,13 @@ void detach(int i);
 
 int PIPE_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np;
-	int rnd, rndstore;
-	if ((parts[i].tmp&0xFF)>=PT_NUM || !sim->elements[parts[i].tmp&0xFF].Enabled)
-		parts[i].tmp &= ~0xFF; 
+	if (!sim->elements[TYP(parts[i].tmp)].Enabled)
+		parts[i].tmp &= ~PMAPMASK; 
 	if (parts[i].tmp & PPIP_TMPFLAG_TRIGGERS)
 	{
 		int pause_changed = 0;
-		if (parts[i].tmp & PPIP_TMPFLAG_TRIGGER_ON) // TRIGGER_ON overrides TRIGGER_OFF
+		// TRIGGER_ON overrides TRIGGER_OFF
+		if (parts[i].tmp & PPIP_TMPFLAG_TRIGGER_ON)
 		{
 			if (parts[i].tmp & PPIP_TMPFLAG_PAUSED)
 				pause_changed = 1;
@@ -276,19 +286,19 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 		}
 		if (pause_changed)
 		{
-			int rx, ry, r;
-			for (rx=-2; rx<3; rx++)
-				for (ry=-2; ry<3; ry++)
+			for (int rx = -2; rx <= 2; rx++)
+				for (int ry = -2; ry <= 2; ry++)
 				{
 					if (BOUNDS_CHECK && (rx || ry))
 					{
-						r = pmap[y+ry][x+rx];
+						int r = pmap[y+ry][x+rx];
 						if (TYP(r) == PT_BRCK)
 						{
 							if (parts[i].tmp & PPIP_TMPFLAG_PAUSED)
 								parts[ID(r)].tmp = 0;
+							// Make surrounding BRCK glow
 							else
-								parts[ID(r)].tmp = 1; //make surrounding BRCK glow
+								parts[ID(r)].tmp = 1;
 						}
 					}
 				}
@@ -297,157 +307,168 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 		if (parts[i].tmp & PPIP_TMPFLAG_TRIGGER_REVERSE)
 		{
 			parts[i].tmp ^= PPIP_TMPFLAG_REVERSED;
-			if (parts[i].ctype == 2) //Switch colors so it goes in reverse
+			// Switch colors so it goes in reverse
+			if (parts[i].ctype == 2)
 				parts[i].ctype = 4;
 			else if (parts[i].ctype == 4)
 				parts[i].ctype = 2;
-			if (parts[i].tmp & 0x100) //Switch one pixel pipe direction
+			// Switch one pixel pipe direction
+			if (parts[i].tmp & 0x100)
 			{
-				int coords = (parts[i].tmp>>13)&0xF;
-				int coords2 = (parts[i].tmp>>9)&0xF;
+				int coords = (parts[i].tmp >> 13) & 0xF;
+				int coords2 = (parts[i].tmp >> 9) & 0xF;
 				parts[i].tmp &= ~0x1FE00;
-				parts[i].tmp |= coords<<9;
-				parts[i].tmp |= coords2<<13;
+				parts[i].tmp |= coords << 9;
+				parts[i].tmp |= coords2 << 13;
 			}
 		}
 
 		parts[i].tmp &= ~PPIP_TMPFLAG_TRIGGERS;
 	}
 
-	if (parts[i].ctype>=2 && parts[i].ctype<=4 && !(parts[i].tmp & PPIP_TMPFLAG_PAUSED))
+	if (parts[i].ctype >= 2 && parts[i].ctype <= 4 && !(parts[i].tmp & PPIP_TMPFLAG_PAUSED))
 	{
-		if (parts[i].life==3)
+		if (parts[i].life == 3)
 		{
 			int lastneighbor = -1;
 			int neighborcount = 0;
 			int count = 0;
-			// make automatic pipe pattern
-			for (rx=-1; rx<2; rx++)
-				for (ry=-1; ry<2; ry++)
+			// Make automatic pipe pattern
+			for (int rx = -1; rx <= 1; rx++)
+				for (int ry = -1; ry <= -1; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
-						r = pmap[y+ry][x+rx];
+						int r = pmap[y+ry][x+rx];
 						if (!r)
 							continue;
-						if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP)&&parts[ID(r)].ctype==1)
+						if ((TYP(r) == PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype == 1)
 						{
-							parts[ID(r)].ctype = (((parts[i].ctype)%3)+2);//reverse
+							parts[ID(r)].ctype = (((parts[i].ctype)%3)+2); // Reverse
 							parts[ID(r)].life = 6;
-							if ( parts[i].tmp&0x100)//is a single pixel pipe
+							// Is a single pixel pipe
+							if (parts[i].tmp & 0x100)
 							{
-								parts[ID(r)].tmp |= 0x200;//will transfer to a single pixel pipe
-								parts[ID(r)].tmp |= count<<10;//coords of where it came from
-								parts[i].tmp |= ((7-count)<<14);
+								parts[ID(r)].tmp |= 0x200; // Will transfer to a single pixel pipe
+								parts[ID(r)].tmp |= count << 10;// Coords of where it came from
+								parts[i].tmp |= ((7 - count) << 14);
 								parts[i].tmp |= 0x2000;
 							}
 							neighborcount ++;
 							lastneighbor = ID(r);
 						}
-						else if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP)&&parts[ID(r)].ctype!=(((parts[i].ctype-1)%3)+2))
+						else if ((TYP(r) == PT_PIPE || TYP(r) == PT_PPIP) && parts[ID(r)].ctype != (((parts[i].ctype-1)%3)+2))
 						{
-							neighborcount ++;
+							neighborcount++;
 							lastneighbor = ID(r);
 						}
 						count++;
 					}
-			if(neighborcount == 1)
+			if (neighborcount == 1)
 				parts[lastneighbor].tmp |= 0x100;
 		}
 		else
 		{
-			if (parts[i].flags&PFLAG_NORMALSPEED)//skip particle push to prevent particle number being higher causing speed up
+			// Skip particle push to prevent particle number being higher causing speed up
+			if (parts[i].flags & PFLAG_NORMALSPEED)
 			{
 				parts[i].flags &= ~PFLAG_NORMALSPEED;
 			}
 			else
 			{
-				pushParticle(sim, i,0,i);
+				pushParticle(sim, i, 0, i);
 			}
 
-			if (nt)//there is something besides PIPE around current particle
+			// There is something besides PIPE around current particle
+			if (nt)
 			{
-				rndstore = rand();
-				rnd = rndstore&7;
+				int rndstore = rand();
+				int rnd = rndstore&7;
 				rndstore = rndstore>>3;
-				rx = pos_1_rx[rnd];
-				ry = pos_1_ry[rnd];
+				int rx = pos_1_rx[rnd];
+				int ry = pos_1_ry[rnd];
 				if (BOUNDS_CHECK)
 				{
-					r = pmap[y+ry][x+rx];
+					int r = pmap[y+ry][x+rx];
 					if(!r)
 						r = photons[y+ry][x+rx];
-					if (surround_space && !r && (parts[i].tmp&0xFF)!=0)  //creating at end
+					// Creating at end
+					if (surround_space && !r && TYP(parts[i].tmp) != 0)
 					{
-						np = sim->part_create(-1,x+rx,y+ry,parts[i].tmp&0xFF);
-						if (np!=-1)
+						int np = sim->part_create(-1, x + rx, y + ry, TYP(parts[i].tmp));
+						if (np != -1)
 						{
-							PIPE_transfer_pipe_to_part(parts+i, parts+np);
+							PIPE_transfer_pipe_to_part(parts + i, parts + np);
 						}
 					}
 					//try eating particle at entrance
-					else if ((parts[i].tmp&0xFF) == 0 && (ptypes[TYP(r)].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
+					else if (TYP(parts[i].tmp) == 0 && (sim->elements[TYP(r)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
-						if (TYP(r)==PT_SOAP)
+						if (TYP(r) == PT_SOAP)
 							detach(ID(r));
-						PIPE_transfer_part_to_pipe(parts+(ID(r)), parts+i);
-						kill_part(ID(r));
+						PIPE_transfer_part_to_pipe(parts+(ID(r)), parts + i);
+						sim->part_kill(ID(r));
 					}
-					else if ((parts[i].tmp&0xFF) == 0 && TYP(r)==PT_STOR && sim->IsElement(parts[ID(r)].tmp) && (ptypes[parts[ID(r)].tmp].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
+					else if (TYP(parts[i].tmp) == 0 && TYP(r) == PT_STOR && sim->IsElement(parts[ID(r)].tmp) &&
+					         (sim->elements[parts[ID(r)].tmp].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
 						// STOR stores properties in the same places as PIPE does
-						PIPE_transfer_pipe_to_pipe(parts+(ID(r)), parts+i);
+						PIPE_transfer_pipe_to_pipe(parts+(ID(r)), parts + i);
 					}
 				}
 			}
 		}
 	}
-	else if (!parts[i].ctype && parts[i].life<=10)
+	else if (!parts[i].ctype && parts[i].life <= 10)
 	{
-		// make a border
-		for (rx=-2; rx<3; rx++)
-			for (ry=-2; ry<3; ry++)
+		// Make a border
+		for (int rx = -2; rx <= 2; rx++)
+			for (int ry = -2; ry <= 2; ry++)
 			{
 				if (BOUNDS_CHECK && (rx || ry))
 				{
-					r = pmap[y+ry][x+rx];
+					int r = pmap[y+ry][x+rx];
 					if (!r)
 					{
-						int index = sim->part_create(-1,x+rx,y+ry,PT_BRCK);//BRCK border, people didn't like DMND
+						// BRCK border, people didn't like DMND
+						int index = sim->part_create(-1, x + rx, y + ry, PT_BRCK);
 						if (parts[i].type == PT_PPIP && index != -1)
 							parts[index].tmp = 1;
 					}
 				}
 			}
-		if (parts[i].life<=1)
+		if (parts[i].life <= 1)
 			parts[i].ctype = 1;
 	}
-	else if (parts[i].ctype==1)//wait for empty space before starting to generate automatic pipe pattern
+	// Wait for empty space before starting to generate automatic pipe pattern
+	else if (parts[i].ctype == 1)
 	{
 		if (!parts[i].life)
 		{
-			for (rx=-1; rx<2; rx++)
-				for (ry=-1; ry<2; ry++)
+			for (int rx = -1; rx <= 1; rx++)
+				for (int ry = -1; ry <= 1; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
-						if (!pmap[y+ry][x+rx] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_ALLOWAIR && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALL && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALLELEC && (bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_EWALL || emap[(y+ry)/CELL][(x+rx)/CELL]))
-							parts[i].life=50;
+						if (!pmap[y+ry][x+rx] && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_ALLOWAIR && bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALL &&
+						        bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_WALLELEC && (bmap[(y+ry)/CELL][(x+rx)/CELL]!=WL_EWALL || emap[(y+ry)/CELL][(x+rx)/CELL]))
+							parts[i].life = 50;
 					}
 		}
-		else if (parts[i].life==5)//check for beginning of pipe single pixel
+		// Check for beginning of pipe single pixel
+		else if (parts[i].life == 5)
 		{
 			int issingle = 1;
-			for (rx=-1; rx<2; rx++)
-				for (ry=-1; ry<2; ry++)
+			for (int rx = -1; rx <= 1; rx++)
+				for (int ry = -1; ry <= 1; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
-						r = pmap[y+ry][x+rx];
-						if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && parts[i].ctype==1 && parts[i].life )
+						int r = pmap[y+ry][x+rx];
+						if ((TYP(r) == PT_PIPE || TYP(r) == PT_PPIP) && parts[i].ctype == 1 && parts[i].life )
 							issingle = 0;
 					}
 			if (issingle)
 				parts[i].tmp |= 0x100;
 		}
-		else if (parts[i].life==2)
+		else if (parts[i].life == 2)
 		{
 			parts[i].ctype = 2;
 			parts[i].life = 6;
@@ -456,11 +477,11 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//Temp particle used for graphics
+// Temp particle used for graphics
 particle tpart;
 int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 {
-	int t = cpart->tmp&0xFF;
+	int t = TYP(cpart->tmp);
 	if (t > 0 && t < PT_NUM && sim->elements[t].Enabled)
 	{
 		if (t == PT_STKM || t == PT_STKM2 || t == PT_FIGH)
@@ -479,7 +500,7 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 		}
 		else
 		{
-			//Emulate the graphics of stored particle
+			// Emulate the graphics of stored particle
 			tpart.type = t;
 			tpart.temp = cpart->temp;
 			tpart.life = cpart->tmp2;
@@ -500,9 +521,6 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 				graphics_DEFAULT(sim, &tpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 			}
 		}
-		//*colr = PIXR(ptypes[cpart->tmp&0xFF].pcolors);
-		//*colg = PIXG(ptypes[cpart->tmp&0xFF].pcolors);
-		//*colb = PIXB(ptypes[cpart->tmp&0xFF].pcolors);
 	}
 	else
 	{

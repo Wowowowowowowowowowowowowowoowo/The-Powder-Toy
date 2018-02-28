@@ -102,7 +102,7 @@ int PWHT_graphics(GRAPHICS_FUNC_ARGS)
 
 bool PWHT_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return (y > 0 && (pmap[y-1][x]&0xFF) != PT_PWHT) && (y < YRES-1 && (pmap[y+1][x]&0xFF) != PT_PWHT);
+	return (y > 0 && TYP(pmap[y-1][x]) != PT_PWHT) && (y < YRES-1 && TYP(pmap[y+1][x]) != PT_PWHT);
 }
 
 void PWHT_init_element(ELEMENT_INIT_FUNC_ARGS)

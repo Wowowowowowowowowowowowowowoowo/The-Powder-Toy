@@ -29,7 +29,7 @@ int TTAN_update(UPDATE_FUNC_ARGS)
 			{
 				if ((!nx != !ny) && x+nx >= 0 && y+ny >= 0 && x+nx < XRES && y+ny < YRES)
 				{
-					if ((pmap[y+ny][x+nx]&0xFF) == PT_TTAN)
+					if (TYP(pmap[y+ny][x+nx]) == PT_TTAN)
 						ttan++;
 				}
 			}
@@ -69,7 +69,7 @@ void TTAN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f +273.15f;
+	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 251;
 	elem->Latent = 0;
 	elem->Description = "Titanium. Higher melting temperature than most other metals, blocks all air pressure.";

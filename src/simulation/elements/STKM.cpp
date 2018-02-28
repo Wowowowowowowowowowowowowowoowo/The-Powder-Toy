@@ -614,7 +614,7 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 #endif
 		{
 			int t = parts[i].type;
-			unsigned char tmp = parts[i].tmp&0xFF;
+			unsigned char tmp = TYP(parts[i].tmp);
 			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
 			if (channel->StoreParticle(sim, i, 1))//slot=1 gives rx=0, ry=1 in PRTO_update
 			{

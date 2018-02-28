@@ -41,9 +41,8 @@ unsigned int wavelengthToDecoColour(int wavelength)
 
 int CRAY_update(UPDATE_FUNC_ARGS)
 {
-	int nxx, nyy, docontinue, nxi, nyi;
 	// set ctype to things that touch it if it doesn't have one already
-	if (parts[i].ctype<=0 || !ptypes[parts[i].ctype&0xFF].enabled)
+	if (parts[i].ctype<=0 || !ptypes[TYP(parts[i].ctype)].enabled)
 	{
 		for (int rx = -1; rx <= 1; rx++)
 			for (int ry = -1; ry <= 1; ry++)
@@ -54,7 +53,7 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 						r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (TYP(r)!=PT_CRAY && TYP(r)!=PT_PSCN && TYP(r)!=PT_INST && TYP(r)!=PT_METL && TYP(r)!=PT_SPRK && TYP(r)<PT_NUM)
+					if (TYP(r) != PT_CRAY && TYP(r) != PT_PSCN && TYP(r) != PT_INST && TYP(r) != PT_METL && TYP(r) != PT_SPRK)
 					{
 						parts[i].ctype = TYP(r);
 						parts[i].temp = parts[ID(r)].temp;
@@ -70,52 +69,64 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 					int r = pmap[y+ry][x+rx];
 					if (!TYP(r))
 						continue;
-					if (TYP(r)==PT_SPRK && parts[ID(r)].life==3) { //spark found, start creating
+					// Spark found, start creating
+					if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3)
+					{
 						ARGBColour colored = COLARGB(0, 0, 0, 0);
-						int destroy = parts[ID(r)].ctype==PT_PSCN;
-						int nostop = parts[ID(r)].ctype==PT_INST;
-						int createSpark = (parts[ID(r)].ctype==PT_INWR);
+						int destroy = parts[ID(r)].ctype == PT_PSCN;
+						int nostop = parts[ID(r)].ctype == PT_INST;
+						int createSpark = parts[ID(r)].ctype == PT_INWR;
 						int partsRemaining = 255;
-						if (parts[i].tmp) //how far it shoots
+						// How far it shoots
+						if (parts[i].tmp)
 							partsRemaining = parts[i].tmp;
 						int spacesRemaining = parts[i].tmp2;
-						for (docontinue = 1, nxi = rx*-1, nyi = ry*-1, nxx = spacesRemaining*nxi, nyy = spacesRemaining*nyi; docontinue; nyy+=nyi, nxx+=nxi)
+
+						for (int docontinue = 1, nxi = rx*-1, nyi = ry*-1, nxx = spacesRemaining*nxi, nyy = spacesRemaining*nyi; docontinue; nyy+=nyi, nxx+=nxi)
 						{
-							if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0)) {
+							if (!(x+nxi+nxx<XRES && y+nyi+nyy<YRES && x+nxi+nxx >= 0 && y+nyi+nyy >= 0))
 								break;
-							}
+
 							r = pmap[y+nyi+nyy][x+nxi+nxx];
-							if (!sim->IsWallBlocking(x+nxi+nxx, y+nyi+nyy, parts[i].ctype&0xFF) && (!pmap[y+nyi+nyy][x+nxi+nxx] || createSpark)) { // create, also set color if it has passed through FILT
-								int nr = sim->part_create(-1, x+nxi+nxx, y+nyi+nyy, parts[i].ctype&0xFF, ID(parts[i].ctype));
-								if (nr!=-1) {
+							// Create, also set color if it has passed through FILT
+							if (!sim->IsWallBlocking(x+nxi+nxx, y+nyi+nyy, TYP(parts[i].ctype)) && (!pmap[y+nyi+nyy][x+nxi+nxx] || createSpark))
+							{
+								int nr = sim->part_create(-1, x+nxi+nxx, y+nyi+nyy, TYP(parts[i].ctype), ID(parts[i].ctype));
+								if (nr!=-1)
+								{
 									if (colored)
 										parts[nr].dcolour = colored;
 									parts[nr].temp = parts[i].temp;
-									if (parts[i].life>0)
+									if (parts[i].life > 0)
 										parts[nr].life = parts[i].life;
-									if(!--partsRemaining)
+									if (!--partsRemaining)
 										docontinue = 0;
 								}
-							} else if (TYP(r)==PT_FILT) { // get color if passed through FILT
+							// Get color if passed through FILT
+							}
+							else if (TYP(r)==PT_FILT)
+							{
 								if (parts[ID(r)].dcolour == COLRGB(0, 0, 0))
 									colored = COLRGB(0, 0, 0);
 								else if (parts[ID(r)].tmp == 0)
-								{
 									colored = wavelengthToDecoColour(getWavelengths(&parts[ID(r)]));
-								}
 								else if (colored == COLRGB(0, 0, 0))
 									colored = COLARGB(0, 0, 0, 0);
 								parts[ID(r)].life = 4;
-							} else if (TYP(r) == PT_CRAY || nostop) {
+							}
+							else if (TYP(r) == PT_CRAY || nostop)
+							{
 								docontinue = 1;
-							} else if(destroy && r && (TYP(r) != PT_DMND)) {
-								kill_part(ID(r));
-								if(!--partsRemaining)
+							}
+							else if (destroy && r && TYP(r) != PT_DMND)
+							{
+								sim->part_kill(ID(r));
+								if (!--partsRemaining)
 									docontinue = 0;
 							}
 							else
 								docontinue = 0;
-							if(!partsRemaining)
+							if (!partsRemaining)
 								docontinue = 0;
 						}
 					}

@@ -89,21 +89,21 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 						else
 							parts[ID(r)].pavg[1] = 0;
 						if (parts[ID(r)].temp < 305.0f)
-							sim->part_change_type(ID(r),x+rx,y+ry,PT_VRSS);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VRSS);
 						else if (parts[ID(r)].temp > 673.0f)
-							sim->part_change_type(ID(r),x+rx,y+ry,PT_VRSG);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VRSG);
 						else
-							sim->part_change_type(ID(r),x+rx,y+ry,PT_VIRS);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VIRS);
 					}
 					rndstore >>= 3;
 				}
-				//protons make VIRS last forever
-				else if ((photons[y+ry][x+rx]&0xFF) == PT_PROT)
+				// Protons make VIRS last forever
+				else if (TYP(photons[y+ry][x+rx]) == PT_PROT)
 				{
 					parts[i].pavg[1] = 0;
 				}
 			}
-			//reset rndstore only once, halfway through
+			// Reset rndstore only once, halfway through
 			else if (!rx && !ry)
 				rndstore = rand();
 		}

@@ -59,7 +59,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 			}
 		}
 	}
-	if ((photons[y][x]&0xFF) == PT_NEUT)
+	if (TYP(photons[y][x]) == PT_NEUT)
 	{
 		if (!(rand()%7))
 		{

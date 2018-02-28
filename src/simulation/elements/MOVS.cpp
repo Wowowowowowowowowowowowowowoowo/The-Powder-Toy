@@ -55,28 +55,28 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 		kill_part(i);
 		return 1;
 	}
-	type = pmap[y+1][x]&0xFF;
+	type = TYP(pmap[y+1][x]);
 	//bottom side collision
 	if (tmp2 > 0 && type && y+1 < YRES && ((type != PT_MOVS && !sim->EvalMove(PT_MOVS, x, y+1)) || (type == PT_MOVS && parts[ID(pmap[y+1][x])].tmp2 != bn) || sim->IsWallBlocking(x, y+1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
-	type = pmap[y-1][x]&0xFF;
+	type = TYP(pmap[y-1][x]);
 	//top side collision
 	if (tmp2 < 0 && type && y-1 >= 0 && ((type != PT_MOVS && !sim->EvalMove(PT_MOVS, x, y-1)) || (type == PT_MOVS && parts[ID(pmap[y-1][x])].tmp2 != bn) || sim->IsWallBlocking(x, y-1, PT_MOVS)))
 	{
 		parts[i].vy -= tmp2*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
-	type = pmap[y][x+1]&0xFF;
+	type = TYP(pmap[y][x+1]);
 	//right side collision
 	if (tmp > 0 && type && x+1 < XRES && ((type != PT_MOVS && !sim->EvalMove(PT_MOVS, x+1, y)) || (type == PT_MOVS && parts[ID(pmap[y][x+1])].tmp2 != bn) || sim->IsWallBlocking(x+1, y, PT_MOVS)))
 	{
 		parts[i].vx -= tmp*bounce;
 		movingSolid->rotation -= tmp/50000;
 	}
-	type = pmap[y][x-1]&0xFF;
+	type = TYP(pmap[y][x-1]);
 	//left side collision
 	if (tmp < 0 && type && x-1 >= 0 && ((type != PT_MOVS && !sim->EvalMove(PT_MOVS, x-1, y)) || (type == PT_MOVS && parts[ID(pmap[y][x-1])].tmp2 != bn) || sim->IsWallBlocking(x-1, y, PT_MOVS)))
 	{
@@ -88,7 +88,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 
 bool MOVS_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	if (((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetNumBalls() >= 255 || (pmap[y][x]&0xFF))
+	if (((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetNumBalls() >= 255 || pmap[y][x])
 		return false;
 	return true;
 }

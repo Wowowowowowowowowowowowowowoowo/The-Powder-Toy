@@ -41,7 +41,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 								if ((ynxj < 0) || (ynxj >= YRES) || (xnxi <= 0) || (xnxi >= XRES))
 									continue;
 
-								nt = pmap[y+nxj][x+nxi]&0xFF;
+								nt = TYP(pmap[y+nxj][x+nxi]);
 								if (nt!=PT_VIBR && !(sim->elements[nt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[nt].Properties&PROP_CLONE) && !(sim->elements[nt].Properties&PROP_BREAKABLECLONE))
 								{
 									if (nt)
@@ -58,7 +58,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 							}
 					for (nxj=-(rad+1); nxj<=(rad+1); nxj++)
 						for (nxi=-(rad+1); nxi<=(rad+1); nxi++)
-							if ((std::pow((float)nxi,2.0f))/(std::pow((float)(rad+1),2.0f))+(std::pow((float)nxj,2.0f))/(std::pow((float)(rad+1),2.0f))<=1 && !(pmap[y+nxj][x+nxi]&0xFF))
+							if ((std::pow((float)nxi,2.0f))/(std::pow((float)(rad+1),2.0f))+(std::pow((float)nxj,2.0f))/(std::pow((float)(rad+1),2.0f))<=1 && !TYP(pmap[y+nxj][x+nxi]))
 							{
 								nb = sim->part_create(-3, x+nxi, y+nxj, PT_EMBR);
 								if (nb != -1)

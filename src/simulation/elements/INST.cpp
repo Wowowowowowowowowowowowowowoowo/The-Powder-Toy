@@ -16,16 +16,16 @@
 #include "simulation/ElementsCommon.h"
 #include "simulation/CoordStack.h"
 
-//INST that can be sparked
+// INST that can be sparked
 bool contains_sparkable_INST(Simulation *sim, int x, int y)
 {
-	return (pmap[y][x]&0xFF) == PT_INST && parts[ID(pmap[y][x])].life <= 0;
+	return TYP(pmap[y][x]) == PT_INST && parts[ID(pmap[y][x])].life <= 0;
 }
 
-//Any INST or SPRK(INST) regardless of life
+// Any INST or SPRK(INST) regardless of life
 bool part_cmp_conductive(unsigned int p, int t)
 {
-	return ((p&0xFF)==(unsigned int)t || ((p&0xFF)==PT_SPRK && parts[ID(p)].ctype==t));
+	return (TYP(p) == (unsigned int)t || (TYP(p)==PT_SPRK && parts[ID(p)].ctype == t));
 }
 
 int INST_flood_spark(Simulation *sim, int x, int y)

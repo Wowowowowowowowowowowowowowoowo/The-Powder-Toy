@@ -63,7 +63,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 				parts[j].temp = MAX_TEMP;
 				parts[j].tmp = 0x1;
 			}
-			int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = pmap[ry][rx]&0xFF;
+			int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = TYP(pmap[ry][rx]);
 			if (sim->can_move[PT_PLSM][rt] || rt == PT_O2)
 			{
 				j = sim->part_create(-3,rx,ry,PT_PLSM);

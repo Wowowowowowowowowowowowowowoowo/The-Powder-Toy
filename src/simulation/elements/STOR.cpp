@@ -17,33 +17,35 @@
 
 int STOR_update(UPDATE_FUNC_ARGS)
 {
-	int r, rx, ry, np, rx1, ry1;
 	if (parts[i].tmp && !sim->IsElement(parts[i].tmp))
 		parts[i].tmp = 0;
 	if (parts[i].life && !parts[i].tmp)
 		parts[i].life--;
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (int rx = -2; rx <= 2; rx++)
+		for (int ry = -2; ry <= 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
-				if ((ID(r))>=NPART || !r)
+				int r = pmap[y+ry][x+rx];
+				if (!r)
 					continue;
-				if (!parts[i].tmp && !parts[i].life && TYP(r)!=PT_STOR && !(ptypes[TYP(r)].properties&TYPE_SOLID) && (!parts[i].ctype || TYP(r)==parts[i].ctype))
+				if (!parts[i].tmp && !parts[i].life && TYP(r) != PT_STOR && !(sim->elements[TYP(r)].Properties & TYPE_SOLID) && (!parts[i].ctype || TYP(r) == parts[i].ctype))
 				{
 					parts[i].tmp = parts[ID(r)].type;
 					parts[i].temp = parts[ID(r)].temp;
 					parts[i].tmp2 = parts[ID(r)].life;
 					parts[i].pavg[0] = (float)parts[ID(r)].tmp;
 					parts[i].pavg[1] = (float)parts[ID(r)].ctype;
-					kill_part(ID(r));
+					sim->part_kill(ID(r));
 				}
-				if(parts[i].tmp && TYP(r)==PT_SPRK && parts[ID(r)].ctype==PT_PSCN && parts[ID(r)].life>0 && parts[ID(r)].life<4)
+				if (parts[i].tmp && TYP(r) == PT_SPRK && parts[ID(r)].ctype == PT_PSCN && parts[ID(r)].life > 0 && parts[ID(r)].life < 4)
 				{
-					for(ry1 = 1; ry1 >= -1; ry1--){
-						for(rx1 = 0; rx1 >= -1 && rx1 <= 1; rx1 = -rx1-rx1+1){ // Oscilate the X starting at 0, 1, -1, 3, -5, etc (Though stop at -1)
-							np = sim->part_create(-1,x+rx1,y+ry1,parts[i].tmp&0xFF);
-							if (np!=-1)
+					for (int ry1 = 1; ry1 >= -1; ry1--)
+					{
+						// Oscilate the X starting at 0, 1, -1, 3, -5, etc (Though stop at -1)
+						for (int rx1 = 0; rx1 >= -1 && rx1 <= 1; rx1 = -rx1 - rx1 + 1)
+						{
+							int np = sim->part_create(-1, x + rx1, y + ry1, TYP(parts[i].tmp));
+							if (np != -1)
 							{
 								parts[np].temp = parts[i].temp;
 								parts[np].life = parts[i].tmp2;
@@ -62,12 +64,15 @@ int STOR_update(UPDATE_FUNC_ARGS)
 
 int STOR_graphics(GRAPHICS_FUNC_ARGS)
 {
-	if(cpart->tmp){
+	if (cpart->tmp)
+	{
 		*pixel_mode |= PMODE_GLOW;
 		*colr = 0x50;
 		*colg = 0xDF;
 		*colb = 0xDF;
-	} else {
+	}
+	else
+	{
 		*colr = 0x20;
 		*colg = 0xAF;
 		*colb = 0xAF;
@@ -101,7 +106,7 @@ void STOR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
+	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Storage. Captures and stores a single particle. Releases when charged with PSCN, also passes to PIPE.";
