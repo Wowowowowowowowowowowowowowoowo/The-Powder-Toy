@@ -129,7 +129,7 @@ int console_parse_partref(const char *txt, int *which, char *err)
 		if (!i)
 			i = -1;
 		else
-			i = i>>8;
+			i = ID(i);
 	}
 	else if (txt)
 	{
@@ -336,10 +336,10 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					else
 					{
 						int v = -1;
-						if (j&~(0xFF))
+						if (j&~PMAPMASK)
 						{
-							v = j>>8;
-							j = j&0xFF;
+							v = ID(j);
+							j = TYP(j);
 						}
 						if (sim->part_create(-1, nx, ny, j, v) < 0)
 							strcpy(console_error, "Could not create particle");

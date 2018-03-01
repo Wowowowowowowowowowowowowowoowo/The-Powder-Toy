@@ -267,9 +267,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		if (type == PT_PIPE || type == PT_PPIP || type == PT_STOR)
 		{
 			if (hasPalette)
-				tempPart.tmp = partMap[tempPart.tmp&0xFF] | (tempPart.tmp&~0xFF);
+				tempPart.tmp = partMap[TYP(tempPart.tmp)] | (tempPart.tmp&~PMAPMASK);
 			else
-				tempPart.tmp = save->FixType((tempPart.tmp&0xFF) | (tempPart.tmp&~0xFF));
+				tempPart.tmp = save->FixType(TYP(tempPart.tmp) | (tempPart.tmp&~PMAPMASK));
 		}
 		if (type == PT_VIRS || type == PT_VRSG || type == PT_VRSS)
 		{
@@ -289,16 +289,16 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		//Replace existing
 		if ((r = pmap[y][x]))
 		{
-			elementCount[parts[r>>8].type]--;
-			parts[r>>8] = tempPart;
-			i = r>>8;
+			elementCount[parts[ID(r)].type]--;
+			parts[ID(r)] = tempPart;
+			i = ID(r);
 			elementCount[tempPart.type]++;
 		}
 		else if ((r = photons[y][x]))
 		{
-			elementCount[parts[r>>8].type]--;
-			parts[r>>8] = tempPart;
-			i = r>>8;
+			elementCount[parts[ID(r)].type]--;
+			parts[ID(r)] = tempPart;
+			i = ID(r);
 			elementCount[tempPart.type]++;
 		}
 		//Allocate new particle
@@ -783,16 +783,16 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 
 	// Spark Checks here
 #ifndef NOMOD
-	if (p == -2 && (pmap[y][x]&0xFF) == PT_BUTN && parts[pmap[y][x]>>8].life == 10)
+	if (p == -2 && TYP(pmap[y][x]) == PT_BUTN && parts[ID(pmap[y][x])].life == 10)
 	{
-		spark_conductive(pmap[y][x]>>8, x, y);
-		return pmap[y][x]>>8;
+		spark_conductive(ID(pmap[y][x]), x, y);
+		return ID(pmap[y][x]);
 	}
 #endif
-	if (t==PT_SPRK)
+	if (t == PT_SPRK)
 	{
-		int type = pmap[y][x]&0xFF;
-		int index = pmap[y][x]>>8;
+		int type = TYP(pmap[y][x]);
+		int index = ID(pmap[y][x]);
 		if(type == PT_WIRE)
 		{
 			parts[index].ctype = PT_DUST;
@@ -821,49 +821,49 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	}
 	// End Spark checks
 
-	//Brush Creation
+	// Brush Creation
 	if (p == -2)
 	{
 		if (pmap[y][x])
 		{
-			int drawOn = pmap[y][x]&0xFF;
+			int drawOn = TYP(pmap[y][x]);
 			if (drawOn == t)
 				return -1;
-			//If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
+			// If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
 			if (((elements[drawOn].Properties & PROP_DRAWONCTYPE) ||
 				 (drawOn == PT_STOR && !(elements[t].Properties & TYPE_SOLID)) ||
 				 (drawOn == PT_PCLN && t != PT_PSCN && t != PT_NSCN) ||
 				 (drawOn == PT_PBCN && t != PT_PSCN && t != PT_NSCN))
 				&& (!(elements[t].Properties & PROP_NOCTYPEDRAW)))
 			{
-				parts[pmap[y][x]>>8].ctype = t;
+				parts[ID(pmap[y][x])].ctype = t;
 				if (t == PT_LIFE && v >= 0 && v < NGOL)
 				{
 					if (drawOn == PT_CONV)
-						parts[pmap[y][x]>>8].ctype |= v<<8;
+						parts[ID(pmap[y][x])].ctype |= PMAPID(v);
 					else if (drawOn != PT_STOR)
-						parts[pmap[y][x]>>8].tmp = v;
+						parts[ID(pmap[y][x])].tmp = v;
 				}
 			}
 			else if (drawOn == PT_DTEC || (drawOn == PT_PSTN && t != PT_FRME) || drawOn == PT_DRAY)
 			{
-				parts[pmap[y][x]>>8].ctype = t;
+				parts[ID(pmap[y][x])].ctype = t;
 				if (t == PT_LIFE && v >= 0 && v < NGOL)
 				{
 					if (drawOn == PT_DTEC)
-						parts[pmap[y][x]>>8].tmp = v;
+						parts[ID(pmap[y][x])].tmp = v;
 					else if (drawOn == PT_DRAY)
-						parts[pmap[y][x]>>8].ctype |= v<<8;
+						parts[ID(pmap[y][x])].ctype |= PMAPID(v);
 				}
 			}
 			else if (drawOn == PT_CRAY)
 			{
-				parts[pmap[y][x]>>8].ctype = t;
+				parts[ID(pmap[y][x])].ctype = t;
 				if (t == PT_LIFE && v >= 0 && v < NGOL)
-					parts[pmap[y][x]>>8].ctype |= v<<8;
+					parts[ID(pmap[y][x])].ctype |= PMAPID(v);
 				else if (t == PT_LIGH)
-					parts[pmap[y][x]>>8].ctype |= 30<<8;
-				parts[pmap[y][x]>>8].temp = elements[t].DefaultProperties.temp;
+					parts[ID(pmap[y][x])].ctype |= PMAPID(30);
+				parts[ID(pmap[y][x])].temp = elements[t].DefaultProperties.temp;
 			}
 			return -1;
 		}
@@ -1055,9 +1055,9 @@ void Simulation::part_delete(int x, int y)
 		return;
 
 	if (photons[y][x])
-		part_kill(photons[y][x]>>8);
+		part_kill(ID(photons[y][x]));
 	else if (pmap[y][x])
-		part_kill(pmap[y][x]>>8);
+		part_kill(ID(pmap[y][x]));
 }
 
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.
@@ -1081,37 +1081,37 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 		if (parts[i].type)
 		{
 			t = parts[i].type;
-			x = (int)(parts[i].x+0.5f);
-			y = (int)(parts[i].y+0.5f);
-			if (parts[i].flags&FLAG_SKIPMOVE)
+			x = (int)(parts[i].x + 0.5f);
+			y = (int)(parts[i].y + 0.5f);
+			if (parts[i].flags & FLAG_SKIPMOVE)
 				parts[i].flags &= ~FLAG_SKIPMOVE;
-			if (x>=0 && y>=0 && x<XRES && y<YRES)
+			if (x >= 0 && y >= 0 && x < XRES && y < YRES)
 			{
 #ifndef NOMOD
-				if (t == PT_PINV && (parts[i].tmp2>>8) >= i)
+				if (t == PT_PINV && ID(parts[i].tmp2) >= i)
 					parts[i].tmp2 = 0;
 #endif
 				if (elements[t].Properties & TYPE_ENERGY)
-					photons[y][x] = t|(i<<8);
+					photons[y][x] = PMAP(i, t);
 				else
 				{
 #ifdef NOMOD
-					if (!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT))
-						pmap[y][x] = t|(i<<8);
+					if (!pmap[y][x] || (t != PT_INVIS && t != PT_FILT))
+						pmap[y][x] = PMAP(i, t);
 
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM)
+					if (t != PT_THDR && t != PT_EMBR && t != PT_FIGH && t != PT_PLSM)
 						pmap_count[y][x]++;
 #else
 					// Particles are sometimes allowed to go inside INVS and FILT
 					// To make particles collide correctly when inside these elements, these elements must not overwrite an existing pmap entry from particles inside them
-					if (!pmap[y][x] || (t!=PT_INVIS && t!=PT_FILT && (t!=PT_MOVS || (pmap[y][x]&0xFF)==PT_MOVS) && (pmap[y][x]&0xFF)!=PT_PINV))
-						pmap[y][x] = t|(i<<8);
-					else if ((pmap[y][x]&0xFF) == PT_PINV)
-						parts[pmap[y][x]>>8].tmp2 = t|(i<<8);
+					if (!pmap[y][x] || (t != PT_INVIS && t != PT_FILT && (t != PT_MOVS || TYP(pmap[y][x]) == PT_MOVS) && TYP(pmap[y][x]) != PT_PINV))
+						pmap[y][x] = PMAP(i, t);
+					else if (TYP(pmap[y][x]) == PT_PINV)
+						parts[ID(pmap[y][x])].tmp2 = PMAP(i, t);
 
 					// Count number of particles at each location, for excess stacking check
 					// (does not include energy particles or THDR - currently no limit on stacking those)
-					if (t!=PT_THDR && t!=PT_EMBR && t!=PT_FIGH && t!=PT_PLSM && t!=PT_MOVS)
+					if (t != PT_THDR && t != PT_EMBR && t != PT_FIGH && t != PT_PLSM && t != PT_MOVS)
 						pmap_count[y][x]++;
 #endif
 				}
@@ -1134,17 +1134,17 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 
 	if (lastPartUnused == -1)
 	{
-		if (parts_lastActiveIndex >= NPART-1)
+		if (parts_lastActiveIndex >= NPART - 1)
 			pfree = -1;
 		else
-			pfree = parts_lastActiveIndex+1;
+			pfree = parts_lastActiveIndex + 1;
 	}
 	else
 	{
-		if (parts_lastActiveIndex >= NPART-1)
+		if (parts_lastActiveIndex >= NPART - 1)
 			parts[lastPartUnused].life = -1;
 		else
-			parts[lastPartUnused].life = parts_lastActiveIndex+1;
+			parts[lastPartUnused].life = parts_lastActiveIndex + 1;
 	}
 	parts_lastActiveIndex = lastPartUsed;
 }
@@ -1444,11 +1444,11 @@ bool Simulation::UpdateParticle(int i)
 					surround_particle++;
 
 					//there is empty space
-					if (!(r&0xFF))
+					if (!TYP(r))
 						surround_space++;
 
 					//there is nothing or a different particle
-					if ((r&0xFF) != t)
+					if (TYP(r) != t)
 						nt++;
 				}
 				else
@@ -1706,7 +1706,7 @@ bool Simulation::UpdateParticle(int i)
 			//block if particle can't move (0), or some special cases where it returns 1 (can_move = 3 but returns 1 meaning particle will be eaten)
 			//also photons are still blocked (slowed down) by any particle (even ones it can move through), and absorb wall also blocks particles
 			int eval = EvalMove(t, fin_x, fin_y);
-			if (!eval || (can_move[t][pmap[fin_y][fin_x]&0xFF] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || closedEholeStart!=(bmap[fin_y/CELL][fin_x/CELL] == WL_EHOLE && !emap[fin_y/CELL][fin_x/CELL]))
+			if (!eval || (can_move[t][TYP(pmap[fin_y][fin_x])] == 3 && eval == 1) || (t == PT_PHOT && pmap[fin_y][fin_x]) || bmap[fin_y/CELL][fin_x/CELL]==WL_DESTROYALL || closedEholeStart!=(bmap[fin_y/CELL][fin_x/CELL] == WL_EHOLE && !emap[fin_y/CELL][fin_x/CELL]))
 			{
 				// found an obstacle
 				clear_xf = fin_xf-dx;
@@ -1783,8 +1783,8 @@ bool Simulation::UpdateParticle(int i)
 		{
 			if (EvalMove(PT_PHOT, fin_x, fin_y))
 			{
-				int rt = pmap[fin_y][fin_x] & 0xFF;
-				int lt = pmap[y][x] & 0xFF;
+				int rt = TYP(pmap[fin_y][fin_x]);
+				int lt = TYP(pmap[y][x]);
 
 				bool rt_glas = (rt == PT_GLAS) || (rt == PT_BGLA);
 				bool lt_glas = (lt == PT_GLAS) || (lt == PT_BGLA);
@@ -1856,23 +1856,23 @@ bool Simulation::UpdateParticle(int i)
 			}
 			int r = pmap[fin_y][fin_x];
 
-			if (((r&0xFF)==PT_PIPE || (r&0xFF) == PT_PPIP) && !(parts[r>>8].tmp&0xFF))
+			if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && !TYP(parts[ID(r)].tmp))
 			{
-				parts[r>>8].tmp =  (parts[r>>8].tmp&~0xFF) | parts[i].type;
-				parts[r>>8].temp = parts[i].temp;
-				parts[r>>8].tmp2 = parts[i].life;
-				parts[r>>8].pavg[0] = (float)parts[i].tmp;
-				parts[r>>8].pavg[1] = (float)parts[i].ctype;
+				parts[ID(r)].tmp =  (parts[ID(r)].tmp&~PMAPMASK) | parts[i].type;
+				parts[ID(r)].temp = parts[i].temp;
+				parts[ID(r)].tmp2 = parts[i].life;
+				parts[ID(r)].pavg[0] = (float)parts[i].tmp;
+				parts[ID(r)].pavg[1] = (float)parts[i].ctype;
 				part_kill(i);
 				return true;
 			}
 
-			if (r&0xFF)
-				parts[i].ctype &= elements[r&0xFF].PhotonReflectWavelengths;
+			if TYP(r)
+				parts[i].ctype &= elements[TYP(r)].PhotonReflectWavelengths;
 
 			if (GetNormalInterp(t, parts[i].x, parts[i].y, parts[i].vx, parts[i].vy, &nrx, &nry))
 			{
-				if ((r & 0xFF) == PT_CRMC)
+				if (TYP(r) == PT_CRMC)
 				{
 					float r = (rand() % 101 - 50) * 0.01f, rx, ry, anrx, anry;
 					r = r * r * r;
@@ -2006,21 +2006,21 @@ bool Simulation::UpdateParticle(int i)
 
 					for (int j=clear_x+r; j>=0 && j>=clear_x-rt && j<clear_x+rt && j<XRES; j+=r)
 					{
-						if (((pmap[fin_y][j]&0xFF)!=t || bmap[fin_y/CELL][j/CELL])
+						if ((TYP(pmap[fin_y][j]) != t || bmap[fin_y/CELL][j/CELL])
 							&& (s=DoMove(i, x, y, (float)j, fin_yf)))
 						{
 							nx = (int)(parts[i].x+0.5f);
 							ny = (int)(parts[i].y+0.5f);
 							break;
 						}
-						if (fin_y!=clear_y && ((pmap[clear_y][j]&0xFF)!=t || bmap[clear_y/CELL][j/CELL])
+						if (fin_y!=clear_y && (TYP(pmap[clear_y][j]) != t || bmap[clear_y/CELL][j/CELL])
 							&& (s=DoMove(i, x, y, (float)j, clear_yf)))
 						{
 							nx = (int)(parts[i].x+0.5f);
 							ny = (int)(parts[i].y+0.5f);
 							break;
 						}
-						if ((pmap[clear_y][j]&0xFF)!=t || (bmap[clear_y/CELL][j/CELL] && bmap[clear_y/CELL][j/CELL]!=WL_STREAM))
+						if (TYP(pmap[clear_y][j]) != t || (bmap[clear_y/CELL][j/CELL] && bmap[clear_y/CELL][j/CELL] != WL_STREAM))
 							break;
 					}
 					if (parts[i].vy > 0)
@@ -2030,9 +2030,9 @@ bool Simulation::UpdateParticle(int i)
 					if (s == 1)
 						for (int j=ny+r; j>=0 && j<YRES && j>=ny-rt && j<ny+rt; j+=r)
 						{
-							if (((pmap[j][nx]&0xFF)!=t || bmap[j/CELL][nx/CELL]) && DoMove(i, nx, ny, (float)nx, (float)j))
+							if ((TYP(pmap[j][nx]) != t || bmap[j/CELL][nx/CELL]) && DoMove(i, nx, ny, (float)nx, (float)j))
 								break;
-							if ((pmap[j][nx]&255)!=t || (bmap[j/CELL][nx/CELL] && bmap[j/CELL][nx/CELL]!=WL_STREAM))
+							if (TYP(pmap[j][nx]) != t || (bmap[j/CELL][nx/CELL] && bmap[j/CELL][nx/CELL] != WL_STREAM))
 								break;
 						}
 					else if (s==-1) {} // particle is out of bounds
@@ -2107,7 +2107,7 @@ bool Simulation::UpdateParticle(int i)
 						ny = (int)(nyf+0.5f);
 						if (nx<0 || ny<0 || nx>=XRES || ny >=YRES)
 							break;
-						if ((pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL])
+						if (TYP(pmap[ny][nx]) != t || bmap[ny/CELL][nx/CELL])
 						{
 							s = DoMove(i, x, y, nxf, nyf);
 							if (s)
@@ -2118,7 +2118,7 @@ bool Simulation::UpdateParticle(int i)
 								break;
 							}
 							// A particle of a different type, or a wall, was found. Stop trying to move any further horizontally unless the wall should be completely invisible to particles.
-							if ((pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL]!=WL_STREAM)
+							if (TYP(pmap[ny][nx]) != t || bmap[ny/CELL][nx/CELL] != WL_STREAM)
 								break;
 						}
 					}
@@ -2164,10 +2164,10 @@ bool Simulation::UpdateParticle(int i)
 							if (nx<0 || ny<0 || nx>=XRES || ny>=YRES)
 								break;
 							// If the space is anything except the same element (a wall, empty space, or occupied by a particle of a different element), try to move into it
-							if ((pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL])
+							if (TYP(pmap[ny][nx]) != t || bmap[ny/CELL][nx/CELL])
 							{
 								s = DoMove(i, clear_x, clear_y, nxf, nyf);
-								if (s || (pmap[ny][nx]&0xFF)!=t || bmap[ny/CELL][nx/CELL]!=WL_STREAM)
+								if (s || TYP(pmap[ny][nx]) != t || bmap[ny/CELL][nx/CELL] != WL_STREAM)
 									break; // found the edge of the liquid and movement into it succeeded, so stop moving down
 							}
 						}
@@ -2271,7 +2271,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		int newlife = rx + ry;
 		if (newlife > 55)
 			newlife = 55;
-		c = c|newlife<<8;
+		c = PMAP(newlife, c);
 		lightningRecreate = newlife/4;
 		rx = ry = 0;
 	}
@@ -2282,14 +2282,14 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		int newtmp = (rx*4+ry*4+7);
 		if (newtmp > 300)
 			newtmp = 300;
-		c = c|newtmp<<8;
+		c = PMAP(newtmp, 8);
 	}
 #ifndef NOMOD
 	else if (c == PT_MOVS)
 	{
-		if (CreatePartFlags(x, y, c|1<<8, flags) && !((MOVS_ElementDataContainer*)this->elementData[PT_MOVS])->IsCreatingSolid())
+		if (CreatePartFlags(x, y, PMAP(1, c), flags) && !((MOVS_ElementDataContainer*)this->elementData[PT_MOVS])->IsCreatingSolid())
 			return 1;
-		c = c|2<<8;
+		c = PMAP(2, c);
 	}
 #endif
 
@@ -2360,7 +2360,7 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	//specific delete
 	if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
 	{
-		if ((int)(pmap[y][x]&0xFF) == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
+		if ((int)TYP(pmap[y][x]) == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
 			part_delete(x, y);
 	}
 	//delete
@@ -2373,18 +2373,18 @@ int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 	{
 		if (x<0 || y<0 || x>=XRES || y>=YRES)
 			return 0;
-		if (((ElementTool*)activeTools[2])->GetID() > 0 && (int)(pmap[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID() && (int)(photons[y][x]&0xFF) != ((ElementTool*)activeTools[2])->GetID())
+		if (((ElementTool*)activeTools[2])->GetID() > 0 && (int)TYP(pmap[y][x]) != ((ElementTool*)activeTools[2])->GetID() && (int)ID(photons[y][x]) != ((ElementTool*)activeTools[2])->GetID())
 			return 0;
 		if (pmap[y][x])
 		{
 			part_delete(x, y);
 			if (c != 0)
-				part_create(-2, x, y, c&0xFF, c>>8);
+				part_create(-2, x, y, TYP(c), ID(c));
 		}
 	}
 	//normal draw
 	else
-		if (part_create(-2, x, y, c&0xFF, c>>8) == -1)
+		if (part_create(-2, x, y, TYP(c), ID(c)) == -1)
 			return 1;
 	return 0;
 }
@@ -2468,14 +2468,14 @@ int Simulation::FloodFillPmapCheck(int x, int y, unsigned int type)
 	if (type == 0)
 		return !pmap[y][x] && !photons[y][x];
 	if (elements[type].Properties&TYPE_ENERGY)
-		return (photons[y][x] & 0xFF) == type;
+		return TYP(photons[y][x]) == type;
 	else
-		return (pmap[y][x] & 0xFF) == type;
+		return TYP(pmap[y][x]) == type;
 }
 
 int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 {
-	unsigned int c = fullc&0xFF;
+	unsigned int c = TYP(fullc);
 	int x1, x2;
 	int created_something = 0;
 
@@ -2486,8 +2486,8 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 			return 1;
 		if (c == 0)
 		{
-			replace = pmap[y][x]&0xFF;
-			if (!replace && !(replace = photons[y][x]&0xFF))
+			replace = TYP(pmap[y][x]);
+			if (!replace && !(replace = TYP(photons[y][x])))
 			{
 				if (bmap[y/CELL][x/CELL])
 					return FloodWalls(x/CELL, y/CELL, WL_ERASE, -1);
@@ -2542,13 +2542,13 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 					{
 						if (photons[y][x])
 						{
-							part_kill(photons[y][x]>>8);
+							part_kill(ID(photons[y][x]));
 							created_something = 1;
 						}
 					}
 					else if (pmap[y][x])
 					{
-						part_kill(pmap[y][x]>>8);
+						part_kill(ID(pmap[y][x]));
 						created_something = 1;
 					}
 				}
@@ -2751,15 +2751,15 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 	if (tool == TOOL_HEAT || tool == TOOL_COOL)
 	{
 		int r = pmap[y][x];
-		if (!(r&0xFF))
+		if (!TYP(r))
 			r = photons[y][x];
-		if (r&0xFF)
+		if TYP(r)
 		{
 			float heatchange;
-			if ((r&0xFF) == PT_PUMP || (r&0xFF) == PT_GPMP)
+			if (TYP(r) == PT_PUMP || TYP(r) == PT_GPMP)
 				heatchange = strength*.1f;
 #ifndef NOMOD
-			else if ((r&0xFF) == PT_ANIM)
+			else if (TYP(r) == PT_ANIM)
 				heatchange = strength;
 #endif
 			else
@@ -2767,13 +2767,13 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 
 			if (tool == TOOL_HEAT)
 			{
-				parts[r>>8].temp = restrict_flt(parts[r>>8].temp + heatchange, MIN_TEMP, MAX_TEMP);
+				parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp + heatchange, MIN_TEMP, MAX_TEMP);
 			}
 			else if (tool == TOOL_COOL)
 			{
-				parts[r>>8].temp = restrict_flt(parts[r>>8].temp - heatchange, MIN_TEMP, MAX_TEMP);
+				parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp - heatchange, MIN_TEMP, MAX_TEMP);
 			}
-			return r>>8;
+			return ID(r);
 		}
 		else
 		{
@@ -2811,7 +2811,7 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 
 		int distance = (int)(std::pow(strength, .5f) * 10);
 
-		if (!(elements[thisPart&0xFF].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS)))
+		if (!(elements[TYP(thisPart)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS)))
 			return 0;
 
 		int newX = x + (rand() % distance) - (distance/2);
@@ -2824,16 +2824,16 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 		if(!thatPart)
 			return 0;
 
-		if ((elements[thisPart&0xFF].Properties&STATE_FLAGS) != (elements[thatPart&0xFF].Properties&STATE_FLAGS))
+		if ((elements[TYP(thisPart)].Properties&STATE_FLAGS) != (elements[TYP(thatPart)].Properties&STATE_FLAGS))
 			return 0;
 
 		pmap[y][x] = thatPart;
-		parts[thatPart>>8].x = x;
-		parts[thatPart>>8].y = y;
+		parts[ID(thatPart)].x = x;
+		parts[ID(thatPart)].y = y;
 
 		pmap[newY][newX] = thisPart;
-		parts[thisPart>>8].x = newX;
-		parts[thisPart>>8].y = newY;
+		parts[ID(thisPart)].x = newX;
+		parts[ID(thisPart)].y = newY;
 		return -1;
 	}
 	else if (tool == TOOL_CYCL)
@@ -3004,15 +3004,15 @@ int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue pr
 	if (!i)
 		i = photons[y][x];
 
-	if (i & 0xFF)
+	if (TYP(i))
 	{
 		if (propType == Integer)
-			*((int*)(((char*)&parts[i>>8]) + propOffset)) = propValue.Integer;
+			*((int*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.Integer;
 		else if (propType == UInteger)
-			*((unsigned int*)(((char*)&parts[i>>8]) + propOffset)) = propValue.UInteger;
+			*((unsigned int*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.UInteger;
 		else if (propType == Float)
-			*((float*)(((char*)&parts[i>>8]) + propOffset)) = propValue.Float;
-		return i >> 8;
+			*((float*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.Float;
+		return ID(i);
 	}
 	return -1;
 }
@@ -3139,7 +3139,7 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 		r = photons[y][x];
 	if (!r)
 		return 0;
-	int parttype = (r&0xFF);
+	int parttype = TYP(r);
 	char *bitmap = new char[XRES*YRES]; //Bitmap for checking
 	if (!bitmap)
 		return -1;
@@ -3173,16 +3173,16 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 					continue;
 				switch (propType) {
 					case Float:
-						*((float*)(((char*)&parts[i>>8])+propOffset)) = propValue.Float;
+						*((float*)(((char*)&parts[ID(i)])+propOffset)) = propValue.Float;
 						break;
 
 					case ParticleType:
 					case Integer:
-						*((int*)(((char*)&parts[i>>8])+propOffset)) = propValue.Integer;
+						*((int*)(((char*)&parts[ID(i)])+propOffset)) = propValue.Integer;
 						break;
 
 					case UInteger:
-						*((unsigned int*)(((char*)&parts[i>>8])+propOffset)) = propValue.UInteger;
+						*((unsigned int*)(((char*)&parts[ID(i)])+propOffset)) = propValue.UInteger;
 						break;
 
 					default:
@@ -3213,35 +3213,36 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 
 void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 {
-	int rp, tr = 0, tg = 0, tb = 0, ta = 0;
+	int tr = 0, tg = 0, tb = 0, ta = 0;
 	float strength = 0.01f, colr, colg, colb, cola;
 	if (!InBounds(x, y))
 		return;
 
-	rp = pmap[y][x];
+	int rp = pmap[y][x];
 	if (!rp)
 		rp = photons[y][x];
 	if (!rp)
 		return;
+	rp = ID(rp);
 
 	switch (tool)
 	{
 	case DECO_DRAW:
-		parts[rp>>8].dcolour = color;
+		parts[rp].dcolour = color;
 		break;
 	case DECO_CLEAR:
-		parts[rp>>8].dcolour = COLARGB(0, 0, 0, 0);
+		parts[rp].dcolour = COLARGB(0, 0, 0, 0);
 		break;
 	case DECO_ADD:
 	case DECO_SUBTRACT:
 	case DECO_MULTIPLY:
 	case DECO_DIVIDE:
-		if (!parts[rp>>8].dcolour)
+		if (!parts[rp].dcolour)
 			return;
 		cola = COLA(color)/255.0f;
-		colr = (float)COLR(parts[rp>>8].dcolour);
-		colg = (float)COLG(parts[rp>>8].dcolour);
-		colb = (float)COLB(parts[rp>>8].dcolour);
+		colr = (float)COLR(parts[rp].dcolour);
+		colg = (float)COLG(parts[rp].dcolour);
+		colb = (float)COLB(parts[rp].dcolour);
 
 		if (tool == DECO_ADD)
 		{
@@ -3276,25 +3277,25 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 		if (tb > 255) tb = 255;
 		else if (tb < 0) tb = 0;
 
-		parts[rp>>8].dcolour = COLRGB(tr, tg, tb);
+		parts[rp].dcolour = COLRGB(tr, tg, tb);
 		break;
 	case DECO_LIGHTEN:
-		if (!parts[rp>>8].dcolour)
+		if (!parts[rp].dcolour)
 			return;
-		tr = COLR(parts[rp>>8].dcolour);
-		tg = COLG(parts[rp>>8].dcolour);
-		tb = COLB(parts[rp>>8].dcolour);
-		ta = COLA(parts[rp>>8].dcolour);
-		parts[rp>>8].dcolour = COLARGB(ta, clamp_flt(tr+(255-tr)*0.02f+1, 0, 255), clamp_flt(tg+(255-tg)*0.02f+1, 0, 255), clamp_flt(tb+(255-tb)*0.02f+1, 0, 255));
+		tr = COLR(parts[rp].dcolour);
+		tg = COLG(parts[rp].dcolour);
+		tb = COLB(parts[rp].dcolour);
+		ta = COLA(parts[rp].dcolour);
+		parts[rp].dcolour = COLARGB(ta, clamp_flt(tr+(255-tr)*0.02f+1, 0, 255), clamp_flt(tg+(255-tg)*0.02f+1, 0, 255), clamp_flt(tb+(255-tb)*0.02f+1, 0, 255));
 		break;
 	case DECO_DARKEN:
-		if (!parts[rp>>8].dcolour)
+		if (!parts[rp].dcolour)
 			return;
-		tr = COLR(parts[rp>>8].dcolour);
-		tg = COLG(parts[rp>>8].dcolour);
-		tb = COLB(parts[rp>>8].dcolour);
-		ta = COLA(parts[rp>>8].dcolour);
-		parts[rp>>8].dcolour = COLARGB(ta, clamp_flt(tr-(tr)*0.02f, 0, 255), clamp_flt(tg-(tg)*0.02f, 0, 255), clamp_flt(tb-(tb)*0.02f, 0, 255));
+		tr = COLR(parts[rp].dcolour);
+		tg = COLG(parts[rp].dcolour);
+		tb = COLB(parts[rp].dcolour);
+		ta = COLA(parts[rp].dcolour);
+		parts[rp].dcolour = COLARGB(ta, clamp_flt(tr-(tr)*0.02f, 0, 255), clamp_flt(tg-(tg)*0.02f, 0, 255), clamp_flt(tb-(tb)*0.02f, 0, 255));
 		break;
 	case DECO_SMUDGE:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
@@ -3303,13 +3304,13 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 			for (rx=-2; rx<3; rx++)
 				for (ry=-2; ry<3; ry++)
 				{
-					if (abs(rx)+abs(ry) > 2 && (pmap[y+ry][x+rx]&0xFF) && parts[pmap[y+ry][x+rx]>>8].dcolour)
+					if (abs(rx)+abs(ry) > 2 && TYP(pmap[y+ry][x+rx]) && parts[ID(pmap[y+ry][x+rx])].dcolour)
 					{
 						num++;
-						ta += COLA(parts[pmap[y+ry][x+rx]>>8].dcolour);
-						tr += COLR(parts[pmap[y+ry][x+rx]>>8].dcolour);
-						tg += COLG(parts[pmap[y+ry][x+rx]>>8].dcolour);
-						tb += COLB(parts[pmap[y+ry][x+rx]>>8].dcolour);
+						ta += COLA(parts[ID(pmap[y+ry][x+rx])].dcolour);
+						tr += COLR(parts[ID(pmap[y+ry][x+rx])].dcolour);
+						tg += COLG(parts[ID(pmap[y+ry][x+rx])].dcolour);
+						tb += COLB(parts[ID(pmap[y+ry][x+rx])].dcolour);
 					}
 				}
 			if (num == 0)
@@ -3318,18 +3319,18 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 			tr = std::min(255,(int)((float)tr/num+.5));
 			tg = std::min(255,(int)((float)tg/num+.5));
 			tb = std::min(255,(int)((float)tb/num+.5));
-			if (!parts[rp>>8].dcolour)
+			if (!parts[rp].dcolour)
 				ta = std::max(0, ta-3);
-			parts[rp>>8].dcolour = COLARGB(ta, tr, tg, tb);
+			parts[rp].dcolour = COLARGB(ta, tr, tg, tb);
 		}
 		break;
 	}
 
 #ifndef NOMOD
-	if (parts[rp>>8].type == PT_ANIM)
+	if (parts[rp].type == PT_ANIM)
 	{
-		if (parts[rp>>8].tmp2 >= 0 && parts[rp>>8].tmp2 < maxFrames)
-			parts[rp>>8].animations[parts[rp>>8].tmp2] = parts[rp>>8].dcolour;
+		if (parts[rp].tmp2 >= 0 && parts[rp].tmp2 < maxFrames)
+			parts[rp].animations[parts[rp].tmp2] = parts[rp].dcolour;
 	}
 #endif
 }

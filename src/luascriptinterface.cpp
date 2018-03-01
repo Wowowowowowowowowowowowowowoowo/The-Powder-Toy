@@ -310,6 +310,9 @@ void initSimulationAPI(lua_State * l)
 	SETCONST(l, DECO_DARKEN);
 	SETCONST(l, DECO_SMUDGE);
 
+	SETCONST(l, PMAPBITS);
+	SETCONST(l, PMAPMASK);
+
 	const char* propertyList[] = {"FIELD_TYPE", "FIELD_LIFE", "FIELD_CTYPE", "FIELD_X", "FIELD_Y", "FIELD_VX", "FIELD_VY", "FIELD_TEMP", "FIELD_FLAGS", "FIELD_TMP", "FIELD_TMP2", "FIELD_DCOLOUR"};
 	for (int i = 0; i < particlePropertiesCount; i++)
 	{
@@ -345,7 +348,8 @@ int simulation_partNeighbours(lua_State * l)
 	int id = 0;
 	lua_newtable(l);
 	int x = lua_tointeger(l, 1), y = lua_tointeger(l, 2), r = lua_tointeger(l, 3), rx, ry, n;
-	if(lua_gettop(l) == 5) // this is one more than the number of arguments because a table has just been pushed onto the stack with lua_newtable(l);
+	// This is one more than the number of arguments because a table has just been pushed onto the stack with lua_newtable(l);
+	if(lua_gettop(l) == 5)
 	{
 		int t = lua_tointeger(l, 4);
 		for (rx = -r; rx <= r; rx++)
@@ -353,11 +357,11 @@ int simulation_partNeighbours(lua_State * l)
 				if (x+rx >= 0 && y+ry >= 0 && x+rx < XRES && y+ry < YRES && (rx || ry))
 				{
 					n = pmap[y+ry][x+rx];
-					if (!n || (n&0xFF) != t)
+					if (!n || TYP(n) != t)
 						n = photons[y+ry][x+rx];
-					if (n && (n&0xFF) == t)
+					if (n && TYP(n) == t)
 					{
-						lua_pushinteger(l, n>>8);
+						lua_pushinteger(l, ID(n));
 						lua_rawseti(l, -2, id++);
 					}
 				}
@@ -374,7 +378,7 @@ int simulation_partNeighbours(lua_State * l)
 						n = photons[y+ry][x+rx];
 					if (n)
 					{
-						lua_pushinteger(l, n>>8);
+						lua_pushinteger(l, ID(n));
 						lua_rawseti(l, -2, id++);
 					}
 				}
@@ -406,10 +410,10 @@ int simulation_partCreate(lua_State * l)
 	}
 	int type = lua_tointeger(l, 4);
 	int v = -1;
-	if (type&~(0xFF))
+	if (type&~PMAPMASK)
 	{
-		v = type>>8;
-		type = type&0xFF;
+		v = ID(type);
+		type = TYP(type);
 	}
 	lua_pushinteger(l, luaSim->part_create(newID, lua_tointeger(l, 2), lua_tointeger(l, 3), type, v));
 	return 1;
@@ -433,7 +437,7 @@ int simulation_partID(lua_State * l)
 	if (!amalgam)
 		lua_pushnil(l);
 	else
-		lua_pushinteger(l, amalgam >> 8);
+		lua_pushinteger(l, ID(amalgam));
 	return 1;
 }
 
@@ -1509,9 +1513,9 @@ int simulation_pmap(lua_State * l)
 	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	int r = pmap[y][x];
-	if (!(r&0xFF))
+	if (!r)
 		return 0;
-	lua_pushnumber(l, r>>8);
+	lua_pushnumber(l, ID(r));
 	return 1;
 }
 
@@ -1522,9 +1526,9 @@ int simulation_photons(lua_State * l)
 	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	int r = photons[y][x];
-	if (!(r&0xFF))
+	if (!r)
 		return 0;
-	lua_pushnumber(l, r>>8);
+	lua_pushnumber(l, ID(r));
 	return 1;
 }
 
@@ -1555,12 +1559,12 @@ int NeighboursClosure(lua_State * l)
 		if (!i)
 			i = photons[y+sy][x+sx];
 	}
-	while (!(i&0xFF));
+	while (!i);
 	lua_pushnumber(l, x);
 	lua_replace(l, lua_upvalueindex(5));
 	lua_pushnumber(l, y);
 	lua_replace(l, lua_upvalueindex(6));
-	lua_pushnumber(l, i>>8);
+	lua_pushnumber(l, ID(i));
 	lua_pushnumber(l, x+sx);
 	lua_pushnumber(l, y+sy);
 	return 3;

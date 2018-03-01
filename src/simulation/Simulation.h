@@ -160,20 +160,20 @@ public:
 	{
 		// NB: all arguments are assumed to be within bounds
 		if (elements[t].Properties & TYPE_ENERGY)
-			photons[y][x] = t|(i<<8);
-		else if ((!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT)))// && (pmap[y][x]&0xFF) != PT_PINV)
-			pmap[y][x] = t|(i<<8);
+			photons[y][x] = PMAP(i, t);
+		else if ((!pmap[y][x] || (t!=PT_INVIS && t!= PT_FILT)))// && TYP(pmap[y][x]) != PT_PINV)
+			pmap[y][x] = PMAP(i, t);
 	}
 	void pmap_remove(unsigned int i, int x, int y)
 	{
 		// NB: all arguments are assumed to be within bounds
-		if ((pmap[y][x]>>8)==i)
+		if (ID(pmap[y][x]) == i)
 			pmap[y][x] = 0;
 #ifndef NOMOD
-		else if ((pmap[y][x]&0xFF)==PT_PINV && (unsigned int)(parts[pmap[y][x]>>8].tmp2>>8)==i)
-			parts[pmap[y][x]>>8].tmp2 = 0;
+		else if (TYP(pmap[y][x]) == PT_PINV && (unsigned int)(ID(parts[ID(pmap[y][x])].tmp2)) == i)
+			parts[ID(pmap[y][x])].tmp2 = 0;
 #endif
-		else if ((photons[y][x]>>8)==i)
+		else if (ID(photons[y][x]) == i)
 			photons[y][x] = 0;
 	}
 

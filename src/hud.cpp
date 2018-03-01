@@ -67,72 +67,74 @@ void SetRightHudText(Simulation * sim, int x, int y)
 		} else {
 			cr = pmap[y][x];
 #ifndef NOMOD
-			if ((cr&0xFF) == PT_PINV && parts[cr>>8].tmp2)
-				cr = parts[cr>>8].tmp2;
+			if (TYP(cr) == PT_PINV && parts[ID(cr)].tmp2)
+				cr = parts[ID(cr)].tmp2;
 #endif
 		}
 		if (!cr || !currentHud[10])
 		{
 			wl = bmap[y/CELL][x/CELL];
 		}
+		int underType = TYP(cr);
+		int underID = ID(cr);
 		heattext[0] = '\0';
 		tempstring[0] = '\0';
 		if (cr)
 		{
 			if (currentHud[10])
 			{
-				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOL)
+				if (underType == PT_LIFE && parts[underID].ctype >= 0 && parts[underID].ctype < NGOL)
 				{
 					if (currentHud[49] || !currentHud[11])
-						sprintf(nametext, "%s, ", golTypes[parts[cr>>8].ctype].name.c_str());
+						sprintf(nametext, "%s, ", golTypes[parts[underID].ctype].name.c_str());
 					else
-						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype].name.c_str());
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), golTypes[parts[underID].ctype].name.c_str());
 				}
-				else if (currentHud[13] && (cr&0xFF)==PT_LAVA && sim->IsElement(parts[cr>>8].ctype))
+				else if (currentHud[13] && underType == PT_LAVA && sim->IsElement(parts[underID].ctype))
 				{
-					sprintf(nametext, "Molten %s, ", ptypes[parts[cr>>8].ctype].name);
+					sprintf(nametext, "Molten %s, ", sim->elements[parts[underID].ctype].Name.c_str());
 				}
-				else if (currentHud[50] && currentHud[11] && (cr&0xFF)==PT_FILT)
+				else if (currentHud[50] && currentHud[11] && underType == PT_FILT)
 				{
 					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter", "variable red shift", "variable blue shift" };
-					if (parts[cr>>8].tmp>=0 && parts[cr>>8].tmp<=11)
-						sprintf(nametext, "FILT (%s), ", filtModes[parts[cr>>8].tmp]);
+					if (parts[underID].tmp>=0 && parts[underID].tmp<=11)
+						sprintf(nametext, "FILT (%s), ", filtModes[parts[underID].tmp]);
 					else
 						sprintf(nametext, "FILT (unknown mode), ");
 				}
-				else if (currentHud[14] && currentHud[11] && ((cr&0xFF)==PT_PIPE || (cr&0xFF)==PT_PPIP) && sim->IsElement(parts[cr>>8].tmp&0xFF))
+				else if (currentHud[14] && currentHud[11] && (underType == PT_PIPE || underType == PT_PPIP) && sim->IsElement(TYP(parts[underID].tmp)))
 				{
-					sprintf(nametext, "%s (%s), ", sim->elements[cr&0xFF].Name.c_str(), ptypes[parts[cr>>8].tmp&0xFF].name);
+					sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[TYP(parts[underID].tmp)].Name.c_str());
 				}
 				else if (currentHud[11])
 				{
-					int tctype = parts[cr>>8].ctype;
-					if ((cr&0xFF)==PT_PIPE && currentHud[12]) //PIPE Overrides CTP2
+					int tctype = parts[underID].ctype;
+					if (underType == PT_PIPE && currentHud[12]) //PIPE Overrides CTP2
 					{
-						tctype = parts[cr>>8].tmp&0xFF;
+						tctype = TYP(parts[underID].tmp);
 					}
-					if (!currentHud[12] && (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT))
+					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
-					if (currentHud[49] && ((cr&0xFF) == PT_CRAY || (cr&0xFF) == PT_DRAY || (cr&0xFF)== PT_CONV) && (parts[cr>>8].ctype&0xFF) == PT_LIFE && (parts[cr>>8].ctype>>8) >= 0 && (parts[cr>>8].ctype>>8) < NGOL)
+					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV) && TYP(parts[underID].ctype) == PT_LIFE && ID(parts[underID].ctype) >= 0 && ID(parts[underID].ctype) < NGOL)
 					{
-						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, golTypes[parts[cr>>8].ctype>>8].name.c_str());
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), golTypes[ID(parts[underID].ctype)].name.c_str());
 					}
 					else if (!tctype || sim->IsElement(tctype))
-						sprintf(nametext, "%s (%s), ", ptypes[cr&0xFF].name, ptypes[tctype].name);
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[tctype].Name.c_str());
 					else
-						sprintf(nametext, "%s (%d), ", ptypes[cr&0xFF].name, tctype);
+						sprintf(nametext, "%s (%d), ", sim->elements[underType].Name.c_str(), tctype);
 				}
 				else
 				{
-					sprintf(nametext, "%s, ", ptypes[cr&0xFF].name);
+					sprintf(nametext, "%s, ", sim->elements[underType].Name.c_str());
 				}
 			}
 			else if (currentHud[11])
 			{
-				if (parts[cr>>8].ctype > 0 && parts[cr>>8].ctype < PT_NUM)
-					sprintf(nametext,"Ctype: %s ", ptypes[parts[cr>>8].ctype].name);
+				if (parts[underID].ctype > 0 && parts[underID].ctype < PT_NUM)
+					sprintf(nametext,"Ctype: %s ", ptypes[parts[underID].ctype].name);
 				else if (currentHud[12])
-					sprintf(nametext,"Ctype: %d ", parts[cr>>8].ctype);
+					sprintf(nametext,"Ctype: %d ", parts[underID].ctype);
 			}
 			else if (wl && currentHud[48])
 			{
@@ -143,65 +145,65 @@ void SetRightHudText(Simulation * sim, int x, int y)
 			strncpy(heattext,nametext,50);
 			if (currentHud[15])
 			{
-				sprintf(tempstring,"Temp: %0.*f C, ",currentHud[18],parts[cr>>8].temp-273.15f);
+				sprintf(tempstring,"Temp: %0.*f C, ",currentHud[18],parts[underID].temp-273.15f);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[16])
 			{
-				sprintf(tempstring,"Temp: %0.*f F, ",currentHud[18],((parts[cr>>8].temp-273.15f)*9/5)+32);
+				sprintf(tempstring,"Temp: %0.*f F, ",currentHud[18],((parts[underID].temp-273.15f)*9/5)+32);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[17])
 			{
-				sprintf(tempstring,"Temp: %0.*f K, ",currentHud[18],parts[cr>>8].temp);
+				sprintf(tempstring,"Temp: %0.*f K, ",currentHud[18],parts[underID].temp);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[19])
 			{
-				sprintf(tempstring,"Life: %d, ",parts[cr>>8].life);
+				sprintf(tempstring,"Life: %d, ",parts[underID].life);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[20])
 			{
-				if (currentHud[12] || ((cr&0xFF) != PT_RFRG && (cr&0xFF) != PT_RFGL))
-					sprintf(tempstring,"Tmp: %d, ",parts[cr>>8].tmp);
+				if (currentHud[12] || (underType != PT_RFRG && underType != PT_RFGL))
+					sprintf(tempstring,"Tmp: %d, ",parts[underID].tmp);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[21])
 			{
-				sprintf(tempstring,"Tmp2: %d, ",parts[cr>>8].tmp2);
+				sprintf(tempstring,"Tmp2: %d, ",parts[underID].tmp2);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[46])
 			{
-				sprintf(tempstring,"Dcolor: 0x%.8X, ",parts[cr>>8].dcolour);
+				sprintf(tempstring,"Dcolor: 0x%.8X, ",parts[underID].dcolour);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[47])
 			{
-				sprintf(tempstring,"Flags: 0x%.8X, ",parts[cr>>8].flags);
+				sprintf(tempstring,"Flags: 0x%.8X, ",parts[underID].flags);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[22])
 			{
-				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",currentHud[23],parts[cr>>8].x,currentHud[23],parts[cr>>8].y);
+				sprintf(tempstring,"X: %0.*f, Y: %0.*f, ",currentHud[23],parts[underID].x,currentHud[23],parts[underID].y);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[24])
 			{
-				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",currentHud[25],parts[cr>>8].vx,currentHud[25],parts[cr>>8].vy);
+				sprintf(tempstring,"Vx: %0.*f, Vy: %0.*f, ",currentHud[25],parts[underID].vx,currentHud[25],parts[underID].vy);
 				strappend(heattext,tempstring);
 			}
 			if (currentHud[51])
 			{
-				sprintf(tempstring,"pavg[0]: %f, pavg[1]: %f, ",parts[cr>>8].pavg[0],parts[cr>>8].pavg[1]);
+				sprintf(tempstring,"pavg[0]: %f, pavg[1]: %f, ",parts[underID].pavg[0],parts[underID].pavg[1]);
 				strappend(heattext,tempstring);
 			}
-			if (currentHud[45] && ((cr&0xFF)==PT_PHOT || (cr&0xFF)==PT_BIZR || (cr&0xFF)==PT_BIZRG || (cr&0xFF)==PT_BIZRS || (cr&0xFF)==PT_FILT || (cr&0xFF)==PT_BRAY))
-				wavelength_gfx = (parts[cr>>8].ctype&0x3FFFFFFF);
+			if (currentHud[45] && (underType == PT_PHOT || underType == PT_BIZR || underType == PT_BIZRG || underType == PT_BIZRS || underType == PT_FILT || underType == PT_BRAY))
+				wavelength_gfx = (parts[underID].ctype&0x3FFFFFFF);
 #ifndef NOMOD
-			if ((cr&0xFF) == PT_ANIM)
-				frameNum = parts[cr>>8].tmp2+1;
+			if (underType == PT_ANIM)
+				frameNum = parts[underID].tmp2+1;
 #endif
 		}
 		else if (wl && currentHud[48])
@@ -224,9 +226,9 @@ void SetRightHudText(Simulation * sim, int x, int y)
 		if (currentHud[28] && cr)
 		{
 			if (currentHud[29] || (ngrav_enable && currentHud[30]))
-				sprintf(tempstring,"#%d, ",cr>>8);
+				sprintf(tempstring,"#%d, ",underID);
 			else
-				sprintf(tempstring,"#%d ",cr>>8);
+				sprintf(tempstring,"#%d ",underID);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[29])

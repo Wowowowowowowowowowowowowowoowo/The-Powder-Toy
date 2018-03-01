@@ -177,15 +177,12 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if ((parts[i].type == PT_PIPE || parts[i].type == PT_PPIP) && invalid_element(save_as,parts[i].tmp&0xFF))
+			if ((parts[i].type == PT_PIPE || parts[i].type == PT_PPIP) && invalid_element(save_as,TYP(parts[i].tmp)))
 			{
 				if (give_warning)
 				{
 					char errortext[256] = "", elname[40] = "";
-					if ((parts[i].tmp&0xFF) > 0 && (parts[i].tmp&0xFF) < PT_NUM)
-						sprintf(elname, "%s", ptypes[parts[i].tmp&0xFF].name);
-					else
-						sprintf(elname, "invalid element number %i", parts[i].tmp&0xFF);
+					sprintf(elname, "%s", ptypes[TYP(parts[i].tmp)].name);
 					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 					error_ui(vid_buf,0,errortext);
 				}

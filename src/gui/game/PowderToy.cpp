@@ -2057,7 +2057,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				{
 					Point realPos = signs[signID]->GetRealPos();
 					if (pmap[realPos.Y][realPos.X])
-						sim->spark_all_attempt(pmap[realPos.Y][realPos.X]>>8, realPos.X, realPos.Y);
+						sim->spark_all_attempt(ID(pmap[realPos.Y][realPos.X]), realPos.X, realPos.Y);
 				}
 				else if (signs[signID]->GetType() == Sign::SaveLink)
 				{

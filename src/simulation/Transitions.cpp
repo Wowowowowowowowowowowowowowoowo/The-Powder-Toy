@@ -19,13 +19,13 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 	if ((elements[t].Properties&TYPE_LIQUID) && (t!=PT_GEL || gel_scale > (1+rand()%255)) && y-2 >= 0 && y-2 < YRES)
 	{
 		r = pmap[y-2][x];
-		if (!(!r || parts[i].type != (r&0xFF)))
+		if (!(!r || parts[i].type != TYP(r)))
 		{
-			if (parts[i].temp>parts[r>>8].temp)
+			if (parts[i].temp>parts[ID(r)].temp)
 			{
 				swappage = parts[i].temp;
-				parts[i].temp = parts[r>>8].temp;
-				parts[r>>8].temp = swappage;
+				parts[i].temp = parts[ID(r)].temp;
+				parts[ID(r)].temp = swappage;
 			}
 		}
 	}
@@ -66,27 +66,27 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 			r = surround[j];
 			if (!r)
 				continue;
-			rt = r&0xFF;
+			rt = TYP(r);
 
-			if (rt && elements[rt].HeatConduct && (rt!=PT_HSWC || parts[r>>8].life == 10)
+			if (rt && elements[rt].HeatConduct && (rt!=PT_HSWC || parts[ID(r)].life == 10)
 				   && (t !=PT_FILT || (rt!=PT_BRAY && rt!=PT_BIZR && rt!=PT_BIZRG))
 				   && (rt!=PT_FILT || (t !=PT_BRAY && t !=PT_BIZR && t!=PT_BIZRG && t!=PT_PHOT))
 				   && (t !=PT_ELEC || rt!=PT_DEUT)
 				   && (t !=PT_DEUT || rt!=PT_ELEC))
 			{
-				surround_hconduct[j] = r>>8;
+				surround_hconduct[j] = ID(r);
 				if (realistic)
 				{
 					if (rt==PT_GEL)
-						gel_scale = parts[r>>8].tmp*2.55f;
+						gel_scale = parts[ID(r)].tmp*2.55f;
 					else gel_scale = 1.0f;
 
-					c_heat += parts[r>>8].temp*96.645f/elements[rt].HeatConduct*tptabs(elements[rt].Weight);
+					c_heat += parts[ID(r)].temp*96.645f/elements[rt].HeatConduct*tptabs(elements[rt].Weight);
 					c_Cm += 96.645f/elements[rt].HeatConduct*tptabs(elements[rt].Weight);
 				}
 				else
 				{
-					c_heat += parts[r>>8].temp;
+					c_heat += parts[ID(r)].temp;
 				}
 				h_count++;
 			}
@@ -94,7 +94,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 		if (realistic)
 		{
 			if (t==PT_GEL)
-				gel_scale = parts[r>>8].tmp*2.55f;
+				gel_scale = parts[ID(r)].tmp*2.55f;
 			else gel_scale = 1.0f;
 
 			if (t == PT_PHOT)

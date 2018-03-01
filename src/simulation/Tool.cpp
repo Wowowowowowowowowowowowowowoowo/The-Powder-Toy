@@ -59,7 +59,7 @@ void Tool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, toolID | (radiusInfo<<8), get_brush_flags());
+		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, toolID | ID(radiusInfo), get_brush_flags());
 		break;
 	}
 	default:
@@ -81,7 +81,7 @@ int Tool::FloodFill(Simulation *sim, Brush *brush, Point position)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		return sim->FloodParts(position.X, position.Y, toolID | (radiusInfo<<8), -1, get_brush_flags());
+		return sim->FloodParts(position.X, position.Y, toolID | ID(radiusInfo), -1, get_brush_flags());
 	}
 	default:
 		return sim->FloodParts(position.X, position.Y, toolID, -1, get_brush_flags());
@@ -101,14 +101,14 @@ Tool* Tool::Sample(Simulation *sim, Point position)
 	int sample = pmap[position.Y][position.X];
 	if (sample || (sample = photons[position.Y][position.X]))
 	{
-		if ((sample&0xFF) == PT_LIFE)
+		if (TYP(sample) == PT_LIFE)
 		{
-			if (parts[sample>>8].ctype < NGOL)
-				return GetToolFromIdentifier(golTypes[parts[sample>>8].ctype].identifier);
+			if (parts[ID(sample)].ctype < NGOL)
+				return GetToolFromIdentifier(golTypes[parts[ID(sample)].ctype].identifier);
 		}
 		else
 		{
-			return GetToolFromIdentifier(sim->elements[sample&0xFF].Identifier);
+			return GetToolFromIdentifier(sim->elements[TYP(sample)].Identifier);
 		}
 	}
 	else if (bmap[position.Y/CELL][position.X/CELL] > 0 && bmap[position.Y/CELL][position.X/CELL] < WALLCOUNT)
@@ -180,19 +180,19 @@ int GolTool::GetID()
 }
 int GolTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	return sim->CreateParts(position.X, position.Y, PT_LIFE | (toolID<<8), get_brush_flags(), true, brush);
+	return sim->CreateParts(position.X, position.Y, PT_LIFE | ID(toolID), get_brush_flags(), true, brush);
 }
 void GolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (toolID<<8), get_brush_flags(), brush);
+	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | ID(toolID), get_brush_flags(), brush);
 }
 void GolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | (toolID<<8), get_brush_flags());
+	sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | ID(toolID), get_brush_flags());
 }
 int GolTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return sim->FloodParts(position.X, position.Y, PT_LIFE+(toolID<<8), -1, get_brush_flags());
+	return sim->FloodParts(position.X, position.Y, PT_LIFE+ID(toolID), -1, get_brush_flags());
 }
 
 

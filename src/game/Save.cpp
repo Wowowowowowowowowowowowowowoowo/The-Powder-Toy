@@ -1801,7 +1801,7 @@ void Save::ParseSavePSv()
 			{
 				if (particles[i-1].tmp)
 				{
-					particles[i-1].ctype |= particles[i-1].tmp<<8;
+					particles[i-1].ctype |= PMAPID(particles[i-1].tmp);
 					particles[i-1].tmp = 0;
 				}
 			}

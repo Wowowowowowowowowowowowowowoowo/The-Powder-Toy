@@ -219,7 +219,7 @@ int parts_avg(int ci, int ni,int t)
 	{
 		int pmr = pmap[((int)(parts[ci].y+0.5f) + (int)(parts[ni].y+0.5f))/2][((int)(parts[ci].x+0.5f) + (int)(parts[ni].x+0.5f))/2];
 		if (pmr)
-			return parts[pmr>>8].type;
+			return parts[ID(pmr)].type;
 		else
 			return PT_NONE;
 	}
@@ -228,7 +228,7 @@ int parts_avg(int ci, int ni,int t)
 		int pmr2 = pmap[(int)((parts[ci].y + parts[ni].y)/2+0.5f)][(int)((parts[ci].x + parts[ni].x)/2+0.5f)];//seems to be more accurate.
 		if (pmr2)
 		{
-			if (parts[pmr2>>8].type==t)
+			if (parts[ID(pmr2)].type == t)
 				return t;
 		}
 		else
@@ -319,7 +319,7 @@ int flood_water(int x, int y, int i, int originaly, int check)
 
 	while (x1>=CELL)
 	{
-		if ((globalSim->elements[(pmap[y][x1-1]&0xFF)].Falldown)!=2)
+		if ((globalSim->elements[TYP(pmap[y][x1-1])].Falldown)!=2)
 		{
 			break;
 		}
@@ -327,7 +327,7 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	}
 	while (x2<XRES-CELL)
 	{
-		if ((globalSim->elements[(pmap[y][x2+1]&0xFF)].Falldown)!=2)
+		if ((globalSim->elements[TYP(pmap[y][x2+1])].Falldown)!=2)
 		{
 			break;
 		}
@@ -338,9 +338,9 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	for (x=x1; x<=x2; x++)
 	{
 		if (check)
-			parts[pmap[y][x]>>8].flags &= ~FLAG_WATEREQUAL;//flag it as checked (different from the original particle's checked flag)
+			parts[ID(pmap[y][x])].flags &= ~FLAG_WATEREQUAL;//flag it as checked (different from the original particle's checked flag)
 		else
-			parts[pmap[y][x]>>8].flags |= FLAG_WATEREQUAL;
+			parts[ID(pmap[y][x])].flags |= FLAG_WATEREQUAL;
 		//check above, maybe around other sides too?
 		if ( ((y-1) > originaly) && !pmap[y-1][x] && globalSim->EvalMove(parts[i].type, x, y-1))
 		{
@@ -357,12 +357,12 @@ int flood_water(int x, int y, int i, int originaly, int check)
 	
 	if (y>=CELL+1)
 		for (x=x1; x<=x2; x++)
-			if ((globalSim->elements[(pmap[y-1][x]&0xFF)].Falldown)==2 && (parts[pmap[y-1][x]>>8].flags & FLAG_WATEREQUAL) == check)
+			if ((globalSim->elements[TYP(pmap[y-1][x])].Falldown)==2 && (parts[ID(pmap[y-1][x])].flags & FLAG_WATEREQUAL) == check)
 				if (!flood_water(x, y-1, i, originaly, check))
 					return 0;
 	if (y<YRES-CELL-1)
 		for (x=x1; x<=x2; x++)
-			if ((globalSim->elements[(pmap[y+1][x]&0xFF)].Falldown)==2 && (parts[pmap[y+1][x]>>8].flags & FLAG_WATEREQUAL) == check)
+			if ((globalSim->elements[TYP(pmap[y+1][x])].Falldown)==2 && (parts[ID(pmap[y+1][x])].flags & FLAG_WATEREQUAL) == check)
 				if (!flood_water(x, y+1, i, originaly, check))
 					return 0;
 	return 1;

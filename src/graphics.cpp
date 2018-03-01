@@ -2117,7 +2117,7 @@ void prepare_graphicscache()
 
 void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 {
-	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, i, t, nx, ny, x, y, caddress;
+	int deca, decr, decg, decb, cola, colr, colg, colb, firea, firer = 0, fireg = 0, fireb = 0, pixel_mode, q, t, nx, ny, x, y, caddress;
 	int orbd[4] = {0, 0, 0, 0}, orbl[4] = {0, 0, 0, 0};
 	float gradv, flicker;
 	unsigned int color_mode = Renderer::Ref().GetColorMode();
@@ -2132,11 +2132,11 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 					blendpixel(vid, nx, ny, 100, 100, 100, 80);
 			}
 	}
-	for(i = 0; i <= sim->parts_lastActiveIndex; i++) {
+	for(int i = 0; i <= sim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
 #ifndef NOMOD
-			if (t == PT_PINV && parts[i].tmp2 && (parts[i].tmp2>>8)<i)
+			if (t == PT_PINV && parts[i].tmp2 && ID(parts[i].tmp2) < i)
 				continue;
 #endif
 
@@ -2145,11 +2145,11 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 			if (nx < 0 || nx > XRES || ny < 0 || ny > YRES)
 				continue;
 #ifndef NOMOD
-			if ((pmap[ny][nx]&0xFF) == PT_PINV)
-				parts[pmap[ny][nx]>>8].tmp2 = t|(i<<8);
+			if (TYP(pmap[ny][nx]) == PT_PINV)
+				parts[ID(pmap[ny][nx])].tmp2 = PMAP(i, t);
 #endif
 
-			if(photons[ny][nx]&0xFF && !(ptypes[t].properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
+			if (photons[ny][nx] && !(sim->elements[t].Properties & TYPE_ENERGY) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH)
 				continue;
 				
 			//Defaults
@@ -2636,10 +2636,10 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
 #ifdef NOMOD
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTI)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(pmap[ny+nyo][nx+nxo]) != PT_PRTI)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 #else
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTI && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTI)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(pmap[ny+nyo][nx+nxo]) != PT_PRTI && TYP(pmap[ny+nyo][nx+nxo]) != PT_PPTI)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 #endif
 					}
@@ -2658,10 +2658,10 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 						nxo = (int)(ddist*cos(drad));
 						nyo = (int)(ddist*sin(drad));
 #ifdef NOMOD
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTO)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(pmap[ny+nyo][nx+nxo]) != PT_PRTO)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 #else
-						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PRTO && (pmap[ny+nyo][nx+nxo]&0xFF) != PT_PPTO)
+						if (ny+nyo>0 && ny+nyo<YRES && nx+nxo>0 && nx+nxo<XRES && TYP(pmap[ny+nyo][nx+nxo]) != PT_PRTO && TYP(pmap[ny+nyo][nx+nxo]) != PT_PPTO)
 							addpixel(vid, nx+nxo, ny+nyo, colr, colg, colb, 255-orbd[r]);
 #endif
 					}
@@ -2669,7 +2669,7 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 				if ((pixel_mode & EFFECT_DBGLINES) && DEBUG_MODE && !(display_mode&DISPLAY_PERS))
 				{
 					// draw lines connecting wifi/portal channels
-					if (mousePos.X == nx && mousePos.Y == ny && ((unsigned int)i == pmap[ny][nx]>>8))
+					if (mousePos.X == nx && mousePos.Y == ny && ((unsigned int)i == ID(pmap[ny][nx])))
 					{
 						int type = parts[i].type, tmp = (int)((parts[i].temp-73.15f)/100+1), othertmp;
 						int type2 = parts[i].type;

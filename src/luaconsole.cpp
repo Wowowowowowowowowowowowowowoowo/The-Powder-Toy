@@ -1259,7 +1259,7 @@ int luatpt_getelement(lua_State *l)
 		t = luaL_optint(l, 1, 1);
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
-		name = ptypes[t&0xFF].name;
+		name = luaSim->elements[TYP(t)].Name.c_str();
 #ifndef NOMOD
 		if (t == PT_EXPL)
 			lua_pushstring(l, "");
@@ -1768,11 +1768,11 @@ int luatpt_set_property(lua_State* l)
 			if (i>=XRES || y>=YRES)
 				return luaL_error(l, "Coordinates out of range (%d,%d)", i, y);
 			r = pmap[y][i];
-			if (!r || (partsel && partsel != (r&0xFF)))
+			if (!r || (partsel && partsel != TYP(r)))
 				r = photons[y][i];
-			if (!r || (partsel && partsel != (r&0xFF)))
+			if (!r || (partsel && partsel != TYP(r)))
 				return 0;
-			i = r>>8;
+			i = ID(r);
 		}
 		if (i < 0 || i >= NPART)
 			return luaL_error(l, "Invalid particle ID '%d'", i);
@@ -1811,7 +1811,7 @@ int luatpt_get_property(lua_State* l)
 			}
 			return luaL_error(l, "Particle does not exist");
 		}
-		i = r>>8;
+		i = ID(r);
 	}
 	else if (y!=-1)
 		return luaL_error(l, "Coordinates out of range (%d,%d)", i, y);

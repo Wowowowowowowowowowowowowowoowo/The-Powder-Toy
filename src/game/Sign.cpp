@@ -139,7 +139,7 @@ std::string Sign::GetDisplayText(Simulation * sim) const
 		else if (text == "{t}")
 		{
 			if (x >= 0 && x < XRES && y >= 0 && y < YRES && pmap[y][x])
-				displayTextStream << std::fixed << std::setprecision(2) << "Temp: " << parts[pmap[y][x]>>8].temp-273.15f;
+				displayTextStream << std::fixed << std::setprecision(2) << "Temp: " << parts[ID(pmap[y][x])].temp-273.15f;
 			else
 				displayTextStream << "Temp: 0.00";
 		}
