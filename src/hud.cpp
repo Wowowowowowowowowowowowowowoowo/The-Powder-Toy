@@ -315,7 +315,10 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 	}
 	if (currentHud[4])
 	{
-		sprintf(tempstring,"Parts:%d ",NUM_PARTS);
+		if (finding)
+			sprintf(tempstring,"Parts: %d/%d ", foundParticles, NUM_PARTS);
+		else
+			sprintf(tempstring,"Parts: %d ", NUM_PARTS);
 		strappend(uitext,tempstring);
 	}
 	if (currentHud[5])

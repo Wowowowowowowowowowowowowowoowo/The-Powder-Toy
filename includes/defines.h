@@ -187,6 +187,7 @@ extern bool ngrav_completedisable;
 extern int limitFPS;
 extern bool water_equal_test;
 extern int finding;
+extern int foundParticles;
 extern int highesttemp;
 extern int lowesttemp;
 extern int heatmode;

@@ -242,6 +242,7 @@ bool pretty_powder = false;
 int limitFPS = 60;
 int main_loop = 1;
 int finding = 0;
+int foundParticles = 0;
 int highesttemp = MAX_TEMP;
 int lowesttemp = MIN_TEMP;
 int heatmode = 0;

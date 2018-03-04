@@ -2132,6 +2132,7 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 					blendpixel(vid, nx, ny, 100, 100, 100, 80);
 			}
 	}
+	foundParticles = 0;
 	for(int i = 0; i <= sim->parts_lastActiveIndex; i++) {
 		if (parts[i].type) {
 			t = parts[i].type;
@@ -2340,18 +2341,21 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 						colr = firer = 255;
 						colg = colb = fireg = fireb = 0;
 						cola = firea = 255;
+						foundParticles++;
 					}
 					else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
 					{
 						colb = fireb = 255;
 						colr = colg = firer = fireg = 0;
 						cola = firea = 255;
+						foundParticles++;
 					}
 					else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
 					{
 						colg = fireg = 255;
 						colr = colb = firer = fireb = 0;
 						cola = firea = 255;
+						foundParticles++;
 					}
 					else
 					{
@@ -2802,22 +2806,34 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mous
 // Find just like how my lua script did it, it will find everything and show it's exact spot, and not miss things under stacked particles
 void draw_find(Simulation * sim)
 {
-	int i, x, y;
-	if (finding == 8)
+	if (finding == 0x8)
 		return;
-	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230); //Dim everything
-	for (i = 0; i <= sim->parts_lastActiveIndex; i++) //Color particles
+	// Dim everything
+	fillrect(vid_buf, -1, -1, XRES+1, YRES+1, 0, 0, 0, 230);
+	foundParticles = 0;
+	// Color particles
+	for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 	{
 		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
+		{
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
+			foundParticles++;
+		}
 		else if ((finding & 0x2) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[1])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[1])->GetID() == parts[i].ctype)))
+		{
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 0, 255, 255);
+			foundParticles++;
+		}
 		else if ((finding & 0x4) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[2])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[2])->GetID() == parts[i].ctype)))
+		{
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 0, 255, 0, 255);
+			foundParticles++;
+		}
 	}
-	for (y=0; y<YRES/CELL; y++) //Color walls
+	// Color walls
+	for (int y = 0; y < YRES/CELL; y++)
 	{
-		for (x=0; x<XRES/CELL; x++)
+		for (int x = 0; x < XRES/CELL; x++)
 		{
 			if ((finding & 0x1) && bmap[y][x] == ((WallTool*)activeTools[0])->GetID())
 				fillrect(vid_buf, x*CELL-1, y*CELL-1, CELL+1, CELL+1, 255, 0, 0, 255);
