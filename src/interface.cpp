@@ -7563,10 +7563,7 @@ savelist_e *get_local_saves(const char *folder, const char *search, int *results
 	std::string searchTerm;
 	if (search)
 		searchTerm = search;
-	std::vector<std::string> extensions;
-	extensions.push_back(".cps");
-	extensions.push_back(".stm");
-	std::vector<std::string> saves = Platform::DirectorySearch(folder, searchTerm, extensions);
+	std::vector<std::string> saves = Platform::DirectorySearch(folder, searchTerm, {".cps", ".stm"});
 
 	std::sort(saves.rbegin(), saves.rend(), [](std::string a, std::string b) {
 		std::transform(a.begin(), a.end(), a.begin(), ::tolower);
