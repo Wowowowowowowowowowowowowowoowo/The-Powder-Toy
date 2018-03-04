@@ -2878,6 +2878,32 @@ void Save::ConvertJsonToBson(bson *b, Json::Value j, int depth)
 	}
 }
 
+bool Save::TypeInCtype(int type, int ctype)
+{
+	if (ctype < 0 || ctype >= PT_NUM)
+		return false;
+	if (type == PT_CLNE || type == PT_PCLN || type == PT_BCLN || type == PT_PBCN || type == PT_STOR || type == PT_CONV
+	        || ((type == PT_STKM || type == PT_STKM2 || type == PT_FIGH) && ctype != SPC_AIR) || type == PT_LAVA
+	        || type == PT_SPRK || type == PT_PSTN || type == PT_CRAY || type == PT_DTEC || type == PT_DRAY)
+		return true;
+	return false;
+}
+
+bool Save::TypeInTmp(int type)
+{
+	if (type == PT_PIPE || type == PT_PPIP || type == PT_STOR)
+		return true;
+	return false;
+}
+
+bool Save::TypeInTmp2(int type, int tmp2)
+{
+	if (type == PT_VIRS || type == PT_VRSG || type == PT_VRSS)
+		if (tmp2 >= 0 && tmp2 < PT_NUM)
+			return true;
+	return false;
+}
+
 Save& Save::operator <<(particle v)
 {
 	if (particlesCount < NPART && v.type)

@@ -31,10 +31,10 @@
 #define FAKE_SAVE_VERSION 92
 #define FAKE_MINOR_VER 5
 
-#define MOD_VERSION 38
-#define MOD_MINOR_VERSION 2
+#define MOD_VERSION 39
+#define MOD_MINOR_VERSION 0
 #define MOD_SAVE_VERSION 24 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 92 //For update checks
+#define MOD_BUILD_VERSION 93 //For update checks
 
 #define MOBILE_MAJOR 1
 #define MOBILE_MINOR 3
@@ -202,7 +202,7 @@ extern float toolStrength;
 extern int autosave;
 extern int realistic;
 extern int loop_time;
-extern int unlockedstuff;
+extern bool explUnlocked;
 extern int old_menu;
 extern int decobox_hidden;
 

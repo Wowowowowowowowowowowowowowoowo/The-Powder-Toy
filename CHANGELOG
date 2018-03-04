@@ -868,3 +868,10 @@ Version 38.2 2018-01-02
 Fix ren.colorMode() crash. Fix crash when opening saves from the command line. 
 Improve bson error handling. Fix "Unable to decompress (ret 0)" error when 
 attempting to load certain saves.
+
+Version 39.0 2018-03-04
+Fix "dns mismatch" error when starting game without internet. Sort local saves 
+alphabetically. ctrl+shift+p shortcut for putting PROP on right click. Add 
+cyclone tool from version 93.0. Large rewrite of some simulation code to 
+support doubling the element limit. Disabled until 93.0 comes out due to 
+incompatible save format changes. Add a warning message when stealing saves.

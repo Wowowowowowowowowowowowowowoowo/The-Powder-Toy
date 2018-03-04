@@ -254,7 +254,7 @@ Tool* activeTools[3];
 float toolStrength = 1.0f;
 int autosave = 0;
 int realistic = 0;
-int unlockedstuff = 0x08;
+bool explUnlocked = false;
 int old_menu = 0;
 int loop_time = 0;
 bool doUpdates = true;

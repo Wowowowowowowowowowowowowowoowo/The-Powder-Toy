@@ -48,6 +48,12 @@ int console_parse_type(const char *txt, int *element, char *err)
 		i = PT_C5;
 	else if (!strcasecmp(txt, "NONE"))
 		i = PT_NONE;
+	else if (!strcasecmp(txt, "EXPL") && !explUnlocked)
+	{
+		if (err)
+			strcpy(err, "Particle type not recognized");
+		return 0;
+	}
 	if ((i > 0 && i < PT_NUM && ptypes[i].enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
 	{
 		if (element) *element = i;

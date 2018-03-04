@@ -177,6 +177,10 @@ public:
 	 **/
 	unsigned int GetSaveSize();
 
+	static bool TypeInCtype(int type, int ctype);
+	static bool TypeInTmp(int type);
+	static bool TypeInTmp2(int type, int tmp2);
+
 private:
 	unsigned char *saveData;
 	unsigned int saveSize;

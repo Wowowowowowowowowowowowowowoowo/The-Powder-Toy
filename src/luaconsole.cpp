@@ -259,10 +259,6 @@ tpt.partsdata = nil");
 	tptElements = lua_gettop(l);
 	for(i = 1; i < PT_NUM; i++)
 	{
-#ifndef NOMOD
-		if (i == PT_EXPL)
-			continue;
-#endif
 		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
@@ -288,10 +284,6 @@ tpt.partsdata = nil");
 	tptElementTransitions = lua_gettop(l);
 	for(i = 1; i < PT_NUM; i++)
 	{
-#ifndef NOMOD
-		if (i == PT_EXPL)
-			continue;
-#endif
 		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
 			tmpname[j] = tolower(ptypes[i].name[j]);
 		tmpname[strlen(ptypes[i].name)] = 0;
@@ -1260,12 +1252,7 @@ int luatpt_getelement(lua_State *l)
 		if (t<0 || t>=PT_NUM)
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = luaSim->elements[TYP(t)].Name.c_str();
-#ifndef NOMOD
-		if (t == PT_EXPL)
-			lua_pushstring(l, "");
-		else
-#endif
-			lua_pushstring(l, name);
+		lua_pushstring(l, name);
 	}
 	else
 	{

@@ -607,6 +607,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	bool solids[MAX_MOVING_SOLIDS];
 	std::fill(&solids[0], &solids[MAX_MOVING_SOLIDS], false);
 #endif
+	std::set<int> paletteSet;
 	for (int i = 0; i < NPART; i++)
 	{
 		int x, y;
@@ -617,6 +618,19 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 			particle tempPart = parts[i];
 			tempPart.x -= blockX*CELL;
 			tempPart.y -= blockY*CELL;
+#ifndef NOMOD
+			if (!explUnlocked)
+			{
+				if (tempPart.type == PT_EXPL)
+					continue;
+				if (tempPart.ctype == PT_EXPL && Save::TypeInCtype(tempPart.type, tempPart.ctype))
+					tempPart.ctype = 0;
+				if (TYP(tempPart.tmp) == PT_EXPL && Save::TypeInTmp(tempPart.type))
+					tempPart.tmp = ID(tempPart.tmp);
+				if (tempPart.tmp2 == PT_EXPL && Save::TypeInTmp2(tempPart.type, tempPart.tmp2))
+					tempPart.tmp2 = 0;
+			}
+#endif
 			if (elements[tempPart.type].Enabled)
 			{
 				if (tempPart.type == PT_SOAP)
@@ -642,19 +656,23 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 				*newSave << tempPart;
 				storedParts++;
 				elementCount[tempPart.type]++;
+
+				paletteSet.insert(tempPart.type);
+				if (Save::TypeInCtype(tempPart.type, tempPart.ctype))
+					paletteSet.insert(tempPart.ctype);
+				if (Save::TypeInTmp(tempPart.type))
+					paletteSet.insert(TYP(tempPart.tmp));
+				if (Save::TypeInTmp2(tempPart.type, tempPart.tmp2))
+					paletteSet.insert(tempPart.tmp2);
 			}
 		}
 	}
+	for (int ID : paletteSet)
+		if (ID)
+			newSave->palette.push_back(Save::PaletteItem(elements[ID].Identifier, ID));
 
 	if (storedParts)
 	{
-		for (int i = 0; i < PT_NUM; i++)
-		{
-			if (elements[i].Enabled && elementCount[i])
-			{
-				newSave->palette.push_back(Save::PaletteItem(elements[i].Identifier, i));
-			}
-		}
 		// fix SOAP links using soapList, a map of new particle ID -> old particle ID
 		// loop through every new particle (saved into the save), and convert .tmp / .tmp2
 		for (std::map<unsigned int, unsigned int>::iterator iter = soapList.begin(), end = soapList.end(); iter != end; ++iter)

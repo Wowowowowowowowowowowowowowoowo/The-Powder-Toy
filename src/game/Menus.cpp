@@ -112,6 +112,13 @@ void FillMenus()
 	//Add all generic elements to menus
 	for (int i = 0; i < PT_NUM; i++)
 	{
+#ifndef NOMOD
+		if (i == PT_EXPL && !explUnlocked)
+		{
+			menuSections[SC_OTHER]->AddTool(new ElementTool(globalSim, i));
+			continue;
+		}
+#endif
 		if (globalSim->elements[i].Enabled && i != PT_LIFE)
 		{
 			if ((globalSim->elements[i].MenuVisible || secret_els) && globalSim->elements[i].MenuSection >= 0 && globalSim->elements[i].MenuSection < SC_TOTAL && globalSim->elements[i].MenuSection != SC_FAV)

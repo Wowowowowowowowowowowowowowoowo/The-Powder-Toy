@@ -299,11 +299,7 @@ void save_presets()
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
 	cJSON_AddNumberToObject(root, "autosave", autosave);
 	cJSON_AddNumberToObject(root, "realistic", realistic);
-	if (unlockedstuff & 0x01)
-		cJSON_AddNumberToObject(root, "cracker_unlocked", 1);
-	if (unlockedstuff & 0x08)
-		cJSON_AddNumberToObject(root, "show_votes", 1);
-	if (unlockedstuff & 0x10)
+	if (explUnlocked)
 		cJSON_AddNumberToObject(root, "EXPL_unlocked", 1);
 	if (old_menu)
 		cJSON_AddNumberToObject(root, "old_menu", 1);
@@ -646,20 +642,10 @@ void load_presets(void)
 			if (realistic)
 				ptypes[PT_FIRE].hconduct = 1;
 		}*/
-		if ((tmpobj = cJSON_GetObjectItem(root, "cracker_unlocked")))
-		{
-			unlockedstuff |= 0x01;
-			menuSections[SC_CRACKER]->enabled = true;
-		}
-		if ((tmpobj = cJSON_GetObjectItem(root, "show_votes")))
-			unlockedstuff |= 0x08;
 #ifndef NOMOD
 		if ((tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")))
 		{
-			unlockedstuff |= 0x10;
-			ptypes[PT_EXPL].enabled = 1;
-			globalSim->elements[PT_EXPL].MenuVisible = 1;
-			globalSim->elements[PT_EXPL].Enabled = 1;
+			explUnlocked = true;
 			FillMenus();
 		}
 #endif

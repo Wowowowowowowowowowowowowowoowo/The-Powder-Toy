@@ -43,9 +43,9 @@ void EXPL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Identifier = "DEFAULT_PT_EXPL";
 	elem->Name = "EXPL";
 	elem->Colour = COLPACK(0xFEA713);
-	elem->MenuVisible = 0;
+	elem->MenuVisible = 1;
 	elem->MenuSection = SC_EXPLOSIVE;
-	elem->Enabled = 0;
+	elem->Enabled = 1;
 
 	elem->Advection = 0.6f;
 	elem->AirDrag = 0.10f * CFDS;

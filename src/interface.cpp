@@ -1193,6 +1193,10 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		hover = -1;
 		for(i = 0; i < PT_NUM; i++)
 		{
+#ifndef NOMOD
+			if (i == PT_EXPL && !explUnlocked)
+				continue;
+#endif
 			c = 0;
 			while (ptypes[i].name[c]) { tempCompare[c] = tolower(ptypes[i].name[c]); c++; } tempCompare[c] = 0;
 			if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
@@ -1243,6 +1247,10 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 			found = 0;
 			for(i = 0; i < PT_NUM; i++)
 			{
+#ifndef NOMOD
+				if (i == PT_EXPL && !explUnlocked)
+					continue;
+#endif
 				c = 0;
 				while (ptypes[i].descs[c]) { tempCompare[c] = tolower(ptypes[i].descs[c]); c++; } tempCompare[c] = 0;
 				if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
@@ -3142,6 +3150,7 @@ void menu_select_element(int b, Tool* over)
 			else if (toolID == FAV_SECR)
 			{
 				secret_els = !secret_els;
+				explUnlocked = true;
 				FillMenus();
 			}
 		}
@@ -3804,7 +3813,7 @@ corrupt:
 int search_ui(pixel *vid_buf)
 {
 	int uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
-	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, view_own=0, last_p1_extra=0, motdswap = rand()%2;
+	int is_p1=0, exp_res=GRID_X*GRID_Y, tp, last_p1_extra=0, motdswap = rand()%2;
 #ifdef TOUCHUI
 	const int xOffset = 10;
 	int initialOffset = 0;
@@ -4119,7 +4128,7 @@ int search_ui(pixel *vid_buf)
 					mp = -1;
 					dp = pos;
 				}
-				if ((own || (unlockedstuff & 0x08)) && !search_dates[pos] && mx>=gx-6 && mx<=gx+4 && my>=gy+YRES/GRID_S-4 && my<=gy+YRES/GRID_S+6)
+				if (!search_dates[pos] && mx>=gx-6 && mx<=gx+4 && my>=gy+YRES/GRID_S-4 && my<=gy+YRES/GRID_S+6)
 				{
 					mp = -1;
 					dap = pos;
@@ -4145,7 +4154,7 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, gx-6, gy-6, "\xCD", 255, 255, 255, 255);
 					drawtext(vid_buf, gx-6, gy-6, "\xCE", 212, 151, 81, 255);
 				}
-				if (!search_dates[pos] && (own || (unlockedstuff & 0x08)))
+				if (!search_dates[pos])
 				{
 					fillrect(vid_buf, gx-5, gy+YRES/GRID_S-3, 7, 8, 255, 255, 255, 255);
 					if (dap == pos) {
@@ -4155,7 +4164,7 @@ int search_ui(pixel *vid_buf)
 					}
 					//drawtext(vid_buf, gx-6, gy-6, "\xCE", 212, 151, 81, 255);
 				}
-				if (view_own || svf_admin || svf_mod || (unlockedstuff & 0x08))
+				if (true)
 				{
 					char ts[64];
 					sprintf(ts+1, "%d", search_votes[pos]);
@@ -4460,12 +4469,11 @@ int search_ui(pixel *vid_buf)
 		{
 			int status;
 			char *results = saveListDownload->Finish(NULL, &status);
-			view_own = last_own;
 			is_p1 = (exp_res < GRID_X*GRID_Y);
 			touchOffset = 0;
 			if (status == 200)
 			{
-				page_count = search_results(results, last_own||svf_admin||svf_mod||(unlockedstuff&0x08));
+				page_count = search_results(results, true);
 				memset(thumb_drawn, 0, sizeof(thumb_drawn));
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 #ifndef TOUCHUI
