@@ -11,6 +11,9 @@
 #include <shlwapi.h>
 #include <windows.h>
 #include <direct.h>
+#ifndef __GNUC__
+#include <io.h>
+#endif
 #else
 #include <sys/stat.h>
 #include <unistd.h>
