@@ -2609,28 +2609,40 @@ int save_name_ui(pixel *vid_buf)
 
 		if ((b && !bq && mx>=x0 && mx<x0+192 && my>=y0+94+YRES/4 && my<y0+110+YRES/4) || sdl_key==SDLK_RETURN)
 		{
-			if (th) free(th);
-			if (!ed.str[0])
-				return 0;
-			nd = strcmp(svf_name, ed.str) || !svf_own;
-			strncpy(svf_name, ed.str, 63);
-			svf_name[63] = 0;
-			strncpy(svf_description, ed2.str, 254);
-			strncpy(svf_author, svf_user, 63);
-			svf_description[254] = 0;
-			if (nd)
+			bool cont = true;
+			if (cbPublish.checked && strcmp(svf_user, svf_author))
 			{
-				strcpy(svf_id, "");
-				strcpy(svf_tags, "");
+				std::string message = "This save was created by ";
+				message += svf_author;
+				message += ", you're about to publish this under your own name; If you haven't been given permission"
+				           "by the author to do so, please uncheck the publish box, otherwise continue";
+				cont = confirm_ui(vid_buf, "Publish", message.c_str(), "Continue");
 			}
-			svf_open = 1;
-			svf_own = 1;
-			svf_publish = cbPublish.checked;
-			sys_pause = cbPaused.checked;
-			svf_filename[0] = 0;
-			svf_fileopen = 0;
-			free(old_vid);
-			return nd+1;
+			if (cont)
+			{
+				if (th) free(th);
+				if (!ed.str[0])
+					return 0;
+				nd = strcmp(svf_name, ed.str) || !svf_own;
+				strncpy(svf_name, ed.str, 63);
+				svf_name[63] = 0;
+				strncpy(svf_description, ed2.str, 254);
+				strncpy(svf_author, svf_user, 63);
+				svf_description[254] = 0;
+				if (nd)
+				{
+					strcpy(svf_id, "");
+					strcpy(svf_tags, "");
+				}
+				svf_open = 1;
+				svf_own = 1;
+				svf_publish = cbPublish.checked;
+				sys_pause = cbPaused.checked;
+				svf_filename[0] = 0;
+				svf_fileopen = 0;
+				free(old_vid);
+				return nd+1;
+			}
 		}
 		if (b && !bq && (mx < x0 || my < y0 || mx > x0+420 || my > y0+110+YRES/4))
 			break;
