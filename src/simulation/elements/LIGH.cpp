@@ -178,6 +178,9 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 		sim->air->hv[y/CELL][x/CELL] += powderful/50;
 		if (sim->air->hv[y/CELL][x/CELL] > MAX_TEMP)
 			sim->air->hv[y/CELL][x/CELL] = MAX_TEMP;
+		// If the LIGH was so powerful that it overflowed hv, set to max temp
+		else if (sim->air->hv[y/CELL][x/CELL] < 0)
+			sim->air->hv[y/CELL][x/CELL] = MAX_TEMP;
 	}
 
 	for (rx=-2; rx<3; rx++)
