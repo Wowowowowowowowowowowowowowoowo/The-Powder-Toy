@@ -514,11 +514,14 @@ void PowderToy::ReloadSaveBtn(unsigned char b)
 void PowderToy::DoSaveBtn(unsigned char b)
 {
 	Save *save = sim->CreateSave(0, 0, XRES, YRES);
+	bool canReupload = true;
+	if (!strcmp(svf_id, "404") || !strcmp(svf_id, "2157797"))
+		canReupload = false;
 	// Local save
 #ifdef TOUCHUI
-	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)) || b != 1)
+	if (!svf_login || ctrlHeld || !canReupload || b != 1)
 #else
-	if (!svf_login || (sdl_mod & (KMOD_CTRL|KMOD_META)))
+	if (!svf_login || ctrlHeld || !canReupload)
 #endif
 	{
 		Json::Value localSaveInfo;
@@ -1432,7 +1435,10 @@ void PowderToy::OnTick(uint32_t ticks)
 #endif
 	std::string saveButtonText = "\x82 ";
 	std::string saveButtonTip;
-	if (!svf_login || ctrlHeld)
+	bool canReupload = true;
+	if (!strcmp(svf_id, "404") || !strcmp(svf_id, "2157797"))
+		canReupload = false;
+	if (!svf_login || ctrlHeld || !canReupload)
 	{
 		// button text
 		if (svf_fileopen)
@@ -1472,6 +1478,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 	saveButton->SetText(saveButtonText);
 	saveButton->SetTooltipText(saveButtonTip);
+	saveButton->SetEnabled(canReupload);
 
 	bool votesAllowed = svf_login && svf_open && svf_own == 0 && svf_myvote == 0;
 	upvoteButton->SetEnabled(votesAllowed && voteDownload == NULL);
