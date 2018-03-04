@@ -668,8 +668,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 		}
 	}
 	for (int ID : paletteSet)
-		if (ID)
-			newSave->palette.push_back(Save::PaletteItem(elements[ID].Identifier, ID));
+		newSave->palette.push_back(Save::PaletteItem(elements[ID].Identifier, ID));
 
 	if (storedParts)
 	{
