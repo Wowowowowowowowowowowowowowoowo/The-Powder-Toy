@@ -1187,8 +1187,11 @@ void PowderToy::OnTick(uint32_t ticks)
 		if (status != 200 || ParseServerReturn(ret, status, true))
 		{
 #ifndef ANDROID
-			SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
-			UpdateToolTip("", Point(16, 20), INTROTIP, 0);
+			if (status != 503)
+			{
+				SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
+				UpdateToolTip("", Point(16, 20), INTROTIP, 0);
+			}
 #endif
 		}
 		else
