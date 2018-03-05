@@ -16,6 +16,7 @@
 #ifndef ElementDataContainer_h
 #define ElementDataContainer_h
 
+class Simulation;
 class ElementDataContainer
 {
 public:
