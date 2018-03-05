@@ -180,19 +180,19 @@ int GolTool::GetID()
 }
 int GolTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	return sim->CreateParts(position.X, position.Y, PT_LIFE | ID(toolID), get_brush_flags(), true, brush);
+	return sim->CreateParts(position.X, position.Y, PT_LIFE | PMAPID(toolID), get_brush_flags(), true, brush);
 }
 void GolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | ID(toolID), get_brush_flags(), brush);
+	sim->CreateLine(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | PMAPID(toolID), get_brush_flags(), brush);
 }
 void GolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | ID(toolID), get_brush_flags());
+	sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, PT_LIFE | PMAPID(toolID), get_brush_flags());
 }
 int GolTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return sim->FloodParts(position.X, position.Y, PT_LIFE+ID(toolID), -1, get_brush_flags());
+	return sim->FloodParts(position.X, position.Y, PT_LIFE | PMAPID(toolID), -1, get_brush_flags());
 }
 
 
