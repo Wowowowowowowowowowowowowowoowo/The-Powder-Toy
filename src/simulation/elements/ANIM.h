@@ -3,6 +3,7 @@
 #define ANIM_H
 
 #include <vector>
+#include "common/tpt-minmax.h"
 #include "graphics/ARGBColour.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/Simulation.h"
