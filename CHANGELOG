@@ -876,4 +876,4 @@ cyclone tool from version 93.0. Large rewrite of some simulation code to
 support doubling the element limit. Disabled until 93.0 comes out due to 
 incompatible save format changes. Add a warning message when stealing saves. 
 When finding particles, show how many were found in HUD. Ignore 503 errors 
-from update server.
+from update server. Redo ANIM somewhat and fix crash when ctrl+z-ing ANIM.
