@@ -366,12 +366,14 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 		sprintf(tempstring, "[GRID: %d] ", GRID_MODE);
 		strappend(uitext, tempstring);
 	}
+#ifndef NOMOD
 	if (active_menu == SC_DECO && frameNum)
 	{
 		sprintf(tempstring,"[Frame %i/%i] ",frameNum, ((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->GetMaxFrames());
 		strappend(uitext, tempstring);
 		frameNum = 0;
 	}
+#endif
 #ifdef INTERNAL
 	if (vs)
 		strappend(uitext, "[FRAME CAPTURE]");
