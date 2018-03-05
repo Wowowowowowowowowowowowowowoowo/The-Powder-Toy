@@ -33,4 +33,26 @@
 #include <algorithm>
 #endif
 
+namespace tpt
+{
+
+template<typename T>
+const inline T& min(const T& a, const T& b)
+{
+	if (b < a)
+		return b;
+	else
+		return a;
+}
+
+template<typename T>
+const inline T& max(const T& a, const T& b)
+{
+	if (a < b)
+		return b;
+	else
+		return a;
+}
+
+}
 #endif

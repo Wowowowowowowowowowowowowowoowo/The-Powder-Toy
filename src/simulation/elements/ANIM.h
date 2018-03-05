@@ -112,7 +112,7 @@ public:
 
 	void SetAllColors(int i, std::vector<ARGBColour> colors, int maxLength)
 	{
-		int animLen = std::min(maxLength, (int)maxFrames - 1);
+		int animLen = tpt::min<int>(maxLength, (int)maxFrames);
 		parts[i].ctype = animLen - 1;
 		animations[i] = new ARGBColour[maxFrames];
 		if (animations[i] == NULL)
