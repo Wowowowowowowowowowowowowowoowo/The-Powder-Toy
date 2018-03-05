@@ -33,6 +33,8 @@
 #include <algorithm>
 #endif
 
+#undef min
+#undef max
 namespace tpt
 {
 
