@@ -16,6 +16,7 @@
  */
 
 #include "gui/profile/ProfileViewer.h"
+#include "simulation/elements/ANIM.h"
 
 #include "common/tpt-minmax.h"
 #include "SDLCompat.h"
@@ -82,7 +83,6 @@
 #include "interface/Engine.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
-#include "simulation/elements/ANIM.h"
 
 unsigned short sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
@@ -8220,7 +8220,7 @@ void simulation_ui(pixel * vid_buf)
 		airMode = list.selected;
 	if(list2.selected>=0 && list2.selected<=2)
 		gravityMode = list2.selected;
-	if(ngrav_enable != cb2.checked)
+	if ((int)ngrav_enable != cb2.checked)
 	{
 		if(cb2.checked)
 			start_grav_async();
