@@ -314,14 +314,6 @@ int kiosk_enable = 0;
 
 void clear_sim()
 {
-	for (int i = 0; i < NPART; i++)
-	{
-		if (parts[i].animations)
-		{
-			free(parts[i].animations);
-			parts[i].animations = NULL;
-		}
-	}
 	memset(bmap, 0, sizeof(bmap));
 	globalSim->Clear();
 	memset(emap, 0, sizeof(emap));

@@ -16,21 +16,16 @@
 #ifndef NOMOD
 #include <cstring>
 #include "simulation/ElementsCommon.h"
-#include "interface.h"
+#include "ANIM.h"
 
 int ANIM_update(UPDATE_FUNC_ARGS)
 {
-	if (!parts[i].animations)
-	{
-		kill_part(i);
-		return 1;
-	}
 	if (parts[i].life == 10)
 	{
 		parts[i].tmp--;
 		if (parts[i].tmp <= 0)
 		{
-			parts[i].tmp = (int)(parts[i].temp-273.15);
+			parts[i].tmp = (int)(parts[i].temp - 273.15f);
 			parts[i].tmp2++;
 		}
 	}
@@ -38,24 +33,28 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 	{
 		parts[i].tmp2 = 0;
 	}
-	parts[i].dcolour = parts[i].animations[parts[i].tmp2];
+	if (!((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->isValid(i, parts[i].tmp2))
+	{
+		sim->part_kill(i);
+		return 1;
+	}
+	// Put current frame color in dcolor, used by graphics function even when deco is turned off
+	parts[i].dcolour = ((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->GetColor(i, parts[i].tmp2);
 	return 0;
 }
 
 int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 {
-	//invalid ANIM
-	if (!cpart->animations || cpart->tmp2 < 0 || cpart->tmp2 >= sim->maxFrames)
-		return 0;
-
 	//if decorations are even set (black deco has alpha set)
-	if (cpart->animations[cpart->tmp2])
+	if (cpart->dcolour)
 	{
-		*cola = COLA(cpart->animations[cpart->tmp2]);
-		*colr = COLR(cpart->animations[cpart->tmp2]);
-		*colg = COLG(cpart->animations[cpart->tmp2]);
-		*colb = COLB(cpart->animations[cpart->tmp2]);
+		*cola = COLA(cpart->dcolour);
+		*colr = COLR(cpart->dcolour);
+		*colg = COLG(cpart->dcolour);
+		*colb = COLB(cpart->dcolour);
 	}
+	else
+		return 0;
 
 	if (cpart->life < 10)
 	{
@@ -70,19 +69,13 @@ int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 
 void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].animations = (ARGBColour*)calloc(sim->maxFrames, sizeof(ARGBColour));
-	if (!sim->parts[i].animations)
-		return;
-	memset(sim->parts[i].animations, 0, sizeof(*sim->parts[i].animations));
+	((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->InitlializePart(i);
 }
 
 void ANIM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
-	if (to != PT_ANIM && parts[i].animations)
-    {
-            free(parts[i].animations);
-            parts[i].animations = NULL;
-    }
+	if (to != PT_ANIM)
+		((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->FreePart(i);
 }
 
 void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -135,5 +128,11 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_Create = &ANIM_create;
 	elem->Func_ChangeType = &ANIM_ChangeType;
 	elem->Init = &ANIM_init_element;
+
+	if (sim->elementData[t])
+	{
+		delete sim->elementData[t];
+	}
+	sim->elementData[t] = new ANIM_ElementDataContainer;
 }
 #endif

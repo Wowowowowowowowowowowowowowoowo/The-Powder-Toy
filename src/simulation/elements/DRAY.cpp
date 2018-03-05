@@ -128,7 +128,6 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 
 								parts[p].x = (float)xCopyTo;
 								parts[p].y = (float)yCopyTo;
-								parts[p].animations = NULL;
 							}
 						}
 					}

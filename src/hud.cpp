@@ -15,6 +15,8 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/GolNumbers.h"
+
+#include "simulation/elements/ANIM.h"
 #include "simulation/elements/LIFE.h"
 
 #include "gui/game/PowderToy.h"
@@ -203,7 +205,7 @@ void SetRightHudText(Simulation * sim, int x, int y)
 				wavelength_gfx = (parts[underID].ctype&0x3FFFFFFF);
 #ifndef NOMOD
 			if (underType == PT_ANIM)
-				frameNum = parts[underID].tmp2+1;
+				frameNum = parts[underID].tmp2 + 1;
 #endif
 		}
 		else if (wl && currentHud[48])
@@ -366,7 +368,7 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 	}
 	if (active_menu == SC_DECO && frameNum)
 	{
-		sprintf(tempstring,"[Frame %i/%i] ",frameNum,sim->maxFrames);
+		sprintf(tempstring,"[Frame %i/%i] ",frameNum, ((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->GetMaxFrames());
 		strappend(uitext, tempstring);
 		frameNum = 0;
 	}

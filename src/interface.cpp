@@ -82,6 +82,7 @@
 #include "interface/Engine.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
+#include "simulation/elements/ANIM.h"
 
 unsigned short sdl_mod;
 int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
@@ -7427,66 +7428,11 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 #ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
-	{
-		int framenum = -1;
-		bool canCopy = true;
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-			if (parts[i].type == PT_ANIM)
-			{
-				if (framenum == -1)
-				{
-					framenum = parts[i].tmp2+1;
-					if (framenum >= globalSim->maxFrames)
-					{
-						canCopy = false;
-						framenum = globalSim->maxFrames-1;
-					}
-				}
-				parts[i].tmp = 0;
-				parts[i].tmp2 = framenum;
-				if (framenum > parts[i].ctype)
-					parts[i].ctype = framenum;
-
-				if (sdl_mod & (KMOD_CTRL|KMOD_META) && canCopy)
-					parts[i].animations[framenum] = parts[i].animations[framenum-1];
-			}
-	}
+		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_META));
 	else if (sdl_key==SDLK_LEFT)
-	{
-		int framenum = -1;
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-			if (parts[i].type == PT_ANIM)
-			{
-				if (framenum == -1)
-				{
-					framenum = parts[i].tmp2-1;
-					if (framenum < 0)
-						framenum = 0;
-				}
-				parts[i].tmp = 0;
-				parts[i].tmp2 = framenum;
-			}
-	}
+		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->PreviousFrame(globalSim);
 	else if (sdl_key==SDLK_DELETE)
-	{
-		int framenum = -1;
-		for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-			if (parts[i].type == PT_ANIM)
-			{
-				if (framenum == -1)
-				{
-					framenum = parts[i].tmp2;
-					if (framenum < 0)
-						framenum = 0;
-				}
-				for (int j = framenum; j < globalSim->maxFrames-1; j++)
-					parts[i].animations[j] = parts[i].animations[j+1];
-				if (parts[i].ctype >= framenum && parts[i].ctype)
-					parts[i].ctype--;
-				if (parts[i].tmp2 > parts[i].ctype)
-					parts[i].tmp2 = parts[i].ctype;
-			}
-	}
+		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->DeleteFrame(globalSim);
 #endif
 	else if (sdl_key == SDLK_TAB)
 	{

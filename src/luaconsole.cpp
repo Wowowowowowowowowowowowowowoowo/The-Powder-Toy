@@ -54,6 +54,8 @@ extern "C"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 
+#include "simulation/elements/ANIM.h"
+
 Simulation * luaSim;
 pixel *lua_vid_buf;
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
@@ -2579,27 +2581,17 @@ int luatpt_bubble(lua_State* l)
 #ifndef NOMOD
 int luatpt_maxframes(lua_State* l)
 {
-	int maxFrames = luaL_optint(l,1,-1), i;
+	int maxFrames = luaL_optint(l,1,-1);
 	if (maxFrames == -1)
 	{
-		lua_pushnumber(l, luaSim->maxFrames);
+		lua_pushnumber(l, ((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->GetMaxFrames());
 		return 1;
 	}
 	if (maxFrames > 0 && maxFrames <= 256)
-		luaSim->maxFrames = maxFrames;
+		((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->SetMaxFrames(maxFrames);
 	else
 		return luaL_error(l, "must be between 1 and 256");
-	for (i = 0; i <= luaSim->parts_lastActiveIndex; i++)
-		if (parts[i].type == PT_ANIM)
-		{
-			if (parts[i].animations)
-			{
-				free(parts[i].animations);
-				parts[i].animations = NULL;
-			}
-			parts[i].tmp2 = parts[i].ctype = 0;
-			parts[i].tmp = 1;
-		}
+	((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->Simulation_Cleared(luaSim);
 	return 0;
 }
 #endif

@@ -29,7 +29,6 @@ struct particle
 	int tmp;
 	int tmp2;
 	ARGBColour dcolour;
-	ARGBColour *animations;
 };
 typedef struct particle particle;
 

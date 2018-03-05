@@ -34,6 +34,7 @@
 #include "game/Menus.h" // for active_menu setting on save load, try to remove this later
 #include "game/Save.h"
 #include "game/Sign.h"
+#include "simulation/elements/ANIM.h"
 #include "simulation/elements/MOVS.h"
 #include "simulation/elements/FIGH.h"
 #include "simulation/elements/PPIP.h"
@@ -59,7 +60,6 @@ Simulation::Simulation():
 	edgeMode(0),
 	saveEdgeMode(0),
 	msRotation(true),
-	maxFrames(25),
 #ifdef NOMOD
 	instantActivation(false),
 #else
@@ -377,22 +377,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			}
 
 			Save::ANIMdataItem data =  save->ANIMdata[animDataPos++];
-			// Read animation length, make sure it doesn't go past the current frame limit
-			int animLen = std::min(data.first, maxFrames-1);
-			parts[i].ctype = animLen;
-			parts[i].animations = (ARGBColour*)calloc(maxFrames, sizeof(ARGBColour));
-			if (parts[i].animations == NULL)
-				continue;
-
-			for (int j = 0; j < maxFrames; j++)
-			{
-				// Read animation data
-				if (j <= animLen && j < (int)data.second.size())
-					parts[i].animations[j] = data.second[j];
-				// Set the rest to 0
-				else
-					parts[i].animations[j] = 0;
-			}
+			((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetAllColors(i, data.second, data.first + 1);
 		}
 #endif
 	}
@@ -643,13 +628,10 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 				}
 				else if (tempPart.type == PT_ANIM)
 				{
-					int animLength = std::min(tempPart.ctype, maxFrames-1);
+					int animLength = std::min(tempPart.ctype, (int)(((ANIM_ElementDataContainer*)elementData[PT_ANIM])->GetMaxFrames() - 1));
 					Save::ANIMdataItem data;
 					data.first = animLength;
-					for (int animPos = 0; animPos <= animLength; animPos++)
-					{
-						data.second.push_back(tempPart.animations[animPos]);
-					}
+					data.second = ((ANIM_ElementDataContainer*)elementData[PT_ANIM])->GetAllColors(i, tempPart.ctype+1);
 					newSave->ANIMdata.push_back(data);
 				}
 #endif
@@ -3345,10 +3327,7 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 
 #ifndef NOMOD
 	if (parts[rp].type == PT_ANIM)
-	{
-		if (parts[rp].tmp2 >= 0 && parts[rp].tmp2 < maxFrames)
-			parts[rp].animations[parts[rp].tmp2] = parts[rp].dcolour;
-	}
+		((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetColor(rp, parts[rp].tmp2, parts[rp].dcolour);
 #endif
 }
 
