@@ -317,7 +317,7 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 	}
 	if (currentHud[4])
 	{
-		if (finding)
+		if (finding & ~0x8)
 			sprintf(tempstring,"Parts: %d/%d ", foundParticles, NUM_PARTS);
 		else
 			sprintf(tempstring,"Parts: %d ", NUM_PARTS);
@@ -359,7 +359,7 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 		strappend(uitext, "[REPLACE MODE] ");
 	if (SPECIFIC_DELETE && currentHud[8])
 		strappend(uitext, "[SPECIFIC DELETE] ");
-	if ((finding && finding != 8) && currentHud[8])
+	if ((finding & ~0x8) && currentHud[8])
 		strappend(uitext, "[FIND] ");
 	if (GRID_MODE && currentHud[9])
 	{

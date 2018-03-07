@@ -880,3 +880,6 @@ from update server. Redo ANIM somewhat and fix crash when ctrl+z-ing ANIM.
 
 Version 39.1 2018-03-04
 Fix GoL brushes
+
+Version 39.2 2018-03-06
+Fix PIPE initialization

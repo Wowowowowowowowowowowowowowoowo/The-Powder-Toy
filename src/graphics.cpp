@@ -2814,6 +2814,8 @@ void draw_find(Simulation * sim)
 	// Color particles
 	for (int i = 0; i <= sim->parts_lastActiveIndex; i++)
 	{
+		if (!parts[i].type)
+			continue;
 		if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
 		{
 			drawpixel(vid_buf, (int)(parts[i].x+.5f), (int)(parts[i].y+.5f), 255, 0, 0, 255);
