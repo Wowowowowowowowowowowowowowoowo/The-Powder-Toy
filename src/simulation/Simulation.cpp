@@ -1266,7 +1266,8 @@ void Simulation::UpdateAfter()
 
 void Simulation::Tick()
 {
-	RecalcFreeParticles(true);
+	if (debug_currentParticle == 0)
+		RecalcFreeParticles(true);
 	if (!sys_pause || framerender)
 	{
 		UpdateBefore();
