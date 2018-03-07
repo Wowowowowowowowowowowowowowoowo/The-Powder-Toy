@@ -335,7 +335,7 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 			int count = 0;
 			// Make automatic pipe pattern
 			for (int rx = -1; rx <= 1; rx++)
-				for (int ry = -1; ry <= -1; ry++)
+				for (int ry = -1; ry <= 1; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
 						int r = pmap[y+ry][x+rx];
