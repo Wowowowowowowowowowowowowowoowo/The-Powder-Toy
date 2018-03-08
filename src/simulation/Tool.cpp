@@ -59,7 +59,7 @@ void Tool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, toolID | ID(radiusInfo), get_brush_flags());
+		sim->CreateBox(startPos.X, startPos.Y, endPos.X, endPos.Y, toolID | PMAPID(radiusInfo), get_brush_flags());
 		break;
 	}
 	default:
@@ -81,7 +81,7 @@ int Tool::FloodFill(Simulation *sim, Brush *brush, Point position)
 	case PT_TESC:
 	{
 		int radiusInfo = brush->GetRadius().X*4+brush->GetRadius().Y*4+7;
-		return sim->FloodParts(position.X, position.Y, toolID | ID(radiusInfo), -1, get_brush_flags());
+		return sim->FloodParts(position.X, position.Y, toolID | PMAPID(radiusInfo), -1, get_brush_flags());
 	}
 	default:
 		return sim->FloodParts(position.X, position.Y, toolID, -1, get_brush_flags());

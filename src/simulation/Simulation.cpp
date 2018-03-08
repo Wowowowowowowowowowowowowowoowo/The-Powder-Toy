@@ -2282,7 +2282,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		int newtmp = (rx*4+ry*4+7);
 		if (newtmp > 300)
 			newtmp = 300;
-		c = PMAP(newtmp, 8);
+		c = PMAP(newtmp, PT_TESC);
 	}
 #ifndef NOMOD
 	else if (c == PT_MOVS)
