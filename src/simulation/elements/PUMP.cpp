@@ -17,20 +17,34 @@
 
 int PUMP_update(UPDATE_FUNC_ARGS)
 {
-	int rx, ry;
 	if (parts[i].life == 10)
 	{
-		if (parts[i].temp>=256.0+273.15)
-			parts[i].temp=256.0f+273.15f;
-		if (parts[i].temp<= -256.0+273.15)
-			parts[i].temp = -256.0f+273.15f;
+		if (parts[i].temp >= 256.0f + 273.15f)
+			parts[i].temp = 256.0f + 273.15f;
+		else if (parts[i].temp <= -256.0f + 273.15f)
+			parts[i].temp = -256.0f + 273.15f;
 
-		for (rx=-1; rx<2; rx++)
-			for (ry=-1; ry<2; ry++)
-				if (!(rx && ry))
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
+			{
+				if (parts[i].tmp != 1)
 				{
-					sim->air->pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15f)-sim->air->pv[(y/CELL)+ry][(x/CELL)+rx]);
+					if (!(rx && ry))
+						sim->air->pv[(y/CELL)+ry][(x/CELL)+rx] += 0.1f*((parts[i].temp-273.15f)-sim->air->pv[(y/CELL)+ry][(x/CELL)+rx]);
 				}
+				else
+				{
+					int r = pmap[y+ry][x+rx];
+					if (TYP(r) == PT_FILT)
+					{
+						int newPressure = parts[ID(r)].ctype - 0x10000000;
+						if (newPressure >= 0 && newPressure <= 512)
+						{
+							sim->air->pv[(y + ry) / CELL][(x + rx) / CELL] = newPressure - 256;
+						}
+					}
+				}
+			}
 	}
 	return 0;
 }

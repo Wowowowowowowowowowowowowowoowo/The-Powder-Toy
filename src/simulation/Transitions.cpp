@@ -69,10 +69,12 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 			rt = TYP(r);
 
 			if (rt && elements[rt].HeatConduct && (rt!=PT_HSWC || parts[ID(r)].life == 10)
-				   && (t !=PT_FILT || (rt!=PT_BRAY && rt!=PT_BIZR && rt!=PT_BIZRG))
-				   && (rt!=PT_FILT || (t !=PT_BRAY && t !=PT_BIZR && t!=PT_BIZRG && t!=PT_PHOT))
-				   && (t !=PT_ELEC || rt!=PT_DEUT)
-				   && (t !=PT_DEUT || rt!=PT_ELEC))
+			       && (t !=PT_FILT || (rt!=PT_BRAY && rt!=PT_BIZR && rt!=PT_BIZRG))
+			       && (rt!=PT_FILT || (t !=PT_BRAY && t !=PT_BIZR && t!=PT_BIZRG && t!=PT_PHOT))
+			       && (t !=PT_ELEC || rt!=PT_DEUT)
+			       && (t !=PT_DEUT || rt!=PT_ELEC)
+			       && (t !=PT_HSWC || rt!=PT_FILT || parts[i].tmp != 1)
+			       && (t !=PT_FILT || rt!=PT_HSWC || parts[ID(r)].tmp != 1))
 			{
 				surround_hconduct[j] = ID(r);
 				if (realistic)

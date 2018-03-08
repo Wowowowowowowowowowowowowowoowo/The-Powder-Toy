@@ -19,18 +19,16 @@ int HSWC_update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].life == 10 && parts[i].tmp == 1)
 	{
-		for (int rx = -2; rx <= 2; rx++)
-			for (int ry = -2; ry <=2; ry++)
+		for (int rx = -1; rx <= 1; rx++)
+			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					int r = pmap[y+ry][x+rx];
-					if (!r)
-						r = photons[y + ry][x + rx];
-					if (!r)
-						continue;
-					if (TYP(r) == PT_FILT || TYP(r) == PT_PHOT || TYP(r) == PT_BRAY)
+					if (TYP(r) == PT_FILT)
 					{
-						parts[i].temp = parts[ID(r)].ctype - 0x10000000;
+						int newTemp = parts[ID(r)].ctype - 0x10000000;
+						if (newTemp >= MIN_TEMP && newTemp <= MAX_TEMP)
+							parts[i].temp = parts[ID(r)].ctype - 0x10000000;
 					}
 				}
 	}
@@ -86,7 +84,7 @@ void HSWC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->Update = NULL;
+	elem->Update = &HSWC_update;
 	elem->Graphics = &HSWC_graphics;
 	elem->Init = &HSWC_init_element;
 }
