@@ -540,7 +540,14 @@ void PowderToy::DoSaveBtn(unsigned char b)
 			{
 				int ret = save_filename_ui(vid_buf, save);
 				if (!ret)
+				{
 					authors = save->authors;
+#ifndef TOUCHUI
+					SetInfoTip("Created local save. Hold ctrl and click open to access the local save browser");
+#else
+					SetInfoTip("Created local save. Hold down the open button to access the local save browser");
+#endif
+				}
 			}
 			else if (DoLocalSave(svf_filename, save, true))
 				SetInfoTip("Error writing local save");
