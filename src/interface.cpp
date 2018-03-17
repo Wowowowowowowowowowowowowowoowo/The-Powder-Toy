@@ -2619,7 +2619,7 @@ int save_name_ui(pixel *vid_buf)
 		if ((b && !bq && mx>=x0 && mx<x0+192 && my>=y0+94+YRES/4 && my<y0+110+YRES/4) || sdl_key==SDLK_RETURN)
 		{
 			bool cont = true;
-			if (cbPublish.checked && strcmp(svf_user, svf_author))
+			if (cbPublish.checked && strlen(svf_author) && strcmp(svf_user, svf_author))
 			{
 				std::string message = "This save was created by ";
 				message += svf_author;
