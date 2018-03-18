@@ -153,6 +153,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	int blockY = (loadY + CELL/2)/CELL;
 	loadX = blockX*CELL;
 	loadY = blockY*CELL;
+	unsigned int pmapmask = (1 << save->pmapbits) - 1;
 
 	if (replace >= 1)
 	{
@@ -254,24 +255,34 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		if (!elements[type].Enabled)
 			continue;
 
-		if (tempPart.ctype > 0 && tempPart.ctype < PT_NUM)
-			if (type == PT_CLNE || type == PT_PCLN || type == PT_BCLN || type == PT_PBCN || type == PT_STOR || type == PT_CONV
-			        || ((type == PT_STKM || type == PT_STKM2 || type == PT_FIGH) && tempPart.ctype != SPC_AIR) || type == PT_LAVA
-			        || type == PT_SPRK || type == PT_PSTN || type == PT_CRAY || type == PT_DTEC || type == PT_DRAY)
-			{
-				if (hasPalette)
-					tempPart.ctype = partMap[tempPart.ctype];
-				else
-					tempPart.ctype = save->FixType(tempPart.ctype);
-			}
-		if (type == PT_PIPE || type == PT_PPIP || type == PT_STOR)
+		// These store type in ctype, but are special because they store extra information in the bits after type
+		if (tempPart.type == PT_CRAY || tempPart.type == PT_DRAY || tempPart.type == PT_CONV)
+		{
+			int ctype = tempPart.ctype & pmapmask;
+			int extra = tempPart.ctype >> save->pmapbits;
+			if (ctype >= 0 && ctype < PT_NUM)
+				ctype = partMap[ctype];
+			tempPart.ctype = PMAP(extra, ctype);
+		}
+		else if (tempPart.ctype > 0 && tempPart.ctype < PT_NUM && Save::TypeInCtype(tempPart.type, tempPart.ctype))
 		{
 			if (hasPalette)
-				tempPart.tmp = partMap[TYP(tempPart.tmp)] | (tempPart.tmp&~PMAPMASK);
+				tempPart.ctype = partMap[tempPart.ctype];
 			else
-				tempPart.tmp = save->FixType(TYP(tempPart.tmp) | (tempPart.tmp&~PMAPMASK));
+				tempPart.ctype = save->FixType(tempPart.ctype);
 		}
-		if (type == PT_VIRS || type == PT_VRSG || type == PT_VRSS)
+		// also stores extra bits past type (only STOR right now)
+		if (Save::TypeInTmp(tempPart.type))
+		{
+			int tmp = tempPart.tmp & pmapmask;
+			int extra = tempPart.tmp >> save->pmapbits;
+			if (hasPalette)
+				tmp = partMap[TYP(tmp)];
+			else
+				tmp = save->FixType(tmp);
+			tempPart.tmp = PMAP(extra, tmp);
+		}
+		if (Save::TypeInTmp2(tempPart.type, tempPart.tmp2))
 		{
 			if (tempPart.tmp2 > 0 && tempPart.tmp2 < PT_NUM)
 			{
@@ -281,6 +292,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 					tempPart.tmp2 = save->FixType(tempPart.tmp2);
 			}
 		}
+
 		if (save->legacyHeatSave)
 		{
 			tempPart.temp = elements[tempPart.type].DefaultProperties.temp;
@@ -762,6 +774,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 		newSave->luaCode = LuaCode;
 
 	newSave->expanded = true;
+	newSave->pmapbits = PMAPBITS;
 	return newSave;
 }
 
@@ -1856,9 +1869,9 @@ bool Simulation::UpdateParticle(int i)
 			}
 			int r = pmap[fin_y][fin_x];
 
-			if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && !TYP(parts[ID(r)].tmp))
+			if ((TYP(r)==PT_PIPE || TYP(r) == PT_PPIP) && !TYP(parts[ID(r)].ctype))
 			{
-				parts[ID(r)].tmp =  (parts[ID(r)].tmp&~PMAPMASK) | parts[i].type;
+				parts[ID(r)].ctype = parts[i].type;
 				parts[ID(r)].temp = parts[i].temp;
 				parts[ID(r)].tmp2 = parts[i].life;
 				parts[ID(r)].pavg[0] = (float)parts[i].tmp;

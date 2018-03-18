@@ -47,7 +47,7 @@ public:
 				{
 					if (sim->IsElement(parts[store_i].tmp) && (sim->elements[parts[store_i].tmp].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
-						PIPE_transfer_pipe_to_part(parts+store_i, &portalp[slot][nnx]);
+						PIPE_transfer_pipe_to_part(parts+store_i, &portalp[slot][nnx], true);
 						return true;
 					}
 					return false;

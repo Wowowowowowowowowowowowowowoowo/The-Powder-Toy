@@ -19,7 +19,6 @@
 
 //Defines for the number of elements that are rarely changed. Seems like it doesn't belong here ...
 #define PT_NORMAL_NUM 186
-#define PT_NUM 256
 
 #undef ElementNumbers_Include_Numbers
 

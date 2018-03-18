@@ -104,17 +104,13 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					else
 						sprintf(nametext, "FILT (unknown mode), ");
 				}
-				else if (currentHud[14] && currentHud[11] && (underType == PT_PIPE || underType == PT_PPIP) && sim->IsElement(TYP(parts[underID].tmp)))
+				else if (currentHud[14] && currentHud[11] && (underType == PT_PIPE || underType == PT_PPIP) && sim->IsElement(TYP(parts[underID].ctype)))
 				{
-					sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[TYP(parts[underID].tmp)].Name.c_str());
+					sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[TYP(parts[underID].ctype)].Name.c_str());
 				}
 				else if (currentHud[11])
 				{
 					int tctype = parts[underID].ctype;
-					if (underType == PT_PIPE && currentHud[12]) //PIPE Overrides CTP2
-					{
-						tctype = TYP(parts[underID].tmp);
-					}
 					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
 					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV) && TYP(parts[underID].ctype) == PT_LIFE && ID(parts[underID].ctype) >= 0 && ID(parts[underID].ctype) < NGOL)

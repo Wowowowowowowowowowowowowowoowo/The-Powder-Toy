@@ -43,6 +43,24 @@
 
 
 
+// Change this to change the amount of bits used to store type in pmap (and a few elements such as PIPE and CRAY)
+#define PMAPBITS 9
+#define PMAPMASK ((1<<PMAPBITS)-1)
+#define ID(r) ((r)>>PMAPBITS)
+#define TYP(r) ((r)&PMAPMASK)
+#define PMAP(id, typ) ((id)<<PMAPBITS | ((typ)&PMAPMASK))
+#define PMAPID(id) ((id)<<PMAPBITS)
+
+#define PT_NUM	(1<<PMAPBITS)
+
+#if PMAPBITS > 16
+#error PMAPBITS is too large
+#endif
+#if ((XRES*YRES)<<PMAPBITS) > 0x100000000L
+#error not enough space in pmap
+#endif
+
+
 // Defines for element transitions
 #define IPL -257.0f
 #define IPH 257.0f
@@ -52,14 +70,5 @@
 #define NT -1
 // special transition - lava ctypes etc need extra code, which is only found and run if ST is given
 #define ST PT_NUM
-
-
-// Change this to change the amount of bits used to store type in pmap (and a few elements such as PIPE and CRAY)
-#define PMAPBITS 8
-#define PMAPMASK ((1<<PMAPBITS)-1)
-#define ID(r) ((r)>>PMAPBITS)
-#define TYP(r) ((r)&PMAPMASK)
-#define PMAP(id, typ) ((id)<<PMAPBITS | ((typ)&PMAPMASK))
-#define PMAPID(id) ((id)<<PMAPBITS)
 
 #endif

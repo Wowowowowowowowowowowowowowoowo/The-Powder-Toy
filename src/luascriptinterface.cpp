@@ -2817,7 +2817,8 @@ int elements_allocate(lua_State * l)
 	}
 
 	int newID = -1;
-	for (int i = PT_NUM-1; i >= 0; i--)
+	// Start out at 255 so that lua element IDs are still one byte (better save compatibility)
+	for (int i = PT_NUM >= 255 ? 255 : PT_NUM; i >= 0; i--)
 	{
 		if (!luaSim->elements[i].Enabled)
 		{
@@ -2830,6 +2831,25 @@ int elements_allocate(lua_State * l)
 
 			Simulation_Compat_CopyData(luaSim);
 			break;
+		}
+	}
+	// If not enough space, then we start with the new maimum ID
+	if (newID == -1)
+	{
+		for (int i = PT_NUM-1; i >= 255; i--)
+		{
+			if (!luaSim->elements[i].Enabled)
+			{
+				newID = i;
+				luaSim->elements[i] = Element();
+				luaSim->elements[i].Enabled = true;
+				luaSim->elements[i].Identifier = identifier;
+				luaSim->elements[i].MenuSection = SC_OTHER;
+				menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier));
+
+				Simulation_Compat_CopyData(luaSim);
+				break;
+			}
 		}
 	}
 

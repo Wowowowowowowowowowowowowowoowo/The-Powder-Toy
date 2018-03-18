@@ -96,7 +96,8 @@ Save::Save(const Save & save):
 	colorMode(save.colorMode),
 	colorModePresent(save.colorModePresent),
 	MOVSdata(save.MOVSdata),
-	ANIMdata(save.ANIMdata)
+    ANIMdata(save.ANIMdata),
+    pmapbits(save.pmapbits)
 {
 	InitData();
 	if (save.expanded)
@@ -148,6 +149,7 @@ void Save::Dealloc()
 	expanded = false;
 }
 
+// Called on every new GameSave, including the copy constructor
 void Save::InitData()
 {
 	blockWidth = blockHeight = 0;
@@ -183,6 +185,7 @@ void Save::SetSize(int newWidth, int newHeight)
 	ambientHeat = Allocate2DArray<float>(blockWidth, blockHeight, 0.0f);
 }
 
+// Called on every new GameSave, except the copy constructor
 void Save::InitVars()
 {
 	modCreatedVersion = 0;
@@ -220,6 +223,7 @@ void Save::InitVars()
 	colorModePresent = false;
 
 	translated.x = translated.y = 0;
+	pmapbits = 8;
 }
 
 const unsigned char * const Save::GetSaveData()
@@ -959,6 +963,10 @@ void Save::ParseSaveOPS()
 					particles[newIndex].y = (float)y;
 					i+=3;
 
+					// Read type (2nd byte)
+					if (fieldDescriptor & 0x4000)
+						particles[newIndex].type |= (((unsigned)partsData[i++]) << 8);
+
 					// Read temp
 					if (fieldDescriptor & 0x01)
 					{
@@ -1170,6 +1178,21 @@ void Save::ParseSaveOPS()
 								particles[newIndex].ctype |= particles[newIndex].tmp<<8;
 								// particles[newIndex].tmp = 0;
 							}
+						}
+					}
+					if (createdVersion < 93)
+					{
+						if (particles[newIndex].type == PT_PIPE || particles[newIndex].type == PT_PPIP)
+						{
+							if (particles[newIndex].ctype == 1)
+								particles[newIndex].tmp |= 0x00020000; //PFLAG_INITIALIZING
+							particles[newIndex].tmp |= (particles[newIndex].ctype - 1) << 18;
+							particles[newIndex].ctype = particles[newIndex].tmp & 0xFF;
+						}
+						if (particles[newIndex].type == PT_TSNS || particles[newIndex].type == PT_HSWC
+						        || particles[newIndex].type == PT_PSNS || particles[newIndex].type == PT_PUMP)
+						{
+							particles[newIndex].tmp = 0;
 						}
 					}
 					// Note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
@@ -1805,6 +1828,20 @@ void Save::ParseSavePSv()
 					particles[i-1].tmp = 0;
 				}
 			}
+			if (ver < 93)
+			{
+				if (particles[i-1].type == PT_PIPE || particles[i-1].type == PT_PPIP)
+				{
+					if (particles[i-1].ctype == 1)
+						particles[i-1].tmp |= 0x00020000; //PFLAG_INITIALIZING
+					particles[i-1].tmp |= (particles[i-1].ctype - 1) << 18;
+					particles[i-1].ctype = particles[i-1].tmp & 0xFF;
+				}
+				if (particles[i-1].type == PT_HSWC || particles[i-1].type == PT_PUMP)
+				{
+					particles[i-1].tmp = 0;
+				}
+			}
 		}
 	}
 
@@ -1995,9 +2032,11 @@ void Save::BuildSave()
 
 	//Copy parts data
 	/* Field descriptor format:
-	|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|		0		|
-	|				|				|	  pavg		|	tmp[3+4]	|		tmp2[2]	|		tmp2	|	ctype[2]	|		vy		|		vx		|	dcolor		|	ctype[1]	|		tmp[2]	|		tmp[1]	|		life[2]	|		life[1]	|	temp dbl len|
+	|      0       |      14       |      13       |      12       |      11       |      10       |       9       |       8       |       7       |       6       |       5       |       4       |       3       |       2       |       1       |       0       |
+	|   RESERVED   |    type[2]    |     pavg      |   tmp[3+4]    |   tmp2[2]     |     tmp2      |   ctype[2]    |      vy       |      vx       |  decorations  |   ctype[1]    |    tmp[2]     |    tmp[1]     |    life[2]    |    life[1]    | .temp dbl len |
 	life[2] means a second byte (for a 16 bit field) if life[1] is present
+	last bit is reserved. If necessary, use it to signify that fieldDescriptor will have another byte
+	That way, if we ever need a 17th bit, we won't have to change the save format
 	*/
 	auto partsData = std::unique_ptr<unsigned char[]>(new unsigned char[NPART * (sizeof(particle)+1)]);
 	unsigned int partsDataLen = 0;
@@ -2031,7 +2070,15 @@ void Save::BuildSave()
 				// Location of the field descriptor
 				fieldDescLoc = partsDataLen++;
 				partsDataLen++;
-				
+
+				// Extra type byte if necessary
+				if (particles[i].type & 0xFF00)
+				{
+					partsData[partsDataLen++] = particles[i].type >> 8;
+					fieldDesc |= 1 << 14;
+					RESTRICTVERSION(93, 0);
+				}
+
 				// Extra Temperature (2nd byte optional, 1st required), 1 to 2 bytes
 				// Store temperature as an offset of 21C(294.15K) or go into a 16byte int and store the whole thing
 				if (std::abs(particles[i].temp - 294.15f) < 127.0f)
@@ -2178,6 +2225,25 @@ void Save::BuildSave()
 				else if ((particles[i].type == PT_FRAY || particles[i].type == PT_INVIS) && particles[i].tmp)
 				{
 					RESTRICTVERSION(92, 0);
+				}
+				else if (particles[i].type == PT_PIPE || particles[i].type == PT_PPIP)
+				{
+					RESTRICTVERSION(93, 0);
+				}
+				if (PMAPBITS > 8)
+				{
+					if (TypeInCtype(particles[i].type, particles[i].ctype) && particles[i].ctype > 0xFF)
+					{
+						RESTRICTVERSION(93, 0);
+					}
+					else if (TypeInTmp(particles[i].type) && particles[i].tmp > 0xFF)
+					{
+						RESTRICTVERSION(93, 0);
+					}
+					else if (TypeInTmp2(particles[i].type, particles[i].tmp2) && particles[i].tmp2 > 0xFF)
+					{
+						RESTRICTVERSION(93, 0);
+					}
 				}
 				// Get the pmap entry for the next particle in the same position
 				i = partsPosLink[i];
@@ -2355,6 +2421,7 @@ void Save::BuildSave()
 	if (activeMenuPresent)
 		bson_append_int(&b, "activeMenu", activeMenu);
 
+	bson_append_int(&b, "pmapbits", pmapbits);
 	if (partsData && partsDataLen)
 	{
 		bson_append_binary(&b, "parts", (char)BSON_BIN_USER, (const char*)partsData.get(), partsDataLen);
@@ -2891,7 +2958,7 @@ bool Save::TypeInCtype(int type, int ctype)
 
 bool Save::TypeInTmp(int type)
 {
-	if (type == PT_PIPE || type == PT_PPIP || type == PT_STOR)
+	if (type == PT_STOR)
 		return true;
 	return false;
 }

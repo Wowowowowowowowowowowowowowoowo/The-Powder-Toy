@@ -149,6 +149,8 @@ public:
 	typedef std::pair<int, std::vector<ARGBColour> > ANIMdataItem;
 	std::vector<ANIMdataItem> ANIMdata;
 
+	int pmapbits;
+
 	Save(char * saveData, unsigned int saveSize);
 	Save(int blockW, int blockH);
 	Save(const Save & save);

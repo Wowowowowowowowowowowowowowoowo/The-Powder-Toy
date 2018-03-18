@@ -32,6 +32,6 @@ public:
 	}
 };
 
-void PIPE_transfer_pipe_to_part(particle *pipe, particle *part);
+void PIPE_transfer_pipe_to_part(particle *pipe, particle *part, bool STOR=false);
 
 #endif
