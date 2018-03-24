@@ -12,6 +12,7 @@ struct Stickman
 	unsigned int frames; //frames since last particle spawn - used when spawning LIGH
 	int spawnID;         //id of the SPWN particle
 	char rocketBoots;
+	bool fan;
 };
 
 
@@ -110,6 +111,7 @@ public:
 		playerp->frames = 0;
 		//playerp->spawnID = -1;
 		playerp->rocketBoots = false;
+		playerp->fan = false;
 	}
 
 	int Run(Stickman *playerp, UPDATE_FUNC_ARGS);

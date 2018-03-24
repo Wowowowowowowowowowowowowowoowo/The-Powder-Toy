@@ -132,6 +132,13 @@ public:
 	bool decorationsEnablePresent;
 	bool legacyHeatSave;
 
+	bool stkm1RocketBoots;
+	bool stkm2RocketBoots;
+	bool stkm1Fan;
+	bool stkm2Fan;
+	std::vector<unsigned int> fighRocketBoots;
+	std::vector<unsigned int> fighFan;
+
 	typedef std::pair<std::string, int> PaletteItem;
 	std::vector<PaletteItem> palette;
 

@@ -22,7 +22,8 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS);
 void FIGH_ElementDataContainer::NewFighter(Simulation *sim, int fighterID, int i, int elem)
 {
 	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(&fighters[fighterID], i);
-	fighters[fighterID].elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
+	if (elem >= 0 && elem < PT_NUM)
+		fighters[fighterID].elem = elem;
 	fighters[fighterID].spwn = 1;
 }
 
@@ -69,8 +70,10 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 		if ((pow(tarx-x, 2.0f) + pow(tary-y, 2.0f))<600)
 		{
 			if (figh->elem == PT_LIGH || figh->elem == PT_NEUT 
-					|| ptypes[figh->elem].properties&(PROP_DEADLY|PROP_RADIOACTIVE) 
-					|| ptypes[figh->elem].heat>=323 || ptypes[figh->elem].heat<=243)
+			        || sim->elements[figh->elem].Properties & (PROP_DEADLY | PROP_RADIOACTIVE)
+			        || sim->elements[figh->elem].DefaultProperties.temp >= 323
+			        || sim->elements[figh->elem].DefaultProperties.temp <= 243
+			        || figh->fan)
 				figh->comm = (int)figh->comm | 0x08;
 		}
 		else if (tarx<x)

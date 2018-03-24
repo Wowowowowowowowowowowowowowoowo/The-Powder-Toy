@@ -88,6 +88,12 @@ Save::Save(const Save & save):
 	decorationsEnable(save.decorationsEnable),
 	decorationsEnablePresent(save.decorationsEnablePresent),
 	legacyHeatSave(save.legacyHeatSave),
+	stkm1RocketBoots(save.stkm1RocketBoots),
+	stkm2RocketBoots(save.stkm2RocketBoots),
+	stkm1Fan(save.stkm1Fan),
+	stkm2Fan(save.stkm2Fan),
+	fighRocketBoots(save.fighRocketBoots),
+	fighFan(save.fighFan),
 	palette(save.palette),
 	renderModes(save.renderModes),
 	renderModesPresent(save.renderModesPresent),
@@ -97,7 +103,7 @@ Save::Save(const Save & save):
 	colorModePresent(save.colorModePresent),
 	MOVSdata(save.MOVSdata),
     ANIMdata(save.ANIMdata),
-    pmapbits(save.pmapbits)
+	pmapbits(save.pmapbits)
 {
 	InitData();
 	if (save.expanded)
@@ -188,6 +194,7 @@ void Save::SetSize(int newWidth, int newHeight)
 // Called on every new GameSave, except the copy constructor
 void Save::InitVars()
 {
+	createdVersion = 0;
 	modCreatedVersion = 0;
 	androidCreatedVersion = 0;
 
@@ -211,7 +218,10 @@ void Save::InitVars()
 	decorationsEnable = true;
 	decorationsEnablePresent = false;
 	legacyHeatSave = false;
-	//translated.x = translated.y = 0;
+	stkm1RocketBoots = stkm2RocketBoots = false;
+	stkm1Fan = stkm2Fan = false;
+	fighRocketBoots = std::vector<unsigned int>();
+	fighFan = std::vector<unsigned int>();
 
 	saveInfoPresent = false;
 
@@ -604,6 +614,52 @@ void Save::ParseSaveOPS()
 						}
 					}
 				}
+			}
+			else
+			{
+				fprintf(stderr, "Wrong type for %s\n", bson_iterator_key(&iter));
+			}
+		}
+		else if (!strcmp(bson_iterator_key(&iter), "stkm"))
+		{
+			if (bson_iterator_type(&iter) == BSON_OBJECT)
+			{
+				bson_iterator stkmiter;
+				bson_iterator_subiterator(&iter, &stkmiter);
+				while (bson_iterator_next(&stkmiter))
+				{
+					if (!strcmp(bson_iterator_key(&stkmiter), "stkm1RocketBoots") && bson_iterator_type(&stkmiter) == BSON_BOOL)
+						stkm1RocketBoots =  bson_iterator_bool(&stkmiter);
+					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm2RocketBoots") && bson_iterator_type(&stkmiter) == BSON_BOOL)
+						stkm2RocketBoots =  bson_iterator_bool(&stkmiter);
+					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm1Fan") && bson_iterator_type(&stkmiter) == BSON_BOOL)
+						stkm1Fan =  bson_iterator_bool(&stkmiter);
+					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm2Fan") && bson_iterator_type(&stkmiter) == BSON_BOOL)
+						stkm2Fan =  bson_iterator_bool(&stkmiter);
+					else if (!strcmp(bson_iterator_key(&stkmiter), "fighRocketBoots") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
+					{
+						bson_iterator fighiter;
+						bson_iterator_subiterator(&stkmiter, &fighiter);
+						while (bson_iterator_next(&fighiter))
+						{
+							if (bson_iterator_type(&fighiter) == BSON_INT)
+								fighRocketBoots.push_back(bson_iterator_int(&fighiter));
+						}
+					}
+					else if (!strcmp(bson_iterator_key(&stkmiter), "fighFan") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
+					{
+						bson_iterator fighiter;
+						bson_iterator_subiterator(&stkmiter, &fighiter);
+						while (bson_iterator_next(&fighiter))
+						{
+							if (bson_iterator_type(&fighiter) == BSON_INT)
+								fighFan.push_back(bson_iterator_int(&fighiter));
+						}
+					}
+					else
+						fprintf(stderr, "Unknown stkm property %s\n", bson_iterator_key(&stkmiter));
+				}
+				saveInfoPresent = true;
 			}
 			else
 			{
@@ -1322,6 +1378,7 @@ void Save::ParseSavePSv()
 		ver = 71;
 		modCreatedVersion = 8;
 	}
+	createdVersion = ver;
 
 	int bw = saveData[6];
 	int bh = saveData[7];
@@ -2384,6 +2441,34 @@ void Save::BuildSave()
 	bson_append_bool(&b, "aheat_enable", aheatEnable);
 	bson_append_int(&b, "edgeMode", edgeMode);
 
+	if (stkm1RocketBoots || stkm2RocketBoots || stkm1Fan || stkm2Fan || fighRocketBoots.size() || fighFan.size())
+	{
+		bson_append_start_object(&b, "stkm");
+		if (stkm1RocketBoots)
+			bson_append_bool(&b, "stkm1RocketBoots", stkm1RocketBoots);
+		if (stkm2RocketBoots)
+			bson_append_bool(&b, "stkm2RocketBoots", stkm2RocketBoots);
+		if (stkm1Fan)
+			bson_append_bool(&b, "stkm1Fan", stkm1Fan);
+		if (stkm2Fan)
+			bson_append_bool(&b, "stkm2Fan", stkm2Fan);
+		if (fighRocketBoots.size())
+		{
+			bson_append_start_array(&b, "fighRocketBoots");
+			for (unsigned int fighNum : fighRocketBoots)
+				bson_append_int(&b, "num", fighNum);
+			bson_append_finish_array(&b);
+		}
+		if (fighFan.size())
+		{
+			bson_append_start_array(&b, "fighFan");
+			for (unsigned int fighNum : fighFan)
+				bson_append_int(&b, "num", fighNum);
+			bson_append_finish_array(&b);
+		}
+		bson_append_finish_object(&b);
+	}
+
 	// Render modes (Jacob1's mod)
 	if (renderModesPresent && renderModes.size())
 	{
@@ -2950,7 +3035,7 @@ bool Save::TypeInCtype(int type, int ctype)
 	if (ctype < 0 || ctype >= PT_NUM)
 		return false;
 	if (type == PT_CLNE || type == PT_PCLN || type == PT_BCLN || type == PT_PBCN || type == PT_STOR || type == PT_CONV
-	        || ((type == PT_STKM || type == PT_STKM2 || type == PT_FIGH) && ctype != SPC_AIR) || type == PT_LAVA
+	        || type == PT_STKM || type == PT_STKM2 || type == PT_FIGH || type == PT_LAVA
 	        || type == PT_SPRK || type == PT_PSTN || type == PT_CRAY || type == PT_DTEC || type == PT_DRAY)
 		return true;
 	return false;

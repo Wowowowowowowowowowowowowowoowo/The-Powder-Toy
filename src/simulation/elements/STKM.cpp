@@ -44,14 +44,16 @@ void STKM_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 void STKM_ElementDataContainer::NewStickman1(int i, int elem)
 {
 	InitLegs(&player, i);
-	player.elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
+	if (elem >= 0 && elem < PT_NUM)
+		player.elem = elem;
 	player.spwn = 1;
 }
 
 void STKM_ElementDataContainer::NewStickman2(int i, int elem)
 {
 	InitLegs(&player2, i);
-	player2.elem = (elem == OLD_SPC_AIR) ? SPC_AIR : elem;
+	if (elem >= 0 && elem < PT_NUM)
+		player2.elem = elem;
 	player2.spwn = 1;
 }
 
@@ -59,7 +61,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 {
 	int t = parts[i].type;
 
-	if (sim->IsElement(parts[i].ctype))
+	if (!playerp->fan && sim->IsElement(parts[i].ctype))
 		STKM_set_element(sim, playerp, parts[i].ctype);
 	playerp->frames++;
 
@@ -70,7 +72,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 		parts[i].temp += 1;
 
 	// If his HP is less than 0 or there is very big wind...
-	if (parts[i].life < 1 || (sim->air->pv[y/CELL][x/CELL] >= 4.5f && playerp->elem != SPC_AIR))
+	if (parts[i].life < 1 || (sim->air->pv[y/CELL][x/CELL] >= 4.5f && !playerp->fan))
 	{
 		for (int r = -2; r <= 1; r++)
 		{
@@ -372,7 +374,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 					sim->part_kill(ID(r));
 				}
 				if (bmap[(ry+y)/CELL][(rx+x)/CELL] == WL_FAN)
-					playerp->elem = SPC_AIR;
+					playerp->fan = true;
 				else if (bmap[(ry+y)/CELL][(rx+x)/CELL] == WL_EHOLE)
 					playerp->rocketBoots = false;
 				else if (bmap[(ry+y)/CELL][(rx+x)/CELL] == WL_GRAV)
@@ -407,7 +409,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 		else
 		{
 			int np = -1;
-			if (playerp->elem == SPC_AIR)
+			if (playerp->fan)
 			{
 				for(int j = -4; j < 5; j++)
 					for (int k = -4; k < 5; k++)
@@ -423,8 +425,6 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 							if (y+CELL<YRES)
 								sim->air->pv[y/CELL+1][x/CELL+1] += 0.03f;
 						}
-
-						//sim->CreateTool(x, y, TOOL_AIR);
 					}
 			}
 			// limit lightning creation rate
@@ -469,7 +469,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 					parts[np].temp = parts[np].life * power/2.5f;
 					parts[np].tmp2 = 1;
 				}
-				else if (playerp->elem != SPC_AIR)
+				else if (!playerp->fan)
 				{
 					parts[np].vx -= -gvy*(5*((((int)playerp->pcomm)&0x02) == 0x02) - 5*(((int)(playerp->pcomm)&0x01) == 0x01));
 					parts[np].vy -= gvx*(5*((((int)playerp->pcomm)&0x02) == 0x02) - 5*(((int)(playerp->pcomm)&0x01) == 0x01));
@@ -724,13 +724,19 @@ void STKM_ElementDataContainer::STKM_set_element(Simulation *sim, Stickman *play
 	    || sim->elements[element].Properties&TYPE_GAS
 	    || sim->elements[element].Properties&TYPE_LIQUID
 	    || sim->elements[element].Properties&TYPE_ENERGY
-	    || element == PT_LOLZ || element == PT_LOVE || element == SPC_AIR)
+	    || element == PT_LOLZ || element == PT_LOVE)
 	{
 		if (!playerp->rocketBoots || element != PT_PLSM)
+		{
 			playerp->elem = element;
+			playerp->fan = false;
+		}
 	}
 	if (element == PT_TESC || element == PT_LIGH)
+	{
 		playerp->elem = PT_LIGH;
+		playerp->fan = false;
+	}
 }
 
 int STKM_update(UPDATE_FUNC_ARGS)

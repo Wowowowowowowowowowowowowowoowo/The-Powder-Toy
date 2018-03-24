@@ -2426,7 +2426,7 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 
 					if (color_mode!=COLOR_HEAT && !(finding & ~0x8))
 					{
-						if (cplayer->elem<PT_NUM)
+						if (!cplayer->fan && cplayer->elem > 0 && cplayer->elem < PT_NUM)
 						{
 							colr = COLR(sim->elements[cplayer->elem].Colour);
 							colg = COLG(sim->elements[cplayer->elem].Colour);
