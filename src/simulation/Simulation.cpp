@@ -338,9 +338,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			((STKM_ElementDataContainer*)elementData[PT_STKM])->NewStickman1(i, parts[i].ctype);
 			if (fan)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->fan = true;
-			if (save->stkm1RocketBoots)
+			if (save->stkm.rocketBoots1)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->rocketBoots = true;
-			if (save->stkm1Fan)
+			if (save->stkm.fan1)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->fan = true;
 		}
 		else if (parts[i].type == PT_STKM2)
@@ -355,9 +355,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			((STKM_ElementDataContainer*)elementData[PT_STKM])->NewStickman2(i, parts[i].ctype);
 			if (fan)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->fan = true;
-			if (save->stkm2RocketBoots)
+			if (save->stkm.rocketBoots2)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->rocketBoots = true;
-			if (save->stkm2Fan)
+			if (save->stkm.fan2)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->fan = true;
 		}
 		else if (parts[i].type == PT_SPAWN)
@@ -384,12 +384,12 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				((FIGH_ElementDataContainer*)elementData[PT_FIGH])->NewFighter(this, parts[i].tmp, i, parts[i].ctype);
 				if (fan)
 					((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->fan = true;
-				for (unsigned int fighNum : save->fighRocketBoots)
+				for (unsigned int fighNum : save->stkm.rocketBootsFigh)
 				{
 					if (fighNum == oldTmp)
 						((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->rocketBoots = true;
 				}
-				for (unsigned int fighNum : save->fighFan)
+				for (unsigned int fighNum : save->stkm.fanFigh)
 				{
 					if (fighNum == oldTmp)
 						((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->fan = true;
@@ -780,19 +780,19 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	}
 
 	Stickman *stkm = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
-	newSave->stkm1RocketBoots = stkm->rocketBoots;
-	newSave->stkm1Fan = stkm->fan;
+	newSave->stkm.rocketBoots1 = stkm->rocketBoots;
+	newSave->stkm.fan1 = stkm->fan;
 	stkm = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
-	newSave->stkm2RocketBoots = stkm->rocketBoots;
-	newSave->stkm2Fan = stkm->fan;
+	newSave->stkm.rocketBoots2 = stkm->rocketBoots;
+	newSave->stkm.fan2 = stkm->fan;
 
 	for (unsigned char i = 0; i < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters(); i++)
 	{
 		stkm = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(i);
 		if (stkm->rocketBoots)
-			newSave->fighRocketBoots.push_back(i);
+			newSave->stkm.rocketBootsFigh.push_back(i);
 		if (stkm->fan)
-			newSave->fighFan.push_back(i);
+			newSave->stkm.fanFigh.push_back(i);
 	}
 
 #ifndef NOMOD

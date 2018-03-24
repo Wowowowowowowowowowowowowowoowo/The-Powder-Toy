@@ -72,6 +72,36 @@ public:
 	}
 };
 
+class StkmData
+{
+public:
+	bool rocketBoots1 = false;
+	bool rocketBoots2 = false;
+	bool fan1 = false;
+	bool fan2 = false;
+	std::vector<unsigned int> rocketBootsFigh = std::vector<unsigned int>();
+	std::vector<unsigned int> fanFigh = std::vector<unsigned int>();
+
+	StkmData() = default;
+
+	StkmData(const StkmData & stkmData):
+		rocketBoots1(stkmData.rocketBoots1),
+		rocketBoots2(stkmData.rocketBoots2),
+		fan1(stkmData.fan1),
+		fan2(stkmData.fan2),
+		rocketBootsFigh(stkmData.rocketBootsFigh),
+		fanFigh(stkmData.fanFigh)
+	{
+
+	}
+
+	bool hasData()
+	{
+		return rocketBoots1 || rocketBoots2 || fan1 || fan2
+		        || rocketBootsFigh.size() || fanFigh.size();
+	}
+};
+
 class Save
 {
 public:
@@ -96,7 +126,6 @@ public:
 	bool hasAmbientHeat;
 
 	// other misc things from save data (mostly jacob1's mod)
-	std::vector<Sign> signs;
 	std::string luaCode;
 	// log messages to show after loading save
 	std::vector<std::string> logMessages;
@@ -132,12 +161,8 @@ public:
 	bool decorationsEnablePresent;
 	bool legacyHeatSave;
 
-	bool stkm1RocketBoots;
-	bool stkm2RocketBoots;
-	bool stkm1Fan;
-	bool stkm2Fan;
-	std::vector<unsigned int> fighRocketBoots;
-	std::vector<unsigned int> fighFan;
+	std::vector<Sign> signs;
+	StkmData stkm;
 
 	typedef std::pair<std::string, int> PaletteItem;
 	std::vector<PaletteItem> palette;

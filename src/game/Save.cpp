@@ -59,7 +59,6 @@ Save::Save(const Save & save):
 	expanded(save.expanded),
 	hasPressure(save.hasPressure),
 	hasAmbientHeat(save.hasAmbientHeat),
-	signs(save.signs),
 	luaCode(save.luaCode),
 	logMessages(save.logMessages),
 	adminLogMessages(save.adminLogMessages),
@@ -88,12 +87,8 @@ Save::Save(const Save & save):
 	decorationsEnable(save.decorationsEnable),
 	decorationsEnablePresent(save.decorationsEnablePresent),
 	legacyHeatSave(save.legacyHeatSave),
-	stkm1RocketBoots(save.stkm1RocketBoots),
-	stkm2RocketBoots(save.stkm2RocketBoots),
-	stkm1Fan(save.stkm1Fan),
-	stkm2Fan(save.stkm2Fan),
-	fighRocketBoots(save.fighRocketBoots),
-	fighFan(save.fighFan),
+	signs(save.signs),
+	stkm(save.stkm),
 	palette(save.palette),
 	renderModes(save.renderModes),
 	renderModesPresent(save.renderModesPresent),
@@ -102,7 +97,7 @@ Save::Save(const Save & save):
 	colorMode(save.colorMode),
 	colorModePresent(save.colorModePresent),
 	MOVSdata(save.MOVSdata),
-    ANIMdata(save.ANIMdata),
+	ANIMdata(save.ANIMdata),
 	pmapbits(save.pmapbits)
 {
 	InitData();
@@ -218,10 +213,6 @@ void Save::InitVars()
 	decorationsEnable = true;
 	decorationsEnablePresent = false;
 	legacyHeatSave = false;
-	stkm1RocketBoots = stkm2RocketBoots = false;
-	stkm1Fan = stkm2Fan = false;
-	fighRocketBoots = std::vector<unsigned int>();
-	fighFan = std::vector<unsigned int>();
 
 	saveInfoPresent = false;
 
@@ -628,38 +619,33 @@ void Save::ParseSaveOPS()
 				bson_iterator_subiterator(&iter, &stkmiter);
 				while (bson_iterator_next(&stkmiter))
 				{
-					if (!strcmp(bson_iterator_key(&stkmiter), "stkm1RocketBoots") && bson_iterator_type(&stkmiter) == BSON_BOOL)
-						stkm1RocketBoots =  bson_iterator_bool(&stkmiter);
-					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm2RocketBoots") && bson_iterator_type(&stkmiter) == BSON_BOOL)
-						stkm2RocketBoots =  bson_iterator_bool(&stkmiter);
-					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm1Fan") && bson_iterator_type(&stkmiter) == BSON_BOOL)
-						stkm1Fan =  bson_iterator_bool(&stkmiter);
-					else if (!strcmp(bson_iterator_key(&stkmiter), "stkm2Fan") && bson_iterator_type(&stkmiter) == BSON_BOOL)
-						stkm2Fan =  bson_iterator_bool(&stkmiter);
-					else if (!strcmp(bson_iterator_key(&stkmiter), "fighRocketBoots") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
+					CheckBsonFieldBool(stkmiter, "rocketBoots1", &stkm.rocketBoots1);
+					CheckBsonFieldBool(stkmiter, "rocketBoots1", &stkm.rocketBoots1);
+					CheckBsonFieldBool(stkmiter, "fan1", &stkm.fan1);
+					CheckBsonFieldBool(stkmiter, "fan2", &stkm.fan2);
+					if (!strcmp(bson_iterator_key(&stkmiter), "rocketBootsFigh") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
 					{
 						bson_iterator fighiter;
 						bson_iterator_subiterator(&stkmiter, &fighiter);
 						while (bson_iterator_next(&fighiter))
 						{
 							if (bson_iterator_type(&fighiter) == BSON_INT)
-								fighRocketBoots.push_back(bson_iterator_int(&fighiter));
+								stkm.rocketBootsFigh.push_back(bson_iterator_int(&fighiter));
 						}
 					}
-					else if (!strcmp(bson_iterator_key(&stkmiter), "fighFan") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
+					else if (!strcmp(bson_iterator_key(&stkmiter), "fanFigh") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
 					{
 						bson_iterator fighiter;
 						bson_iterator_subiterator(&stkmiter, &fighiter);
 						while (bson_iterator_next(&fighiter))
 						{
 							if (bson_iterator_type(&fighiter) == BSON_INT)
-								fighFan.push_back(bson_iterator_int(&fighiter));
+								stkm.fanFigh.push_back(bson_iterator_int(&fighiter));
 						}
 					}
 					else
 						fprintf(stderr, "Unknown stkm property %s\n", bson_iterator_key(&stkmiter));
 				}
-				saveInfoPresent = true;
 			}
 			else
 			{
@@ -2441,28 +2427,28 @@ void Save::BuildSave()
 	bson_append_bool(&b, "aheat_enable", aheatEnable);
 	bson_append_int(&b, "edgeMode", edgeMode);
 
-	if (stkm1RocketBoots || stkm2RocketBoots || stkm1Fan || stkm2Fan || fighRocketBoots.size() || fighFan.size())
+	if (stkm.hasData())
 	{
 		bson_append_start_object(&b, "stkm");
-		if (stkm1RocketBoots)
-			bson_append_bool(&b, "stkm1RocketBoots", stkm1RocketBoots);
-		if (stkm2RocketBoots)
-			bson_append_bool(&b, "stkm2RocketBoots", stkm2RocketBoots);
-		if (stkm1Fan)
-			bson_append_bool(&b, "stkm1Fan", stkm1Fan);
-		if (stkm2Fan)
-			bson_append_bool(&b, "stkm2Fan", stkm2Fan);
-		if (fighRocketBoots.size())
+		if (stkm.rocketBoots1)
+			bson_append_bool(&b, "rocketBoots1", stkm.rocketBoots1);
+		if (stkm.rocketBoots2)
+			bson_append_bool(&b, "rocketBoots2", stkm.rocketBoots2);
+		if (stkm.fan1)
+			bson_append_bool(&b, "fan1", stkm.fan1);
+		if (stkm.fan2)
+			bson_append_bool(&b, "fan2", stkm.fan2);
+		if (stkm.rocketBootsFigh.size())
 		{
-			bson_append_start_array(&b, "fighRocketBoots");
-			for (unsigned int fighNum : fighRocketBoots)
+			bson_append_start_array(&b, "rocketBootsFigh");
+			for (unsigned int fighNum : stkm.rocketBootsFigh)
 				bson_append_int(&b, "num", fighNum);
 			bson_append_finish_array(&b);
 		}
-		if (fighFan.size())
+		if (stkm.fanFigh.size())
 		{
-			bson_append_start_array(&b, "fighFan");
-			for (unsigned int fighNum : fighFan)
+			bson_append_start_array(&b, "fanFigh");
+			for (unsigned int fighNum : stkm.fanFigh)
 				bson_append_int(&b, "num", fighNum);
 			bson_append_finish_array(&b);
 		}
