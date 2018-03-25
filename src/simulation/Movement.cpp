@@ -953,7 +953,7 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 		else if (t && TYP(pmap[ny][nx]) == PT_PINV)
 			parts[ID(pmap[ny][nx])].tmp2 = PMAP(i, t);
 #else
-		else
+		else if (t)
 			pmap[ny][nx] = PMAP(i, t);
 #endif
 	}
