@@ -887,3 +887,8 @@ Fix PIPE initialization
 Version 39.3 2018-03-08
 Fix bugs with find tool parts counter when alternate find mode is enabled. Add 
 pressure digitation from tpt++ + fix heat digitation bugs. Fix TESC drawing.
+
+Version 40.0 2018-03-25
+Fix save stealing warning coming up whenever creating a new save. Changes to
+save format and PIPE to match TPT 93.1, which is now released. Change version
+number to 93.1
