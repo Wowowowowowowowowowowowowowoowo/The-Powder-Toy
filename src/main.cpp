@@ -1395,7 +1395,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		// draw preview of stamp
 		if (the_game->GetStampState() == PowderToy::LOAD && !the_game->PlacingZoomWindow())
 		{
-			Point loadPos = the_game->GetStampPos() / CELL * CELL;
+			Point loadPos = the_game->GetStampPos();
 			Point loadSize = the_game->GetStampSize();
 			pixel *img = the_game->GetStampImg();
 			if (img)

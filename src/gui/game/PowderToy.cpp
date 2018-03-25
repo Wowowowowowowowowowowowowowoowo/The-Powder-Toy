@@ -797,13 +797,13 @@ void PowderToy::SaveStampBtn(bool alt)
 		int reorder = 1;
 		int stampID = stamp_ui(vid_buf, &reorder);
 		if (stampID >= 0)
-			stampData = stamp_load(stampID, &stampSize, reorder);
+			stampData = stamp_load(stampID, reorder);
 		else
 			stampData = NULL;
 
 		if (stampData)
 		{
-			stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
 			if (stampImg)
 			{
 				state = LOAD;
@@ -1757,14 +1757,14 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		UpdateStampCoordinates(cursor);
 		stampClickedOffset = loadPos-initialLoadPos;
 		loadPos -= stampClickedOffset;
-		if (cursor.IsInside(loadPos, loadPos+loadSize))
+		if (cursor.IsInside(GetStampPos(), GetStampPos() + GetStampSize()))
 			stampMoving = true;
 		// calculate which side of the stamp this touch is on
 		else
 		{
-			int xOffset = (loadSize.X-loadSize.Y)/2;
-			Point diff = cursor-(loadPos+loadSize/2);
-			if (std::abs(diff.X)-xOffset > std::abs(diff.Y))
+			int xOffset = (loadSize.X - loadSize.Y)/2;
+			Point diff = cursor - GetStampPos() / CELL * CELL;
+			if (std::abs(diff.X) - xOffset > std::abs(diff.Y))
 				stampQuadrant = (diff.X > 0) ? 3 : 1; // right : left
 			else
 				stampQuadrant = (diff.Y > 0) ? 2 : 0; // down : up
@@ -1872,40 +1872,29 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			stampMoving = false;
 			return;
 		}
-		else if (cursor.IsInside(Point(0, 0), Point(XRES, YRES)) && !cursor.IsInside(loadPos, loadPos+loadSize))
+		else if (cursor.IsInside(Point(0, 0), Point(XRES, YRES)) && !cursor.IsInside(GetStampPos(), GetStampPos() + GetStampSize()))
 		{
 			// figure out which side this touch started and ended on (arbitrary direction numbers)
 			// imagine 4 quadrants coming out of the stamp, with the edges diagonally starting directly from each corner
 			// if you tap the screen in one of these corners, it shifts the stamp one pixel in that direction
 			// if you move between quadrants you can rotate in that direction
 			// or flip horizontally / vertically by dragging accross the stamp without touching the side quadrants
-			int quadrant, xOffset = (loadSize.X-loadSize.Y)/2;
-			Point diff = cursor-(loadPos+loadSize/2);
+			int quadrant, xOffset = (loadSize.X - loadSize.Y) / 2;
+			Point diff = cursor - GetStampPos() / CELL * CELL;
 			if (std::abs(diff.X)-xOffset > std::abs(diff.Y))
 				quadrant = (diff.X > 0) ? 3 : 1; // right : left
 			else
 				quadrant = (diff.Y > 0) ? 2 : 0; // down : up
 
-			matrix2d transform = m2d_identity;
-			vector2d translate = v2d_zero;
 			// shift (arrow keys)
 			if (quadrant == stampQuadrant)
-				translate = v2d_new((quadrant-2)%2, (quadrant-1)%2);
+				TranslateSave(Point((quadrant-2)%2, (quadrant-1)%2));
 			// rotate 90 degrees
 			else if (quadrant%2 != stampQuadrant%2)
-				transform = m2d_new(0, (quadrant-stampQuadrant+1)%4 == 0 ? -1 : 1, (quadrant-stampQuadrant+1)%4 == 0 ? 1 : -1, 0);
+				TransformSave(0, (quadrant-stampQuadrant+1)%4 == 0 ? -1 : 1, (quadrant-stampQuadrant+1)%4 == 0 ? 1 : -1, 0);
 			// flip 180
 			else
-				transform = m2d_new((quadrant%2)*-2+1, 0, 0, (quadrant%2)*2-1);
-
-			// actual transformation is done here
-			void *newData = transform_save(stampData, &stampSize, transform, translate);
-			if (!newData)
-				return;
-			free(stampData);
-			stampData = newData;
-			free(stampImg);
-			stampImg = prerender_save(stampData, stampSize, &loadSize.X, &loadSize.Y);
+				TransformSave((quadrant%2)*-2+1, 0, 0, (quadrant%2)*2-1);
 			return;
 		}
 		else if (!stampMoving)
@@ -1916,7 +1905,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 
 		try
 		{
-			Point realLoadPos = GetStampPos() / CELL * CELL;
+			Point realLoadPos = GetStampPos();
 			sim->LoadSave(realLoadPos.X, realLoadPos.Y, stampData, 0, !shiftHeld);
 			MergeStampAuthorInfo(stampData->authors);
 		}

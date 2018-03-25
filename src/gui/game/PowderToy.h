@@ -2,6 +2,7 @@
 #define POWDERTOY_H
 
 #include <string>
+#include "defines.h"
 #include "interface/Window.h"
 #include "graphics/Pixel.h"
 
@@ -165,7 +166,7 @@ public:
 	void UpdateStampCoordinates(Point cursor, Point offset = Point(0, 0));
 	StampState GetStampState() { return state; }
 	void ResetStampState();
-	Point GetStampPos() { return loadPos - (loadSize - stampOffset)/2; }
+	Point GetStampPos() { return (loadPos - (loadSize - stampOffset)/2) / CELL * CELL; }
 	Point GetStampSize() { return loadSize; }
 	pixel * GetStampImg() { return waitToDraw ? NULL : stampImg; }
 	Point GetSavePos() { return savePos; }
