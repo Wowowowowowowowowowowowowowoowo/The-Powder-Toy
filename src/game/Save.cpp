@@ -1149,7 +1149,7 @@ void Save::ParseSaveOPS()
 
 					// No more particle properties to load, so we can change type here without messing up loading
 					if (particles[newIndex].type == PT_SOAP)
-						// Delete all soap connections, but it looks like if tmp & tmp2 were saved to 3 bytes, connections would load properly
+						// Delete all soap connections, they are regenerated properly using new IDs elsewhere
 						particles[newIndex].ctype &= ~6;
 
 					if (createdVersion < 81)

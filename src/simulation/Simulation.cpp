@@ -646,7 +646,8 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	std::fill(elementCount, elementCount+PT_NUM, 0);
 
 	// Map of soap particles loaded into this save, new ID -> old ID
-	std::map<unsigned int, unsigned int> soapList;
+	// Now stores all particles, not just SOAP (but still only used for soap)
+	std::map<unsigned int, unsigned int> particleMap;
 #ifndef NOMOD
 	// Stores list of moving solids in the save area
 	bool solids[MAX_MOVING_SOLIDS];
@@ -678,10 +679,9 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 #endif
 			if (elements[tempPart.type].Enabled)
 			{
-				if (tempPart.type == PT_SOAP)
-					soapList.insert(std::pair<unsigned int, unsigned int>(i, storedParts));
+				particleMap.insert(std::pair<unsigned int, unsigned int>(i, storedParts));
 #ifndef NOMOD
-				else if (tempPart.type == PT_MOVS)
+				if (tempPart.type == PT_MOVS)
 				{
 					if (tempPart.tmp2 >= 0 && tempPart.tmp2 < MAX_MOVING_SOLIDS)
 						solids[tempPart.tmp2] = true;
@@ -712,16 +712,18 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	for (int ID : paletteSet)
 		newSave->palette.push_back(Save::PaletteItem(elements[ID].Identifier, ID));
 
-	if (storedParts)
+	if (storedParts && elementCount[PT_SOAP])
 	{
-		// fix SOAP links using soapList, a map of new particle ID -> old particle ID
+		// fix SOAP links using particleMap, a map of old particle ID -> new particle ID
 		// loop through every new particle (saved into the save), and convert .tmp / .tmp2
-		for (std::map<unsigned int, unsigned int>::iterator iter = soapList.begin(), end = soapList.end(); iter != end; ++iter)
+		for (std::map<unsigned int, unsigned int>::iterator iter = particleMap.begin(), end = particleMap.end(); iter != end; ++iter)
 		{
 			int i = (*iter).second;
+			if (newSave->particles[i].type != PT_SOAP)
+				continue;
 			if ((newSave->particles[i].ctype & 0x2) == 2)
 			{
-				std::map<unsigned int, unsigned int>::iterator n = soapList.find(newSave->particles[i].tmp);
+				std::map<unsigned int, unsigned int>::iterator n = particleMap.find(newSave->particles[i].tmp);
 				if (n != end)
 					newSave->particles[i].tmp = n->second;
 				else
@@ -732,7 +734,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 			}
 			if ((newSave->particles[i].ctype & 0x4) == 4)
 			{
-				std::map<unsigned int, unsigned int>::iterator n = soapList.find(newSave->particles[i].tmp2);
+				std::map<unsigned int, unsigned int>::iterator n = particleMap.find(newSave->particles[i].tmp2);
 				if (n != end)
 					newSave->particles[i].tmp2 = n->second;
 				else
