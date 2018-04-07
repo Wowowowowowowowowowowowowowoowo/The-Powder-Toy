@@ -8,7 +8,6 @@
 
 class Button;
 class Download;
-class ProgressBar;
 class ToolTip;
 class Save;
 class Simulation;
@@ -20,8 +19,6 @@ public:
 	enum DrawState { POINTS, LINE, RECT, FILL };
 
 private:
-	ProgressBar * testBar = nullptr;
-
 	Point mouse;
 	Point cursor;
 	int lastMouseDown, heldKey, heldAscii, releasedKey;
