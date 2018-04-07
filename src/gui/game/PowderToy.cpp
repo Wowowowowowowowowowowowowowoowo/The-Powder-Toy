@@ -43,6 +43,8 @@
 #include "gui/rendermodes/RenderModesUI.h"
 #include "simulation/elements/LIFE.h"
 
+#include "gui/update/UpdateProgress.h"
+
 PowderToy::~PowderToy()
 {
 	Snapshot::ClearSnapshots();
@@ -851,15 +853,17 @@ void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 #ifdef ANDROID
 				Platform::OpenLink(file);
 #else
-				if (do_update(file))
+				UpdateProgress * update = new UpdateProgress(file, svf_user, [](char *data, int len)
 				{
-					has_quit = true;
-				}
-				else
-				{
-					ErrorPrompt *error = new ErrorPrompt("Update failed - try downloading a new version.");
-					Engine::Ref().ShowWindow(error);
-				}
+					if (!do_update(data, len))
+						has_quit = true;
+					else
+					{
+						ErrorPrompt *error = new ErrorPrompt("Update failed - try downloading a new version.");
+						Engine::Ref().ShowWindow(error);
+					}
+				});
+				Engine::Ref().ShowWindow(update);
 #endif
 			}
 		}

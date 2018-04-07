@@ -40,26 +40,22 @@
 #include "misc.h"
 #include "common/Platform.h"
 
-bool do_update(std::string file)
+// returns true on failure
+bool do_update(char *data, unsigned int len)
 {
-	unsigned int len;
-	char *tmp = download_ui(vid_buf, file.c_str(), &len);
-
-	if (tmp)
+	doingUpdate = true;
+	save_presets();
+	if (update_start(data, len))
 	{
-		doingUpdate = true;
+		update_cleanup();
+		doingUpdate = false;
 		save_presets();
-		if (update_start(tmp, len))
-		{
-			update_cleanup();
-			doingUpdate = false;
-			save_presets();
-			return false;
-		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
+// returns 1 on failure
 int update_start(char *data, unsigned int len)
 {
 	char *self=Platform::ExecutableName(), *temp;
@@ -135,6 +131,7 @@ int update_start(char *data, unsigned int len)
 fail:
 	free(temp);
 	free(self);
+	delete[] data;
 	return res;
 }
 

@@ -26,7 +26,6 @@
 #include <cstring>
 #include <sstream>
 #include <set>
-#include <bzlib.h>
 #include <cmath>
 #include <ctime>
 #include <dirent.h>
@@ -3711,104 +3710,6 @@ void limit_fps()
 		pastFPS = currentTime;
 	}
 	currentTime = SDL_GetTicks();
-}
-
-char *download_ui(pixel *vid_buf, const char *uri, unsigned int *len)
-{
-	int dstate = 0;
-	void *http = http_async_req_start(NULL, uri, NULL, 0, 0);
-	int x0=(XRES-240)/2,y0=(YRES-MENUSIZE)/2;
-	int done, total, i, ret, zlen;
-	unsigned int ulen;
-	char str[16], *tmp, *res;
-	
-	if (svf_login)
-	{
-		http_auth_headers(http, svf_user, NULL, NULL);
-	}
-
-	while (!http_async_req_status(http))
-	{
-		sdl_poll();
-
-		http_async_get_length(http, &total, &done);
-
-		clearrect(vid_buf, x0-1, y0-1, 243, 63);
-		drawrect(vid_buf, x0, y0, 240, 60, 192, 192, 192, 255);
-		drawtext(vid_buf, x0+8, y0+8, "Please wait", 255, 216, 32, 255);
-		drawtext(vid_buf, x0+8, y0+26, "Downloading update...", 255, 255, 255, 255);
-
-		if (total)
-		{
-			i = (236*done)/total;
-			fillrect(vid_buf, x0+1, y0+45, i+1, 14, 255, 216, 32, 255);
-			i = (100*done)/total;
-			sprintf(str, "%d%%", i);
-			if (i<50)
-				drawtext(vid_buf, x0+120-textwidth(str)/2, y0+48, str, 192, 192, 192, 255);
-			else
-				drawtext(vid_buf, x0+120-textwidth(str)/2, y0+48, str, 0, 0, 0, 255);
-		}
-		else
-			drawtext(vid_buf, x0+120-textwidth("Waiting...")/2, y0+48, "Waiting...", 255, 216, 32, 255);
-
-		drawrect(vid_buf, x0, y0+44, 240, 16, 192, 192, 192, 255);
-		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-	}
-
-	tmp = http_async_req_stop(http, &ret, &zlen);
-	if (ret!=200)
-	{
-		error_ui(vid_buf, ret, http_ret_text(ret));
-		if (tmp)
-			free(tmp);
-		return NULL;
-	}
-	if (!tmp)
-	{
-		error_ui(vid_buf, 0, "Server did not return data");
-		return NULL;
-	}
-
-	if (zlen<16)
-	{
-		printf("ZLen is not 16!\n");
-		goto corrupt;
-	}
-	if (tmp[0]!=0x42 || tmp[1]!=0x75 || tmp[2]!=0x54 || tmp[3]!=0x54)
-	{
-		printf("Tmperr %d, %d, %d, %d\n", tmp[0], tmp[1], tmp[2], tmp[3]);
-		goto corrupt;
-	}
-
-	ulen  = (unsigned char)tmp[4];
-	ulen |= ((unsigned char)tmp[5])<<8;
-	ulen |= ((unsigned char)tmp[6])<<16;
-	ulen |= ((unsigned char)tmp[7])<<24;
-
-	res = (char *)malloc(ulen);
-	if (!res)
-	{
-		printf("No res!\n");
-		goto corrupt;
-	}
-	dstate = BZ2_bzBuffToBuffDecompress((char *)res, (unsigned *)&ulen, (char *)(tmp+8), zlen-8, 0, 0);
-	if (dstate)
-	{
-		printf("Decompression failure: %d, %d, %d!\n", dstate, ulen, zlen);
-		free(res);
-		goto corrupt;
-	}
-	
-	free(tmp);
-	if (len)
-		*len = ulen;
-	return res;
-
-corrupt:
-	error_ui(vid_buf, 0, "Downloaded update is corrupted");
-	free(tmp);
-	return NULL;
 }
 
 int search_ui(pixel *vid_buf)

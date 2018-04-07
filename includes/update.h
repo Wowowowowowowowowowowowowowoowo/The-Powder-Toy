@@ -47,7 +47,7 @@
 	#define UPDATE_CPU "Unknown"
 #endif
 
-bool do_update(std::string file);
+bool do_update(char *tmp, unsigned int len);
 int update_start(char *data, unsigned int len);
 int update_finish(void);
 void update_cleanup(void);

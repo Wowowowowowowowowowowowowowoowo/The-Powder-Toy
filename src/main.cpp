@@ -108,7 +108,7 @@ pixel *vid3d = NULL;
 static const char *it_msg =
 	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"Android version " MTOS(MOBILE_MAJOR) "." MTOS(MOBILE_MINOR) "\n"
+	"Android version " MTOS(MOBILE_MAJOR) "." MTOS(MOBILE_MINOR) " build " MTOS(MOBILE_BUILD) "\n"
 	"\n"
 	"\bgTouch and drag the menus on the right side to show each menusection.\n"
 	"For scrollable menusections, the menus can be dragged around.\n"
@@ -138,7 +138,7 @@ static const char *it_msg =
 static const char *it_msg =
 	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "." MTOS(MOD_MINOR_VERSION) "\bg   Codebase based on C version 83.0\n"
+	"\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "." MTOS(MOD_MINOR_VERSION) " build " MTOS(MOD_BUILD_VERSION) "\bg   Codebase based on C version 83.0\n"
 	"\n"
 	"\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
 	"\bgTo choose a material, hover over one of the icons on the right, it will show a selection of elements in that group.\n"

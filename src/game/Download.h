@@ -41,6 +41,8 @@ public:
 	bool CheckCanceled();
 	bool CheckStarted();
 
+	static std::string GetStatusCodeDesc(int code);
+
 	friend class DownloadManager;
 };
 

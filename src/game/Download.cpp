@@ -148,3 +148,8 @@ void Download::Cancel()
 	downloadCanceled = true;
 	DownloadManager::Ref().Unlock();
 }
+
+std::string Download::GetStatusCodeDesc(int code)
+{
+	return http_ret_text(code);
+}
