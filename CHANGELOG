@@ -893,7 +893,10 @@ Fix save stealing warning coming up whenever creating a new save. Changes to
 save format and PIPE to match TPT 93.1, which is now released. Change version
 number to 93.1
 
-Version 40.1 2018-04-04
+Version 40.1 2018-04-07
 Update to TPT 93.3 (fixes missing thumbnail bug). Redo update progress UI, it's
 no longer off-centered (won't take effect until the update after this, of
 course)
+
+Version 40.2 2018-04-08
+Update build server (linux 64 bit and mac builds using newer compiler)

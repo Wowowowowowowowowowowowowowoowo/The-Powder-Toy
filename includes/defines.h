@@ -32,9 +32,9 @@
 #define FAKE_MINOR_VER 3
 
 #define MOD_VERSION 40
-#define MOD_MINOR_VERSION 1
+#define MOD_MINOR_VERSION 2
 #define MOD_SAVE_VERSION 25 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 98 //For update checks
+#define MOD_BUILD_VERSION 99 //For update checks
 
 #define MOBILE_MAJOR 1
 #define MOBILE_MINOR 4
