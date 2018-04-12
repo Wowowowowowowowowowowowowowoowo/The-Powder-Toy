@@ -136,7 +136,7 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 	free(coord_stack);
 }
 
-void PIPE_transfer_pipe_to_part(particle *pipe, particle *part, bool STOR)
+void PIPE_transfer_pipe_to_part(Simulation *sim, particle *pipe, particle *part, bool STOR)
 {
 	// STOR also calls this function to move particles from STOR to PRTI
 	// PIPE was changed, so now PIPE and STOR don't use the same particle storage format
@@ -155,7 +155,7 @@ void PIPE_transfer_pipe_to_part(particle *pipe, particle *part, bool STOR)
 	part->tmp = (int)pipe->pavg[0];
 	part->ctype = (int)pipe->pavg[1];
 
-	if (!(ptypes[part->type].properties & TYPE_ENERGY))
+	if (!(sim->elements[part->type].Properties & TYPE_ENERGY))
 	{
 		part->vx = 0.0f;
 		part->vy = 0.0f;
@@ -238,7 +238,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 					particle *storePart = channel->AllocParticle(slot);
 					if (storePart)
 					{
-						PIPE_transfer_pipe_to_part(parts+i, storePart);
+						PIPE_transfer_pipe_to_part(sim, parts+i, storePart);
 						count++;
 						break;
 					}
@@ -268,7 +268,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 			particle *storePart = channel->AllocParticle(slot);
 			if (storePart)
 			{
-				PIPE_transfer_pipe_to_part(parts+i, storePart);
+				PIPE_transfer_pipe_to_part(sim, parts+i, storePart);
 				count++;
 			}
 		}
@@ -280,7 +280,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 			int np = sim->part_create(-1, x + rx, y + ry, TYP(parts[i].ctype));
 			if (np != -1)
 			{
-				PIPE_transfer_pipe_to_part(parts+i, parts+np);
+				PIPE_transfer_pipe_to_part(sim, parts+i, parts+np);
 			}
 		}
 	}
@@ -424,7 +424,7 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 						int np = sim->part_create(-1, x + rx, y + ry, TYP(parts[i].ctype));
 						if (np != -1)
 						{
-							PIPE_transfer_pipe_to_part(parts + i, parts + np);
+							PIPE_transfer_pipe_to_part(sim, parts + i, parts + np);
 						}
 					}
 					// Try eating particle at entrance
@@ -540,9 +540,9 @@ int PIPE_graphics(GRAPHICS_FUNC_ARGS)
 			*colr = PIXR(sim->elements[t].Colour);
 			*colg = PIXG(sim->elements[t].Colour);
 			*colb = PIXB(sim->elements[t].Colour);
-			if (ptypes[t].graphics_func)
+			if (sim->elements[t].Graphics)
 			{
-				(*(ptypes[t].graphics_func))(sim, &tpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
+				(*(sim->elements[t].Graphics))(sim, &tpart, nx, ny, pixel_mode, cola, colr, colg, colb, firea, firer, fireg, fireb);
 			}
 			else
 			{

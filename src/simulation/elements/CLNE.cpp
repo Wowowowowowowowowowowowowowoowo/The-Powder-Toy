@@ -18,7 +18,7 @@
 
 int CLNE_update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
+	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !sim->elements[parts[i].ctype].Enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
 	{
 		int r, rx, ry, rt;
 		for (rx=-1; rx<2; rx++)
@@ -31,8 +31,8 @@ int CLNE_update(UPDATE_FUNC_ARGS)
 					if (!r)
 						continue;
 					rt = TYP(r);
-					if (!(ptypes[rt].properties&PROP_CLONE) &&
-						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
+					if (!(sim->elements[rt].Properties & PROP_CLONE) &&
+						!(sim->elements[rt].Properties & PROP_BREAKABLECLONE) &&
 				        rt!=PT_STKM && rt!=PT_STKM2)
 					{
 						parts[i].ctype = rt;

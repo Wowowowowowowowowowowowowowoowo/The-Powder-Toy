@@ -12,16 +12,18 @@
 #include "GolNumbers.h"
 #include "game/Brush.h"
 
-Tool::Tool(int toolID, std::string toolIdentifier):
+Tool::Tool(int toolID, std::string toolIdentifier, std::string description):
 	identifier(toolIdentifier),
+	description(description),
 	type(INVALID_TOOL),
 	toolID(toolID)
 {
 
 }
 
-Tool::Tool(int toolType, int toolID, std::string toolIdentifier):
+Tool::Tool(int toolType, int toolID, std::string toolIdentifier, std::string description):
 	identifier(toolIdentifier),
+	description(description),
 	type(toolType),
 	toolID(toolID)
 {
@@ -120,7 +122,7 @@ Tool* Tool::Sample(Simulation *sim, Point position)
 
 
 ElementTool::ElementTool(Simulation * sim, int elementID):
-	Tool(ELEMENT_TOOL, elementID, sim->elements[elementID].Identifier)
+	Tool(ELEMENT_TOOL, elementID, sim->elements[elementID].Identifier, sim->elements[elementID].Description)
 {
 
 }
@@ -165,7 +167,7 @@ void PlopTool::Click(Simulation *sim, Point position)
 
 
 GolTool::GolTool(int golID):
-	Tool(GOL_TOOL, golID, golTypes[golID].identifier)
+	Tool(GOL_TOOL, golID, golTypes[golID].identifier, golTypes[golID].description)
 {
 
 }
@@ -197,7 +199,7 @@ int GolTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 
 
 WallTool::WallTool(int wallID):
-	Tool(WALL_TOOL, wallID, wallTypes[wallID].identifier)
+	Tool(WALL_TOOL, wallID, wallTypes[wallID].identifier, wallTypes[wallID].descs)
 {
 
 }
@@ -260,7 +262,7 @@ int StreamlineTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 }
 
 ToolTool::ToolTool(int toolID):
-	Tool(TOOL_TOOL, toolID, toolTypes[toolID].identifier)
+	Tool(TOOL_TOOL, toolID, toolTypes[toolID].identifier, toolTypes[toolID].descs)
 {
 
 }
@@ -298,9 +300,9 @@ void ToolTool::Click(Simulation *sim, Point position)
 }
 
 PropTool::PropTool():
-ToolTool(TOOL_PROP),
-propType(Integer),
-propOffset(0)
+	ToolTool(TOOL_PROP),
+	propType(Integer),
+	propOffset(0)
 {
 	propValue.Integer = 0;
 }
@@ -324,7 +326,7 @@ int PropTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 
 
 DecoTool::DecoTool(int decoID):
-Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier)
+	Tool(DECO_TOOL, decoID, decoTypes[decoID].identifier, decoTypes[decoID].descs)
 {
 
 }
@@ -366,8 +368,8 @@ Tool* DecoTool::Sample(Simulation *sim, Point position)
 	return this;
 }
 
-InvalidTool::InvalidTool(int type, int toolID, std::string identifier):
-Tool(type, toolID, identifier)
+InvalidTool::InvalidTool(int type, int toolID, std::string identifier, std::string description):
+	Tool(type, toolID, identifier, description)
 {
 
 }
@@ -393,19 +395,19 @@ Tool* InvalidTool::Sample(Simulation *sim, Point position)
 }
 
 DecoPresetTool::DecoPresetTool(int decoPresetID):
-InvalidTool(DECO_PRESET, decoPresetID, colorlist[decoPresetID].identifier)
+InvalidTool(DECO_PRESET, decoPresetID, colorlist[decoPresetID].identifier, colorlist[decoPresetID].descs)
 {
 
 }
 
 FavTool::FavTool(int favID):
-InvalidTool(FAV_MENU_BUTTON, favID, std::string(fav[favID].identifier))
+	InvalidTool(FAV_MENU_BUTTON, favID, fav[favID].identifier, fav[favID].description)
 {
 
 }
 
 HudTool::HudTool(int hudID):
-InvalidTool(HUD_MENU_BUTTON, hudID, "DEFAULT_HUD_" + std::string(hud_menu[hudID].name))
+InvalidTool(HUD_MENU_BUTTON, hudID, "DEFAULT_HUD_" + hud_menu[hudID].name, hud_menu[hudID].description)
 {
 
 }

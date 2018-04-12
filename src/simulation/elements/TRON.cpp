@@ -64,16 +64,18 @@ int new_tronhead(Simulation *sim, int x, int y, int i, int direction)
 	return 1;
 }
 
-int canmovetron(int r, int len)
+int canmovetron(int r, int len, Simulation *sim)
 {
 	if (!r || (TYP(r) == PT_SWCH && parts[ID(r)].life >= 10) || (TYP(r) == PT_INVIS && parts[ID(r)].tmp2 == 1))
 		return 1;
-	if ((((ptypes[TYP(r)].properties & PROP_LIFE_KILL_DEC) && parts[ID(r)].life > 0) || ((ptypes[TYP(r)].properties & PROP_LIFE_KILL) && (ptypes[TYP(r)].properties & PROP_LIFE_DEC))) && parts[ID(r)].life < len)
+	if (   (((sim->elements[TYP(r)].Properties & PROP_LIFE_KILL_DEC) && parts[ID(r)].life > 0)
+	        || ((sim->elements[TYP(r)].Properties & PROP_LIFE_KILL) && (sim->elements[TYP(r)].Properties & PROP_LIFE_DEC)))
+	    && parts[ID(r)].life < len)
 		return 1;
 	return 0;
 }
 
-int trymovetron(int x, int y, int dir, int i, int len)
+int trymovetron(int x, int y, int dir, int i, int len, Simulation *sim)
 {
 	int k,j,r,rx,ry,tx,ty,count;
 	count = 0;
@@ -84,13 +86,13 @@ int trymovetron(int x, int y, int dir, int i, int len)
 		rx += tron_rx[dir];
 		ry += tron_ry[dir];
 		r = pmap[ry][rx];
-		if (canmovetron(r, k-1) && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
+		if (canmovetron(r, k-1, sim) && !bmap[(ry)/CELL][(rx)/CELL] && ry > CELL && rx > CELL && ry < YRES-CELL && rx < XRES-CELL)
 		{
 			count++;
 			for (tx = rx - tron_ry[dir] , ty = ry - tron_rx[dir], j=1; abs(tx-rx) < (len-k) && abs(ty-ry) < (len-k); tx-=tron_ry[dir],ty-=tron_rx[dir],j++)
 			{
 				r = pmap[ty][tx];
-				if (canmovetron(r, j+k-1) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
+				if (canmovetron(r, j+k-1, sim) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
 				{
 					if (j == (len-k))//there is a safe path, so we can break out
 						return len+1;
@@ -102,7 +104,7 @@ int trymovetron(int x, int y, int dir, int i, int len)
 			for (tx = rx + tron_ry[dir] , ty = ry + tron_rx[dir], j=1; abs(tx-rx) < (len-k) && abs(ty-ry) < (len-k); tx+=tron_ry[dir],ty+=tron_rx[dir],j++)
 			{
 				r = pmap[ty][tx];
-				if (canmovetron(r, j+k-1) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
+				if (canmovetron(r, j+k-1, sim) && !bmap[(ty)/CELL][(tx)/CELL] && ty > CELL && tx > CELL && ty < YRES-CELL && tx < XRES-CELL)
 				{
 					if (j == (len-k))
 						return len+1;
@@ -141,7 +143,7 @@ int TRON_update(UPDATE_FUNC_ARGS)
 		
 		//check in front
 		//do sight check
-		firstdircheck = trymovetron(x,y,direction,i,parts[i].tmp2);
+		firstdircheck = trymovetron(x, y, direction, i, parts[i].tmp2, sim);
 		if (firstdircheck < parts[i].tmp2)
 		{
 			if (parts[i].tmp & TRON_NORANDOM)
@@ -159,8 +161,8 @@ int TRON_update(UPDATE_FUNC_ARGS)
 				seconddir = (direction + ((rand()%2)*2)+1)% 4;
 				lastdir = (seconddir + 2)%4;
 			}
-			seconddircheck = trymovetron(x,y,seconddir,i,parts[i].tmp2);
-			lastdircheck = trymovetron(x,y,lastdir,i,parts[i].tmp2);
+			seconddircheck = trymovetron(x, y, seconddir, i, parts[i].tmp2, sim);
+			lastdircheck = trymovetron(x, y, lastdir, i, parts[i].tmp2, sim);
 		}
 		//find the best move
 		if (seconddircheck > firstdircheck)

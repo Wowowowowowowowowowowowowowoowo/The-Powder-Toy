@@ -192,7 +192,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 					continue;
 				rt = TYP(r);
 
-				if (ptypes[rt].properties & PROP_INDESTRUCTIBLE)
+				if (sim->elements[rt].Properties & PROP_INDESTRUCTIBLE)
 				{
 					if (sim->elements[rt].HeatConduct)
 						parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful/10, MIN_TEMP, MAX_TEMP);
@@ -246,7 +246,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 				default:
 					break;
 				}
-				if ((ptypes[rt].properties&PROP_CONDUCTS) && !parts[ID(r)].life)
+				if ((sim->elements[rt].Properties & PROP_CONDUCTS) && !parts[ID(r)].life)
 				{
 					sim->spark_conductive(ID(r), x+rx, y+ry);
 				}

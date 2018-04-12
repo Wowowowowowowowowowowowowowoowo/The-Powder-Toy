@@ -19,7 +19,7 @@
 int PCLN_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, rt;
-	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !ptypes[parts[i].ctype].enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
+	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || !sim->elements[parts[i].ctype].Enabled || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOL)))
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
 				if (BOUNDS_CHECK)
@@ -30,8 +30,8 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 					if (!r)
 						continue;
 					rt = TYP(r);
-					if (!(ptypes[rt].properties&PROP_CLONE) &&
-						!(ptypes[rt].properties&PROP_BREAKABLECLONE) &&
+					if (!(sim->elements[rt].Properties & PROP_CLONE) &&
+						!(sim->elements[rt].Properties & PROP_BREAKABLECLONE) &&
 				        rt != PT_SPRK && rt != PT_NSCN && 
 						rt != PT_PSCN && rt != PT_STKM && 
 						rt != PT_STKM2)
@@ -41,7 +41,7 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 							parts[i].tmp = parts[ID(r)].ctype;
 					}
 				}
-	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && ptypes[parts[i].ctype].enabled && parts[i].life==10)
+	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && sim->elements[parts[i].ctype].Enabled && parts[i].life==10)
 	{
 		//create photons a different way
 		if (parts[i].ctype == PT_PHOT)

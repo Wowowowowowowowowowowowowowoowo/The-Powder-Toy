@@ -114,13 +114,13 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 int graphics_DEFAULT(GRAPHICS_FUNC_ARGS)
 {
 	int t = cpart->type;
-	if (ptypes[t].properties & PROP_RADIOACTIVE)
+	if (sim->elements[t].Properties & PROP_RADIOACTIVE)
 		*pixel_mode |= PMODE_GLOW;
-	if (ptypes[t].properties & TYPE_LIQUID)
+	if (sim->elements[t].Properties & TYPE_LIQUID)
 	{
 		*pixel_mode |= PMODE_BLUR;
 	}
-	if (ptypes[t].properties & TYPE_GAS)
+	if (sim->elements[t].Properties & TYPE_GAS)
 	{
 		*pixel_mode &= ~PMODE;
 		*pixel_mode |= FIRE_BLEND;

@@ -29,7 +29,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 	{
 		if (ct==PT_WATR||ct==PT_SLTW||ct==PT_PSCN||ct==PT_NSCN||ct==PT_ETRD||ct==PT_INWR)
 			parts[i].temp = R_TEMP + 273.15f;
-		if (ct<=0 || ct>=PT_NUM || !ptypes[ct].enabled)
+		if (ct<=0 || ct>=PT_NUM || !sim->elements[ct].Enabled)
 			ct = PT_METL;
 		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;
@@ -252,7 +252,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 
 				if (pavg == PT_INSL) //Insulation blocks everything past here
 					continue;
-				if (!((ptypes[receiver].properties&PROP_CONDUCTS) || receiver==PT_INST || receiver==PT_QRTZ)) //Stop non-conducting receivers, allow INST and QRTZ as special cases
+				if (!((sim->elements[receiver].Properties&PROP_CONDUCTS) || receiver==PT_INST || receiver==PT_QRTZ)) //Stop non-conducting receivers, allow INST and QRTZ as special cases
 					continue;
 				if (abs(rx)+abs(ry)>=4 && receiver!=PT_SWCH && sender!=PT_SWCH) //Only SWCH conducts really far
 					continue;

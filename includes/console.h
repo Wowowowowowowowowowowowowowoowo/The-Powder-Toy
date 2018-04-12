@@ -21,8 +21,9 @@
 #include <graphics/Pixel.h>
 extern int file_script;
 
+class Simulation;
 int console_parse_coords(const char *txt, int *x, int *y, char *err);
-int console_parse_type(const char *txt, int *element, char *err);
+int console_parse_type(const char *txt, int *element, char *err, Simulation *sim);
 int console_parse_wall_type(const char *txt, int *wall);
 int console_parse_partref(const char *txt, int *which, char *err);
 

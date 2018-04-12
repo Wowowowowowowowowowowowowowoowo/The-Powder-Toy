@@ -261,7 +261,7 @@ int nearest_part(int ci, int t, int max_d)
 	return id;
 }
 
-void decrease_life(int i)
+void decrease_life(Simulation *sim, int i)
 {
 	unsigned int elem_properties;
 	int t = parts[i].type;
@@ -270,7 +270,7 @@ void decrease_life(int i)
 		kill_part(i);
 		return;
 	}
-	elem_properties = ptypes[t].properties;
+	elem_properties = sim->elements[t].Properties;
 	if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
 	{
 		// automatically decrease life

@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <ctime>
 #include <cstring>
 #include <string>
@@ -10,6 +11,19 @@
 #include "Format.h"
 #include "graphics/Pixel.h"
 #include "graphics/VideoBuffer.h"
+
+
+std::string Format::ToLower(std::string text)
+{
+	std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+	return text;
+}
+
+std::string Format::ToUpper(std::string text)
+{
+	std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+	return text;
+}
 
 std::string Format::URLEncode(std::string source)
 {

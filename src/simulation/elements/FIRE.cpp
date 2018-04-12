@@ -205,7 +205,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 					(rt != PT_SPNG || parts[ID(r)].life == 0))
 				{
 					sim->part_change_type(ID(r), x+rx, y+ry, PT_FIRE);
-					parts[ID(r)].temp = restrict_flt(ptypes[PT_FIRE].heat + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);
+					parts[ID(r)].temp = restrict_flt(sim->elements[PT_FIRE].DefaultProperties.temp + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);
 					parts[ID(r)].life = rand()%80+180;
 					parts[ID(r)].tmp = parts[ID(r)].ctype = 0;
 					if (sim->elements[rt].Explosive)

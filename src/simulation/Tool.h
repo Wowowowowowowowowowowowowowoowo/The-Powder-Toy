@@ -29,17 +29,19 @@ class Simulation;
 class Tool
 {
 	std::string identifier;
+	std::string description;
 protected:
 	int type;
 	int toolID;
 public:
-	Tool(int toolID, std::string toolIdentifier);
-	Tool(int toolType, int toolID, std::string toolIdentifier);
+	Tool(int toolID, std::string toolIdentifier, std::string description);
+	Tool(int toolType, int toolID, std::string toolIdentifier, std::string description);
 	virtual ~Tool() {}
 
 	int GetType() { return type; }
 	int GetID() { return toolID; }
 	std::string GetIdentifier() { return identifier; }
+	std::string GetDescription() { return description; }
 
 	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
 	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
@@ -147,7 +149,7 @@ public:
 class InvalidTool : public Tool
 {
 protected:
-	InvalidTool(int type, int ID, std::string identifier);
+	InvalidTool(int type, int ID, std::string identifier, std::string description);
 public:
 	int GetID() { return -1; }
 

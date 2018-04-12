@@ -89,7 +89,6 @@ Simulation::~Simulation()
 	for (int t = 0; t < PT_NUM; t++)
 	{
 		free(ptypes[t].name);
-		free(ptypes[t].descs);
 	}
 	delete air;
 }
@@ -103,7 +102,6 @@ void Simulation::InitElements()
 	for (int t = 0; t < PT_NUM; t++)
 	{
 		ptypes[t].name = NULL;
-		ptypes[t].descs = NULL;
 	}
 
 	Simulation_Compat_CopyData(this);
@@ -1198,7 +1196,7 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 			NUM_PARTS++;
 			//decrease the life of certain elements by 1 every frame
 			if (doLifeDec && (!sys_pause || framerender))
-				decrease_life(i);
+				decrease_life(this, i);
 		}
 		else
 		{
@@ -3607,11 +3605,5 @@ void Simulation_Compat_CopyData(Simulation* sim)
 	{
 		free(ptypes[t].name);
 		ptypes[t].name = mystrdup(sim->elements[t].Name.c_str());
-		ptypes[t].enabled = sim->elements[t].Enabled;
-		ptypes[t].heat = sim->elements[t].DefaultProperties.temp;
-		free(ptypes[t].descs);
-		ptypes[t].descs = mystrdup(sim->elements[t].Description.c_str());
-		ptypes[t].properties = sim->elements[t].Properties;
-		ptypes[t].graphics_func = sim->elements[t].Graphics;
 	}
 }

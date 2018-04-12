@@ -23,6 +23,9 @@ namespace Format
 		return (ss >> number)?number:0;
 	}
 
+	std::string ToLower(std::string text);
+	std::string ToUpper(std::string text);
+
 	std::string URLEncode(std::string value);
 	std::string UnixtimeToDate(time_t unixtime, std::string dateFomat = "%d %b %Y");
 	std::string UnixtimeToDateMini(time_t unixtime);

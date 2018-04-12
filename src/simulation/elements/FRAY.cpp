@@ -39,7 +39,7 @@ int FRAY_update(UPDATE_FUNC_ARGS)
 						if (!r)
 							r = photons[y+nyi+nyy][x+nxi+nxx];
 			
-						if (r && !(ptypes[TYP(r)].properties & TYPE_SOLID))
+						if (r && !(sim->elements[TYP(r)].Properties & TYPE_SOLID))
 						{
 							parts[ID(r)].vx += nxi*((parts[i].temp-273.15f)/10.0f);
 							parts[ID(r)].vy += nyi*((parts[i].temp-273.15f)/10.0f);

@@ -2827,7 +2827,7 @@ int elements_allocate(lua_State * l)
 			luaSim->elements[i].Enabled = 1;
 			luaSim->elements[i].Identifier = identifier;
 			luaSim->elements[i].MenuSection = SC_OTHER;
-			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier));
+			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
 
 			Simulation_Compat_CopyData(luaSim);
 			break;
@@ -2845,7 +2845,7 @@ int elements_allocate(lua_State * l)
 				luaSim->elements[i].Enabled = true;
 				luaSim->elements[i].Identifier = identifier;
 				luaSim->elements[i].MenuSection = SC_OTHER;
-				menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier));
+				menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
 
 				Simulation_Compat_CopyData(luaSim);
 				break;
@@ -2915,7 +2915,7 @@ int elements_element(lua_State * l)
 		else if(lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 		{
 			lua_gr_func[id] = 0;
-			ptypes[id].graphics_func = NULL;
+			luaSim->elements[id].Graphics = nullptr;
 		}
 		else
 			lua_pop(l, 1);
@@ -3017,7 +3017,7 @@ int elements_property(lua_State * l)
 			else if(lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 			{
 				lua_gr_func[id] = 0;
-				ptypes[id].graphics_func = NULL;
+				luaSim->elements[id].Graphics = nullptr;
 			}
 			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 		}
@@ -3057,7 +3057,7 @@ int elements_free(lua_State * l)
 	if (luaSim->elements[id].Identifier.find("DEFAULT") != luaSim->elements[id].Identifier.npos)
 		return luaL_error(l, "Cannot free default elements");
 
-	luaSim->elements[id].Enabled = ptypes[id].enabled = 0;
+	luaSim->elements[id].Enabled = 0;
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);

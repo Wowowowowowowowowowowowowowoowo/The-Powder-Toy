@@ -27,12 +27,12 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				if ((ptypes[rt].properties&PROP_CONDUCTS) && parts[ID(r)].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[ID(r)].ctype!=PT_SPRK)
+				if ((sim->elements[rt].Properties & PROP_CONDUCTS) && parts[ID(r)].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[ID(r)].ctype!=PT_SPRK)
 				{
 					sim->spark_conductive(ID(r), x+rx, y+ry);
 					kill = true;
 				}
-				else if (rt!=PT_THDR && rt!=PT_SPRK && !(ptypes[rt].properties&PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
+				else if (rt!=PT_THDR && rt!=PT_SPRK && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
 				{
 					sim->air->pv[y/CELL][x/CELL] += 100.0f;
 					if (legacy_enable&&1>(rand()%200))

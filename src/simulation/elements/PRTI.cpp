@@ -49,7 +49,7 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 			int r = pmap[y+ry][x+rx];
 			if (!r || TYP(r) == PT_STOR)
 				fe = 1;
-			if (!r || (!(ptypes[TYP(r)].properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && TYP(r)!=PT_SPRK && TYP(r)!=PT_STOR))
+			if (!r || (!(sim->elements[TYP(r)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)) && TYP(r)!=PT_SPRK && TYP(r)!=PT_STOR))
 			{
 				r = photons[y+ry][x+rx];
 				if (!r)

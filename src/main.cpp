@@ -1762,7 +1762,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
 						{
-							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && ptypes[parts[i].ctype].enabled)
+							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && globalSim->elements[parts[i].ctype].Enabled)
 							{
 								parts[i].type = parts[i].ctype;
 								parts[i].life = parts[i].ctype = 0;

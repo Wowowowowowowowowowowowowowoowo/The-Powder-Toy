@@ -32,7 +32,7 @@ int DTEC_update(UPDATE_FUNC_ARGS)
 					rt = TYP(r);
 					if (parts_avg(i,ID(r),PT_INSL) != PT_INSL)
 					{
-						if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[ID(r)].life==0)
+						if ((sim->elements[rt].Properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[ID(r)].life==0)
 						{
 							sim->spark_conductive(ID(r), x+rx, y+ry);
 						}

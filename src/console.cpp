@@ -38,7 +38,7 @@ int file_script = 0;
 #endif
 
 //takes a a string and compares it to element names, and puts it value into element.
-int console_parse_type(const char *txt, int *element, char *err)
+int console_parse_type(const char *txt, int *element, char *err, Simulation *sim)
 {
 	int i = atoi(txt);
 	// alternative names for some elements
@@ -54,7 +54,7 @@ int console_parse_type(const char *txt, int *element, char *err)
 			strcpy(err, "Particle type not recognized");
 		return 0;
 	}
-	if ((i > 0 && i < PT_NUM && ptypes[i].enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
+	if ((i > 0 && i < PT_NUM && sim->elements[i].Enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
 	{
 		if (element) *element = i;
 		if (err) strcpy(err,"");
@@ -62,7 +62,7 @@ int console_parse_type(const char *txt, int *element, char *err)
 	}
 	for (i=1; i<PT_NUM; i++)
 	{
-		if (!strcasecmp(txt,ptypes[i].name) && (ptypes[i].enabled || secret_els))
+		if (!strcasecmp(txt,ptypes[i].name) && (sim->elements[i].Enabled || secret_els))
 		{
 			if (element) *element = i;
 			if (err) strcpy(err,"");
@@ -321,7 +321,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 				if (strcmp(console3, "type")==0)//TODO: add more than just type, and be able to check greater/less than
 				{
 					if (console_parse_partref(console4, &i, console_error)
-				        && console_parse_type(console5, &j, console_error))
+						&& console_parse_type(console5, &j, console_error, sim))
 					{
 						if (parts[i].type==j)
 							return 1;
@@ -334,7 +334,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 			}
 			else if (strcmp(console2, "create")==0 && console3[0] && console4[0])
 			{
-				if (console_parse_type(console3, &j, console_error)
+				if (console_parse_type(console3, &j, console_error, sim)
 			        && console_parse_coords(console4, &nx, &ny, console_error))
 				{
 					if (!j)
@@ -413,7 +413,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
 						{
-							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && ptypes[parts[i].ctype].enabled)
+							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && sim->elements[parts[i].ctype].Enabled)
 							{
 								parts[i].type = parts[i].ctype;
 								parts[i].life = parts[i].ctype = 0;
@@ -429,7 +429,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					{
 						if (parts[i].type)
 						{
-							parts[i].temp = ptypes[parts[i].type].heat;
+							parts[i].temp = sim->elements[parts[i].type].DefaultProperties.temp;
 						}
 					}
 				}
@@ -447,7 +447,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].life = j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -469,15 +469,15 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						if (console_parse_type(console5, &j, console_error))
+						if (console_parse_type(console5, &j, console_error, sim))
 							for (i=0; i<NPART; i++)
 							{
 								if (parts[i].type)
 									sim->part_change_type_force(i, j);
 							}
 					}
-					else if (console_parse_type(console4, &j, console_error) && j != 0
-							 && console_parse_type(console5, &k, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim) && j != 0
+							 && console_parse_type(console5, &k, console_error, sim))
 					{
 						for (i=0; i<NPART; i++)
 						{
@@ -488,7 +488,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					else
 					{
 						if (console_parse_partref(console4, &i, console_error) && j != 0
-					        && console_parse_type(console5, &j, console_error))
+							&& console_parse_type(console5, &j, console_error, sim))
 						{
 							sim->part_change_type_force(i, j);
 						}
@@ -508,7 +508,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 						else
 							strcpy(console_error, "Invalid temperature");
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						f = console_parse_temp(console5);
 						if (f >= 0)
@@ -543,7 +543,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].tmp = j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -572,7 +572,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].tmp2 = j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -601,7 +601,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].x = (float)j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -630,7 +630,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].y = (float)j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -652,7 +652,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 				{
 					if (strcmp(console4, "all")==0)
 					{
-						if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)))
+						if (console_parse_type(console5, &j, console_error, sim) || (j = atoi(console5)))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)
@@ -662,9 +662,9 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 							}
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
-						if (console_parse_type(console5, &k, console_error) || (k = atoi(console5)))
+						if (console_parse_type(console5, &k, console_error, sim) || (k = atoi(console5)))
 						{
 							strcpy(console_error, "");
 							for (i=0; i<NPART; i++)
@@ -678,7 +678,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					{
 						if (console_parse_partref(console4, &i, console_error))
 						{
-							if (console_parse_type(console5, &j, console_error) || (j = atoi(console5)))
+							if (console_parse_type(console5, &j, console_error, sim) || (j = atoi(console5)))
 							{
 								strcpy(console_error, "");
 								j = atoi(console5);
@@ -698,7 +698,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].vx = f;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
@@ -727,7 +727,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].vy = f;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
@@ -756,7 +756,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 									parts[i].dcolour = j;
 							}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						if (console_parse_hex(console5, &k, console_error))
 							for (i=0; i<NPART; i++)
@@ -785,7 +785,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].flags = j;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						k = atoi(console5);
 						for (i=0; i<NPART; i++)
@@ -814,7 +814,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].pavg[0] = f;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)
@@ -843,7 +843,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].pavg[1] = f;
 						}
 					}
-					else if (console_parse_type(console4, &j, console_error))
+					else if (console_parse_type(console4, &j, console_error, sim))
 					{
 						f = (float)atof(console5);
 						for (i=0; i<NPART; i++)

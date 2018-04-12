@@ -42,11 +42,6 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 struct part_type
 {
 	char *name;
-	int enabled;
-	float heat;
-	char *descs;
-	unsigned int properties;
-	int (*graphics_func) (GRAPHICS_FUNC_ARGS);
 };
 typedef struct part_type part_type;
 
@@ -90,7 +85,7 @@ int parts_avg(int ci, int ni, int t);
 
 int nearest_part(int ci, int t, int max_d);
 
-void decrease_life(int i);
+void decrease_life(Simulation *sim, int i);
 
 void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert);
 

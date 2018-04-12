@@ -715,7 +715,7 @@ int luacon_elementwrite(lua_State* l)
 		//Convert to upper case
 		for (unsigned int j = 0; j < strlen(tempstring); j++)
 			tempstring[j] = toupper(tempstring[j]);
-		if (console_parse_type(tempstring, NULL, NULL))
+		if (console_parse_type(tempstring, NULL, NULL, luaSim))
 		{
 			free(tempstring);
 			return luaL_error(l, "Name in use");
@@ -1260,7 +1260,7 @@ int luatpt_getelement(lua_State *l)
 	{
 		luaL_checktype(l, 1, LUA_TSTRING);
 		name = luaL_optstring(l, 1, "");
-		if (!console_parse_type(name, &t, NULL))
+		if (!console_parse_type(name, &t, NULL, luaSim))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 		lua_pushinteger(l, t);
 	}
@@ -1392,13 +1392,13 @@ int luatpt_create(lua_State* l)
 		if (lua_isnumber(l, 3))
 		{
 			t = luaL_optint(l, 3, 0);
-			if (t<0 || t >= PT_NUM || !ptypes[t].enabled)
+			if (t<0 || t >= PT_NUM || !luaSim->elements[t].Enabled)
 				return luaL_error(l, "Unrecognised element number '%d'", t);
 		}
 		else
 		{
 			const char* name = luaL_optstring(l, 3, "dust");
-			if (!console_parse_type(name, &t, NULL))
+			if (!console_parse_type(name, &t, NULL, luaSim))
 				return luaL_error(l,"Unrecognised element '%s'", name);
 		}
 		retid = luaSim->part_create(-1, x, y, t);
@@ -1685,7 +1685,7 @@ int luatpt_set_property(lua_State* l)
 		if (!lua_isnumber(l, acount) && lua_isstring(l, acount))
 		{
 			name = luaL_optstring(l, acount, "none");
-			if (!console_parse_type(name, &partsel, NULL))
+			if (!console_parse_type(name, &partsel, NULL, luaSim))
 				return luaL_error(l, "Unrecognised element '%s'", name);
 		}
 	}
@@ -1696,13 +1696,13 @@ int luatpt_set_property(lua_State* l)
 		else
 			t = luaL_optint(l, 2, 0);
 
-		if (format == 2 && (t<0 || t>=PT_NUM || !ptypes[t].enabled))
+		if (format == 2 && (t<0 || t>=PT_NUM || !luaSim->elements[t].Enabled))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	}
 	else
 	{
 		name = luaL_checklstring(l, 2, NULL);
-		if (!console_parse_type(name, &t, NULL))
+		if (!console_parse_type(name, &t, NULL, luaSim))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
 	if (!lua_isnumber(l, 3) || acount >= 6)
@@ -2685,18 +2685,16 @@ int luatpt_indestructible(lua_State* l)
 	else
 	{
 		const char* name = luaL_optstring(l, 1, "dust");
-		if (!console_parse_type(name, &el, NULL))
+		if (!console_parse_type(name, &el, NULL, luaSim))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
 	ind = luaL_optint(l, 2, 1);
 	if (ind)
 	{
-		ptypes[el].properties |= PROP_INDESTRUCTIBLE;
 		luaSim->elements[el].Properties |= PROP_INDESTRUCTIBLE;
 	}
 	else
 	{
-		ptypes[el].properties &= ~PROP_INDESTRUCTIBLE;
 		luaSim->elements[el].Properties &= ~PROP_INDESTRUCTIBLE;
 	}
 	return 0;

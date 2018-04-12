@@ -2209,13 +2209,14 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 							graphicscache[t].fireb = fireb;
 						}
 					}
-					else if (ptypes[t].graphics_func)
+					else if (sim->elements[t].Graphics)
 					{
 #else
-					if (ptypes[t].graphics_func)
+					if (sim->elements[t].Graphics)
 					{
 #endif
-						if ((*(ptypes[t].graphics_func))(sim, &(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb)) //That's a lot of args, a struct might be better
+						// That's a lot of args, a struct might be better
+						if ((*(sim->elements[t].Graphics))(sim, &(parts[i]), nx, ny, &pixel_mode, &cola, &colr, &colg, &colb, &firea, &firer, &fireg, &fireb))
 						{
 							graphicscache[t].isready = 1;
 							graphicscache[t].pixel_mode = pixel_mode;

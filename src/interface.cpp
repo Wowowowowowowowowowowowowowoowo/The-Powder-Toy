@@ -64,6 +64,7 @@
 #include "json/json.h"
 #include "update.h"
 
+#include "common/Format.h"
 #include "common/Platform.h"
 #include "game/Authors.h"
 #include "game/Download.h"
@@ -1145,9 +1146,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 {
 	int windowHeight = 300, windowWidth = 240;
 	int x0 = (XRES-windowWidth)/2, y0 = (YRES-windowHeight)/2, b = 1, bq, mx, my;
-	int toolx = 0, tooly = 0, i, xoff, yoff, c, found;
-	char tempCompare[512];
-	char tempString[512];
+	int toolx = 0, tooly = 0, i, xoff, yoff, found;
 	int_pair tempInts[PT_NUM];
 	int selectedl = -1;
 	int selectedr = -1;
@@ -1186,8 +1185,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		tooly += 17;
 		
 		//Covert input to lower case
-		c = 0;
-		while (ed.str[c]) { tempString[c] = tolower(ed.str[c]); c++; } tempString[c] = 0;
+		std::string searchLower = Format::ToLower(ed.str);
 		
 		firstResult = -1;
 		hover = -1;
@@ -1197,9 +1195,8 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 			if (i == PT_EXPL && !explUnlocked)
 				continue;
 #endif
-			c = 0;
-			while (ptypes[i].name[c]) { tempCompare[c] = tolower(ptypes[i].name[c]); c++; } tempCompare[c] = 0;
-			if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
+			std::string nameLower = Format::ToLower(globalSim->elements[i].Name);
+			if (nameLower.find(searchLower) != nameLower.npos && globalSim->elements[i].Enabled)
 			{
 				Tool* foundTool = GetToolFromIdentifier(globalSim->elements[i].Identifier);
 				if (!foundTool)
@@ -1251,11 +1248,10 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 				if (i == PT_EXPL && !explUnlocked)
 					continue;
 #endif
-				c = 0;
-				while (ptypes[i].descs[c]) { tempCompare[c] = tolower(ptypes[i].descs[c]); c++; } tempCompare[c] = 0;
-				if(strstr(tempCompare, tempString)!=0 && ptypes[i].enabled)
+				std::string descLower = Format::ToLower(globalSim->elements[i].Description);
+				if (descLower.find(searchLower) != descLower.npos && globalSim->elements[i].Enabled)
 				{
-					tempInts[found].first = (strstr(tempCompare, tempString)==NULL)?0:1;
+					tempInts[found].first = 1;
 					tempInts[found++].second = i;
 				}
 			}
@@ -1585,13 +1581,13 @@ void prop_edit_ui(pixel *vid_buf)
 		}
 		else
 		{
-			if (!console_parse_type(ed2.str, (int*)(&value), NULL))
+			if (!console_parse_type(ed2.str, (int*)(&value), NULL, globalSim))
 			{
 				error_ui(vid_buf, 0, "Invalid element name");
 				goto exit;
 			}
 		}
-		if (format == 2 && (value > PT_NUM || !ptypes[value].enabled))
+		if (format == 2 && (value > PT_NUM || !globalSim->elements[value].Enabled))
 		{
 			error_ui(vid_buf, 0, "Invalid element number");
 			goto exit;
@@ -3014,22 +3010,18 @@ void menu_draw_text(Tool* over, int y)
 		return;
 	std::stringstream toolTip;
 	int toolID = over->GetID();
-	if (over->GetType() == ELEMENT_TOOL)
-	{
-		toolTip << ptypes[toolID].descs;
-	}
-	else if (over->GetType() == HUD_MENU_BUTTON)
+	if (over->GetType() == HUD_MENU_BUTTON)
 	{
 		if (hud_menu[toolID].name.find("#") == hud_menu[toolID].name.npos)
-			toolTip << hud_menu[toolID].description;
+			toolTip << over->GetDescription();
 		else
 		{
-			toolTip << hud_menu[toolID].description << currentHud[toolID-HUD_REALSTART] << " decimal places";
+			toolTip << over->GetDescription() << currentHud[toolID-HUD_REALSTART] << " decimal places";
 		}
 	}
 	else if (over->GetType() == FAV_MENU_BUTTON)
 	{
-		toolTip << fav[toolID].description;
+		toolTip << over->GetDescription();
 		if (toolID == FAV_ROTATE)
 		{
 			if (globalSim->msRotation)
@@ -3067,18 +3059,10 @@ void menu_draw_text(Tool* over, int y)
 			toolTip << time;
 		}
 	}
-	else if (over->GetType() == GOL_TOOL)
-		toolTip << golTypes[toolID].description;
-	else if (over->GetType() == DECO_PRESET)
-		toolTip << colorlist[toolID].descs;
-	else if (over->GetType() == WALL_TOOL)
-		toolTip << wallTypes[toolID].descs;
-	else if (over->GetType() == TOOL_TOOL)
-		toolTip << toolTypes[toolID].descs;
-	else if (over->GetType() == DECO_TOOL)
-		toolTip << decoTypes[toolID].descs;
+	else
+		toolTip << over->GetDescription();
 	if (toolTip.str().size())
-		UpdateToolTip(toolTip.str(), Point(XRES-textwidth(toolTip.str().c_str())-BARSIZE, y), ELEMENTTIP, -1);
+		UpdateToolTip(toolTip.str(), Point(XRES - textwidth(toolTip.str().c_str()) - BARSIZE, y), ELEMENTTIP, -1);
 }
 
 void menu_select_element(int b, Tool* over)

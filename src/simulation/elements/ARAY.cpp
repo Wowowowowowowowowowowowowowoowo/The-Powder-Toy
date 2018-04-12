@@ -133,7 +133,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									{
 										sim->spark_all_attempt(r, x+nxi+nxx, y+nyi+nyy);
 									}
-									if (!(nostop && parts[r].type==PT_SPRK && parts[r].ctype >= 0 && parts[r].ctype < PT_NUM && (ptypes[parts[r].ctype].properties&PROP_CONDUCTS)))
+									if (!(nostop && parts[r].type==PT_SPRK && parts[r].ctype >= 0 && parts[r].ctype < PT_NUM && (sim->elements[parts[r].ctype].Properties & PROP_CONDUCTS)))
 										docontinue = 0;
 									else
 										docontinue = 1;
