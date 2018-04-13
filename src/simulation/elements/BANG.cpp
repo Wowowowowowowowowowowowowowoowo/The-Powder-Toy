@@ -81,7 +81,7 @@ int BANG_update(UPDATE_FUNC_ARGS)
 			}
 			else
 			{
-				kill_part(i);
+				sim->part_kill(i);
 			}
 		}
 		return 1;

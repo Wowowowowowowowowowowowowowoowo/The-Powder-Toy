@@ -1768,7 +1768,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 								parts[i].life = parts[i].ctype = 0;
 							}
 							else
-								kill_part(i);
+								globalSim->part_kill(i);
 						}
 					globalSim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
 				}

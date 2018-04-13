@@ -162,7 +162,7 @@ int NEUT_update(UPDATE_FUNC_ARGS)
 				case PT_TTAN:
 					if (!(rand()%20))
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 					break;

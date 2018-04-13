@@ -221,7 +221,7 @@ public:
 					parts[i].vy = movingSolid->vy;
 				}
 				if (sim->OutOfBounds((int)(parts[i].x+.5f), (int)(parts[i].y+.5f)))//kill_part if particle is out of bounds
-					kill_part(i);
+					sim->part_kill(i);
 			}
 		}
 		for (int bn = 0; bn < numBalls; bn++)

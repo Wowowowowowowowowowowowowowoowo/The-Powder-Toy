@@ -51,7 +51,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 	switch (ct)
 	{
 	case PT_SPRK:
-		kill_part(i);
+		sim->part_kill(i);
 		return 1;
 	case PT_NTCT:
 	case PT_PTCT:

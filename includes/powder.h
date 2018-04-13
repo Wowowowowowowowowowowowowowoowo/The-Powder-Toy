@@ -56,8 +56,6 @@ extern unsigned photons[YRES][XRES];
 
 int get_wavelength_bin(int *wm);
 
-void kill_part(int i);
-
 int interactWavelengths(particle* cpart, int origWl);
 int getWavelengths(particle* cpart);
 
@@ -76,12 +74,6 @@ void set_emap(int x, int y);
 int parts_avg(int ci, int ni, int t);
 
 int nearest_part(int ci, int t, int max_d);
-
-void decrease_life(Simulation *sim, int i);
-
-void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert);
-
-void clear_area(int area_x, int area_y, int area_w, int area_h);
 
 int INST_flood_spark(Simulation *sim, int x, int y);
 

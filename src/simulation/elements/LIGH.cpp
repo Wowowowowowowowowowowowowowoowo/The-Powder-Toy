@@ -261,7 +261,7 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	}
 	else if (parts[i].tmp2 == -1)
 	{
-		kill_part(i);
+		sim->part_kill(i);
 		return 1;
 	}
 	else if (parts[i].tmp2 <= 0 || parts[i].life<=1)

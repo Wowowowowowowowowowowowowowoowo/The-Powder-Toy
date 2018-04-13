@@ -41,7 +41,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					if (parts[i].tmp<100 && 500>rand()%absorbChanceDenom)
 					{
 						parts[i].tmp++;
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 					}
 					break;
 				case PT_PSTE:
@@ -56,7 +56,7 @@ int GEL_update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].tmp++;
 						if (rand()%4)
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						else
 							part_change_type(ID(r), x+rx, y+ry, PT_SALT);
 					}

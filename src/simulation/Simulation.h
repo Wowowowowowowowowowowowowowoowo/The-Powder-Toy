@@ -65,8 +65,10 @@ public:
 	void part_delete(int x, int y);
 	bool part_change_type(int i, int x, int y, int t);
 	void part_change_type_force(int i, int t);
+	void ClearArea(int x, int y, int w, int h);
 
 	void RecalcFreeParticles(bool doLifeDec);
+	void DecreaseLife(int &i, int &t);
 	void UpdateBefore();
 	void UpdateParticles(int start, int end);
 	void UpdateAfter();

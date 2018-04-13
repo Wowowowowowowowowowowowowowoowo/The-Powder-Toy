@@ -63,7 +63,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 	{
 		if (!(rand()%7))
 		{
-			kill_part(ID(photons[y][x]));
+			sim->part_kill(ID(photons[y][x]));
 		}
 	}
 	return 0;

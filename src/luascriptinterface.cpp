@@ -556,7 +556,7 @@ int simulation_partKill(lua_State * l)
 	{
 		int i = lua_tointeger(l, 1);
 		if (i>=0 && i<NPART)
-			kill_part(lua_tointeger(l, 1));
+			luaSim->part_kill(lua_tointeger(l, 1));
 	}
 	return 0;
 }
@@ -1051,7 +1051,7 @@ int simulation_clearRect(lua_State * l)
 	int y = luaL_checkint(l,2);
 	int w = luaL_checkint(l,3);
 	int h = luaL_checkint(l,4);
-	clear_area(x, y, w, h);
+	luaSim->ClearArea(x, y, w, h);
 	return 0;
 }
 

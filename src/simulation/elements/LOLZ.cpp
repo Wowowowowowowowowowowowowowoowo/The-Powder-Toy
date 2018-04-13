@@ -73,7 +73,7 @@ int LOLZ_update(UPDATE_FUNC_ARGS)
 {
 	//kill any out of range LOLZ
 	if (x<9 || y<9 || x>=(int)((XRES-4)/9)*9 || y>=(int)((YRES-4)/9)*9)
-		kill_part(i);
+		sim->part_kill(i);
 	return 0;
 }
 

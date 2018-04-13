@@ -29,7 +29,7 @@ int PBCN_update(UPDATE_FUNC_ARGS)
 		parts[i].tmp2--;
 		if (!parts[i].tmp2)
 		{
-			kill_part(i);
+			sim->part_kill(i);
 			return 1;
 		}
 	}

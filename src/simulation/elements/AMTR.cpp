@@ -38,13 +38,13 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 						parts[i].life++;
 						if (parts[i].life == 4)
 						{
-							kill_part(i);
+							sim->part_kill(i);
 							return 1;
 						}
 						if (!(rand()%10))
 							sim->part_create(ID(r), x+rx, y+ry, PT_PHOT);
 						else
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						sim->air->pv[y/CELL][x/CELL] -= 2.0f;
 					}
 				}

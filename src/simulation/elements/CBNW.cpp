@@ -99,10 +99,10 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 				}
 				else if (rt == PT_FIRE && parts[ID(r)].ctype != PT_WATR)
 				{
-					kill_part(ID(r));
+					sim->part_kill(ID(r));
 					if (!(rand()%50))
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}

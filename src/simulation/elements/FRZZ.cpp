@@ -29,7 +29,7 @@ int FRZZ_update(UPDATE_FUNC_ARGS)
 				{
 					part_change_type(ID(r),x+rx,y+ry,PT_FRZW);
 					parts[ID(r)].life = 100;
-					kill_part(i);
+					sim->part_kill(i);
 					return 1;
 				}
 			}

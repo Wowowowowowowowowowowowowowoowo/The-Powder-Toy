@@ -34,10 +34,10 @@ int CO2_update(UPDATE_FUNC_ARGS)
 				}
 				if (TYP(r)==PT_FIRE)
 				{
-					kill_part(ID(r));
+					sim->part_kill(ID(r));
 					if(!(rand()%30))
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}
@@ -51,7 +51,7 @@ int CO2_update(UPDATE_FUNC_ARGS)
 					}
 					else
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}

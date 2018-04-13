@@ -37,7 +37,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	{
 		if (rand()%500<1)
 		{
-			kill_part(i);
+			sim->part_kill(i);
 			return 1;
 		}
 	}
@@ -52,7 +52,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	//kill moving solid control particle with a lot of pressure (other ones disappear at 30 pressure)
 	if (!tmp && !tmp2 && (sim->air->pv[y/CELL][x/CELL] > 10 || sim->air->pv[y/CELL][x/CELL] < -10))
 	{
-		kill_part(i);
+		sim->part_kill(i);
 		return 1;
 	}
 	type = TYP(pmap[y+1][x]);

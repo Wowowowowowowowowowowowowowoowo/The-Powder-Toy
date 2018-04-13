@@ -31,7 +31,7 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 					break;
 				case PT_PLNT:
 					if (!(rand()%40))
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 					break;
 				case PT_RBDM:
 				case PT_LRBD:
@@ -45,10 +45,10 @@ int SLTW_update(UPDATE_FUNC_ARGS)
 				case PT_FIRE:
 					if (parts[ID(r)].ctype != PT_WATR)
 					{
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 						if (!(rand()%30))
 						{
-							kill_part(i);
+							sim->part_kill(i);
 							return 1;
 						}
 					}

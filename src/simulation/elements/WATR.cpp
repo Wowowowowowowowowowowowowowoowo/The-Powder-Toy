@@ -40,10 +40,10 @@ int WATR_update(UPDATE_FUNC_ARGS)
 				}
 				else if (TYP(r)==PT_FIRE && parts[ID(r)].ctype!=PT_WATR)
 				{
-					kill_part(ID(r));
+					sim->part_kill(ID(r));
 					if (!(rand()%30))
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}

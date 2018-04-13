@@ -47,7 +47,7 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 				{
 					if (!(rand()%9))
 					{
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 						part_change_type(i, x, y, PT_WATR);
 						sim->air->pv[y/CELL][x/CELL] += 4.0;
 					}

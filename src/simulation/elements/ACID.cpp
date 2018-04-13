@@ -40,7 +40,7 @@ int ACID_update(UPDATE_FUNC_ARGS)
 						{
 							part_change_type(i, x, y, PT_CAUS);
 							parts[i].life = (rand()%50) + 25;
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						}
 					}
 					else if ((!(sim->elements[rt].Properties&PROP_CLONE) && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE)
@@ -54,12 +54,12 @@ int ACID_update(UPDATE_FUNC_ARGS)
 								newtemp = 0;
 							parts[i].temp += newtemp;
 							parts[i].life--;
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						}
 					}
 					else if (parts[i].life <= 50)
 					{
-						kill_part(i);
+						sim->part_kill(i);
 						return 1;
 					}
 				}

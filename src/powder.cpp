@@ -71,12 +71,6 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 	}
 }
 
-void kill_part(int i)//kills particle number i
-{
-	//TODO: replace everything with this
-	globalSim->part_kill(i);
-}
-
 void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
 {
 	globalSim->part_change_type(i, x, y, t);
@@ -257,54 +251,6 @@ int nearest_part(int ci, int t, int max_d)
 		}
 	}
 	return id;
-}
-
-void decrease_life(Simulation *sim, int i)
-{
-	unsigned int elem_properties;
-	int t = parts[i].type;
-	if (t<0 || t>=PT_NUM)
-	{
-		kill_part(i);
-		return;
-	}
-	elem_properties = sim->elements[t].Properties;
-	if (parts[i].life>0 && (elem_properties&PROP_LIFE_DEC))
-	{
-		// automatically decrease life
-		parts[i].life--;
-		if (parts[i].life<=0 && (elem_properties&(PROP_LIFE_KILL_DEC|PROP_LIFE_KILL)))
-		{
-			// kill on change to no life
-			kill_part(i);
-			return;
-		}
-	}
-	else if (parts[i].life<=0 && (elem_properties&PROP_LIFE_KILL))
-	{
-		// kill if no life
-		kill_part(i);
-		return;
-	}
-}
-
-void clear_area(int area_x, int area_y, int area_w, int area_h)
-{
-	float fx = area_x-.5f, fy = area_y-.5f;
-	for (int i = 0; i <= globalSim->parts_lastActiveIndex; i++)
-	{
-		if (parts[i].type)
-			if (parts[i].x >= fx && parts[i].x <= fx+area_w && parts[i].y >= fy && parts[i].y <= fy+area_h)
-				kill_part(i);
-	}
-	for (int cy = 0; cy < area_h; cy++)
-	{
-		for (int cx = 0; cx < area_w; cx++)
-		{
-			bmap[(cy+area_y)/CELL][(cx+area_x)/CELL] = 0;
-		}
-	}
-	DeleteSignsInArea(Point(area_x, area_y), Point(area_x+area_w, area_y+area_h));
 }
 
 int flood_water(int x, int y, int i, int originaly, int check)

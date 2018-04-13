@@ -46,7 +46,7 @@ int DEST_update(UPDATE_FUNC_ARGS)
 	}
 	else if (!(rand()%3))
 	{
-		kill_part(ID(r));
+		sim->part_kill(ID(r));
 		parts[i].life -= 4*((sim->elements[TYP(r)].Properties&TYPE_SOLID)?3:1);
 		if (parts[i].life<=0)
 			parts[i].life=1;

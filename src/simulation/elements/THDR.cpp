@@ -48,7 +48,7 @@ int THDR_update(UPDATE_FUNC_ARGS)
 			}
 	if (kill)
 	{
-		kill_part(i);
+		sim->part_kill(i);
 		return 1;
 	}
 	return 0;

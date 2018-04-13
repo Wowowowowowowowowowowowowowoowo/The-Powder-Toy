@@ -1988,7 +1988,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				try
 				{
 					clipboardData->BuildSave();
-					clear_area(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
+					sim->ClearArea(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				}
 				catch (BuildException e)
 				{

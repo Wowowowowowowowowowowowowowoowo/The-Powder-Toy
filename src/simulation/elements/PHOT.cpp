@@ -23,7 +23,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 	float rr, rrr;
 	if (!(parts[i].ctype&0x3FFFFFFF))
 	{
-		kill_part(i);
+		sim->part_kill(i);
 		return 1;
 	}
 	if (parts[i].temp > 506.0f)

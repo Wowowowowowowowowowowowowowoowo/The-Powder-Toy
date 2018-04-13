@@ -42,7 +42,7 @@ int DEUT_update(UPDATE_FUNC_ARGS)
 						if (parts[ID(r)].life <= maxlife - parts[i].life - 1)
 						{
 							parts[i].life += parts[ID(r)].life + 1;
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						}
 					}
 				}

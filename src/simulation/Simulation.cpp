@@ -1128,6 +1128,52 @@ void Simulation::part_delete(int x, int y)
 		part_kill(ID(pmap[y][x]));
 }
 
+void Simulation::ClearArea(int x, int y, int w, int h)
+{
+	float fx = x - .5f, fy = y - .5f;
+	for (int i = 0; i <= parts_lastActiveIndex; i++)
+	{
+		if (parts[i].type)
+			if (parts[i].x >= fx && parts[i].x <= fx + w && parts[i].y >= fy && parts[i].y <= fy + h)
+				part_kill(i);
+	}
+	for (int cy = 0; cy < h; cy++)
+	{
+		for (int cx = 0; cx < w; cx++)
+		{
+			bmap[(cy+y)/CELL][(cx+x)/CELL] = 0;
+		}
+	}
+	DeleteSignsInArea(Point(x, y), Point(x+w, y+h));
+}
+
+void Simulation::DecreaseLife(int &i, int &t)
+{
+	if (t < 0 || t >= PT_NUM)
+	{
+		part_kill(i);
+		return;
+	}
+	unsigned int elem_properties = elements[t].Properties;
+	if (parts[i].life > 0 && (elem_properties & PROP_LIFE_DEC))
+	{
+		// automatically decrease life
+		parts[i].life--;
+		if (parts[i].life <= 0 && (elem_properties & (PROP_LIFE_KILL_DEC | PROP_LIFE_KILL)))
+		{
+			// kill on change to no life
+			part_kill(i);
+			return;
+		}
+	}
+	else if (parts[i].life <= 0 && (elem_properties & PROP_LIFE_KILL))
+	{
+		// kill if no life
+		part_kill(i);
+		return;
+	}
+}
+
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.
  * This ensures that future particle allocations are done near the start of the parts array, to keep parts_lastActiveIndex low.
  * parts_lastActiveIndex is also decreased if appropriate.
@@ -1188,7 +1234,7 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 			NUM_PARTS++;
 			//decrease the life of certain elements by 1 every frame
 			if (doLifeDec && (!sys_pause || framerender))
-				decrease_life(this, i);
+				DecreaseLife(i, t);
 		}
 		else
 		{

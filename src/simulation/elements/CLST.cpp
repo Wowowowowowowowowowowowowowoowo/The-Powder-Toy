@@ -31,7 +31,7 @@ int CLST_update(UPDATE_FUNC_ARGS)
 					if (!(rand()%1500))
 					{
 						sim->part_create(i, x, y, PT_PSTS);
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 					}
 				}
 				else if (TYP(r) == PT_NITR)

@@ -387,7 +387,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 			else if ((strcmp(console2, "delete")==0 || strcmp(console2, "kill")==0) && console3[0])
 			{
 				if (console_parse_partref(console3, &i, console_error))
-					kill_part(i);
+					sim->part_kill(i);
 			}
 			else if (strcmp(console2, "reset")==0 && console3[0])
 			{
@@ -419,7 +419,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 								parts[i].life = parts[i].ctype = 0;
 							}
 							else
-								kill_part(i);
+								sim->part_kill(i);
 						}
 					sim->elementData[PT_WIFI]->Simulation_Cleared(sim);
 				}

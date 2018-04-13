@@ -41,7 +41,7 @@ int QRTZ_update(UPDATE_FUNC_ARGS)
 						continue;
 					else if (TYP(r)==PT_SLTW && !(rand()%500))
 					{
-						kill_part(ID(r));
+						sim->part_kill(ID(r));
 						parts[i].tmp++;
 					}
 				}

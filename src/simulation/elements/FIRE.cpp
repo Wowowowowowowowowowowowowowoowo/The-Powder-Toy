@@ -169,7 +169,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 						if (parts[i].ctype == PT_IRON && !(rand()%500))
 						{
 							parts[i].ctype = PT_METL;
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						}
 					}
 				}

@@ -1651,7 +1651,7 @@ int luatpt_reset_spark(lua_State* l)
 				parts[i].life = parts[i].ctype = 0;
 			}
 			else
-				kill_part(i);
+				luaSim->part_kill(i);
 		}
 	}
 	return 0;
@@ -2000,7 +2000,7 @@ int luatpt_delete(lua_State* l)
 	arg2 = luaL_optint(l, 2, -1);
 	if (arg2 == -1 && arg1 < NPART)
 	{
-		kill_part(arg1);
+		luaSim->part_kill(arg1);
 		return 0;
 	}
 	arg2 = abs(arg2);

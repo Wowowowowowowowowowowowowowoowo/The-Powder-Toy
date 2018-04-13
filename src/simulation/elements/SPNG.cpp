@@ -35,7 +35,7 @@ int SPNG_update(UPDATE_FUNC_ARGS)
 						if (parts[i].life<limit && 500>rand()%absorbChanceDenom)
 						{
 							parts[i].life++;
-							kill_part(ID(r));
+							sim->part_kill(ID(r));
 						}
 						break;
 					case PT_SLTW:
@@ -43,7 +43,7 @@ int SPNG_update(UPDATE_FUNC_ARGS)
 						{
 							parts[i].life++;
 							if (rand()%4)
-								kill_part(ID(r));
+								sim->part_kill(ID(r));
 							else
 								part_change_type(ID(r), x+rx, y+ry, PT_SALT);
 						}
