@@ -130,7 +130,7 @@ void SetRightHudText(Simulation * sim, int x, int y)
 			else if (currentHud[11])
 			{
 				if (parts[underID].ctype > 0 && parts[underID].ctype < PT_NUM)
-					sprintf(nametext,"Ctype: %s ", ptypes[parts[underID].ctype].name);
+					sprintf(nametext,"Ctype: %s ", sim->elements[parts[underID].ctype].Name.c_str());
 				else if (currentHud[12])
 					sprintf(nametext,"Ctype: %d ", parts[underID].ctype);
 			}
@@ -541,7 +541,7 @@ void DrawRecordsInfo(Simulation * sim)
 		if (activeTools[0]->GetType() == GOL_TOOL)
 			sprintf(infotext,"%%%s: %f", golTypes[activeTools[0]->GetID()].name.c_str(),(float)totalselected/num_parts*100);
 		else if (((ElementTool*)activeTools[0])->GetID() > 0)
-			sprintf(infotext,"%%%s: %f", ptypes[activeTools[0]->GetID()].name,(float)totalselected/num_parts*100);
+			sprintf(infotext,"%%%s: %f", sim->elements[activeTools[0]->GetID()].Name.c_str(),(float)totalselected/num_parts*100);
 		else
 			sprintf(infotext,"%%Empty: %f", (float)totalselected/XRES/YRES*100);
 		fillrect(vid_buf, 12, ytop+108, textwidth(infotext)+8, 15, 0, 0, 0, 140);

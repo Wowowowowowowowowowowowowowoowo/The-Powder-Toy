@@ -2474,14 +2474,13 @@ void initElementsAPI(lua_State * l)
 	{
 		if(luaSim->elements[i].Enabled)
 		{
-			char realidentifier[24];
 			lua_pushinteger(l, i);
 			lua_setfield(l, -2, luaSim->elements[i].Identifier.c_str());
-			sprintf(realidentifier,"DEFAULT_PT_%s",ptypes[i].name);
-			if (i != 0 && i != PT_NBHL && i != PT_NWHL && strcmp(luaSim->elements[i].Identifier.c_str(), realidentifier))
+			std::string realidentifier = "DEFAULT_PT_" + luaSim->elements[i].Name;
+			if (i != 0 && i != PT_NBHL && i != PT_NWHL && luaSim->elements[i].Identifier.c_str() != realidentifier)
 			{
 				lua_pushinteger(l, i);
-				lua_setfield(l, -2, realidentifier);
+				lua_setfield(l, -2, realidentifier.c_str());
 			}
 		}
 	}
@@ -2761,7 +2760,6 @@ int elements_loadDefault(lua_State * l)
 				luaSim->elements[id].Init(luaSim, &luaSim->elements[id], id);
 			else
 				luaSim->elements[id] = Element();
-			Simulation_Compat_CopyData(luaSim);
 		}
 
 		lua_pushinteger(l, id);
@@ -2773,7 +2771,6 @@ int elements_loadDefault(lua_State * l)
 		for (int i = 0; i < PT_NUM; i++)
 			if (luaSim->elements[i].Init)
 				luaSim->elements[i].Init(luaSim, &luaSim->elements[i], i);
-		Simulation_Compat_CopyData(luaSim);
 		lua_pushnil(l);
 		lua_setglobal(l, "elements");
 		lua_pushnil(l);
@@ -2829,7 +2826,6 @@ int elements_allocate(lua_State * l)
 			luaSim->elements[i].MenuSection = SC_OTHER;
 			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
 
-			Simulation_Compat_CopyData(luaSim);
 			break;
 		}
 	}
@@ -2847,7 +2843,6 @@ int elements_allocate(lua_State * l)
 				luaSim->elements[i].MenuSection = SC_OTHER;
 				menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
 
-				Simulation_Compat_CopyData(luaSim);
 				break;
 			}
 		}
@@ -2920,7 +2915,6 @@ int elements_element(lua_State * l)
 		else
 			lua_pop(l, 1);
 
-		Simulation_Compat_CopyData(luaSim);
 		FillMenus();
 		luaSim->InitCanMove();
 		graphicscache[id].isready = 0;
@@ -2977,7 +2971,6 @@ int elements_property(lua_State * l)
 					graphicscache[id].isready = 0;
 			}
 
-			Simulation_Compat_CopyData(luaSim);
 			return 0;
 		}
 		else if(!strcmp(propertyName,"Update"))

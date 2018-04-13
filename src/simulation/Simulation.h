@@ -199,8 +199,6 @@ private:
 	bool CheckPressureTransitions(int i, int t);
 };
 
-void Simulation_Compat_CopyData(Simulation *sim);
-
 extern Simulation *globalSim; // TODO: remove this
 
 #endif

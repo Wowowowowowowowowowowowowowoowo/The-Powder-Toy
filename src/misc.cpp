@@ -636,12 +636,6 @@ void load_presets(void)
 			autosave = tmpobj->valueint;
 		if ((tmpobj = cJSON_GetObjectItem(root, "autosave")))
 			autosave = tmpobj->valueint;
-		/*if ((tmpobj = cJSON_GetObjectItem(root, "realistic")))
-		{
-			realistic = tmpobj->valueint;
-			if (realistic)
-				ptypes[PT_FIRE].hconduct = 1;
-		}*/
 #ifndef NOMOD
 		if ((tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")))
 		{

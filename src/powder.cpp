@@ -32,8 +32,6 @@
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 
-part_type ptypes[PT_NUM];
-
 particle *parts;
 
 int airMode = 0;

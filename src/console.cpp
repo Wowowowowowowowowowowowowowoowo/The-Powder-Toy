@@ -62,7 +62,7 @@ int console_parse_type(const char *txt, int *element, char *err, Simulation *sim
 	}
 	for (i=1; i<PT_NUM; i++)
 	{
-		if (!strcasecmp(txt,ptypes[i].name) && (sim->elements[i].Enabled || secret_els))
+		if (!strcasecmp(txt, sim->elements[i].Name.c_str()) && (sim->elements[i].Enabled || secret_els))
 		{
 			if (element) *element = i;
 			if (err) strcpy(err,"");
@@ -321,7 +321,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 				if (strcmp(console3, "type")==0)//TODO: add more than just type, and be able to check greater/less than
 				{
 					if (console_parse_partref(console4, &i, console_error)
-						&& console_parse_type(console5, &j, console_error, sim))
+					    && console_parse_type(console5, &j, console_error, sim))
 					{
 						if (parts[i].type==j)
 							return 1;
@@ -488,7 +488,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **
 					else
 					{
 						if (console_parse_partref(console4, &i, console_error) && j != 0
-							&& console_parse_type(console5, &j, console_error, sim))
+						    && console_parse_type(console5, &j, console_error, sim))
 						{
 							sim->part_change_type_force(i, j);
 						}

@@ -45,6 +45,7 @@ extern "C"
 #include "luascriptinterface.h"
 #include "save.h"
 
+#include "common/Format.h"
 #include "common/SDL_keysym.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
@@ -71,7 +72,6 @@ int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, t
 void luacon_open()
 {
 	int i = 0;
-	char tmpname[12];
 	int currentElementMeta, currentElement;
 	const static struct luaL_Reg tptluaapi [] = {
 		{"test", &luatpt_test},
@@ -259,12 +259,9 @@ tpt.partsdata = nil");
 	
 	lua_newtable(l);
 	tptElements = lua_gettop(l);
-	for(i = 1; i < PT_NUM; i++)
+	for (i = 1; i < PT_NUM; i++)
 	{
-		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
-			tmpname[j] = tolower(ptypes[i].name[j]);
-		tmpname[strlen(ptypes[i].name)] = 0;
-		
+		std::string name = Format::ToLower(luaSim->elements[i].Name);
 		lua_newtable(l);
 		currentElement = lua_gettop(l);
 		lua_pushinteger(l, i);
@@ -278,18 +275,15 @@ tpt.partsdata = nil");
 		lua_setfield(l, currentElementMeta, "__index");
 		lua_setmetatable(l, currentElement);
 		
-		lua_setfield(l, tptElements, tmpname);
+		lua_setfield(l, tptElements, name.c_str());
 	}
 	lua_setfield(l, tptProperties, "el");
 	
 	lua_newtable(l);
 	tptElementTransitions = lua_gettop(l);
-	for(i = 1; i < PT_NUM; i++)
+	for (i = 1; i < PT_NUM; i++)
 	{
-		for(unsigned int j = 0; j < strlen(ptypes[i].name); j++)
-			tmpname[j] = tolower(ptypes[i].name[j]);
-		tmpname[strlen(ptypes[i].name)] = 0;
-		
+		std::string name = Format::ToLower(luaSim->elements[i].Name);
 		lua_newtable(l);
 		currentElement = lua_gettop(l);		
 		lua_newtable(l);
@@ -302,7 +296,7 @@ tpt.partsdata = nil");
 		lua_setfield(l, currentElementMeta, "__index");
 		lua_setmetatable(l, currentElement);
 		
-		lua_setfield(l, tptElementTransitions, tmpname);
+		lua_setfield(l, tptElementTransitions, name.c_str());
 	}
 	lua_setfield(l, tptProperties, "eltransition");
 	
@@ -509,7 +503,6 @@ int luacon_transitionwrite(lua_State* l)
 		return luaL_error(l, "Invalid property");
 	}
 	elements_setProperty(l, i, format, offset);
-	Simulation_Compat_CopyData(luaSim);
 	return 0;
 }
 
@@ -724,7 +717,6 @@ int luacon_elementwrite(lua_State* l)
 	else
 		free(tempstring);
 	elements_setProperty(l, i, format, offset);
-	Simulation_Compat_CopyData(luaSim);
 	if (modified_stuff)
 	{
 		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)

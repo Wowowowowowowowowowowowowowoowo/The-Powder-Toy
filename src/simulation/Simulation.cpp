@@ -69,6 +69,9 @@ Simulation::Simulation():
 {
 	std::fill(&elementData[0], &elementData[PT_NUM], static_cast<ElementDataContainer*>(NULL));
 
+	// Initialize global parts variable. TODO: make everything use sim->parts
+	::parts = this->parts;
+
 	air = new Air();
 
 	Clear();
@@ -86,10 +89,6 @@ Simulation::~Simulation()
 			elementData[t] = NULL;
 		}
 	}
-	for (int t = 0; t < PT_NUM; t++)
-	{
-		free(ptypes[t].name);
-	}
 	delete air;
 }
 
@@ -98,13 +97,6 @@ void Simulation::InitElements()
 	#define DEFINE_ELEMENT(name, id) if (id>=0 && id<PT_NUM) { name ## _init_element(this, &elements[id], id); };
 	#define ElementNumbers_Include_Call
 	#include "simulation/ElementNumbers.h"
-
-	for (int t = 0; t < PT_NUM; t++)
-	{
-		ptypes[t].name = NULL;
-	}
-
-	Simulation_Compat_CopyData(this);
 }
 
 void Simulation::Clear()
@@ -3594,16 +3586,3 @@ void Simulation::FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColou
  *End of tool creation section
  *
  */
-
-//This is not part of the simulation class
-void Simulation_Compat_CopyData(Simulation* sim)
-{
-	// TODO: this can be removed once all the code uses Simulation instead of global variables
-	parts = sim->parts;
-
-	for (int t = 0; t < PT_NUM; t++)
-	{
-		free(ptypes[t].name);
-		ptypes[t].name = mystrdup(sim->elements[t].Name.c_str());
-	}
-}

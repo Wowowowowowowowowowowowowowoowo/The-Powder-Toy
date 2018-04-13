@@ -39,14 +39,6 @@ void TRON_init_graphics();
 
 void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy);
 
-struct part_type
-{
-	char *name;
-};
-typedef struct part_type part_type;
-
-extern part_type ptypes[PT_NUM];
-
 #define CHANNELS ((int)(MAX_TEMP-73)/100+2)
 extern const particle emptyparticle;
 

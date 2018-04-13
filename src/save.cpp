@@ -126,7 +126,6 @@ int fix_type(int type, int version, int modver, int (elementPalette)[PT_NUM])
 
 int invalid_element(int save_as, int el)
 {
-	//if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || ptypes[el].enabled == 0)) //Check for mod/disabled elements
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || globalSim->elements[el].Enabled == 0)) //Check for mod/disabled elements
 		return 1;
 #ifdef BETA
@@ -155,7 +154,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				{
 					char errortext[256] = "", elname[40] = "";
 					if (parts[i].type > 0 && parts[i].type < PT_NUM)
-						sprintf(elname, "%s", ptypes[parts[i].type].name);
+						sprintf(elname, "%s", globalSim->elements[parts[i].type].Name.c_str());
 					else
 						sprintf(elname, "invalid element # %i", parts[i].type);
 					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
@@ -169,7 +168,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				{
 					char errortext[256] = "", elname[40] = "";
 					if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM)
-						sprintf(elname, "%s", ptypes[parts[i].ctype].name);
+						sprintf(elname, "%s", globalSim->elements[parts[i].ctype].Name.c_str());
 					else
 						sprintf(elname, "invalid element # %i", parts[i].ctype);
 					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
@@ -182,7 +181,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				if (give_warning)
 				{
 					char errortext[256] = "", elname[40] = "";
-					sprintf(elname, "%s", ptypes[TYP(parts[i].tmp)].name);
+					sprintf(elname, "%s", globalSim->elements[TYP(parts[i].tmp)].Name.c_str());
 					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 					error_ui(vid_buf,0,errortext);
 				}
