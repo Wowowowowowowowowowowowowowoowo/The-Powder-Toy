@@ -7615,6 +7615,12 @@ void catalogue_ui(pixel * vid_buf)
 	int ysize = 48+(YRES/CATALOGUE_S+20)*CATALOGUE_Y;
 	int x0=(XRES+BARSIZE-xsize)/2,y0=(YRES+MENUSIZE-ysize)/2,b=1,bq,mx,my;
 	int rescount = 0, imageoncycle = 0, currentoffset = 0, thidden = 0, cactive = 0;
+#ifdef TOUCHUI
+	bool dragging = false;
+	bool touchDragged2 = false;
+#endif
+	int initialOffset = 0;
+	bool touchDragged = false; // when true, ignore clicks on saves
 	int listy = 0, listxc;
 	int listx = 0, listyc;
 	pixel * vid_buf2;
@@ -7673,7 +7679,38 @@ void catalogue_ui(pixel * vid_buf)
 			sdl_wheel = 0;
 		}
 		offsetf += scrollvel;
-		scrollvel*=0.99f;
+		scrollvel *= 0.97f;
+		if (std::abs(scrollvel) < .1f)
+			scrollvel = 0.0f;
+
+#ifdef TOUCHUI
+		if (dragging)
+		{
+			if (!b)
+			{
+				dragging = false;
+			}
+			else
+			{
+				offsetf = initialOffset - my;
+				if (std::abs(currentoffset) > 5)
+					touchDragged = true;
+			}
+		}
+		// Delay a frame before setting this to false
+		if (touchDragged2)
+			touchDragged = touchDragged2 = false;
+		if (touchDragged && !bq)
+		{
+			touchDragged2 = true;
+		}
+		if (b && !bq)
+		{
+			dragging = true;
+			initialOffset = my + currentoffset;
+		}
+#endif
+
 		if(offsetf >= (YRES/CATALOGUE_S+20) && rescount)
 		{
 			if(rescount - thidden > CATALOGUE_X*(CATALOGUE_Y+1))
@@ -7685,11 +7722,13 @@ void catalogue_ui(pixel * vid_buf)
 					cssave = cssave->next;
 				}
 				offsetf -= (YRES/CATALOGUE_S+20);
+				initialOffset -= (YRES/CATALOGUE_S+20);
 				thidden += CATALOGUE_X;
 			} else {
 				offsetf = (YRES/CATALOGUE_S+20);
+				touchDragged = true;
 			}
-		} 
+		}
 		if(offsetf > 0.0f && rescount <= CATALOGUE_X*CATALOGUE_Y && rescount)
 		{
 			offsetf = 0.0f;
@@ -7705,13 +7744,16 @@ void catalogue_ui(pixel * vid_buf)
 					cssave = cssave->prev;
 				}
 				offsetf += (YRES/CATALOGUE_S+20);
+				initialOffset += (YRES/CATALOGUE_S+20);
 				thidden -= CATALOGUE_X;
 			} else {
 				offsetf = 0.0f;
+				touchDragged = true;
 			}
 		}
 		currentoffset = (int)offsetf;
 		csave = cssave;
+
 		//Diplay
 		if(csave!=NULL && rescount)
 		{
@@ -7724,9 +7766,9 @@ void catalogue_ui(pixel * vid_buf)
 				if(listyc > y0+ysize) //Stop when we get to the bottom of the viewable
 					break;
 				cactive = 0;
-				if (my > listyc && my < listyc+YRES/CATALOGUE_S+2 && mx > listxc && mx < listxc+XRES/CATALOGUE_S && my > y0+48 && my < y0+ysize)
+				if (!touchDragged && my > listyc && my < listyc+YRES/CATALOGUE_S+2 && mx > listxc && mx < listxc+XRES/CATALOGUE_S && my > y0+48 && my < y0+ysize)
 				{
-					if (b)
+					if (!b && bq)
 					{
 						int size;
 						char *data = (char*)file_load(csave->filename, &size);
@@ -7791,7 +7833,7 @@ void catalogue_ui(pixel * vid_buf)
 					drawtext(vid_buf2, listxc+((XRES/CATALOGUE_S)/2-textwidth(csave->name)/2), listyc+YRES/CATALOGUE_S+3, csave->name, 240, 240, 255, 180);
 				if (mx>=listxc+XRES/GRID_S-4 && mx<=listxc+XRES/GRID_S+6 && my>=listyc-6 && my<=listyc+4)
 				{
-					if (b && !bq && confirm_ui(vid_buf, "Do you want to delete?", csave->name, "Delete"))
+					if (!touchDragged && !b && bq && confirm_ui(vid_buf, "Do you want to delete?", csave->name, "Delete"))
 					{
 						remove(csave->filename);
 						if(saves!=NULL) free_saveslist(saves);
@@ -7835,8 +7877,10 @@ void catalogue_ui(pixel * vid_buf)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		if (sdl_key==SDLK_RETURN || sdl_key==SDLK_ESCAPE)
 			break;
-		if (b && !bq && (mx < x0 || mx >= x0+xsize || my < y0 || my >= y0+ysize))
+#ifndef TOUCHUI
+		if (!b && bq && (mx < x0 || mx >= x0+xsize || my < y0 || my >= y0+ysize))
 			break;
+#endif
 	}
 openfin:
 	while (!sdl_poll())

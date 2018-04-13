@@ -1147,7 +1147,7 @@ void Simulation::ClearArea(int x, int y, int w, int h)
 	DeleteSignsInArea(Point(x, y), Point(x+w, y+h));
 }
 
-void Simulation::DecreaseLife(int &i, int &t)
+void Simulation::DecreaseLife(const int &i, const int &t)
 {
 	if (t < 0 || t >= PT_NUM)
 	{
