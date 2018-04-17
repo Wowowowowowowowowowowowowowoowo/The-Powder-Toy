@@ -7618,6 +7618,7 @@ void catalogue_ui(pixel * vid_buf)
 #ifdef TOUCHUI
 	bool dragging = false;
 	bool touchDragged2 = false;
+	int initialMouseY = 0;
 #endif
 	int initialOffset = 0;
 	bool touchDragged = false; // when true, ignore clicks on saves
@@ -7693,7 +7694,7 @@ void catalogue_ui(pixel * vid_buf)
 			else
 			{
 				offsetf = initialOffset - my;
-				if (std::abs(currentoffset) > 5)
+				if (std::abs(initialMouseY - my) > 5)
 					touchDragged = true;
 			}
 		}
@@ -7708,6 +7709,7 @@ void catalogue_ui(pixel * vid_buf)
 		{
 			dragging = true;
 			initialOffset = my + currentoffset;
+			initialMouseY = my;
 		}
 #endif
 
@@ -7726,7 +7728,7 @@ void catalogue_ui(pixel * vid_buf)
 				thidden += CATALOGUE_X;
 			} else {
 				offsetf = (YRES/CATALOGUE_S+20);
-				touchDragged = true;
+				//touchDragged = true;
 			}
 		}
 		if(offsetf > 0.0f && rescount <= CATALOGUE_X*CATALOGUE_Y && rescount)
@@ -7748,7 +7750,7 @@ void catalogue_ui(pixel * vid_buf)
 				thidden -= CATALOGUE_X;
 			} else {
 				offsetf = 0.0f;
-				touchDragged = true;
+				//touchDragged = true;
 			}
 		}
 		currentoffset = (int)offsetf;
