@@ -7694,7 +7694,7 @@ void catalogue_ui(pixel * vid_buf)
 			else
 			{
 				offsetf = initialOffset - my;
-				if (std::abs(initialMouseY - my) > 5)
+				if (std::abs(initialMouseY - my) > 10)
 					touchDragged = true;
 			}
 		}
