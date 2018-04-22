@@ -641,7 +641,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 		if (hud_menu[toolID].color != COLPACK(0x000000))
 			draw_tool_button(vid_buf, x, y, PIXPACK(hud_menu[toolID].color), hud_menu[toolID].name);
 		else
-			draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((toolID)*53)%(PT_NUM-1)+1].Colour), hud_menu[toolID].name);
+			draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[((toolID)*53)%(PT_NORMAL_NUM-1)+1].Colour), hud_menu[toolID].name);
 	}
 	return 26;
 }
