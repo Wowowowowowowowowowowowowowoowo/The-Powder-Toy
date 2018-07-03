@@ -435,7 +435,7 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 						PIPE_transfer_part_to_pipe(parts+(ID(r)), parts + i);
 						sim->part_kill(ID(r));
 					}
-					else if (!TYP(parts[i].tmp) && TYP(r) == PT_STOR && sim->IsElement(parts[ID(r)].tmp) &&
+					else if (!TYP(parts[i].ctype) && TYP(r) == PT_STOR && sim->IsElement(parts[ID(r)].tmp) &&
 					         (sim->elements[parts[ID(r)].tmp].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS | TYPE_ENERGY)))
 					{
 						// STOR stores properties in the same places as PIPE does (mostly)
