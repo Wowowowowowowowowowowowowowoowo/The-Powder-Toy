@@ -550,6 +550,7 @@ void Save::ParseSaveOPS()
 		CheckBsonFieldInt(iter, "gravityMode", &gravityMode);
 		CheckBsonFieldInt(iter, "airMode", &airMode);
 		CheckBsonFieldInt(iter, "edgeMode", &edgeMode);
+		CheckBsonFieldInt(iter, "pmapbits", &pmapbits);
 		activeMenuPresent = CheckBsonFieldInt(iter, "activeMenu", &activeMenu) || activeMenuPresent;
 		decorationsEnablePresent = CheckBsonFieldBool(iter, "decorations_enable", &decorationsEnable) || decorationsEnablePresent;
 
