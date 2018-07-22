@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/FILT.h"
 
 unsigned int wavelengthToDecoColour(int wavelength)
 {

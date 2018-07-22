@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/elements/FILT.h"
 
 int ARAY_update(UPDATE_FUNC_ARGS)
 {

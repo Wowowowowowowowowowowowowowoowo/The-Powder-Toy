@@ -56,9 +56,6 @@ extern unsigned photons[YRES][XRES];
 
 int get_wavelength_bin(int *wm);
 
-int interactWavelengths(particle* cpart, int origWl);
-int getWavelengths(particle* cpart);
-
 void part_change_type(int i, int x, int y, int t);
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY);

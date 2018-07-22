@@ -128,10 +128,8 @@ int invalid_element(int save_as, int el)
 {
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || globalSim->elements[el].Enabled == 0)) //Check for mod/disabled elements
 		return 1;
-#ifdef BETA
-	//if (save_as > 1 && (el == PT_GRVT || el == PT_DRAY))
-	//	return 1;
-#endif
+	if (save_as > 1 && (el == PT_LDTC))
+		return 1;
 	return 0;
 }
 

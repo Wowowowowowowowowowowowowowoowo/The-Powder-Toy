@@ -2,6 +2,7 @@
 #include "Simulation.h"
 #include "WallNumbers.h"
 #include "common/tpt-math.h"
+#include "simulation/elements/FILT.h"
 #include "simulation/elements/PRTI.h"
 
 bool Simulation::OutOfBounds(int x, int y)
