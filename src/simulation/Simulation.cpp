@@ -1170,6 +1170,7 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 			t = parts[i].type;
 			x = (int)(parts[i].x + 0.5f);
 			y = (int)(parts[i].y + 0.5f);
+			bool inBounds = false;
 			if (parts[i].flags & FLAG_SKIPMOVE)
 				parts[i].flags &= ~FLAG_SKIPMOVE;
 			if (x >= 0 && y >= 0 && x < XRES && y < YRES)
@@ -1202,6 +1203,7 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 						pmap_count[y][x]++;
 #endif
 				}
+				inBounds = true;
 			}
 			lastPartUsed = i;
 			NUM_PARTS++;
@@ -1215,7 +1217,7 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 					return;
 				}
 				// If this is in non-activated stasis wall, don't update life
-				if (!(bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8))
+				if (!inBounds || (!(bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8)))
 				{
 					unsigned int elem_properties = elements[t].Properties;
 					if (parts[i].life > 0 && (elem_properties & PROP_LIFE_DEC))
