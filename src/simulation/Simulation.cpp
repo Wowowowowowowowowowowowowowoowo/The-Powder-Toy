@@ -1147,33 +1147,6 @@ void Simulation::ClearArea(int x, int y, int w, int h)
 	DeleteSignsInArea(Point(x, y), Point(x+w, y+h));
 }
 
-void Simulation::DecreaseLife(const int &i, const int &t)
-{
-	if (t < 0 || t >= PT_NUM)
-	{
-		part_kill(i);
-		return;
-	}
-	unsigned int elem_properties = elements[t].Properties;
-	if (parts[i].life > 0 && (elem_properties & PROP_LIFE_DEC))
-	{
-		// automatically decrease life
-		parts[i].life--;
-		if (parts[i].life <= 0 && (elem_properties & (PROP_LIFE_KILL_DEC | PROP_LIFE_KILL)))
-		{
-			// kill on change to no life
-			part_kill(i);
-			return;
-		}
-	}
-	else if (parts[i].life <= 0 && (elem_properties & PROP_LIFE_KILL))
-	{
-		// kill if no life
-		part_kill(i);
-		return;
-	}
-}
-
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.
  * This ensures that future particle allocations are done near the start of the parts array, to keep parts_lastActiveIndex low.
  * parts_lastActiveIndex is also decreased if appropriate.
@@ -1234,7 +1207,37 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 			NUM_PARTS++;
 			//decrease the life of certain elements by 1 every frame
 			if (doLifeDec && (!sys_pause || framerender))
-				DecreaseLife(i, t);
+			{
+				// TODO: is this check needed? This shouldn't be possible
+				if (t < 0 || t >= PT_NUM)
+				{
+					part_kill(i);
+					return;
+				}
+				// If this is in non-activated stasis wall, don't update life
+				if (!(bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8))
+				{
+					unsigned int elem_properties = elements[t].Properties;
+					if (parts[i].life > 0 && (elem_properties & PROP_LIFE_DEC))
+					{
+						// automatically decrease life
+						parts[i].life--;
+						if (parts[i].life <= 0 && (elem_properties & (PROP_LIFE_KILL_DEC | PROP_LIFE_KILL)))
+						{
+							// kill on change to no life
+							part_kill(i);
+							return;
+						}
+					}
+					else if (parts[i].life <= 0 && (elem_properties & PROP_LIFE_KILL)
+					        && !(bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8))
+					{
+						// kill if no life
+						part_kill(i);
+						return;
+					}
+				}
+			}
 		}
 		else
 		{
@@ -1444,6 +1447,11 @@ bool Simulation::UpdateParticle(int i)
 		part_kill(i);
 		return true;
 	}
+
+	// Make sure that STASIS'd particles don't tick.
+	if (bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL] < 8)
+		return false;
+
 	if (bmap[y/CELL][x/CELL]==WL_DETECT && emap[y/CELL][x/CELL]<8)
 		set_emap(x/CELL, y/CELL);
 
@@ -1610,7 +1618,7 @@ bool Simulation::UpdateParticle(int i)
 		{
 			if (t != PT_SPRK)
 			{
-				if (emap[ny][nx] == 12 && !parts[i].life)
+				if (emap[ny][nx] == 12 && !parts[i].life && bmap[ny][nx] != WL_STASIS)
 				{
 					spark_conductive(i, x, y);
 					parts[i].life = 4;

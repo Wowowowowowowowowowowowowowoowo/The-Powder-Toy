@@ -68,7 +68,6 @@ public:
 	void ClearArea(int x, int y, int w, int h);
 
 	void RecalcFreeParticles(bool doLifeDec);
-	void DecreaseLife(const int &i, const int &t);
 	void UpdateBefore();
 	void UpdateParticles(int start, int end);
 	void UpdateAfter();

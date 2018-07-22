@@ -493,6 +493,26 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 				}
 			}
 			break;
+		case WL_EHOLE:
+		case WL_STASIS:
+			for (j=1; j<15; j++)
+			{
+				for (i=1; i<6+j; i++)
+				{
+					if (i&j&1)
+					{
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
+					}
+				}
+				for (; i<27; i++)
+				{
+					if (!(i&j&1))
+					{
+						vid_buf[(XRES+BARSIZE)*(y+j)+(x+i)] = color;
+					}
+				}
+			}
+			break;
 		case WL_STREAM:
 			for (j=1; j<15; j++)
 			{
@@ -2807,9 +2827,10 @@ void draw_walls(pixel *vid, Simulation * sim)
 				switch (wallTypes[wt].drawstyle)
 				{
 				case 0:
-					if (wt == WL_EWALL)
+					if (wt == WL_EWALL || wt == WL_STASIS)
 					{
-						if (powered)
+						bool reverse = wt == WL_STASIS;
+						if ((powered > 0) ^ reverse)
 						{
 							for (int j = 0; j < CELL; j++)
 								for (int i =0; i < CELL; i++)
@@ -2930,21 +2951,22 @@ void draw_walls(pixel *vid, Simulation * sim)
 					switch (wallTypes[wt].drawstyle)
 					{
 					case 0:
-						if (wt == WL_EWALL)
+						if (wt == WL_EWALL || wt == WL_STASIS)
 						{
-							if (powered)
+							bool reverse = wt == WL_STASIS;
+							if ((powered > 0) ^ reverse)
 							{
 								for (int j = 0; j < CELL; j++)
 									for (int i =0; i < CELL; i++)
 										if (i&j&1)
-											drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+											drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
 							}
 							else
 							{
 								for (int j = 0; j < CELL; j++)
 									for (int i = 0; i < CELL; i++)
 										if (!(i&j&1))
-											drawblob(vid, (x*CELL+i), (y*CELL+j), 0x80, 0x80, 0x80);
+											drawblob(vid, (x*CELL+i), (y*CELL+j), PIXR(pc), PIXG(pc), PIXB(pc));
 							}
 						}
 						else if (wt == WL_WALLELEC)
