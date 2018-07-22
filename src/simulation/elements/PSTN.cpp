@@ -241,7 +241,7 @@ int PSTN_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (TYP(r) == PT_PSTN)
+					if (TYP(r) == PT_PSTN && !parts[ID(r)].life)
 					{
 						int movedPiston = 0;
 						int foundEnd = 0;
