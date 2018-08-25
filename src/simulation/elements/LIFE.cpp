@@ -93,7 +93,7 @@ void LIFE_create(ELEMENT_CREATE_FUNC_ARGS)
 
 void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
-	elem->Identifier = "DEFAULT_PT_LIFE_GOL";
+	elem->Identifier = "DEFAULT_PT_LIFE";
 	elem->Name = "LIFE";
 	elem->Colour = COLPACK(0x0CAC00);
 	elem->MenuVisible = 0;
