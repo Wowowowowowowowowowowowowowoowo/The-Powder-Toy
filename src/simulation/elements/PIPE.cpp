@@ -46,7 +46,7 @@
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
-unsigned int nextColor(unsigned int flags)
+unsigned int prevColor(unsigned int flags)
 {
 	unsigned int color = flags & PFLAG_COLORS;
 	if (color == PFLAG_COLOR_RED)
@@ -58,7 +58,7 @@ unsigned int nextColor(unsigned int flags)
 	return PFLAG_COLOR_RED;
 }
 
-unsigned int prevColor(unsigned int flags)
+unsigned int nextColor(unsigned int flags)
 {
 	unsigned int color = flags & PFLAG_COLORS;
 	if (color == PFLAG_COLOR_RED)
