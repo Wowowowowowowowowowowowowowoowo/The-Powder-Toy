@@ -46,6 +46,30 @@
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
+unsigned int nextColor(unsigned int flags)
+{
+	unsigned int color = flags & PFLAG_COLORS;
+	if (color == PFLAG_COLOR_RED)
+		return PFLAG_COLOR_GREEN;
+	else if (color == PFLAG_COLOR_GREEN)
+		return PFLAG_COLOR_BLUE;
+	else if (color == PFLAG_COLOR_BLUE)
+		return PFLAG_COLOR_RED;
+	return PFLAG_COLOR_RED;
+}
+
+unsigned int prevColor(unsigned int flags)
+{
+	unsigned int color = flags & PFLAG_COLORS;
+	if (color == PFLAG_COLOR_RED)
+		return PFLAG_COLOR_BLUE;
+	else if (color == PFLAG_COLOR_BLUE)
+		color = PFLAG_COLOR_GREEN;
+	else if (color == PFLAG_COLOR_GREEN)
+		return PFLAG_COLOR_RED;
+	return PFLAG_COLOR_GREEN;
+}
+
 void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 {
 	int coord_stack_limit = XRES*YRES;
@@ -200,7 +224,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 	// Don't push if there is nothing there, max speed of 2 per frame
 	if (!TYP(parts[i].ctype) || count >= 2)
 		return;
-	unsigned int notctype = (((((sim->parts[i].tmp & PFLAG_COLORS) >> 18) + 1) % 3) + 1) << 18;
+	unsigned int notctype = nextColor(sim->parts[i].tmp);
 	int x = (int)(parts[i].x + 0.5f);
 	int y = (int)(parts[i].y + 0.5f);
 	if (!(parts[i].tmp & 0x200))
@@ -361,34 +385,35 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 				for (int ry = -1; ry <= 1; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
+						count++;
 						int r = pmap[y+ry][x+rx];
 						if (!r)
 							continue;
 						if (TYP(r) != PT_PIPE && TYP(r) != PT_PPIP)
 							continue;
-						unsigned int nextColor = (((((parts[i].tmp & PFLAG_COLORS) >> 18) + 1) % 3) + 1) << 18;
+						unsigned int next = nextColor(parts[i].tmp);
+						unsigned int prev = prevColor(parts[i].tmp);
 						if (parts[ID(r)].tmp & PFLAG_INITIALIZING)
 						{
-							parts[ID(r)].tmp |= nextColor;
+							parts[ID(r)].tmp |= next;
 							parts[ID(r)].tmp &= ~PFLAG_INITIALIZING;
 							parts[ID(r)].life = 6;
 							// Is a single pixel pipe
 							if (parts[i].tmp & 0x100)
 							{
 								parts[ID(r)].tmp |= 0x200; // Will transfer to a single pixel pipe
-								parts[ID(r)].tmp |= count << 10;// Coords of where it came from
-								parts[i].tmp |= ((7 - count) << 14);
+								parts[ID(r)].tmp |= (count - 1) << 10;// Coords of where it came from
+								parts[i].tmp |= (8 - count) << 14;
 								parts[i].tmp |= 0x2000;
 							}
 							neighborcount ++;
 							lastneighbor = ID(r);
 						}
-						else if ((parts[ID(r)].tmp & PFLAG_COLORS) != nextColor)
+						else if ((parts[ID(r)].tmp & PFLAG_COLORS) != prev)
 						{
 							neighborcount++;
 							lastneighbor = ID(r);
 						}
-						count++;
 					}
 			if (neighborcount == 1)
 				parts[lastneighbor].tmp |= 0x100;
