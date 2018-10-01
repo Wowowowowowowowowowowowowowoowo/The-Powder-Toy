@@ -930,13 +930,14 @@ int Simulation::Move(int i, int x, int y, float nxf, float nyf)
 	parts[i].y = nyf;
 	if (ny!=y || nx!=x)
 	{
-		if ((int)ID(pmap[y][x]) == i)
+
+		if (pmap[y][x] && (int)ID(pmap[y][x]) == i)
 			pmap[y][x] = 0;
 #ifndef NOMOD
-		else if (TYP(pmap[y][x]) == PT_PINV && ID(parts[ID(pmap[y][x])].tmp2) == i)
+		else if (TYP(pmap[y][x]) == PT_PINV && ID(parts[ID(pmap[y][x])].tmp2) && ID(parts[ID(pmap[y][x])].tmp2) == i)
 			parts[ID(pmap[y][x])].tmp2 = 0;
 #endif
-		else if ((int)ID(photons[y][x]) == i)
+		else if (photons[y][x] && (int)ID(photons[y][x]) == i)
 			photons[y][x] = 0;
 
 		//kill particle if particle is out of bounds
