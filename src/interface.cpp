@@ -3685,7 +3685,7 @@ void limit_fps()
 	int correctedFrameTime = SDL_GetTicks() - currentTime;
 	correctedFrameTimeAvg = correctedFrameTimeAvg * 0.95 + correctedFrameTime * 0.05;
 	elapsedTime = currentTime-pastFPS;
-	if (elapsedTime >= 500)
+	if (elapsedTime >= 200)
 	{
 		if (!FPSwait)
 			FPSB2 = 1000.0f/(float)correctedFrameTimeAvg;
