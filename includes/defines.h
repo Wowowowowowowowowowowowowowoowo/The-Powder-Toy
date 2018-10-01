@@ -120,7 +120,7 @@ const int menuIconWidth = 17;
 #define CATALOGUE_S 6
 #define CATALOGUE_Z 3
 
-#define STAMP_MAX 500
+#define STAMP_MAX 5000
 
 //#define SAVE_OPS
 //#define REALISTIC
