@@ -53,12 +53,27 @@ int TSNS_update(UPDATE_FUNC_ARGS)
 					r = photons[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r) != PT_TSNS && TYP(r) != PT_METL && parts[ID(r)].temp > parts[i].temp)
-					parts[i].life = 1;
-				if (parts[i].tmp == 1 && TYP(r) != PT_TSNS && TYP(r) != PT_FILT)
+
+				switch (parts[i].tmp)
 				{
-					setFilt = true;
-					photonWl = parts[ID(r)].temp;
+				// Temperature serialization into FILT
+				case 1:
+					if (TYP(r) != PT_TSNS && TYP(r) != PT_FILT)
+					{
+						setFilt = true;
+						photonWl = parts[ID(r)].temp;
+					}
+					break;
+				// Invert mode
+				case 2:
+					if (TYP(r) != PT_TSNS && TYP(r) != PT_METL && parts[ID(r)].temp < parts[i].temp)
+						parts[i].life = 1;
+					break;
+				// Default mode
+				case 0:
+				default:
+					if (TYP(r) != PT_TSNS && TYP(r) != PT_METL && parts[ID(r)].temp > parts[i].temp)
+						parts[i].life = 1;
 				}
 			}
 	if (setFilt)
