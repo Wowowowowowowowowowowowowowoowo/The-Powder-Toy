@@ -26,7 +26,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				if (rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_VIBR && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[rt].Properties&PROP_CLONE) && !(sim->elements[rt].Properties&PROP_BREAKABLECLONE))
+				if (rt!=PT_BOMB && rt!=PT_EMBR && rt!=PT_VIBR && rt!=PT_BCLN && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[rt].Properties&PROP_CLONE))
 				{
 					int rad = 8, nt;
 					int nxi, nxj;
@@ -42,7 +42,7 @@ int BOMB_update(UPDATE_FUNC_ARGS)
 									continue;
 
 								nt = TYP(pmap[y+nxj][x+nxi]);
-								if (nt!=PT_VIBR && !(sim->elements[nt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[nt].Properties&PROP_CLONE) && !(sim->elements[nt].Properties&PROP_BREAKABLECLONE))
+								if (nt!=PT_VIBR && nt!=PT_BCLN && !(sim->elements[nt].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[nt].Properties&PROP_CLONE))
 								{
 									if (nt)
 										sim->part_kill(ID(pmap[ynxj][xnxi]));
