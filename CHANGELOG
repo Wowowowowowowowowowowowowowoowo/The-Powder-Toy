@@ -911,3 +911,7 @@ LDTC (linear detector, created by moonheart08 with the help of mark2222 and
 next version of TPT. Fix GoL identifier. Fix single-pixel PIPE (vanilla bug).
 Update FPS in HUD more often. Increase stamp limit to 5000. Simulation updates
 and other fixes from tpt++.
+
+Version 41.1 2018-10-01
+Fix simulation getting corrupted and breaking everything. Fix BOMB not
+destroying PBCN. Change default menusection to powders.
