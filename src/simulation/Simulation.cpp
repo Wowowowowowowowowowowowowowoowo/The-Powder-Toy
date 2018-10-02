@@ -1214,7 +1214,6 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 				if (t < 0 || t >= PT_NUM)
 				{
 					part_kill(i);
-					return;
 				}
 				// If this is in non-activated stasis wall, don't update life
 				if (!inBounds || (!(bmap[y/CELL][x/CELL] == WL_STASIS && emap[y/CELL][x/CELL]<8)))
@@ -1228,7 +1227,6 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 						{
 							// kill on change to no life
 							part_kill(i);
-							return;
 						}
 					}
 					else if (parts[i].life <= 0 && (elem_properties & PROP_LIFE_KILL)
@@ -1236,7 +1234,6 @@ void Simulation::RecalcFreeParticles(bool doLifeDec)
 					{
 						// kill if no life
 						part_kill(i);
-						return;
 					}
 				}
 			}
