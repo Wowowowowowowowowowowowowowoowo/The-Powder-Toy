@@ -900,3 +900,14 @@ course)
 
 Version 40.2 2018-04-08
 Update build server (linux 64 bit and mac builds using newer compiler)
+
+Version 41.0 2018-10-01
+Internal cleanup / removal of legacy code. Fix most buttons in custom HUD menu
+being pink. Fix PIPE accepting elements from STOR even when it is full. Fix
+loading of a few elements which store GoL information in the upper bits of
+ctype. Add stasis wall (suggested by dyaomaster, created by moonheart08). Add
+LDTC (linear detector, created by moonheart08 with the help of mark2222 and
+#powder-subframe on freenode). These are both official and will be in the
+next version of TPT. Fix GoL identifier. Fix single-pixel PIPE (vanilla bug).
+Update FPS in HUD more often. Increase stamp limit to 5000. Simulation updates
+and other fixes from tpt++.
