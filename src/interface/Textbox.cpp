@@ -313,7 +313,7 @@ void Textbox::OnFocus()
 {
 #ifdef TOUCHUI
 	char buffer[1024];
-	memcpy(buffer, text.c_str(), 1024);
+	memcpy(buffer, text.c_str(), tpt::min(text.length() + 1, (size_t)1024));
 	Platform::GetOnScreenKeyboardInput(buffer, 1024, autoCorrect);
 	SetText(buffer);
 #endif
