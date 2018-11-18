@@ -5062,8 +5062,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								info->commentauthors[i] = (char*)calloc(63,sizeof(char*));
 								if (!strcmp(tmpobj->valuestring, "jacobot"))
 									sprintf(info->commentauthors[i], "\bt%s", tmpobj->valuestring);
-								else if (strcmp(tmpobj->valuestring, "jacob1"))
-									sprintf(info->commentauthors[i], "\bo%s", tmpobj->valuestring);
 								else
 									strncpy(info->commentauthors[i], tmpobj->valuestring, 63);
 							}
