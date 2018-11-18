@@ -1161,7 +1161,7 @@ int simulation_loadStamp(lua_State* l)
 		}
 		lua_pushinteger(l, 1);
 	}
-	catch (ParseException e)
+	catch (ParseException & e)
 	{
 		lua_pushnil(l);
 	}

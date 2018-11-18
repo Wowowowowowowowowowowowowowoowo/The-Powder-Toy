@@ -65,7 +65,7 @@ bool benchmark_load_save(Simulation *sim, Save *save)
 	{
 		sim->LoadSave(0, 0, save, 1);
 	}
-	catch (ParseException e)
+	catch (ParseException & e)
 	{
 		printf("Error loading save: %s", e.what());
 		return true;

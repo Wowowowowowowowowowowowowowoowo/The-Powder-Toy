@@ -470,7 +470,7 @@ char* stamp_save(int x, int y, int w, int h, bool includePressure)
 	{
 		save->BuildSave();
 	}
-	catch (BuildException e)
+	catch (BuildException & e)
 	{
 		ErrorPrompt *error = new ErrorPrompt("Error building stamp: " + std::string(e.what()));
 		Engine::Ref().ShowWindow(error);
@@ -529,7 +529,7 @@ void tab_save(int num)
 	{
 		tab->BuildSave();
 	}
-	catch (BuildException e)
+	catch (BuildException & e)
 	{
 		ErrorPrompt * error = new ErrorPrompt("Could not create tab: " + std::string(e.what()));
 		Engine::Ref().ShowWindow(error);
@@ -621,7 +621,7 @@ int tab_load(int tabNum, bool del, bool showException)
 			the_game->SetReloadPoint(save);
 			ret = true;
 		}
-		catch (ParseException e)
+		catch (ParseException & e)
 		{
 			if (showException)
 				Engine::Ref().ShowWindow(new InfoPrompt("Error loading save", e.what()));
@@ -1548,7 +1548,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				authors = saveDataOpen->authors;
 				the_game->SetReloadPoint(saveDataOpen);
 			}
-			catch (ParseException e)
+			catch (ParseException & e)
 			{
 				Engine::Ref().ShowWindow(new ErrorPrompt("Unable to open save file: " + std::string(e.what())));
 			}

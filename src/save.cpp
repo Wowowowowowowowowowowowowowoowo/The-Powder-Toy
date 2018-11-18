@@ -47,7 +47,7 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
 			return prerender_save_PSv(save, size, width, height);
 		}
 	}
-	catch (std::runtime_error)
+	catch (std::runtime_error & e)
 	{
 		return NULL;
 	}

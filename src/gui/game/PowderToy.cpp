@@ -556,7 +556,7 @@ void PowderToy::DoSaveBtn(unsigned char b)
 			else
 				SetInfoTip("Updated successfully");
 		}
-		catch (BuildException e)
+		catch (BuildException & e)
 		{
 			clear_save_info();
 			Engine::Ref().ShowWindow(new ErrorPrompt("Error creating save: " + std::string(e.what())));
@@ -604,7 +604,7 @@ void PowderToy::DoSaveBtn(unsigned char b)
 			else
 				SetInfoTip("Error saving");
 		}
-		catch (BuildException e)
+		catch (BuildException & e)
 		{
 			clear_save_info();
 			Engine::Ref().ShowWindow(new ErrorPrompt("Error creating save: " + std::string(e.what())));
@@ -1028,7 +1028,7 @@ void PowderToy::ReloadSave()
 		if (!authors.size())
 			DefaultSaveInfo();
 	}
-	catch (ParseException e)
+	catch (ParseException & e)
 	{
 		Engine::Ref().ShowWindow(new InfoPrompt("Error reloading save", e.what()));
 	}
@@ -1085,7 +1085,7 @@ void PowderToy::TranslateSave(Point point)
 			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
 		}
 	}
-	catch (BuildException e)
+	catch (BuildException & e)
 	{
 		ResetStampState();
 		SetInfoTip("Exception while translating stamp: " + std::string(e.what()));
@@ -1106,7 +1106,7 @@ void PowderToy::TransformSave(int a, int b, int c, int d)
 			stampImg = prerender_save((char*)stampData->GetSaveData(), stampData->GetSaveSize(), &loadSize.X, &loadSize.Y);
 		}
 	}
-	catch (BuildException e)
+	catch (BuildException & e)
 	{
 		ResetStampState();
 		SetInfoTip("Exception while transforming stamp: " + std::string(e.what()));
@@ -1913,7 +1913,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			sim->LoadSave(realLoadPos.X, realLoadPos.Y, stampData, 0, !shiftHeld);
 			MergeStampAuthorInfo(stampData->authors);
 		}
-		catch (ParseException e)
+		catch (ParseException & e)
 		{
 			Engine::Ref().ShowWindow(new InfoPrompt("Error loading save", e.what()));
 		}
@@ -1965,7 +1965,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				{
 					clipboardData->BuildSave();
 				}
-				catch (BuildException e)
+				catch (BuildException & e)
 				{
 					delete clipboardData;
 					clipboardData = NULL;
@@ -1990,7 +1990,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 					clipboardData->BuildSave();
 					sim->ClearArea(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				}
-				catch (BuildException e)
+				catch (BuildException & e)
 				{
 					delete clipboardData;
 					clipboardData = NULL;
