@@ -25,10 +25,10 @@ int ANAR_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r) == PT_HFLM && !(rand()%4))
+				if (TYP(r) == PT_HFLM && RNG::Ref().chance(1, 4))
 				{
 					part_change_type(i, x, y, PT_HFLM);
-					parts[i].life = rand()%150+50;
+					parts[i].life = RNG::Ref().between(50, 199);
 					parts[ID(r)].temp = parts[i].temp = 0;
 					sim->air->pv[y/CELL][x/CELL] -= 0.5;
 				}

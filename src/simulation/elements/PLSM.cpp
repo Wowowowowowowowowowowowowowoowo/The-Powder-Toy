@@ -38,7 +38,7 @@ int PLSM_graphics(GRAPHICS_FUNC_ARGS)
 
 void PLSM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].life = rand()%150+50;
+	sim->parts[i].life = RNG::Ref().between(50, 199);
 }
 
 void PLSM_init_element(ELEMENT_INIT_FUNC_ARGS)

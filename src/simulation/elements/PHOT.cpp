@@ -28,7 +28,8 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 		return 1;
 	}
 	if (parts[i].temp > 506.0f)
-		if (!(rand()%10)) FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
+		if (RNG::Ref().chance(1, 10))
+			FIRE_update(UPDATE_FUNC_SUBCALL_ARGS);
 
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
@@ -39,16 +40,16 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 					continue;
 				if (TYP(r)==PT_ISOZ || TYP(r)==PT_ISZS)
 				{
-					if (!(rand()%400))
+					if (RNG::Ref().chance(1, 400))
 					{
 						parts[i].vx *= 0.90f;
 						parts[i].vy *= 0.90f;
 						sim->part_create(ID(r), x+rx, y+ry, PT_PHOT);
-						rrr = (rand()%360)*M_PI/180.0f;
+						rrr = RNG::Ref().between(0, 359) * M_PI / 180.0f;
 						if (TYP(r) == PT_ISOZ)
-							rr = (rand()%128+128)/127.0f;
+							rr = RNG::Ref().between(128, 255) / 127.0f;
 						else
-							rr = (rand()%228+128)/127.0f;
+							rr = RNG::Ref().between(128, 255) / 127.0f;
 						parts[ID(r)].vx = rr*cosf(rrr);
 						parts[ID(r)].vy = rr*sinf(rrr);
 						sim->air->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
@@ -58,11 +59,11 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 				{
 					if (!ry && !rx)
 					{
-						float a = (rand()%360)*M_PI/180.0f;
+						float a = RNG::Ref().between(0, 359) * M_PI / 180.0f;
 						parts[i].vx = 3.0f*cosf(a);
 						parts[i].vy = 3.0f*sinf(a);
 						if (parts[i].ctype == 0x3FFFFFFF)
-							parts[i].ctype = 0x1F<<(rand()%26);
+							parts[i].ctype = 0x1F << RNG::Ref().between(0, 25);
 						if (parts[i].life)
 							parts[i].life++; //Delay death
 					}
@@ -71,7 +72,7 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 				{
 					if (!ry && !rx)
 					{
-						float a = (rand()%101 - 50) * 0.001f;
+						float a = RNG::Ref().between(-50, 50) * 0.001f;
 						float rx = cosf(a), ry = sinf(a), vx, vy;
 						vx = rx * parts[i].vx + ry * parts[i].vy;
 						vy = rx * parts[i].vy - ry * parts[i].vx;
@@ -83,8 +84,8 @@ int PHOT_update(UPDATE_FUNC_ARGS)
 				{
 					if (parts[ID(r)].tmp == 9)
 					{
-						parts[i].vx += ((float)(rand()%1000-500))/1000.0f;
-						parts[i].vy += ((float)(rand()%1000-500))/1000.0f;
+						parts[i].vx += RNG::Ref().between(-500, 500) / 1000.0f;
+						parts[i].vy += RNG::Ref().between(-500, 500) / 1000.0f;
 					}
 				}
 			}
@@ -123,7 +124,7 @@ int PHOT_graphics(GRAPHICS_FUNC_ARGS)
 
 void PHOT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	float a = (rand()%8) * 0.78540f;
+	float a = RNG::Ref().between(0, 7) * 0.78540f;
 	sim->parts[i].vx = 3.0f*cosf(a);
 	sim->parts[i].vy = 3.0f*sinf(a);
 	if (TYP(pmap[y][x]) == PT_FILT)

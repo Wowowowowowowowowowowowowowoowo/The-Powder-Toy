@@ -19,7 +19,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 {
 	//pavg[0] measures how many frames until it is cured (0 if still actively spreading and not being cured)
 	//pavg[1] measures how many frames until it dies 
-	int rndstore = rand();
+	int rndstore = RNG::Ref().gen();
 	if (parts[i].pavg[0])
 	{
 		parts[i].pavg[0] -= (rndstore&0x1) ? 0:1;
@@ -72,7 +72,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 				}
 				else if (TYP(r) == PT_PLSM)
 				{
-					if (surround_space && 10 + (int)(sim->air->pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
+					if (surround_space && 10 + RNG::Ref().chance(sim->air->pv[(y+ry)/CELL][(x+rx)/CELL], 100))
 					{
 						sim->part_create(i, x, y, PT_PLSM);
 						return 1;
@@ -105,7 +105,7 @@ int VIRS_update(UPDATE_FUNC_ARGS)
 			}
 			// Reset rndstore only once, halfway through
 			else if (!rx && !ry)
-				rndstore = rand();
+				rndstore = RNG::Ref().gen();
 		}
 	return 0;
 }

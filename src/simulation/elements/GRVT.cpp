@@ -40,8 +40,8 @@ int GRVT_graphics(GRAPHICS_FUNC_ARGS)
 
 void GRVT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	float a = (rand()%360)*3.14159f/180.0f;
-	sim->parts[i].life = 250 + rand()%200;
+	float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
+	sim->parts[i].life = 250 + RNG::Ref().between(0, 199);
 	sim->parts[i].vx = 2.0f*cosf(a);
 	sim->parts[i].vy = 2.0f*sinf(a);
 }

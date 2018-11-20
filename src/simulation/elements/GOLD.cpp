@@ -23,7 +23,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 	//Find nearby rusted iron (BMTL with tmp 1+)
 	for (j = 0; j < 8; j++)
 	{
-		rndstore = rand();
+		rndstore = RNG::Ref().gen();
 		rx = (rndstore % 9)-4;
 		rndstore >>= 4;
 		ry = (rndstore % 9)-4;
@@ -61,7 +61,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 	}
 	if (TYP(photons[y][x]) == PT_NEUT)
 	{
-		if (!(rand()%7))
+		if (RNG::Ref().chance(1, 7))
 		{
 			sim->part_kill(ID(photons[y][x]));
 		}
@@ -71,7 +71,7 @@ int GOLD_update(UPDATE_FUNC_ARGS)
 
 int GOLD_graphics(GRAPHICS_FUNC_ARGS)
 {
-	int rndstore = rand();
+	int rndstore = RNG::Ref().gen();
 	*colr += (rndstore % 10) - 5;
 	rndstore >>= 4;
 	*colg += (rndstore % 10)- 5;

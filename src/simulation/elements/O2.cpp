@@ -30,19 +30,19 @@ int O2_update(UPDATE_FUNC_ARGS)
 
 				if (TYP(r)==PT_FIRE)
 				{
-					parts[ID(r)].temp += (rand()%100);
+					parts[ID(r)].temp += RNG::Ref().between(0, 99);
 					if (parts[ID(r)].tmp & 0x01)
 						parts[ID(r)].temp=3473;
 					parts[ID(r)].tmp |= 2;
 
 					sim->part_create(i,x,y,PT_FIRE);
-					parts[i].temp+=(rand()/(RAND_MAX/100));
+					parts[i].temp += RNG::Ref().between(0, 99);
 					parts[i].tmp |= 2;
 				}
 				else if (TYP(r)==PT_PLSM && !(parts[ID(r)].tmp&4))
 				{
 					sim->part_create(i,x,y,PT_FIRE);
-					parts[i].temp+=(rand()/(RAND_MAX/100));
+					parts[i].temp += RNG::Ref().between(0, 99);
 					parts[i].tmp |= 2;
 				}
 			}
@@ -54,7 +54,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 		float o2_gravy = gravy[gravPos];
 		if (o2_gravx*o2_gravx + o2_gravy*o2_gravy > 400)
 		{
-			if (!(rand()%5))
+			if (RNG::Ref().chance(1, 5))
 			{
 				int j;
 				sim->part_create(i,x,y,PT_BRMT);
@@ -68,7 +68,7 @@ int O2_update(UPDATE_FUNC_ARGS)
 					parts[j].temp = MAX_TEMP;
 					parts[j].tmp = 0x1;
 				}
-				int rx = x+rand()%3-1, ry = y+rand()%3-1, rt = TYP(pmap[ry][rx]);
+				int rx = x + RNG::Ref().between(-1, 1), ry = y + RNG::Ref().between(-1, 1), rt = TYP(pmap[ry][rx]);
 				if (sim->can_move[PT_PLSM][rt] || rt == PT_O2)
 				{
 					j = sim->part_create(-3,rx,ry,PT_PLSM);

@@ -17,7 +17,7 @@
 
 int VINE_update(UPDATE_FUNC_ARGS)
 {
-	int r, np, rx, ry, rndstore = rand();
+	int r, np, rx, ry, rndstore = RNG::Ref().gen();
 	rx = (rndstore % 3) - 1;
 	rndstore >>= 2;
 	ry = (rndstore % 3) - 1;

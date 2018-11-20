@@ -23,7 +23,7 @@ int POLO_update(UPDATE_FUNC_ARGS)
 	int r = photons[y][x];
 	if (parts[i].tmp < LIMIT && !parts[i].life)
 	{
-		if (!(rand()%10000) && !parts[i].tmp)
+		if (RNG::Ref().chance(1, 10000) && !parts[i].tmp)
 		{
 			int s = sim->part_create(-3, x, y, PT_NEUT);
 			if (s >= 0)
@@ -36,7 +36,7 @@ int POLO_update(UPDATE_FUNC_ARGS)
 			}
 		}
 
-		if (r && !(rand()%100))
+		if (r && RNG::Ref().chance(1, 100))
 		{
 			int s = sim->part_create(-3, x, y, PT_NEUT);
 			if (s >= 0)

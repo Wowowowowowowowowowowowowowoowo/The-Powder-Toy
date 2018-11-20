@@ -17,7 +17,7 @@
 
 int PLUT_update(UPDATE_FUNC_ARGS)
 {
-	if (!(rand()%100) && ((int)(5.0f*sim->air->pv[y/CELL][x/CELL]))>(rand()%1000))
+	if (RNG::Ref().chance(1, 100) && RNG::Ref().between(5.0f * sim->air->pv[y/CELL][x/CELL], 1000))
 	{
 		sim->part_create(i, x, y, PT_NEUT);
 	}

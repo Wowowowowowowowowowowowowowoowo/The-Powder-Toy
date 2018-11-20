@@ -25,29 +25,29 @@ int DSTW_update(UPDATE_FUNC_ARGS)
 				switch (TYP(r))
 				{
 				case PT_SALT:
-					if (!(rand()%50))
+					if (RNG::Ref().chance(1, 50))
 					{
 						sim->part_change_type(i, x, y, PT_SLTW);
 						// on average, convert 3 DSTW to SLTW before SALT turns into SLTW
-						if (rand()%3==0)
+						if (RNG::Ref().chance(1, 3))
 							sim->part_change_type(ID(r), x+rx, y+ry, PT_SLTW);
 					}
 					break;
 				case PT_SLTW:
-					if (!(rand()%2000))
+					if (RNG::Ref().chance(1, 2000))
 					{
 						sim->part_change_type(i, x, y, PT_SLTW);
 					}
 					// no break here intentionally
 				case PT_WATR:
-					if (!(rand()%100))
+					if (RNG::Ref().chance(1, 100))
 					{
 						sim->part_change_type(i, x, y, PT_WATR);
 					}
 					break;
 				case PT_RBDM:
 				case PT_LRBD:
-					if ((legacy_enable || parts[i].temp > 12.0f) && !(rand()%100))
+					if ((legacy_enable || parts[i].temp > 12.0f) && RNG::Ref().chance(1, 100))
 					{
 						sim->part_change_type(i, x, y, PT_FIRE);
 						parts[i].life = 4;
@@ -55,7 +55,7 @@ int DSTW_update(UPDATE_FUNC_ARGS)
 					break;
 				case PT_FIRE:
 					sim->part_kill(ID(r));
-					if (!(rand()%30))
+					if (RNG::Ref().chance(1, 30))
 					{
 						sim->part_kill(i);
 						return 1;

@@ -134,7 +134,7 @@ int TRON_update(UPDATE_FUNC_ARGS)
 		int originaldir = direction;
 
 		//random turn
-		int random = rand()%340;
+		int random = RNG::Ref().between(0, 339);
 		if ((random==1 || random==3) && !(parts[i].tmp & TRON_NORANDOM))
 		{
 			//randomly turn left(3) or right(1)
@@ -158,7 +158,7 @@ int TRON_update(UPDATE_FUNC_ARGS)
 			}
 			else
 			{
-				seconddir = (direction + ((rand()%2)*2)+1)% 4;
+				seconddir = (direction + (RNG::Ref().between(0, 1) * 2) + 1) % 4;
 				lastdir = (seconddir + 2)%4;
 			}
 			seconddircheck = trymovetron(x, y, seconddir, i, parts[i].tmp2, sim);
@@ -228,8 +228,8 @@ void TRON_init_graphics()
 
 void TRON_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	int randhue = rand()%360;
-	int randomdir = rand()%4;
+	int randhue = RNG::Ref().between(0, 359);
+	int randomdir = RNG::Ref().between(0, 3);
 	sim->parts[i].tmp = 1|(randomdir<<5)|(randhue<<7);//set as a head and a direction
 	sim->parts[i].tmp2 = 4;//tail
 	sim->parts[i].life = 5;

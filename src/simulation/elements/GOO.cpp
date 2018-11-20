@@ -20,7 +20,7 @@
 int GOO_update(UPDATE_FUNC_ARGS)
 {
 	if (!parts[i].life && sim->air->pv[y/CELL][x/CELL] > 1.0f)
-		parts[i].life = rand()%80 + 300;
+		parts[i].life = RNG::Ref().between(300, 379);
 	if (parts[i].life)
 	{
 		parts[i].vx += ADVECTION * sim->air->vx[y/CELL][x/CELL];

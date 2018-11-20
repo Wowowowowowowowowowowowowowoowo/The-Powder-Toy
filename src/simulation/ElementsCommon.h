@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cstdlib>
 #include "common/tpt-minmax.h"
+#include "common/tpt-rand.h"
 #include "simulation/ElementNumbers.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/Element.h"

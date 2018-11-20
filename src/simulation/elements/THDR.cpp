@@ -35,9 +35,9 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				else if (rt!=PT_THDR && rt!=PT_SPRK && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
 				{
 					sim->air->pv[y/CELL][x/CELL] += 100.0f;
-					if (legacy_enable&&1>(rand()%200))
+					if (legacy_enable && RNG::Ref().chance(1, 200))
 					{
-						parts[i].life = rand()%50+120;
+						parts[i].life = RNG::Ref().between(120, 169);
 						part_change_type(i,x,y,PT_FIRE);
 					}
 					else

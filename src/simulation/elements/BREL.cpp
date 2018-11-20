@@ -21,7 +21,7 @@ int BREL_update(UPDATE_FUNC_ARGS)
 	{
 		if (sim->air->pv[y/CELL][x/CELL] > 10.0f)
 		{
-			if (parts[i].temp>9000 && (sim->air->pv[y/CELL][x/CELL] > 30.0f) && !(rand()%200))
+			if (parts[i].temp>9000 && (sim->air->pv[y/CELL][x/CELL] > 30.0f) && RNG::Ref().chance(1, 200))
 			{
 				part_change_type(i, x, y, PT_EXOT);
 				parts[i].life = 1000;

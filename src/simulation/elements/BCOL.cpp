@@ -27,7 +27,7 @@ int BCOL_update(UPDATE_FUNC_ARGS)
 	else if (parts[i].life < 100)
 	{
 		parts[i].life--;
-		sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
+		sim->part_create(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), PT_FIRE);
 	}
 
 	/*if(100-parts[i].life > parts[i].tmp2)
@@ -35,8 +35,8 @@ int BCOL_update(UPDATE_FUNC_ARGS)
 	if(parts[i].tmp2 < 0) parts[i].tmp2 = 0;
 	for ( trade = 0; trade<4; trade ++)
 	{
-		rx = rand()%5-2;
-		ry = rand()%5-2;
+		rx = RNG::Ref().between(-2, 2);
+		ry = RNG::Ref().between(-2, 2);
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];

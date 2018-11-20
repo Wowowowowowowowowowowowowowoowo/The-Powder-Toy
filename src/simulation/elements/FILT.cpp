@@ -77,9 +77,9 @@ int interactWavelengths(particle* cpart, int origWl)
 	// "QTRZ scatter" mode
 	case 9:
 	{
-		int t1 = (origWl & 0x0000FF)+(rand()%5)-2;
-		int t2 = ((origWl & 0x00FF00)>>8)+(rand()%5)-2;
-		int t3 = ((origWl & 0xFF0000)>>16)+(rand()%5)-2;
+		int t1 = (origWl & 0x0000FF) + RNG::Ref().between(-2, 2);
+		int t2 = ((origWl & 0x00FF00)>>8) + RNG::Ref().between(-2, 2);
+		int t3 = ((origWl & 0xFF0000)>>16) + RNG::Ref().between(-2, 2);
 		return (origWl & 0xFF000000) | (t3<<16) | (t2<<8) | t1;
 	}
 	// Variable red shift

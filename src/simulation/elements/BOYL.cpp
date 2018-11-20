@@ -40,12 +40,12 @@ int BOYL_update(UPDATE_FUNC_ARGS)
 					continue;
 				if (TYP(r)==PT_WATR)
 				{
-					if (!(rand()%30))
+					if (RNG::Ref().chance(1, 30))
 						part_change_type(ID(r),x+rx,y+ry,PT_FOG);
 				}
 				else if (TYP(r)==PT_O2)
 				{
-					if (!(rand()%9))
+					if (RNG::Ref().chance(1, 9))
 					{
 						sim->part_kill(ID(r));
 						part_change_type(i, x, y, PT_WATR);

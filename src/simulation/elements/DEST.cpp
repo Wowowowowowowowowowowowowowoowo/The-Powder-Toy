@@ -17,8 +17,8 @@
 
 int DEST_update(UPDATE_FUNC_ARGS)
 {
-	int rx=rand()%5-2;
-	int ry=rand()%5-2;
+	int rx = RNG::Ref().between(-2, 2);
+	int ry = RNG::Ref().between(-2, 2);
 
 	int r = pmap[y+ry][x+rx];
 	if (!r || TYP(r)==PT_DEST || (sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) || (sim->elements[TYP(r)].Properties&PROP_CLONE) || (sim->elements[TYP(r)].Properties&PROP_BREAKABLECLONE))
@@ -26,13 +26,13 @@ int DEST_update(UPDATE_FUNC_ARGS)
 
 	if (parts[i].life<=0 || parts[i].life>37)
 	{
-		parts[i].life=30+rand()%20;
+		parts[i].life = RNG::Ref().between(30, 59);
 		sim->air->pv[y/CELL][x/CELL]+=60.0f;
 	}
 	if (TYP(r)==PT_PLUT || TYP(r)==PT_DEUT)
 	{
 		sim->air->pv[y/CELL][x/CELL]+=20.0f;
-		if (rand()%2)
+		if (RNG::Ref().chance(1, 2))
 		{
 			sim->part_create(ID(r), x+rx, y+ry, PT_NEUT);
 			parts[ID(r)].temp = MAX_TEMP;
@@ -44,7 +44,7 @@ int DEST_update(UPDATE_FUNC_ARGS)
 	{
 		sim->part_create(ID(r), x+rx, y+ry, PT_PLSM);
 	}
-	else if (!(rand()%3))
+	else if (RNG::Ref().chance(1, 3))
 	{
 		sim->part_kill(ID(r));
 		parts[i].life -= 4*((sim->elements[TYP(r)].Properties&TYPE_SOLID)?3:1);

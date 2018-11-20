@@ -28,7 +28,7 @@ int CLST_update(UPDATE_FUNC_ARGS)
 					continue;
 				if (TYP(r) == PT_WATR)
 				{
-					if (!(rand()%1500))
+					if (RNG::Ref().chance(1, 1500))
 					{
 						sim->part_create(i, x, y, PT_PSTS);
 						sim->part_kill(ID(r));
@@ -68,7 +68,7 @@ int CLST_graphics(GRAPHICS_FUNC_ARGS)
 
 void CLST_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].tmp = (rand()%7);
+	sim->parts[i].tmp = RNG::Ref().between(0, 6);
 }
 
 void CLST_init_element(ELEMENT_INIT_FUNC_ARGS)

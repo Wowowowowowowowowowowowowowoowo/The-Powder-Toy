@@ -25,12 +25,12 @@ int FRZW_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_WATR && !(rand()%14))
+				if (TYP(r)==PT_WATR && RNG::Ref().chance(1, 14))
 				{
 					part_change_type(ID(r),x+rx,y+ry,PT_FRZW);
 				}
 			}
-	if ((!parts[i].life && !(rand()%192)) || (100-parts[i].life) > rand()%50000)
+	if ((!parts[i].life && RNG::Ref().chance(1, 192)) || RNG::Ref().chance(100-parts[i].life, 50000))
 	{
 		part_change_type(i,x,y,PT_ICEI);
 		parts[i].ctype=PT_FRZW;

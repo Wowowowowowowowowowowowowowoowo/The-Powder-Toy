@@ -230,7 +230,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 	if (!(parts[i].tmp & 0x200))
 	{ 
 		//normal random push
-		int rndstore = rand();
+		int rndstore = RNG::Ref().gen();
 		// RAND_MAX is at least 32767 on all platforms i.e. pow(8,5)-1
 		// so can go 5 cycles without regenerating rndstore
 		// Try to push 3 times
@@ -433,7 +433,7 @@ int PIPE_update(UPDATE_FUNC_ARGS)
 			// There is something besides PIPE around current particle
 			if (nt)
 			{
-				int rndstore = rand();
+				int rndstore = RNG::Ref().gen();
 				int rnd = rndstore&7;
 				rndstore = rndstore>>3;
 				int rx = pos_1_rx[rnd];

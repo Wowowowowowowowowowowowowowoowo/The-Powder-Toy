@@ -95,7 +95,7 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 				temp_center.apply(sim, parts[r]);
 				if (Probability::randFloat() < prob_changeCenter)
 				{
-					if (rand()%5 < 2)
+					if (RNG::Ref().chance(2, 5))
 						sim->part_change_type(r, rx, ry, PT_BREL);
 					else
 						sim->part_change_type(r, rx, ry, PT_NTCT);
@@ -140,7 +140,7 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 								if (Probability::randFloat() < prob_randWIFI)
 								{
 									// Randomize channel
-									parts[n].temp = (float)(rand()%MAX_TEMP);
+									parts[n].temp = RNG::Ref().between(0, MAX_TEMP);
 								}
 								if (Probability::randFloat() < prob_breakWIFI)
 								{
@@ -170,7 +170,7 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 							if (Probability::randFloat() < prob_randDLAY)
 							{
 								// Randomize delay
-								parts[n].temp = (rand()%256) + 273.15f;
+								parts[n].temp = RNG::Ref().between(0, 255) + 273.15f;
 							}
 							break;
 						default:

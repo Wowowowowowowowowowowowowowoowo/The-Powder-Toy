@@ -35,7 +35,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	//center control particle was killed, ball slowly falls apart
 	if (!movingSolid->index)
 	{
-		if (rand()%500<1)
+		if (RNG::Ref().chance(1, 500))
 		{
 			sim->part_kill(i);
 			return 1;
@@ -106,8 +106,8 @@ void MOVS_create(ELEMENT_CREATE_FUNC_ARGS)
 	else
 	{
 		parts[i].tmp2 = 255;
-		parts[i].pavg[0] = rand()%20-10.0f;
-		parts[i].pavg[1] = rand()%20-10.0f;
+		parts[i].pavg[0] = RNG::Ref().between(-10, 10);
+		parts[i].pavg[1] = RNG::Ref().between(-10, 10);
 	}
 }
 

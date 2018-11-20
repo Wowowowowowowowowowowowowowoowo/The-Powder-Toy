@@ -28,9 +28,9 @@ int FSEP_update(UPDATE_FUNC_ARGS)
 	else if (parts[i].life < 40)
 	{
 		parts[i].life--;
-		if (!(rand()%10))
+		if (RNG::Ref().chance(1, 10))
 		{
-			r = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, PT_PLSM);
+			r = sim->part_create(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), PT_PLSM);
 			if (r > -1)
 				parts[r].life = 50;
 		}
@@ -44,7 +44,7 @@ int FSEP_update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_SPRK || (parts[i].temp>=(273.15+400.0f))) && !(rand()%15))
+					if ((TYP(r)==PT_SPRK || (parts[i].temp>=(273.15+400.0f))) && RNG::Ref().chance(1, 15))
 					{
 						parts[i].life = 39;
 						return 0;

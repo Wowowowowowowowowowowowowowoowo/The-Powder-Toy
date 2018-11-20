@@ -73,9 +73,9 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
 		if (!parts[i].life)
-			parts[i].life = rand()*rand()*rand();
+			parts[i].life = RNG::Ref().gen();
 		if (!parts[i].ctype)
-			parts[i].ctype = rand()*rand()*rand();
+			parts[i].ctype = RNG::Ref().gen();
 		orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
 		for (int r = 0; r < 4; r++)
 		{
@@ -84,8 +84,8 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 				orbd[r] -= 12;
 				if (orbd[r] < 1)
 				{
-					orbd[r] = (rand()%128)+128;
-					orbl[r] = rand()%255;
+					orbd[r] = RNG::Ref().between(128, 255);
+					orbl[r] = RNG::Ref().between(0, 254);
 				}
 				else
 				{
@@ -95,8 +95,8 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 			}
 			else
 			{
-				orbd[r] = (rand()%128)+128;
-				orbl[r] = rand()%255;
+				orbd[r] = RNG::Ref().between(128, 255);
+				orbl[r] = RNG::Ref().between(0, 254);
 			}
 		}
 		orbitalparts_set(&parts[i].life, &parts[i].ctype, orbd, orbl);

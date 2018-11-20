@@ -19,8 +19,8 @@ int RPEL_update(UPDATE_FUNC_ARGS)
 {
 	for (int ri = 0; ri <= 10; ri++)
 	{
-		int rx = (rand()%21)-10;
-		int ry = (rand()%21)-10;
+		int rx = RNG::Ref().between(-10, 10);
+		int ry = RNG::Ref().between(-10, 10);
 		if (x+rx >= 0 && x+rx < XRES && y+ry >= 0 && y+ry < YRES && (rx || ry))
 		{
 			int r = pmap[y+ry][x+rx];

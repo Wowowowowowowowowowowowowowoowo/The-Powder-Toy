@@ -19,11 +19,11 @@
 int ISZ_update(UPDATE_FUNC_ARGS)
 {
 	float rr, rrr;
-	if (!(rand()%200) && ((int)(-4.0f*(sim->air->pv[y/CELL][x/CELL])))>(rand()%1000))
+	if (RNG::Ref().between(1, 200) && RNG::Ref().chance(-4.0f * sim->air->pv[y/CELL][x/CELL], 1000))
 	{
 		sim->part_create(i, x, y, PT_PHOT);
-		rr = (rand()%228+128)/127.0f;
-		rrr = (rand()%360)*M_PI/180.0f;
+		rr = RNG::Ref().between(128, 355) / 127.0f;
+		rrr = RNG::Ref().between(0, 360) * M_PI / 180.0f;
 		parts[i].vx = rr*cosf(rrr);
 		parts[i].vy = rr*sinf(rrr);
 	}

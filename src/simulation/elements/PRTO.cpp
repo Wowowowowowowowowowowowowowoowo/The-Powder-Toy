@@ -47,7 +47,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 				for (int nnx = 0 ; nnx < PortalChannel::storageSize; nnx++)
 				{
 					//add -1,0,or 1 to count
-					int randomness = (count + rand()%3-1 + 4)%8;
+					int randomness = (count + RNG::Ref().between(-1, 1) + 4)%8;
 					if (!channel->portalp[randomness][nnx].type)
 						continue;
 					particle *storedPart = &(channel->portalp[randomness][nnx]);
@@ -130,9 +130,9 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
 		if (!parts[i].life)
-			parts[i].life = rand()*rand()*rand();
+			parts[i].life = RNG::Ref().gen();
 		if (!parts[i].ctype)
-			parts[i].ctype = rand()*rand()*rand();
+			parts[i].ctype = RNG::Ref().gen();
 		orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
 		for (int r = 0; r < 4; r++)
 		{
@@ -142,7 +142,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 				if (orbd[r] > 254)
 				{
 					orbd[r] = 0;
-					orbl[r] = rand()%255;
+					orbl[r] = RNG::Ref().between(0, 254);
 				}
 				else
 				{
@@ -153,7 +153,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 			else
 			{
 				orbd[r] = 0;
-				orbl[r] = rand()%255;
+				orbl[r] =RNG::Ref().between(0, 254);
 			}
 		}
 		orbitalparts_set(&parts[i].life, &parts[i].ctype, orbd, orbl);

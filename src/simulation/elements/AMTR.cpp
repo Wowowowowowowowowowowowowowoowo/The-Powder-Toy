@@ -41,7 +41,7 @@ int AMTR_update(UPDATE_FUNC_ARGS)
 							sim->part_kill(i);
 							return 1;
 						}
-						if (!(rand()%10))
+						if (RNG::Ref().chance(1, 10))
 							sim->part_create(ID(r), x+rx, y+ry, PT_PHOT);
 						else
 							sim->part_kill(ID(r));

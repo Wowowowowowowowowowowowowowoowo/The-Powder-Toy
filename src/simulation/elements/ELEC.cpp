@@ -40,20 +40,20 @@ int ELEC_update(UPDATE_FUNC_ARGS)
 									parts[nb].tmp = 0;
 									parts[nb].life = 50;
 									parts[nb].temp = parts[i].temp*0.8f;
-									parts[nb].vx = (float)(rand()%20-10);
-									parts[nb].vy = (float)(rand()%20-10);
+									parts[nb].vx = RNG::Ref().between(-10, 10);
+									parts[nb].vy = RNG::Ref().between(-10, 10);
 								}
 							}
 					sim->part_kill(i);
 					return 1;
 				case PT_LCRY:
-					parts[ID(r)].tmp2 = 5+rand()%5;
+					parts[ID(r)].tmp2 = RNG::Ref().between(5, 9);
 					break;
 				case PT_WATR:
 				case PT_DSTW:
 				case PT_SLTW:
 				case PT_CBNW:
-					if (!(rand()%3))
+					if (RNG::Ref().chance(1, 3))
 					{
 						sim->part_create(ID(r), x+rx, y+ry, PT_O2);
 					}
@@ -110,7 +110,7 @@ int ELEC_graphics(GRAPHICS_FUNC_ARGS)
 
 void ELEC_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	float a = (rand()%360)*3.14159f/180.0f;
+	float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
 	sim->parts[i].life = 680;
 	sim->parts[i].vx = 2.0f*cosf(a);
 	sim->parts[i].vy = 2.0f*sinf(a);

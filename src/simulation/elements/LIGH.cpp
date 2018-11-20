@@ -66,8 +66,8 @@ int create_LIGH(Simulation *sim, int x, int y, int c, int temp, int life, int tm
 		parts[p].tmp = tmp;
 		if (last)
 		{
-			sim->parts[p].tmp2=1+(rand()%200>tmp2*tmp2/10+60);
-			sim->parts[p].life=(int)(life/1.5-rand()%2);
+			sim->parts[p].tmp2 = 1 + (RNG::Ref().between(0, 199) > tmp2 * tmp2 / 10 + 60);
+			sim->parts[p].life = (int)(life / 1.5 - RNG::Ref().between(0, 1));
 		}
 		else
 		{
@@ -213,12 +213,12 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 					//start nuclear reactions
 					parts[ID(r)].temp = restrict_flt(parts[ID(r)].temp+powderful, MIN_TEMP, MAX_TEMP);
 					sim->air->pv[y/CELL][x/CELL] += powderful/35;
-					if (!(rand()%3))
+					if (RNG::Ref().chance(1, 3))
 					{
 						part_change_type(ID(r),x+rx,y+ry,PT_NEUT);
-						parts[ID(r)].life = rand()%480+480;
-						parts[ID(r)].vx=rand()%10-5.0f;
-						parts[ID(r)].vy=rand()%10-5.0f;
+						parts[ID(r)].life = RNG::Ref().between(480, 959);
+						parts[ID(r)].vx = RNG::Ref().between(-5, 5);
+						parts[ID(r)].vy = RNG::Ref().between(-5, 5);
 					}
 					break;
 				case PT_COAL:
@@ -310,17 +310,17 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 	}*/
 
 	//if (parts[i].tmp2==1/* || near!=-1*/)
-	//angle=0;//parts[i].tmp-30+rand()%60;
-	angle = (float)((parts[i].tmp-30+rand()%60)%360);
-	multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
+	//angle=0;//parts[i].tmp-30+RNG::Ref().between(0, 59);
+	angle = (float)((parts[i].tmp - RNG::Ref().between(-30, 30))%360);
+	multipler = (int)(parts[i].life * 1.5) + RNG::Ref().between(0, parts[i].life);
 	rx = (int)(cos(angle*M_PI/180)*multipler);
 	ry = (int)(-sin(angle*M_PI/180)*multipler);
 	create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle, parts[i].tmp2);
 
 	if (parts[i].tmp2 == 2)// && pNear==-1)
 	{
-		angle2 = (float)(((int)angle+100-rand()%200)%360);
-		multipler = (int)(parts[i].life*1.5+rand()%((int)(parts[i].life+1)));
+		angle2 = ((int)angle + RNG::Ref().between(-100, 100)) % 360;
+		multipler = (int)(parts[i].life * 1.5) + RNG::Ref().between(0, parts[i].life);
 		rx = (int)(cos(angle2*M_PI/180)*multipler);
 		ry = (int)(-sin(angle2*M_PI/180)*multipler);
 		create_line_par(sim, x, y, x+rx, y+ry, PT_LIGH, (int)parts[i].temp, parts[i].life, (int)angle2, parts[i].tmp2);
@@ -356,13 +356,13 @@ void LIGH_create(ELEMENT_CREATE_FUNC_ARGS)
 	gsize = gx*gx+gy*gy;
 	if (gsize<0.0016f)
 	{
-		float angle = (rand()%6284)*0.001f;//(in radians, between 0 and 2*pi)
+		float angle = RNG::Ref().between(0, 6283) * 0.001f; //(in radians, between 0 and 2*pi)
 		gsize = sqrtf(gsize);
 		// randomness in weak gravity fields (more randomness with weaker fields)
 		gx += cosf(angle)*(0.04f-gsize);
 		gy += sinf(angle)*(0.04f-gsize);
 	}
-	sim->parts[i].tmp = (((int)(atan2f(-gy, gx)*(180.0f/M_PI)))+rand()%40-20+360)%360;
+	sim->parts[i].tmp = (static_cast<int>(atan2f(-gy, gx) * (180.0f / M_PI)) + RNG::Ref().between(-20, 20) + 360) % 360;
 	sim->parts[i].tmp2 = 4;
 }
 

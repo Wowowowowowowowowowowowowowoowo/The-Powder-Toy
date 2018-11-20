@@ -72,9 +72,9 @@ int PCLN_update(UPDATE_FUNC_ARGS)
 					sim->part_create(-1, x+rx, y+ry, PT_LIFE, parts[i].tmp);
 				}
 		}
-		else if (parts[i].ctype != PT_LIGH || !(rand()%30))
+		else if (parts[i].ctype != PT_LIGH || RNG::Ref().chance(1, 30))
 		{
-			int np = sim->part_create(-1, x+rand()%3-1, y+rand()%3-1, TYP(parts[i].ctype));
+			int np = sim->part_create(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), TYP(parts[i].ctype));
 			if (np >= 0)
 			{
 				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransitionElement==PT_LAVA)

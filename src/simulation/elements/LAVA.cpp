@@ -37,7 +37,7 @@ int LAVA_graphics(GRAPHICS_FUNC_ARGS)
 
 void LAVA_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].life = rand()%120+240;
+	sim->parts[i].life = RNG::Ref().between(240, 359);
 }
 
 void LAVA_init_element(ELEMENT_INIT_FUNC_ARGS)

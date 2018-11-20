@@ -19,7 +19,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 {
 	if (sim->air->pv[y/CELL][x/CELL] <= 3)
 	{
-		if (sim->air->pv[y/CELL][x/CELL] <= -0.5 || !(rand()%4000))
+		if (sim->air->pv[y/CELL][x/CELL] <= -0.5 || RNG::Ref().chance(1, 4000))
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
@@ -30,15 +30,15 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 	{
 		parts[i].tmp2 -= (parts[i].tmp2>20)?1:-1;
 	}
-	else if (!(rand()%200))
+	else if (RNG::Ref().chance(1, 200))
 	{
-		parts[i].tmp2 = rand()%40;
+		parts[i].tmp2 = RNG::Ref().between(0, 39);
 	}
 
 	if (parts[i].tmp > 0)
 	{
 		// Explode
-		if (parts[i].tmp == 1 && rand()%4)
+		if (parts[i].tmp == 1 && RNG::Ref().chance(3, 4))
 		{
 			part_change_type(i, x, y, PT_CO2);
 			parts[i].ctype = 5;
@@ -54,14 +54,15 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				int rt = TYP(r);
-				if (sim->elements[rt].Properties&TYPE_PART && parts[i].tmp == 0 && !(rand()%83))
+				if (sim->elements[rt].Properties&TYPE_PART && parts[i].tmp == 0 && RNG::Ref().chance(1, 83))
 				{
 					//Start explode
-					parts[i].tmp = rand()%25;//(rand()%100)+50;
+					parts[i].tmp = RNG::Ref().between(0, 24);
 				}
-				else if (sim->elements[rt].Properties&TYPE_SOLID && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE) && rt != PT_GLAS && parts[i].tmp == 0 && (2 - sim->air->pv[y/CELL][x/CELL]) > (rand()%6667))
+				else if (sim->elements[rt].Properties&TYPE_SOLID && !(sim->elements[rt].Properties&PROP_INDESTRUCTIBLE)
+				        && rt != PT_GLAS && parts[i].tmp == 0 && RNG::Ref().chance((2 - sim->air->pv[y/CELL][x/CELL]), 6667))
 				{
-					if (rand()%2)
+					if (RNG::Ref().chance(1, 2))
 					{
 						part_change_type(i, x, y, PT_CO2);
 						parts[i].ctype = 5;
@@ -90,7 +91,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 				}
 				else if (rt == PT_RBDM || rt == PT_LRBD)
 				{
-					if ((legacy_enable || parts[i].temp > (273.15f + 12.0f)) && !(rand()%166))
+					if ((legacy_enable || parts[i].temp > (273.15f + 12.0f)) && RNG::Ref().chance(1, 166))
 					{
 						part_change_type(i, x, y, PT_FIRE);
 						parts[i].life = 4;
@@ -100,7 +101,7 @@ int CBNW_update(UPDATE_FUNC_ARGS)
 				else if (rt == PT_FIRE && parts[ID(r)].ctype != PT_WATR)
 				{
 					sim->part_kill(ID(r));
-					if (!(rand()%50))
+					if (RNG::Ref().chance(1, 50))
 					{
 						sim->part_kill(i);
 						return 1;

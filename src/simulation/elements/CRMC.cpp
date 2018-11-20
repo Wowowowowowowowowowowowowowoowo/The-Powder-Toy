@@ -33,7 +33,7 @@ int CRMC_graphics(GRAPHICS_FUNC_ARGS)
 
 void CRMC_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].tmp2 = (rand() % 5);
+	sim->parts[i].tmp2 = RNG::Ref().between(0, 4);
 }
 
 void CRMC_init_element(ELEMENT_INIT_FUNC_ARGS)

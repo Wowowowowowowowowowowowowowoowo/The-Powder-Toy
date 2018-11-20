@@ -21,13 +21,13 @@ int WARP_update(UPDATE_FUNC_ARGS)
 	{
 		parts[i].temp = 10000;
 		sim->air->pv[y/CELL][x/CELL] += (parts[i].tmp2/5000) * CFDS;
-		if (!(rand()%50))
+		if (RNG::Ref().chance(1, 50))
 			sim->part_create(-3, x, y, PT_ELEC);
 	}
 	for (int trade = 0; trade < 5; trade ++)
 	{
-		int rx = rand()%3-1;
-		int ry = rand()%3-1;
+		int rx = RNG::Ref().between(-1, 1);
+		int ry = RNG::Ref().between(-1, 1);
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			int r = pmap[y+ry][x+rx];
@@ -39,8 +39,8 @@ int WARP_update(UPDATE_FUNC_ARGS)
 				parts[i].y = parts[ID(r)].y;
 				parts[ID(r)].x = (float)x;
 				parts[ID(r)].y = (float)y;
-				parts[ID(r)].vx = (rand()%4)-1.5f;
-				parts[ID(r)].vy = (rand()%4)-2.0f;
+				parts[ID(r)].vx = RNG::Ref().between(0, 3) - 1.5f;
+				parts[ID(r)].vy = RNG::Ref().between(0, 3) - 2.0f;
 				parts[i].life += 4;
 				pmap[y][x] = r;
 				pmap[y+ry][x+rx] = PMAP(i, parts[i].type);
@@ -61,7 +61,7 @@ int WARP_graphics(GRAPHICS_FUNC_ARGS)
 
 void WARP_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].life = rand()%95+70;
+	sim->parts[i].life = RNG::Ref().between(70, 164);
 }
 
 void WARP_init_element(ELEMENT_INIT_FUNC_ARGS)
