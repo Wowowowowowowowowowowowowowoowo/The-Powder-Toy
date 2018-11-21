@@ -27,7 +27,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				int rt = TYP(r);
 				if (rt == PT_WARP)
 				{
-					if (parts[ID(r)].tmp2 > 2000 && RNG::Ref().between(1, 100))
+					if (parts[ID(r)].tmp2 > 2000 && RNG::Ref().chance(1, 100))
 					{
 						parts[i].tmp2 += 100;
 					}
@@ -36,7 +36,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 				{
 					if (parts[ID(r)].ctype == PT_PROT)
 						parts[i].ctype = PT_PROT;
-					if (parts[ID(r)].life == 1500 && RNG::Ref().between(1, 1000))
+					if (parts[ID(r)].life == 1500 && RNG::Ref().chance(1, 1000))
 						parts[i].life = 1500;
 				}
 				else if (rt == PT_LAVA)
@@ -44,7 +44,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 					// Turn molten TTAN or molten GOLD to molten VIBR 
 					if (parts[ID(r)].ctype == PT_TTAN || parts[ID(r)].ctype == PT_GOLD)
 					{
-						if (RNG::Ref().between(1, 10))
+						if (RNG::Ref().chance(1, 10))
 						{
 							parts[ID(r)].ctype = PT_VIBR;
 							sim->part_kill(i);
@@ -54,7 +54,7 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 					// Molten VIBR will kill the leftover EXOT though, so the VIBR isn't killed later
 					else if (parts[ID(r)].ctype == PT_VIBR)
 					{
-						if (RNG::Ref().between(1, 1000))
+						if (RNG::Ref().chance(1, 1000))
 						{
 							sim->part_kill(i);
 							return 1;
@@ -98,8 +98,8 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 	{
 		for (int trade = 0; trade < 9; trade++)
 		{
-			int rx = RNG::Ref().chance(-2, 2);
-			int ry = RNG::Ref().chance(-2, 2);
+			int rx = RNG::Ref().between(-2, 2);
+			int ry = RNG::Ref().between(-2, 2);
 			if (BOUNDS_CHECK && (rx || ry))
 			{
 				int r = pmap[y+ry][x+rx];

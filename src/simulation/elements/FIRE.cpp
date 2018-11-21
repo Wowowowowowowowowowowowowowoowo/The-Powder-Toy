@@ -122,7 +122,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 			else if (parts[i].temp<625)
 			{
 				sim->part_change_type(i, x, y, PT_SMKE);
-				parts[i].life = RNG::Ref().between(250, 279);
+				parts[i].life = RNG::Ref().between(250, 269);
 			}
 		}
 		break;
@@ -209,7 +209,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 				{
 					sim->part_change_type(ID(r), x+rx, y+ry, PT_FIRE);
 					parts[ID(r)].temp = restrict_flt(sim->elements[PT_FIRE].DefaultProperties.temp + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);
-					parts[ID(r)].life = RNG::Ref().between(180, 259);;
+					parts[ID(r)].life = RNG::Ref().between(180, 259);
 					parts[ID(r)].tmp = parts[ID(r)].ctype = 0;
 					if (sim->elements[rt].Explosive)
 						sim->air->pv[y/CELL][x/CELL] += 0.25f * CFDS;
@@ -240,7 +240,7 @@ int FIRE_graphics(GRAPHICS_FUNC_ARGS)
 
 void FIRE_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	sim->parts[i].life = RNG::Ref().between(120, 179);
+	sim->parts[i].life = RNG::Ref().between(120, 169);
 }
 
 void FIRE_init_element(ELEMENT_INIT_FUNC_ARGS)

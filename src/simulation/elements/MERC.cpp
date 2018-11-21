@@ -24,7 +24,7 @@ int MERC_update(UPDATE_FUNC_ARGS)
 	if (parts[i].temp + 1 == 0)
 		parts[i].temp = 0;
 	int maxtmp = ((absorbScale/(parts[i].temp + 1))-1);
-	if (RNG::Ref().chance(absorbScale % ((int)parts[i].temp + 1), (int)parts[i].temp + 1))
+	if (RNG::Ref().chance(absorbScale % ((int)parts[i].temp + 1), parts[i].temp + 1))
 		maxtmp++;
 	if (parts[i].tmp < 0)
 		parts[i].tmp = 0;
