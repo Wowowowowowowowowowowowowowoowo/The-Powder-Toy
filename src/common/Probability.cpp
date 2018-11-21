@@ -25,11 +25,6 @@ float binomial_gte1(int n, float p)
 	return 1.0f - std::pow(1.0f-p, n);
 }
 
-float randFloat()
-{
-	return static_cast<float>(rand())/RAND_MAX;
-}
-
 SmallKBinomialGenerator::SmallKBinomialGenerator(unsigned int n, float p, unsigned int maxK_)
 {
 	maxK = maxK_;

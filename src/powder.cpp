@@ -26,6 +26,7 @@
 #include "gravity.h"
 
 #include "common/tpt-minmax.h"
+#include "common/tpt-rand.h"
 #include "game/Brush.h"
 #include "game/Sign.h"
 #include "simulation/Simulation.h"
@@ -47,7 +48,6 @@ int NUM_PARTS = 0;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
-	int angle;
 	*pGravX = newtonGrav*gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
 	*pGravY = newtonGrav*gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 	switch (gravityMode)
@@ -57,9 +57,6 @@ void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float
 			*pGravY += particleGrav;
 			break;
 		case 1: //no gravity
-			angle = rand()%360;
-			*pGravX -= cosf((float)angle);
-			*pGravY -= sinf((float)angle);
 			break;
 		case 2: //radial gravity
 			if (x-XCNTR != 0 || y-YCNTR != 0)
@@ -134,7 +131,7 @@ int get_wavelength_bin(int *wm)
 	if (wM - w0 < 5)
 		return wM + w0;
 
-	r = rand();
+	r = RNG::Ref().gen();
 	i = (r >> 1) % (wM-w0-4);
 	i += w0;
 

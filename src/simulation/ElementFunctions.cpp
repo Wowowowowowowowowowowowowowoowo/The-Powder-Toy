@@ -14,15 +14,15 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_WATR||TYP(r)==PT_DSTW||TYP(r)==PT_SLTW) && !(rand()%1000))
+					if ((TYP(r)==PT_WATR||TYP(r)==PT_DSTW||TYP(r)==PT_SLTW) && RNG::Ref().chance(1, 1000))
 					{
 						part_change_type(i,x,y,PT_WATR);
 						part_change_type(ID(r),x+rx,y+ry,PT_WATR);
 					}
-					if ((TYP(r)==PT_ICEI || TYP(r)==PT_SNOW) && !(rand()%1000))
+					if ((TYP(r)==PT_ICEI || TYP(r)==PT_SNOW) && RNG::Ref().chance(1, 1000))
 					{
 						part_change_type(i,x,y,PT_WATR);
-						if (!(rand()%1000))
+						if (RNG::Ref().chance(1, 1000))
 							part_change_type(ID(r),x+rx,y+ry,PT_WATR);
 					}
 				}
@@ -38,7 +38,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_FIRE || TYP(r)==PT_LAVA) && !(rand()%10))
+					if ((TYP(r)==PT_FIRE || TYP(r)==PT_LAVA) && RNG::Ref().chance(1, 10))
 					{
 						part_change_type(i,x,y,PT_WTRV);
 					}
@@ -52,10 +52,12 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_FIRE || TYP(r)==PT_LAVA) && !(rand()%10))
+					if ((TYP(r)==PT_FIRE || TYP(r)==PT_LAVA) && RNG::Ref().chance(1, 10))
 					{
-						if (rand()%4==0) part_change_type(i,x,y,PT_SALT);
-						else part_change_type(i,x,y,PT_WTRV);
+						if (RNG::Ref().chance(1, 4))
+							part_change_type(i,x,y,PT_SALT);
+						else
+							part_change_type(i,x,y,PT_WTRV);
 					}
 				}
 		break;
@@ -67,7 +69,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && !(rand()%1000))
+					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && RNG::Ref().chance(1, 1000))
 					{
 						part_change_type(i,x,y,PT_ICEI);
 						part_change_type(ID(r),x+rx,y+ry,PT_ICEI);
@@ -82,12 +84,12 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && !(rand()%1000))
+					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && RNG::Ref().chance(1, 1000))
 					{
 						part_change_type(i,x,y,PT_ICEI);
 						part_change_type(ID(r),x+rx,y+ry,PT_ICEI);
 					}
-					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && 3>(rand()%200))
+					if ((TYP(r)==PT_WATR || TYP(r)==PT_DSTW) && RNG::Ref().chance(3, 200))
 						part_change_type(i,x,y,PT_WATR);
 				}
 		break;
@@ -103,7 +105,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS)
 		if (sim->air->pv[y/CELL][x/CELL] > 12.0f)
 		{
 			part_change_type(i,x,y,PT_FIRE);
-			parts[i].life = rand()%50+120;
+			parts[i].life = RNG::Ref().between(120, 169);
 		}
 	default:
 		break;

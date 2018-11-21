@@ -30,6 +30,7 @@
 #include "common/Format.h"
 #include "common/tpt-math.h"
 #include "common/tpt-minmax.h"
+#include "common/tpt-rand.h"
 #include "game/Brush.h"
 #include "game/Menus.h" // for active_menu setting on save load, try to remove this later
 #include "game/Save.h"
@@ -998,13 +999,13 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	if ((elements[t].Properties & TYPE_PART) && pretty_powder)
 	{
 		int sandcolor = (int)(20.0f*sin((float)(currentTick%360)*(M_PI/180.0f)));
-		int colr = (int)(COLR(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
-		int colg = (int)(COLG(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
-		int colb = (int)(COLB(elements[t].Colour)+sandcolor*1.3f+(rand()%40)-20+(rand()%30)-15);
+		int colr = COLR(elements[t].Colour) + (int)(sandcolor * 1.3f) + RNG::Ref().between(-20, 20) + RNG::Ref().between(-15, 15);
+		int colg = COLG(elements[t].Colour) + (int)(sandcolor * 1.3f) + RNG::Ref().between(-20, 20) + RNG::Ref().between(-15, 15);
+		int colb = COLB(elements[t].Colour) + (int)(sandcolor * 1.3f) + RNG::Ref().between(-20, 20) + RNG::Ref().between(-15, 15);
 		colr = std::max(0, std::min(255, colr));
 		colg = std::max(0, std::min(255, colg));
 		colb = std::max(0, std::min(255, colb));
-		parts[i].dcolour = COLARGB(rand()%150, colr, colg, colb);
+		parts[i].dcolour = COLARGB(RNG::Ref().between(0, 149), colr, colg, colb);
 	}
 
 	// Set non-static properties (such as randomly generated ones)
@@ -1280,7 +1281,7 @@ void Simulation::UpdateBefore()
 	}
 
 	//check for excessive stacked particles, create BHOL if found
-	if (forceStackingCheck || !(rand()%10))
+	if (forceStackingCheck || RNG::Ref().chance(1, 10))
 	{
 		bool excessiveStackingFound = false;
 		forceStackingCheck = 0;
@@ -1302,7 +1303,7 @@ void Simulation::UpdateBefore()
 						}
 					}
 					//Random chance to turn into BHOL that increases with the amount of stacking, up to a threshold where it is certain to turn into BHOL
-					else if (pmap_count[y][x] > 1500 || (rand()%1600) <= pmap_count[y][x]+100)
+					else if (pmap_count[y][x] > 1500 || RNG::Ref().between(0, 1599) <= pmap_count[y][x]+100)
 					{
 						pmap_count[y][x] = pmap_count[y][x] + NPART;
 						excessiveStackingFound = true;
@@ -1540,13 +1541,13 @@ bool Simulation::UpdateParticle(int i)
 		if (realistic)
 		{
 			//The magic number controls diffusion speed
-			parts[i].vx += 0.05f*sqrtf(parts[i].temp)*elements[t].Diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-			parts[i].vy += 0.05f*sqrtf(parts[i].temp)*elements[t].Diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+			parts[i].vx += 0.05f * sqrtf(parts[i].temp) * elements[t].Diffusion * (2.0f * RNG::Ref().uniform01() - 1);
+			parts[i].vy += 0.05f * sqrtf(parts[i].temp) * elements[t].Diffusion * (2.0f * RNG::Ref().uniform01() - 1);
 		}
 		else
 		{
-			parts[i].vx += elements[t].Diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
-			parts[i].vy += elements[t].Diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
+			parts[i].vx += elements[t].Diffusion * (2.0f * RNG::Ref().uniform01() - 1);
+			parts[i].vy += elements[t].Diffusion * (2.0f * RNG::Ref().uniform01() - 1);
 		}
 	}
 
@@ -1632,7 +1633,7 @@ bool Simulation::UpdateParticle(int i)
 	//the basic explosion, from the .explosive variable
 	if (!(elements[t].Properties&PROP_INDESTRUCTIBLE) && (elements[t].Explosive&2) && air->pv[y/CELL][x/CELL] > 2.5f)
 	{
-		parts[i].life = rand()%80 + 180;
+		parts[i].life = RNG::Ref().between(180, 259);
 		parts[i].temp = restrict_flt(elements[PT_FIRE].DefaultProperties.temp + (elements[t].Flammable/2), MIN_TEMP, MAX_TEMP);
 		t = PT_FIRE;
 		part_change_type(i, x, y, t);
@@ -1721,13 +1722,13 @@ bool Simulation::UpdateParticle(int i)
 
 	if (parts[i].flags&FLAG_EXPLODE)
 	{
-		if (!(rand()%10))
+		if (RNG::Ref().chance(1, 10))
 		{
 			parts[i].flags &= ~FLAG_EXPLODE;
 			air->pv[y/CELL][x/CELL] += 5.0f;
-			if(!(rand()%3))
+			if (RNG::Ref().chance(1, 3))
 			{
-				if(!(rand()%2))
+				if (RNG::Ref().chance(1, 2))
 				{
 					part_create(i, x, y, PT_BOMB);
 					parts[i].temp = MAX_TEMP;
@@ -1742,8 +1743,8 @@ bool Simulation::UpdateParticle(int i)
 			{
 				part_create(i, x, y, PT_EMBR);
 				parts[i].temp = MAX_TEMP;
-				parts[i].vx = rand()%20-10.0f;
-				parts[i].vy = rand()%20-10.0f;
+				parts[i].vx = RNG::Ref().between(-10, 10);
+				parts[i].vy = RNG::Ref().between(-10, 10);
 			}
 			return true;
 		}
@@ -1971,7 +1972,7 @@ bool Simulation::UpdateParticle(int i)
 				return true;
 			//reflection
 			parts[i].flags |= FLAG_STAGNANT;
-			if (t == PT_NEUT && !(rand()%10))
+			if (t == PT_NEUT && RNG::Ref().chance(1, 10))
 			{
 				part_kill(i);
 				return true;
@@ -1996,7 +1997,7 @@ bool Simulation::UpdateParticle(int i)
 			{
 				if (TYP(r) == PT_CRMC)
 				{
-					float r = (rand() % 101 - 50) * 0.01f, rx, ry, anrx, anry;
+					float r = RNG::Ref().between(-50, 50) * 0.01f, rx, ry, anrx, anry;
 					r = r * r * r;
 					rx = cosf(r); ry = sinf(r);
 					anrx = rx * nrx + ry * nry;
@@ -2061,7 +2062,7 @@ bool Simulation::UpdateParticle(int i)
 	else
 	{
 		//checking stagnant is cool, but then it doesn't update when you change it later.
-		if (water_equal_test && elements[t].Falldown == 2 && !(rand()%400))
+		if (water_equal_test && elements[t].Falldown == 2 && RNG::Ref().chance(1, 400))
 		{
 			if (!flood_water(x, y, i, y, parts[i].flags&FLAG_WATEREQUAL))
 				return false;
@@ -2083,7 +2084,7 @@ bool Simulation::UpdateParticle(int i)
 			else
 			{
 				int nx, ny, s = 1;
-				int r = (rand()%2)*2-1; // position search direction (left/right first)
+				int r = RNG::Ref().between(0, 1) * 2 - 1; // position search direction (left/right first)
 				if ((clear_x!=x || clear_y!=y || nt || surround_space) &&
 					(fabsf(parts[i].vx)>0.01f || fabsf(parts[i].vy)>0.01f))
 				{
@@ -2928,7 +2929,7 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 		if (!thisPart)
 			return 0;
 
-		if (rand() % 100 != 0)
+		if (RNG::Ref().chance(1, 100))
 			return 0;
 
 		int distance = (int)(std::pow(strength, .5f) * 10);
@@ -2936,8 +2937,8 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 		if (!(elements[TYP(thisPart)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS)))
 			return 0;
 
-		int newX = x + (rand() % distance) - (distance/2);
-		int newY = y + (rand() % distance) - (distance/2);
+		int newX = x + RNG::Ref().between(0, distance - 1) - (distance/2);
+		int newY = y + RNG::Ref().between(0, distance - 1) - (distance/2);
 
 		if(newX < 0 || newY < 0 || newX >= XRES || newY >= YRES)
 			return 0;

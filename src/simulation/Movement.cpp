@@ -2,6 +2,7 @@
 #include "Simulation.h"
 #include "WallNumbers.h"
 #include "common/tpt-math.h"
+#include "common/tpt-rand.h"
 #include "simulation/elements/FILT.h"
 #include "simulation/elements/PRTI.h"
 
@@ -37,7 +38,7 @@ bool Simulation::IsWallBlocking(int x, int y, int type)
 // create photons when PHOT moves through GLOW
 void Simulation::CreateGainPhoton(int pp)
 {
-	int lr = rand() % 2;
+	int lr = RNG::Ref().between(1, 2);
 
 	float xx, yy;
 	if (lr)
@@ -98,7 +99,7 @@ void Simulation::CreateCherenkovPhoton(int pp)
 	parts[i].temp = parts[ID(pmap[ny][nx])].temp;
 	parts[i].pavg[0] = parts[i].pavg[1] = 0.0f;
 
-	int lr = rand() % 2;
+	int lr = RNG::Ref().between(1, 2);
 	if (lr)
 	{
 		parts[i].vx = parts[pp].vx - 2.5f*parts[pp].vy;
@@ -586,9 +587,8 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 	e = EvalMove(parts[i].type, nx, ny, &r);
 
 	/* half-silvered mirror */
-	if (!e && parts[i].type==PT_PHOT &&
-			((TYP(r)==PT_BMTL && rand()<RAND_MAX/2) ||
-			 TYP(pmap[y][x])==PT_BMTL))
+	if (!e && parts[i].type == PT_PHOT &&
+	        ((TYP(r) == PT_BMTL && RNG::Ref().chance(1, 2)) || TYP(pmap[y][x]) == PT_BMTL))
 		e = 2;
 
 	if (!e) //if no movement
@@ -655,7 +655,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 			switch TYP(r)
 			{
 			case PT_GLOW:
-				if (!parts[ID(r)].life && rand() < RAND_MAX/30)
+				if (!parts[ID(r)].life && RNG::Ref().chance(1, 30))
 				{
 					parts[ID(r)].life = 120;
 					CreateGainPhoton(i);
@@ -757,7 +757,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		case PT_NEUT:
 			if (TYP(r) == PT_GLAS || TYP(r) == PT_BGLA)
 			{
-				if (rand() < RAND_MAX/10)
+				if (RNG::Ref().chance(1, 10))
 					CreateCherenkovPhoton(i);
 			}
 			break;

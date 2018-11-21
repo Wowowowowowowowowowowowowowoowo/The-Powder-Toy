@@ -1,8 +1,9 @@
 
 #include "common/tpt-minmax.h"
 #include <cmath>
-#include "Simulation.h"
 #include "gravity.h"
+#include "Simulation.h"
+#include "common/tpt-rand.h"
 
 static float (*tptabs)(float) = & std::abs;
 
@@ -16,7 +17,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 		gel_scale = parts[i].tmp*2.55f;
 
 	//some heat convection for liquids
-	if ((elements[t].Properties&TYPE_LIQUID) && (t!=PT_GEL || gel_scale > (1+rand()%255)) && y-2 >= 0 && y-2 < YRES)
+	if ((elements[t].Properties&TYPE_LIQUID) && (t!=PT_GEL || gel_scale > RNG::Ref().between(1, 255)) && y-2 >= 0 && y-2 < YRES)
 	{
 		r = pmap[y-2][x];
 		if (!(!r || parts[i].type != TYP(r)))
@@ -31,7 +32,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 	}
 
 	//heat transfer code
-	if ((t!=PT_HSWC || parts[i].life==10) && elements[t].HeatConduct*gel_scale != 0 && (realistic || (elements[t].HeatConduct*gel_scale) > (rand()%250)))
+	if ((t!=PT_HSWC || parts[i].life==10) && elements[t].HeatConduct*gel_scale != 0 && (realistic || RNG::Ref().chance(elements[t].HeatConduct*gel_scale, 250)))
 	{
 		float c_Cm = 0.0f;
 		if (aheat_enable && !(elements[t].Properties&PROP_NOAMBHEAT))
@@ -220,7 +221,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 						{
 							pt = (c_heat - elements[t].Latent)/c_Cm;
 
-							if (1>rand()%6)
+							if (RNG::Ref().chance(1, 6))
 								t = PT_SALT;
 							else
 								t = PT_WTRV;
@@ -233,7 +234,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 					}
 					else
 					{
-						if (1>rand()%6)
+						if (RNG::Ref().chance(1, 6))
 							t = PT_SALT;
 						else
 							t = PT_WTRV;
@@ -386,14 +387,14 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 				else
 					part_change_type(i,x,y,t);
 				if (t==PT_FIRE || t==PT_PLSM || t==PT_HFLM)
-					parts[i].life = rand()%50+120;
+					parts[i].life = RNG::Ref().between(120, 169);
 				if (t==PT_LAVA)
 				{
 					if (parts[i].ctype==PT_BRMT)		parts[i].ctype = PT_BMTL;
 					else if (parts[i].ctype==PT_SAND)	parts[i].ctype = PT_GLAS;
 					else if (parts[i].ctype==PT_BGLA)	parts[i].ctype = PT_GLAS;
 					else if (parts[i].ctype==PT_PQRT)	parts[i].ctype = PT_QRTZ;
-					parts[i].life = rand()%120+240;
+					parts[i].life = RNG::Ref().between(240, 359);
 				}
 			}
 		}
@@ -483,6 +484,6 @@ bool Simulation::CheckPressureTransitions(int i, int t)
 		part_change_type(i,x,y,t);
 
 	if (t == PT_FIRE)
-		parts[i].life = rand()%50 + 120;
+		parts[i].life = RNG::Ref().between(120, 169);
 	return true;
 }
