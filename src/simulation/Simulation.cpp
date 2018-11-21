@@ -2963,19 +2963,20 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 	{
 		/* 
 			Air velocity calculation.
-			Air velocity X = cosine of cell angle
-			Angle of cell is calculated via cells X/Y relation to the brush center and arctangent
-			Angle has 1.57 radians added to it (90 degrees) in order to make the velocity be at 90 degrees to the centerpoint.
-			Ditto for X, except X uses sine
+			(x, y) -- turn 90 deg -> (-y, x)
 		*/
 		// only trigger once per cell (less laggy)
-		if ((x%CELL) == 0 && (y%CELL) == 0)
+		if ((x%CELL) == 0 && (y%CELL) == 0 && !(brushX == x && brushY == y))
 		{
 			float *vx = &air->vx[y/CELL][x/CELL];
 			float *vy = &air->vy[y/CELL][x/CELL];
 
-			*vx -= (strength / 16) * (cos(1.57f + (atan2(brushY - y, brushX - x))));
-			*vy -= (strength / 16) * (sin(1.57f + (atan2(brushY - y, brushX - x))));
+			float dvx = brushX - x;
+			float dvy = brushY - y;
+			float invsqr = 1 / sqrtf(dvx * dvx + dvy * dvy);
+
+			*vx -= (strength / 16) * (-dvy) * invsqr;
+			*vy -= (strength / 16) * dvx * invsqr;
 
 			// Clamp velocities
 			if (*vx > 256.0f)
