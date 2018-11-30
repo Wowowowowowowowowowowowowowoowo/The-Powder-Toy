@@ -17,9 +17,6 @@
 
 #include "gui/profile/ProfileViewer.h"
 
-#include "common/tpt-minmax.h"
-#include "SDLCompat.h"
-
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -44,24 +41,23 @@
 #include <unistd.h>
 #endif
 
-#include "http.h"
-#include "md5.h"
-#include "font.h"
-#include "defines.h"
-#include "powder.h"
-#include "interface.h"
-#include "misc.h"
+#include "cJSON.h"
 #include "console.h"
-#include "luaconsole.h"
-#include "gravity.h"
+#include "defines.h"
+#include "EventLoopSDL.h"
+#include "font.h"
 #include "graphics.h"
+#include "gravity.h"
+#include "interface.h"
+#include "http.h"
+#include "hud.h"
 #include "images.h"
-
+#include "luaconsole.h"
+#include "md5.h"
+#include "misc.h"
+#include "powder.h"
 #include "powdergraphics.h"
 #include "save.h"
-#include "hud.h"
-#include "cJSON.h"
-#include "json/json.h"
 #include "update.h"
 
 #include "common/Format.h"
@@ -73,19 +69,17 @@
 #include "game/Save.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
+#include "interface/Engine.h"
+#include "json/json.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 
-#include "interface/Engine.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
 #include "simulation/elements/ANIM.h"
-
-unsigned short sdl_mod;
-int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
 int svf_messages = 0;
 int svf_login = 0;
@@ -534,8 +528,8 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	if (mb && !mbq && ed->focus && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11))
 	{
-		int clickTime = SDL_GetTicks()-ed->lastClick;
-		ed->lastClick = SDL_GetTicks();
+		int clickTime = GetTicks()-ed->lastClick;
+		ed->lastClick = GetTicks();
 		if (clickTime < 300)
 		{
 			ed->clickPosition = ed->cursor;
@@ -546,7 +540,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		}
 		ed->cursorstart = ed->cursor;
 	}
-	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+	else if (!mb && GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
 	if (ed->numClicks >= 2)
 	{
@@ -708,8 +702,8 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	}
 	if (mb && !mbq && ed->focus)
 	{
-		int clickTime = SDL_GetTicks()-ed->lastClick;
-		ed->lastClick = SDL_GetTicks();
+		int clickTime = GetTicks()-ed->lastClick;
+		ed->lastClick = GetTicks();
 		if (clickTime < 300)
 		{
 			ed->clickPosition = ed->cursor;
@@ -720,7 +714,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		}
 		ed->cursorstart = ed->cursor;
 	}
-	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+	else if (!mb && GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
 	if (ed->numClicks >= 2)
 	{
@@ -3481,219 +3475,6 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 		draw_image(vid_buf, tabThumbnails[hoverQuickoption-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptionsThumbnailFade*21);
 		quickoptionsThumbnailFade--;
 	}
-}
-
-SDLKey MapNumpad(SDLKey key)
-{
-	switch(key)
-	{
-	case SDLK_KP8:
-		return SDLK_UP;
-	case SDLK_KP2:
-		return SDLK_DOWN;
-	case SDLK_KP6:
-		return SDLK_RIGHT;
-	case SDLK_KP4:
-		return SDLK_LEFT;
-	case SDLK_KP7:
-		return SDLK_HOME;
-	case SDLK_KP1:
-		return SDLK_END;
-	case SDLK_KP_PERIOD:
-		return SDLK_DELETE;
-	case SDLK_KP0:
-	case SDLK_KP3:
-	case SDLK_KP9:
-		return SDLK_UNKNOWN;
-	default:
-		return key;
-	}
-}
-
-int EventProcess(SDL_Event event)
-{
-	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-	{
-		if (event.key.keysym.unicode == 0)
-		{
-			// If unicode is zero, this could be a numpad key with numlock off, or numlock on and shift on (unicode is set to 0 by SDL or the OS in these circumstances. If numlock is on, unicode is the relevant digit character).
-			// For some unknown reason, event.key.keysym.mod seems to be unreliable on some computers (keysum.mod&KEY_MOD_NUM is opposite to the actual value), so check keysym.unicode instead.
-			// Note: unicode is always zero for SDL_KEYUP events, so this translation won't always work properly for keyup events.
-			SDLKey newKey = MapNumpad(event.key.keysym.sym);
-			if (newKey != event.key.keysym.sym)
-			{
-				event.key.keysym.sym = newKey;
-				event.key.keysym.unicode = 0;
-			}
-		}
-	}
-	switch (event.type)
-	{
-	case SDL_KEYDOWN:
-		sdl_key = event.key.keysym.sym;
-		sdl_ascii = event.key.keysym.unicode;
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
-		{
-			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
-			{
-				has_quit = 1;
-				return 1;
-			}
-		}
-		break;
-	case SDL_KEYUP:
-		sdl_rkey = event.key.keysym.sym;
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-		if (event.button.button == SDL_BUTTON_WHEELUP)
-			sdl_wheel++;
-		if (event.button.button == SDL_BUTTON_WHEELDOWN)
-			sdl_wheel--;
-		break;
-	case SDL_VIDEORESIZE:
-		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
-		// if we don't do this, the touchscreen calibration variables won't ever be set properly
-		SetSDLVideoMode((XRES + BARSIZE) * sdl_scale, (YRES + MENUSIZE) * sdl_scale);
-		break;
-	case SDL_QUIT:
-		if (fastquit)
-			has_quit = 1;
-		return 1;
-	case SDL_SYSWMEVENT:
-#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-		if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
-			break;
-		sdl_wminfo.info.x11.lock_func();
-		XEvent xe = event.syswm.msg->event.xevent;
-		if (xe.type==SelectionClear)
-		{
-			if (clipboard_text!=NULL) {
-				free(clipboard_text);
-				clipboard_text = NULL;
-			}
-		}
-		else if (xe.type==SelectionRequest)
-		{
-			XEvent xr;
-			xr.xselection.type = SelectionNotify;
-			xr.xselection.requestor = xe.xselectionrequest.requestor;
-			xr.xselection.selection = xe.xselectionrequest.selection;
-			xr.xselection.target = xe.xselectionrequest.target;
-			xr.xselection.property = xe.xselectionrequest.property;
-			xr.xselection.time = xe.xselectionrequest.time;
-			if (xe.xselectionrequest.target==XA_TARGETS)
-			{
-				// send list of supported formats
-				Atom targets[] = {XA_TARGETS, XA_STRING, XA_UTF8_STRING};
-				xr.xselection.property = xe.xselectionrequest.property;
-				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)targets, (int)(sizeof(targets)/sizeof(Atom)));
-			}
-			// TODO: Supporting more targets would be nice
-			else if ((xe.xselectionrequest.target==XA_STRING || xe.xselectionrequest.target==XA_UTF8_STRING) && clipboard_text)
-			{
-				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
-			}
-			else
-			{
-				// refuse clipboard request
-				xr.xselection.property = None;
-			}
-			XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
-		}
-		sdl_wminfo.info.x11.unlock_func();
-#elif WIN
-		switch (event.syswm.msg->msg)
-		{
-		case WM_USER+614:
-			if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
-				ptsaveOpenID = event.syswm.msg->lParam;
-			//If we are already opening a save, we can't have it do another one, so just start it in a new process
-			else
-			{
-				char *exename = Platform::ExecutableName(), args[64];
-				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
-				if (exename)
-				{
-					ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
-					free(exename);
-				}
-				//I doubt this will happen ... but as a last resort just open it in this window anyway
-				else
-					saveURIOpen = event.syswm.msg->lParam;
-			}
-			break;
-		}
-#else
-		break;
-#endif
-	}
-	return 0;
-}
-
-int FPSwait = 0, fastquit = 0;
-int sdl_poll(void)
-{
-	SDL_Event event;
-	sdl_key=sdl_rkey=sdl_wheel=sdl_ascii=0;
-	if (has_quit)
-		return 1;
-	loop_time = SDL_GetTicks();
-	if (main_loop > 0)
-	{
-		main_loop--;
-		if (main_loop == 0)
-		{
-			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-			FPSwait = 2;
-			the_game->OnDefocus();
-		}
-		else
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-	}
-
-	while (SDL_PollEvent(&event))
-	{
-		int ret = EventProcess(event);
-		if (ret)
-			return ret;
-	}
-
-	sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-	limit_fps();
-	sendNewEvents = true;
-	return 0;
-}
-
-int pastFPS = 0;
-float FPSB2 = 60.0f;
-double frameTimeAvg = 0.0, correctedFrameTimeAvg = 60.0;
-void limit_fps()
-{
-	int frameTime = SDL_GetTicks() - currentTime;
-
-	frameTimeAvg = frameTimeAvg * .8 + frameTime * .2;
-	if (limitFPS > 2)
-	{
-		double offset = 1000.0 / limitFPS - frameTimeAvg;
-		if (offset > 0)
-			//millisleep((Uint32)(offset + 0.5));
-			SDL_Delay((Uint32)(offset + 0.5));
-	}
-
-	int correctedFrameTime = SDL_GetTicks() - currentTime;
-	correctedFrameTimeAvg = correctedFrameTimeAvg * 0.95 + correctedFrameTime * 0.05;
-	elapsedTime = currentTime-pastFPS;
-	if (elapsedTime >= 200)
-	{
-		if (!FPSwait)
-			FPSB2 = 1000.0f/(float)correctedFrameTimeAvg;
-		if (main_loop && FPSwait > 0)
-			FPSwait--;
-		pastFPS = currentTime;
-	}
-	currentTime = SDL_GetTicks();
 }
 
 int search_ui(pixel *vid_buf)
@@ -8177,17 +7958,6 @@ void simulation_ui(pixel * vid_buf)
 		if (!b)
 			break;
 	}
-}
-
-int mouse_get_state(int *x, int *y)
-{
-	//Wrapper around SDL_GetMouseState to divide by sdl_scale
-	Uint8 sdl_b;
-	int sdl_x, sdl_y;
-	sdl_b = SDL_GetMouseState(&sdl_x, &sdl_y);
-	*x = sdl_x/sdl_scale;
-	*y = sdl_y/sdl_scale;
-	return sdl_b;
 }
 
 void clear_save_info()

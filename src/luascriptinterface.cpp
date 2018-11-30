@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 #include "defines.h"
+#include "EventLoopSDL.h"
 #include "graphics.h"
 #include "gravity.h"
 #include "interface.h"
@@ -19,6 +20,7 @@
 #include "save.h"
 #include "hud.h"
 
+#include "common/Format.h"
 #include "common/Platform.h"
 #include "game/Authors.h"
 #include "game/Brush.h"
@@ -126,7 +128,7 @@ int simulation_signNewIndex(lua_State *l)
 	if (!key.compare("text"))
 	{
 		const char *temp = luaL_checkstring(l, 3);
-		std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+		std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
 		if (!cleaned.empty())
 			signs[id]->SetText(cleaned);
 		else
@@ -186,7 +188,7 @@ int simulation_newsign(lua_State *l)
 	if (y < 0 || y >= YRES)
 		return luaL_error(l, "Invalid Y coordinate");
 
-	std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+	std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
 	signs.push_back(new Sign(cleaned, x, y, (Sign::Justification)ju));
 	lua_pushnumber(l, signs.size());
 	return 1;

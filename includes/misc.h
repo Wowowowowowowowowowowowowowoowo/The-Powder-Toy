@@ -20,9 +20,6 @@
 #include <stdlib.h>
 #include <string>
 
-//Signum function
-int isign(float i);
-
 unsigned clamp_flt(float f, float min, float max);
 
 float restrict_flt(float f, float min, float max);
@@ -53,17 +50,8 @@ void strcaturl(char *dst, char *src);
 
 void strappend(char *dst, const char *src);
 
-std::string CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric = false);
-std::string CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric = false);
-
 int file_exists(const char *filename);
 void *file_load(const char *fn, int *size);
-
-void clipboard_push_text(char * text);
-
-char * clipboard_pull_text();
-
-extern char *clipboard_text;
 
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);
 

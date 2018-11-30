@@ -1,8 +1,9 @@
 #include "common/tpt-minmax.h"
 #include <sstream>
 #include <cstring>
+#include "EventLoopSDL.h"
 #include "Textbox.h"
-#include "misc.h"
+#include "common/Format.h"
 #include "common/Platform.h"
 #include "graphics/VideoBuffer.h"
 
@@ -54,7 +55,7 @@ bool Textbox::DeleteHighlight(bool updateDisplayText)
 
 void Textbox::InsertText(std::string inserttext)
 {
-	inserttext = CleanString(inserttext, true, true, type != MULTILINE);
+	inserttext = Format::CleanString(inserttext, true, true, type != MULTILINE);
 	if (!inserttext.length())
 		return;
 

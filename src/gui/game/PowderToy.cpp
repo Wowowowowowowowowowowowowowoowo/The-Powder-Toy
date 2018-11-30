@@ -3,14 +3,15 @@
 #include <sstream>
 #include "json/json.h"
 
-#include "PowderToy.h"
 #include "defines.h"
+#include "EventLoopSDL.h" // for two mouse_get_state that should be removed ...
 #include "gravity.h"
 #include "http.h"
 #include "interface.h"
 #include "luaconsole.h"
 #include "powder.h"
 #include "powdergraphics.h"
+#include "PowderToy.h"
 #include "misc.h"
 #include "save.h"
 #include "update.h"

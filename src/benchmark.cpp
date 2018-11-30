@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
-#include "SDLCompat.h"
 
+#include "EventLoopSDL.h"
 #include "powder.h"
 #include "gravity.h"
 #include "graphics.h"
@@ -22,7 +22,7 @@ int benchmark_repeat_count = 5; // this too, but try benchmark_loops_multiply fi
 
 double benchmark_get_time()
 {
-	return SDL_GetTicks()/1000.0;
+	return GetTicks()/1000.0;
 }
 
 // repeat_count - how many times to run the test, iterations_count = number of loops to execute each time

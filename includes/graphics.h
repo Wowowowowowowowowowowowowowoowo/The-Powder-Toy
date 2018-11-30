@@ -28,15 +28,6 @@ extern pixel sampleColor;
 extern unsigned int render_mode;
 extern unsigned int display_mode;
 
-#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-struct SDL_SysWMinfo;
-typedef unsigned long Atom;
-extern SDL_SysWMinfo sdl_wminfo;
-extern Atom XA_CLIPBOARD, XA_TARGETS, XA_UTF8_STRING, XA_NET_FRAME_EXTENTS;
-#endif
-extern int sdl_scale;
-extern int savedWindowX;
-extern int savedWindowY;
 
 extern unsigned char fire_r[YRES/CELL][XRES/CELL];
 extern unsigned char fire_g[YRES/CELL][XRES/CELL];
@@ -73,12 +64,6 @@ void draw_other(pixel *vid, Simulation * sim);
 void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float a);
 
 void render_gravlensing(pixel *src, pixel * dst);
-
-void sdl_blit_1(int x, int y, int w, int h, pixel *src, int pitch);
-
-void sdl_blit_2(int x, int y, int w, int h, pixel *src, int pitch);
-
-void sdl_blit(int x, int y, int w, int h, pixel *src, int pitch);
 
 void drawblob(pixel *vid, int x, int y, unsigned char cr, unsigned char cg, unsigned char cb);
 
@@ -188,15 +173,6 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 
 class Brush;
 void render_cursor(pixel *vid, int x, int y, Tool* t, Brush* brush);
-
-int LoadWindowPosition(int scale);
-
-int SaveWindowPosition();
-
-int sdl_open(void);
-void SetSDLVideoMode(int width, int height);
-
-int set_scale(int scale, int kiosk);
 
 int draw_debug_info(pixel* vid, Simulation * sim, int lx, int ly, int cx, int cy, int line_x, int line_y);
 

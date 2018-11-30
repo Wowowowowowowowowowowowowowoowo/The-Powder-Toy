@@ -1922,7 +1922,7 @@ void Save::ParseSavePSv()
 			char temp[256];
 			memcpy(temp, data+pos, textSize);
 			temp[textSize] = 0;
-			std::string text = CleanString(temp, true, true, true).substr(0, 45);
+			std::string text = Format::CleanString(temp, true, true, true).substr(0, 45);
 			signs.push_back(Sign(text, x, y, (Sign::Justification)ju));
 			pos += textSize;
 		}

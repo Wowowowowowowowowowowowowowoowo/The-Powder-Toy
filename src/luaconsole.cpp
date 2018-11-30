@@ -20,7 +20,6 @@
 #include <cstring>
 #include <sstream>
 
-#include "SDLCompat.h"
 #if defined(LIN) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -35,6 +34,7 @@ extern "C"
 }
 
 #include "defines.h"
+#include "EventLoopSDL.h"
 #include "powder.h"
 #include "graphics.h"
 #include "gravity.h"
@@ -816,7 +816,7 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 	int len = lua_objlen(l, -1);
 	for (int i = 1; i <= len && keycontinue; i++)
 	{
-		loop_time = SDL_GetTicks();
+		loop_time = GetTicks();
 		lua_rawgeti(l, -1, i);
 		if ((modifier & (KMOD_CTRL|KMOD_META)) && (character < ' ' || character > '~') && key < 256)
 			lua_pushlstring(l, (const char*)&key, 1);
@@ -874,7 +874,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	int len = lua_objlen(l, -1);
 	for (int i = 1; i <= len && mpcontinue; i++)
 	{
-		loop_time = SDL_GetTicks();
+		loop_time = GetTicks();
 		lua_rawgeti(l, -1, i);
 		lua_pushinteger(l, mx);
 		lua_pushinteger(l, my);
@@ -941,7 +941,7 @@ int luacon_step(int mx, int my)
 	int len = lua_objlen(l, -1);
 	for (int i = 1; i <= len; i++)
 	{
-		loop_time = SDL_GetTicks();
+		loop_time = GetTicks();
 		lua_rawgeti(l, -1, i);
 		int callret = lua_pcall(l, 0, 0, 0);
 		if (callret)
@@ -1030,7 +1030,7 @@ int luacon_eval(const char *command, char **result)
 	}
 	tmp = (char*)malloc(strlen(lastCode) + 8);
 	sprintf(tmp, "return %s", lastCode);
-	loop_time = SDL_GetTicks();
+	loop_time = GetTicks();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
 	if(lua_type(l, -1) != LUA_TFUNCTION)
 	{
@@ -1110,11 +1110,11 @@ int luacon_eval(const char *command, char **result)
 
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
-	if(ar->event == LUA_HOOKCOUNT && SDL_GetTicks()-loop_time > 3000)
+	if(ar->event == LUA_HOOKCOUNT && GetTicks()-loop_time > 3000)
 	{
 		if (confirm_ui(lua_vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
 			luaL_error(l,"Error: Infinite loop");
-		loop_time = SDL_GetTicks();
+		loop_time = GetTicks();
 	}
 }
 
@@ -2807,7 +2807,7 @@ void ExecuteEmbededLuaCode()
 			"))
 			luacon_log(mystrdup(luacon_geterror())); //if large above thing errored
 
-		loop_time = SDL_GetTicks();
+		loop_time = GetTicks();
 #if LUA_VERSION_NUM >= 502
 		if (luaL_dostring(l, "local code = loadfile(\"newluacode.txt\", nil, env) if code then code() end"))
 #else

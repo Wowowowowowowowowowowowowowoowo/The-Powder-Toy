@@ -25,12 +25,8 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <math.h>
-#include <SDLCompat.h>
 
-#ifdef ANDROID
-#include <SDL/SDL_screenkeyboard.h>
-#endif
-
+#include "EventLoopSDL.h"
 #include "misc.h"
 #include "defines.h"
 #include "interface.h"
@@ -61,16 +57,6 @@ void writeClipboard(const char * clipboardData);
 
 char *clipboard_text = NULL;
 static char hex[] = "0123456789ABCDEF";
-
-//Signum function
-int isign(float i)
-{
-	if (i<0)
-		return -1;
-	if (i>0)
-		return 1;
-	return 0;
-}
 
 unsigned clamp_flt(float f, float min, float max)
 {
@@ -732,73 +718,6 @@ void strappend(char *dst, const char *src)
 	*d = 0;
 }
 
-// Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, strip all newlines, or strip all non 0-9 characters
-std::string CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric)
-{
-	for (size_t i = 0; i < dirtyString.size(); i++)
-	{
-		switch(dirtyString[i])
-		{
-		case '\b':
-			if (color)
-			{
-				dirtyString.erase(i, 2);
-				i--;
-			}
-			else
-				i++;
-			break;
-		case '\x0E':
-			if (color)
-			{
-				dirtyString.erase(i, 1);
-				i--;
-			}
-			break;
-		case '\x0F':
-			if (color)
-			{
-				dirtyString.erase(i, 4);
-				i--;
-			}
-			else
-				i += 3;
-			break;
-		// erase these without question, first two are control characters used for the cursor
-		// second is used internally to denote automatically inserted newline
-		case '\x01':
-		case '\x02':
-		case '\r':
-			dirtyString.erase(i, 1);
-			i--;
-			break;
-		case '\n':
-			if (newlines)
-				dirtyString[i] = ' ';
-			break;
-		default:
-			if (numeric && (dirtyString[i] < '0' || dirtyString[i] > '9'))
-			{
-				dirtyString.erase(i, 1);
-				i--;
-			}
-			// if less than ascii 20 or greater than ascii 126, delete
-			else if (ascii && (dirtyString[i] < ' ' || dirtyString[i] > '~'))
-			{
-				dirtyString.erase(i, 1);
-				i--;
-			}
-			break;
-		}
-	}
-	return dirtyString;
-}
-
-std::string CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric)
-{
-	return CleanString(std::string(dirtyData), ascii, color, newlines, numeric);
-}
-
 void *file_load(const char *fn, int *size)
 {
 	FILE *f = fopen(fn, "rb");
@@ -854,145 +773,6 @@ int file_exists(const char *filename)
 		exists = 0;
 	}
 	return exists;
-}
-
-char * clipboardtext = NULL;
-void clipboard_push_text(char * text)
-{
-	if (clipboardtext)
-	{
-		free(clipboardtext);
-		clipboardtext = NULL;
-	}
-	clipboardtext = mystrdup(text);
-#ifdef ANDROID
-	SDL_SetClipboardText(text);
-#elif MACOSX
-	writeClipboard(text);
-#elif WIN
-	if (OpenClipboard(NULL))
-	{
-		HGLOBAL cbuffer;
-		char * glbuffer;
-
-		EmptyClipboard();
-
-		cbuffer = GlobalAlloc(GMEM_DDESHARE, strlen(text)+1);
-		glbuffer = (char*)GlobalLock(cbuffer);
-
-		strcpy(glbuffer, text);
-
-		GlobalUnlock(cbuffer);
-		SetClipboardData(CF_TEXT, cbuffer);
-		CloseClipboard();
-	}
-#elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-	if (clipboard_text!=NULL) {
-		free(clipboard_text);
-		clipboard_text = NULL;
-	}
-	clipboard_text = mystrdup(text);
-	sdl_wminfo.info.x11.lock_func();
-	XSetSelectionOwner(sdl_wminfo.info.x11.display, XA_CLIPBOARD, sdl_wminfo.info.x11.window, CurrentTime);
-	XFlush(sdl_wminfo.info.x11.display);
-	sdl_wminfo.info.x11.unlock_func();
-#else
-	printf("Not implemented: put text on clipboard \"%s\"\n", text);
-#endif
-}
-
-char * clipboard_pull_text()
-{
-#ifdef ANDROID
-	if (!SDL_HasClipboardText())
-		return mystrdup("");
-	char *data = SDL_GetClipboardText();
-	if (!data)
-		return mystrdup("");
-	char *ret = mystrdup(data);
-	SDL_free(data);
-	return ret;
-#elif MACOSX
-	char * data = readClipboard();
-	if (!data)
-		return mystrdup("");
-	return mystrdup(data);
-#elif WIN
-	if (OpenClipboard(NULL))
-	{
-		HANDLE cbuffer;
-		char * glbuffer;
-
-		cbuffer = GetClipboardData(CF_TEXT);
-		glbuffer = (char*)GlobalLock(cbuffer);
-		GlobalUnlock(cbuffer);
-		CloseClipboard();
-		if(glbuffer!=NULL){
-			return mystrdup(glbuffer);
-		} //else {
-		//	return mystrdup("");
-		//}
-	}
-#elif defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-	char *text = NULL;
-	Window selectionOwner;
-	sdl_wminfo.info.x11.lock_func();
-	selectionOwner = XGetSelectionOwner(sdl_wminfo.info.x11.display, XA_CLIPBOARD);
-	if (selectionOwner != None)
-	{
-		unsigned char *data = NULL;
-		Atom type;
-		int format, result;
-		unsigned long len, bytesLeft;
-		XConvertSelection(sdl_wminfo.info.x11.display, XA_CLIPBOARD, XA_UTF8_STRING, XA_CLIPBOARD, sdl_wminfo.info.x11.window, CurrentTime);
-		XFlush(sdl_wminfo.info.x11.display);
-		sdl_wminfo.info.x11.unlock_func();
-		while (1)
-		{
-			SDL_Event event;
-			SDL_WaitEvent(&event);
-			if (event.type == SDL_SYSWMEVENT)
-			{
-				XEvent xevent = event.syswm.msg->event.xevent;
-				if (xevent.type == SelectionNotify && xevent.xselection.requestor == sdl_wminfo.info.x11.window)
-					break;
-				else
-					EventProcess(event);
-			}
-		}
-		sdl_wminfo.info.x11.lock_func();
-		XGetWindowProperty(sdl_wminfo.info.x11.display, sdl_wminfo.info.x11.window, XA_CLIPBOARD, 0, 0, 0, AnyPropertyType, &type, &format, &len, &bytesLeft, &data);
-		if (data)
-		{
-			XFree(data);
-			data = NULL;
-		}
-		if (bytesLeft)
-		{
-			result = XGetWindowProperty(sdl_wminfo.info.x11.display, sdl_wminfo.info.x11.window, XA_CLIPBOARD, 0, bytesLeft, 0, AnyPropertyType, &type, &format, &len, &bytesLeft, &data);
-			if (result == Success)
-			{
-				text = strdup((const char*) data);
-				XFree(data);
-			}
-			else
-			{
-				printf("Failed to pull from clipboard\n");
-				return mystrdup("?");
-			}
-		}
-		else
-			return mystrdup("");
-		XDeleteProperty(sdl_wminfo.info.x11.display, sdl_wminfo.info.x11.window, XA_CLIPBOARD);
-	}
-	sdl_wminfo.info.x11.unlock_func();
-	return text;
-#else
-	printf("Not implemented: get text from clipboard\n");
-#endif
-	if (clipboardtext)
-		return mystrdup(clipboardtext);
-	return mystrdup("");
 }
 
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b)//convert 0-255(0-360 for H) HSV values to 0-255 RGB

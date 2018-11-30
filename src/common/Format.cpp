@@ -85,6 +85,8 @@ std::string Format::UnixtimeToDateMini(time_t unixtime)
 	}
 }
 
+
+// Strips stuff from a string. Can strip all non ascii characters (excluding color and newlines), strip all color, strip all newlines, or strip all non 0-9 characters
 std::string Format::CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric)
 {
 	for (size_t i = 0; i < dirtyString.size(); i++)
@@ -116,7 +118,14 @@ std::string Format::CleanString(std::string dirtyString, bool ascii, bool color,
 			else
 				i += 3;
 			break;
+		// erase these without question, first two are control characters used for the cursor
+		// second is used internally to denote automatically inserted newline
+		case '\x01':
+		case '\x02':
 		case '\r':
+			dirtyString.erase(i, 1);
+			i--;
+			break;
 		case '\n':
 			if (newlines)
 				dirtyString[i] = ' ';
@@ -137,6 +146,11 @@ std::string Format::CleanString(std::string dirtyString, bool ascii, bool color,
 		}
 	}
 	return dirtyString;
+}
+
+std::string Format::CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric)
+{
+	return Format::CleanString(std::string(dirtyData), ascii, color, newlines, numeric);
 }
 
 std::vector<char> Format::VideoBufferToBMP(const VideoBuffer & vidBuf)

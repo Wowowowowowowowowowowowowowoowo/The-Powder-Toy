@@ -7,6 +7,7 @@
 #include "update.h"
 #endif
 #include "Engine.h"
+#include "EventLoopSDL.h"
 #include "interface.h"
 #include "misc.h"
 #include "Window.h"
