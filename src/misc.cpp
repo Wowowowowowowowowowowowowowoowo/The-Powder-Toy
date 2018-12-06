@@ -43,19 +43,11 @@
 #include "game/Favorite.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
+#include "interface/Engine.h"
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 
-#ifdef MACOSX
-extern "C"
-{
-char * readClipboard();
-void writeClipboard(const char * clipboardData);
-}
-#endif
-
-char *clipboard_text = NULL;
 static char hex[] = "0123456789ABCDEF";
 
 unsigned clamp_flt(float f, float min, float max)
@@ -271,7 +263,7 @@ void save_presets()
 	cJSON_AddStringToObject(root, "Proxy", http_proxy_string);
 	cJSON_AddNumberToObject(root, "DNS", prevDNS);
 	cJSON_AddNumberToObject(root, "DNSstatic", prevDNSstatic);
-	cJSON_AddNumberToObject(root, "Scale", sdl_scale);
+	cJSON_AddNumberToObject(root, "Scale", Engine::Ref().GetScale());
 	if (kiosk_enable)
 		cJSON_AddTrueToObject(root, "FullScreen");
 	if (fastquit)
@@ -596,17 +588,17 @@ void load_presets(void)
 		
 		if ((tmpobj = cJSON_GetObjectItem(root, "Scale")))
 		{
-			sdl_scale = tmpobj->valueint;
-			if (sdl_scale == 0)
-				sdl_scale = cJSON_GetInt(&tmpobj);
-			else if (sdl_scale < 0)
-				sdl_scale = 1;
+			int scale = tmpobj->valueint;
+			if (scale == 0)
+				scale = cJSON_GetInt(&tmpobj);
+			if (scale >= 0 && scale <= 5)
+				Engine::Ref().SetScale(scale);
 		}
 		if ((tmpobj = cJSON_GetObjectItem(root, "Fullscreen")))
 		{
 			kiosk_enable = tmpobj->valueint;
 			if (kiosk_enable)
-				set_scale(sdl_scale, kiosk_enable);
+				Engine::Ref().SetFullscreen(kiosk_enable);
 		}
 		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
 			fastquit = tmpobj->valueint;

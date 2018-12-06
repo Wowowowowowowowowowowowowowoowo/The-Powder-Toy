@@ -83,8 +83,8 @@
 #endif
 #define XRES	612
 #define YRES	384
-#define VIDXRES XRES+BARSIZE
-#define VIDYRES YRES+MENUSIZE
+#define VIDXRES (XRES+BARSIZE)
+#define VIDYRES (YRES+MENUSIZE)
 #define NPART XRES*YRES
 const int menuStartPosition = XRES+BARSIZE-17;
 const int menuIconWidth = 17;
@@ -167,7 +167,6 @@ extern bool doubleScreenDialog;
 extern int screenWidth;
 extern int screenHeight;
 extern float FPSB2;
-extern int main_loop;
 extern int elapsedTime;
 
 extern int NUM_PARTS;
@@ -280,7 +279,6 @@ Save *stamp_load(int i, int reorder);
 int tab_load(int tabNum, bool del = false, bool showException = true);
 void stamp_init();
 void del_stamp(int d);
-int set_scale(int scale, int kiosk);
 void ctrlzSnapshot();
 
 extern bool sendNewEvents;

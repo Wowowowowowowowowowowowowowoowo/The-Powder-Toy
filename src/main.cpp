@@ -240,7 +240,6 @@ int last_fav_menu = SC_FAV;
 int framerender = 0;
 bool pretty_powder = false;
 int limitFPS = 60;
-int main_loop = 1;
 int finding = 0;
 int foundParticles = 0;
 int highesttemp = MAX_TEMP;
@@ -1030,7 +1029,8 @@ int main(int argc, char *argv[])
 	{
 		if (!strncmp(argv[i], "scale:", 6))
 		{
-			sdl_scale = (argv[i][6]=='2') ? 2 : 1;
+			unsigned int scale = (argv[i][6]=='2') ? 2 : 1;
+			Engine::Ref().SetScale(scale);
 		}
 		else if (!strncmp(argv[i], "proxy:", 6))
 		{
@@ -1044,7 +1044,6 @@ int main(int argc, char *argv[])
 		else if (!strncmp(argv[i], "kiosk", 5))
 		{
 			kiosk_enable = 1;
-			//sdl_scale = 2; //Removed because some displays cannot handle the resolution
 			hud_enable = false;
 		}
 		else if (!strncmp(argv[i], "scripts", 8))
@@ -1137,12 +1136,20 @@ int main(int argc, char *argv[])
 
 	stamp_init();
 
-	if (!sdl_open())
+	if (!SDLOpen())
 	{
-		sdl_scale = 1;
+		Engine::Ref().SetScale(1);
 		kiosk_enable = 0;
-		if (!sdl_open()) exit(1);
+		if (!SDLOpen())
+			exit(1);
 	}
+#ifndef ANDROID
+	if (firstRun && Engine::Ref().GetScale() == 1 && screenWidth - 30 > VIDXRES * 2 && screenHeight - 30 > VIDYRES * 2)
+	{
+		Engine::Ref().SetScale(2);
+		doubleScreenDialog = true;
+	}
+#endif
 	save_presets();
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
@@ -1207,7 +1214,7 @@ int main(int argc, char *argv[])
 	Engine::Ref().ShowWindow(the_game);
 	try
 	{
-		Engine::Ref().MainLoop();
+		MainLoop();
 	}
 	catch (std::exception& e)
 	{
@@ -1224,7 +1231,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 {
 	if (true)
 	{
-		main_loop = 2;
 		//change mouse position while it is in a zoom window
 		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
 		Point cursor = the_game->AdjustCoordinates(Point(x, y));
@@ -1462,7 +1468,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					{
 						ParticleDebug(1, mx, my);
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1479,7 +1485,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1499,7 +1505,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='s')
 			{
 				// if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_META))))
+				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_GUI))))
 					tab_save(tab_num);
 			}
 			if (sdl_key=='o')
@@ -1507,7 +1513,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 #ifdef TOUCHUI
 				catalogue_ui(vid_buf);
 #else
-				if  (sdl_mod & (KMOD_CTRL|KMOD_META))
+				if  (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 				{
 					catalogue_ui(vid_buf);
 				}
@@ -1535,15 +1541,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key==SDLK_LEFTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
+					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
 					{
 						currentBrush->ChangeRadius(Point(-1, -1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 					{
 						currentBrush->ChangeRadius(Point(-1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						currentBrush->ChangeRadius(Point(0, -1));
 					}
@@ -1556,15 +1562,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key==SDLK_RIGHTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
+					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
 					{
 						currentBrush->ChangeRadius(Point(1, 1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 					{
 						currentBrush->ChangeRadius(Point(1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						currentBrush->ChangeRadius(Point(0, 1));
 					}
@@ -1574,7 +1580,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 				}
 			}
-			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL|KMOD_META)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
+			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
@@ -1585,7 +1591,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				SPECIFIC_DELETE = !SPECIFIC_DELETE;
 			else if (sdl_key == SDLK_SEMICOLON)
 			{
-				if (sdl_mod&(KMOD_CTRL|KMOD_META))
+				if (sdl_mod&(KMOD_CTRL|KMOD_GUI))
 					SPECIFIC_DELETE = !SPECIFIC_DELETE;
 				else
 					REPLACE_MODE = !REPLACE_MODE;
@@ -1597,7 +1603,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='g')
 			{
-				if(sdl_mod & (KMOD_CTRL|KMOD_META))
+				if(sdl_mod & (KMOD_CTRL|KMOD_GUI))
 				{
 					drawgrav_enable =! drawgrav_enable;
 				}
@@ -1611,7 +1617,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='=')
 			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
+				if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 				{
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
@@ -1643,7 +1649,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 
-			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL|KMOD_META)))) //Gravity, by Moach
+			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL|KMOD_GUI)))) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 
@@ -1664,7 +1670,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
-			if (sdl_key=='y' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+			if (sdl_key=='y' && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 			{
 				++airMode;
 
@@ -1694,11 +1700,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			if (sdl_key=='t')
 				show_tabs = !show_tabs;
-			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 			{
 				hud_enable = !hud_enable;
 			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & (KMOD_CTRL|KMOD_META))))
+			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & (KMOD_CTRL|KMOD_GUI))))
 			{
 				if (!GetToolTipAlpha(INTROTIP))
 				{
@@ -1734,7 +1740,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 #ifdef INTERNAL
 		int counterthing;
-		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_META)))//frame capture
+		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_GUI)))//frame capture
 		{
 			if (sdl_mod & (KMOD_SHIFT)) {
 				if (vs>=1)
@@ -1776,15 +1782,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			if (!the_game->PlacingZoomWindow())
 			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
+				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
 				{
 					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
 				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 				{
 					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
 				}
-				else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
+				else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
 				{
 					currentBrush->ChangeRadius(Point(0, sdl_wheel));
 				}
@@ -1972,7 +1978,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					//flood fill
 					else if (lm == 3)
 					{
-						if (!((sdl_mod&(KMOD_CTRL|KMOD_META)) && (sdl_mod&KMOD_SHIFT)))
+						if (!((sdl_mod&(KMOD_CTRL|KMOD_GUI)) && (sdl_mod&KMOD_SHIFT)))
 							lb = 0;
 						else
 							activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
@@ -1982,7 +1988,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					{
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+						else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 							toolStrength = .1f;
 						activeTool->DrawLine(globalSim, currentBrush, Point(lx, ly), Point(mx, my), true, toolStrength);
 						lx = mx;
@@ -1998,24 +2004,24 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					lb = b;
 					lm = 0;
 					//start line tool
-					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 					{
 						lm = 1;//line
 					}
 					//start box tool
-					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						ctrlzSnapshot();
 						activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
 						lm = 3;
 					}
 					//sample
-					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META))) || b==SDL_BUTTON_MIDDLE)
+					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI))) || b==SDL_BUTTON_MIDDLE)
 					{
 						activeTools[activeToolID] = activeTool->Sample(globalSim, Point(mx, my));
 						lb = 0;
@@ -2028,7 +2034,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+						else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 							toolStrength = .1f;
 
 						activeTool->DrawPoint(globalSim, currentBrush, Point(mx, my), toolStrength);
@@ -2072,7 +2078,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		mouseInZoom = tmpMouseInZoom;
 
-		if (elapsedTime != currentTime && main_loop == 2)
+		if (elapsedTime != currentTime)
 		{
 			frames = frames + 1;
 			totalfps = totalfps + FPSB2;

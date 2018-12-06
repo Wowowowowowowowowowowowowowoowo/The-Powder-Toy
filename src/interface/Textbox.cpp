@@ -6,6 +6,7 @@
 #include "common/Format.h"
 #include "common/Platform.h"
 #include "graphics/VideoBuffer.h"
+#include "interface/Engine.h"
 
 Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
 	Label(position, size_, text, multiline),
@@ -95,7 +96,7 @@ void Textbox::InsertText(std::string inserttext)
 void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
 	Label::OnKeyPress(key, character, modifiers);
-	if (modifiers & (KMOD_CTRL|KMOD_META))
+	if (modifiers & (KMOD_CTRL|KMOD_GUI))
 	{
 		switch (key)
 		{
@@ -107,12 +108,9 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			break;
 		case 'v':
 		{
-			char *clipboard = clipboard_pull_text();
-			if (clipboard)
-			{
+			std::string clipboard = Engine::Ref().ClipboardPull();
+			if (clipboard.length())
 				InsertText(clipboard);
-				free(clipboard);
-			}
 			break;
 		}
 		case 'x':

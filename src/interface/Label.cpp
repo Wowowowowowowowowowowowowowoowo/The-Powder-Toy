@@ -6,6 +6,7 @@
 #include "common/Format.h"
 #include "common/tpt-math.h"
 #include "graphics/VideoBuffer.h"
+#include "interface/Engine.h"
 
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
@@ -310,7 +311,7 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 
 void Label::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
 {
-	if (modifiers & (KMOD_CTRL|KMOD_META))
+	if (modifiers & (KMOD_CTRL|KMOD_GUI))
 	{
 		switch (key)
 		{
@@ -321,7 +322,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 			std::string copyStr = text.substr(start, len);
 			copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end()); //strip special newlines
 			if (copyStr.length())
-				clipboard_push_text((char*)copyStr.c_str());
+				Engine::Ref().ClipboardPush(copyStr);
 			break;
 		}
 		case 'a':

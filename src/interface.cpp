@@ -127,7 +127,6 @@ char *tag_names[TAG_MAX];
 int tag_votes[TAG_MAX];
 
 int hud_menunum = 0;
-int has_quit = 0;
 int dateformat = 7;
 int show_ids = 0;
 
@@ -386,7 +385,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			break;
 		case SDLK_DELETE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -414,7 +413,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_BACKSPACE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -444,28 +443,27 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		default:
-			if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
+			if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='c')//copy
 			{
 				if (ed->highlightlength)
 				{
 					char highlightstr[1024];
 					strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 					highlightstr[ed->highlightlength] = 0;
-					clipboard_push_text(highlightstr);
+					Engine::Ref().ClipboardPush(highlightstr);
 				}
 				else if (l)
-					clipboard_push_text(ed->str);
+					Engine::Ref().ClipboardPush(ed->str);
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='v')//paste
+			else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='v')//paste
 			{
-				char *paste = clipboard_pull_text();
-				if (!paste)
+				std::string paste = Engine::Ref().ClipboardPull();
+				if (!paste.length())
 					return;
-				int pl = strlen(paste);
-				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
+				int pl = paste.length();
+				if ((textwidth(str)+textwidth(paste.c_str()) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste.c_str()))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 				{
-					free(paste);
 					break;
 				}
 				if (ed->highlightlength)
@@ -474,18 +472,17 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					ed->cursor = ed->highlightstart;
 				}
 				memmove(ed->str+ed->cursor+pl, ed->str+ed->cursor, l-ed->cursor+1);
-				memcpy(ed->str+ed->cursor,paste,pl);
+				memcpy(ed->str+ed->cursor,paste.c_str(),pl);
 				ed->cursor += pl;
 				ed->cursorstart = ed->cursor;
-				free(paste);
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
+			else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='a')//highlight all
 			{
 				ed->cursorstart = 0;
 				ed->cursor = l;
 			}
-			if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (svf_admin || svf_mod))
+			if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (svf_admin || svf_mod))
 			{
 				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
 					break;
@@ -682,19 +679,19 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 					ed->cursorstart++;
 			}
 		}
-		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
+		else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='c')//copy
 		{
 			if (ed->highlightlength)
 			{
 				char highlightstr[1024];
 				strncpy(highlightstr, &ed->str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
-				clipboard_push_text(highlightstr);
+				Engine::Ref().ClipboardPush(highlightstr);
 			}
 			else if (l)
-				clipboard_push_text(ed->str);
+				Engine::Ref().ClipboardPush(ed->str);
 		}
-		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
+		else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='a')//highlight all
 		{
 			ed->cursorstart = 0;
 			ed->cursor = l;
@@ -947,7 +944,7 @@ void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed)
 	{
 		if (mb && !mbq)
 		{
-			clipboard_push_text(ed->text);
+			Engine::Ref().ClipboardPush(ed->text);
 			ed->state = 2;
 		}
 		ed->hover = 1;
@@ -1347,7 +1344,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 
 	if (selectedl != -1)
 	{
-		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
 			Favorite::Ref().AddFavorite(globalSim->elements[selectedl].Identifier);
 			save_presets();
@@ -1361,7 +1358,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 	}
 	if (selectedr != -1)
 	{
-		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
 			if (Favorite::Ref().IsFavorite(globalSim->elements[selectedr].Identifier))
 			{
@@ -2221,7 +2218,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 
 		if (b==1&&bq==0&&d!=-1)
 		{
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				if (!stamps[d].dodelete)
 				{
@@ -2309,7 +2306,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			break;
 		}
 	}
-	if (sdl_mod & (KMOD_CTRL|KMOD_META))
+	if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 		*reorder = 0;
 
 	while (!sdl_poll())
@@ -2970,9 +2967,9 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				over = current;
 #ifndef TOUCHUI
 				//draw rectangles around hovered on tools
-				if ((sdl_mod & KMOD_ALT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_SHIFT) && ((ElementTool*)current)->GetID() >= 0)
+				if ((sdl_mod & KMOD_ALT) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & KMOD_SHIFT) && ((ElementTool*)current)->GetID() >= 0)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				else if ((sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_ALT) && current->GetType() != INVALID_TOOL)
+				else if ((sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & KMOD_ALT) && current->GetType() != INVALID_TOOL)
 					drawtext(vid_buf, x+30-xoff, y-1, "\xED", 255, 205, 50, 255);
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
@@ -3181,11 +3178,11 @@ void menu_select_element(int b, Tool* over)
 			currR = COLR(decocolor), currG = COLG(decocolor), currB = COLB(decocolor), currA = COLA(decocolor);
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
-		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
-		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_ALT)))
 		{
 			Favorite::Ref().AddFavorite(over->GetIdentifier());
 			FillMenus();
@@ -3225,11 +3222,11 @@ void menu_select_element(int b, Tool* over)
 		else if (over->GetType() == HUD_MENU_BUTTON)
 		{
 		}
-		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
-		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_ALT)))
 		{
 			Favorite::Ref().RemoveFavorite(over->GetIdentifier());
 			Favorite::Ref().RemoveRecent(over->GetIdentifier());
@@ -3256,7 +3253,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 	int i = 0;
 	bool isQuickoptionClicked = false, switchTabsOverride = false;
 	//normal quickoptions
-	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 	{
 		while(quickmenu[i].icon!=NULL)
 		{
@@ -3383,7 +3380,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 		clickedQuickoption = -1;
 	if ((clickedQuickoption >= 0 && !b && bq) || switchTabsOverride)
 	{
-		if (!show_tabs && !switchTabsOverride && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+		if (!show_tabs && !switchTabsOverride && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 		{
 			if (bq == 1)
 			{
@@ -3411,7 +3408,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 					tab_save(tab_num);
 					num_tabs++;
 					tab_num = num_tabs;
-					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 						NewSim();
 					tab_save(tab_num);
 				}
@@ -4050,7 +4047,7 @@ int search_ui(pixel *vid_buf)
 			else if ((mp!=-1 && !st && !uih) || do_open==1)
 			{
 				strcpy(search_expr, ed.str);
-				if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_META)) || do_open==1) {
+				if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_GUI)) || do_open==1) {
 					goto finish;
 				}
 			}
@@ -4968,7 +4965,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 							if (!b && bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 							{
-								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
+								if (sdl_mod & (KMOD_CTRL|KMOD_GUI)) //open profile
 								{
 									/*char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
@@ -5454,7 +5451,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			ProfileViewer *temp = new ProfileViewer(profileToOpen);
 			Engine *moreTemp = new Engine();
 			moreTemp->ShowWindow(temp);
-			moreTemp->MainLoop();
+			//moreTemp->MainLoop();
+			MainLoop();
 			delete moreTemp;
 			profileToOpen = "";
 		}
@@ -7074,7 +7072,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		{
 			char hex[32];
 			sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
-			clipboard_push_text(hex);
+			Engine::Ref().ClipboardPush(hex);
 			the_game->SetInfoTip("Copied to clipboard");
 		}
 		deco_disablestuff = 1;
@@ -7094,7 +7092,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 #ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
-		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_META));
+		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_GUI));
 	else if (sdl_key==SDLK_LEFT)
 		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->PreviousFrame(globalSim);
 	else if (sdl_key==SDLK_DELETE)
@@ -7718,7 +7716,7 @@ void simulation_ui(pixel * vid_buf)
 #ifdef ANDROID
 	cb3.checked = (ngrav_completedisable)?1:0;
 #else
-	cb3.checked = (sdl_scale>=2)?1:0;
+	cb3.checked = (Engine::Ref().GetScale() >= 2) ? 1 : 0;
 #endif
 	
 #ifndef ANDROID
@@ -7881,10 +7879,10 @@ void simulation_ui(pixel * vid_buf)
 		ui_list_process(vid_buf, mx, my, b, bq, &listUpdate);
 
 #ifndef ANDROID
-		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
-		{
-			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
-		}
+		if ((cb3.checked ? 2 : 1) != Engine::Ref().GetScale())
+			Engine::Ref().SetScale(cb3.checked ? 2 : 1);
+		if (cb4.checked ? 1 : 0 != kiosk_enable)
+			Engine::Ref().SetFullscreen(cb3.checked ? true : false);
 #else
 		ngrav_completedisable = cb3.checked;
 		if (ngrav_completedisable)

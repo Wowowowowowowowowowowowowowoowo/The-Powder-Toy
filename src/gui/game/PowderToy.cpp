@@ -857,7 +857,7 @@ void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 				UpdateProgress * update = new UpdateProgress(file, svf_user, [](char *data, int len)
 				{
 					if (!do_update(data, len))
-						has_quit = true;
+						Engine::Ref().Shutdown();
 					else
 					{
 						ErrorPrompt *error = new ErrorPrompt("Update failed - try downloading a new version.");
@@ -2145,8 +2145,8 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 	{
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:
-	case SDLK_LMETA:
-	case SDLK_RMETA:
+	case SDLK_LGUI:
+	case SDLK_RGUI:
 		ctrlHeld = true;
 		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
 		UpdateToolStrength();
@@ -2417,7 +2417,7 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 		}
 		break;
 	case 'b':
-		if (sdl_mod & (KMOD_CTRL|KMOD_META))
+		if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 		{
 			decorations_enable = !decorations_enable;
 			if (decorations_enable)
@@ -2587,8 +2587,8 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 	{
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:
-	case SDLK_LMETA:
-	case SDLK_RMETA:
+	case SDLK_LGUI:
+	case SDLK_RGUI:
 		ctrlHeld = false;
 		openBrowserButton->SetTooltipText("Find & open a simulation");
 		UpdateToolStrength();

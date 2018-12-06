@@ -192,7 +192,6 @@ extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
 extern int fastquit;
-extern int has_quit;
 
 extern ARGBColour decocolor;
 extern ui_edit box_R;

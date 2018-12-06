@@ -47,6 +47,7 @@ extern "C"
 
 #include "common/Format.h"
 #include "common/SDL_keysym.h"
+#include "interface/Engine.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
@@ -818,7 +819,7 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 	{
 		loop_time = GetTicks();
 		lua_rawgeti(l, -1, i);
-		if ((modifier & (KMOD_CTRL|KMOD_META)) && (character < ' ' || character > '~') && key < 256)
+		if ((modifier & (KMOD_CTRL|KMOD_GUI)) && (character < ' ' || character > '~') && key < 256)
 			lua_pushlstring(l, (const char*)&key, 1);
 		else
 			lua_pushlstring(l, (const char*)&character, 1);
@@ -2499,14 +2500,14 @@ int luatpt_getscript(lua_State* l)
 
 int luatpt_setwindowsize(lua_State* l)
 {
-	int result, scale = luaL_optint(l,1,1), kiosk = luaL_optint(l,2,0);
+	int scale = luaL_optint(l, 1, 1), fullscreen = luaL_optint(l, 2, 0);
 	if (scale < 1 || scale > 5)
 		scale = 1;
-	if (kiosk != 1)
-		kiosk = 0;
-	result = set_scale(scale, kiosk);
-	lua_pushnumber(l, result);
-	return 1;
+	if (fullscreen != 1)
+		fullscreen = 0;
+	Engine::Ref().SetScale(scale);
+	Engine::Ref().SetFullscreen(fullscreen);
+	return 0;
 }
 
 int luatpt_screenshot(lua_State* l)

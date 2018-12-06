@@ -1923,17 +1923,7 @@ int renderer_debugHUD(lua_State * l)
 
 int renderer_depth3d(lua_State * l)
 {
-	int acount = lua_gettop(l);
-	if (acount == 0)
-	{
-		lua_pushnumber(l, Engine::Ref().Get3dDepth());
-		return 1;
-	}
-	int depth3d = luaL_optint(l, 1, -3);
-	if (depth3d < -30 || depth3d > 30)
-		return luaL_error(l, "3D depth is too large");
-	Engine::Ref().Set3dDepth(depth3d);
-	return 0;
+	return luaL_error(l, "This feature is no longer supported");
 }
 
 /*
@@ -3131,14 +3121,15 @@ int platform_openLink(lua_State * l)
 
 int platform_clipboardCopy(lua_State * l)
 {
-	lua_pushstring(l, clipboard_pull_text());
+	std::string text = Engine::Ref().ClipboardPull();
+	lua_pushstring(l, text.c_str());
 	return 1;
 }
 
 int platform_clipboardPaste(lua_State * l)
 {
 	luaL_checktype(l, 1, LUA_TSTRING);
-	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
+	Engine::Ref().ClipboardPush(luaL_optstring(l, 1, ""));
 	return 0;
 }
 
