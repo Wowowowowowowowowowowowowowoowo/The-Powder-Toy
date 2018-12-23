@@ -305,8 +305,6 @@ void init_color_boxes();
 
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);
 
-void simulation_ui(pixel *vid_buf);
-
 void converttotime(const char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 
 void clear_save_info();
