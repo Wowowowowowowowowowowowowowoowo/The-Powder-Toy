@@ -172,7 +172,6 @@ extern int elapsedTime;
 extern int NUM_PARTS;
 
 extern bool legacy_enable;
-extern int kiosk_enable;
 extern bool aheat_enable;
 extern bool decorations_enable;
 extern int active_menu;

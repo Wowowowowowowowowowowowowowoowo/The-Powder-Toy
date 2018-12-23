@@ -191,7 +191,6 @@ extern int tag_votes[TAG_MAX];
 extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
-extern int fastquit;
 
 extern ARGBColour decocolor;
 extern ui_edit box_R;

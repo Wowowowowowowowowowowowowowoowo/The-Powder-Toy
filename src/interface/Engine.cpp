@@ -10,9 +10,8 @@
 
 Engine::Engine():
 	windows(std::stack<Window_*>()),
-	top(NULL),
-	nextTop(NULL),
-	scale(1)
+	top(nullptr),
+	nextTop(nullptr)
 {
 
 }
@@ -103,21 +102,53 @@ unsigned int Engine::GetScale()
 
 void Engine::SetScale(unsigned int scale)
 {
-	if (this->scale != scale) {
+	if (this->scale != scale)
+	{
 		this->scale = scale;
-		SDLSetScreen(false, kiosk_enable, false);
+		SDLSetScreen(resizable, fullscreen, altFullscreen);
 	}
 }
 
-int Engine::GetFullscreen()
+bool Engine::IsResizable()
 {
-	return kiosk_enable;
+	return resizable;
+}
+
+void Engine::SetResizable(bool resizable)
+{
+	if (this->resizable != resizable)
+	{
+		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		this->resizable = resizable;
+	}
+}
+
+bool Engine::IsFullscreen()
+{
+	return fullscreen;
 }
 
 void Engine::SetFullscreen(bool fullscreen)
 {
-	if (fullscreen != kiosk_enable)
-		SDLSetScreen(false, fullscreen, false);
+	if (this->fullscreen != fullscreen)
+	{
+		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		this->fullscreen = fullscreen;
+	}
+}
+
+bool Engine::IsAltFullscreen()
+{
+	return altFullscreen;
+}
+
+void Engine::SetAltFullscreen(bool altFullscreen)
+{
+	if (this->altFullscreen != altFullscreen)
+	{
+		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		this->altFullscreen = altFullscreen;
+	}
 }
 
 void Engine::ClipboardPush(std::string text)

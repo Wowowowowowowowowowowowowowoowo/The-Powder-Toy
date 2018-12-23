@@ -27,8 +27,17 @@ public:
 	unsigned int GetScale();
 	void SetScale(unsigned int scale);
 
-	int GetFullscreen();
+	bool IsResizable();
+	void SetResizable(bool resizable);
+
+	bool IsFullscreen();
 	void SetFullscreen(bool fullscreen);
+
+	bool IsAltFullscreen();
+	void SetAltFullscreen(bool altFullscreen);
+
+	bool IsFastQuit() { return fastQuit; }
+	void SetFastQuit(bool fastQuit) { this->fastQuit = fastQuit; }
 
 	void ClipboardPush(std::string text);
 	std::string ClipboardPull();
@@ -41,7 +50,12 @@ private:
 	Window_ *top, *nextTop;
 	bool isShutdown = false;
 
-	unsigned int scale;
+	unsigned int scale = 1;
+	bool resizable = false;
+	bool fullscreen = false;
+	bool altFullscreen = false;
+
+	bool fastQuit = false;
 };
 
 #endif

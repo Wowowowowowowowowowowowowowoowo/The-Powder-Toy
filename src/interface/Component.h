@@ -36,8 +36,9 @@ public:
 	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
 	Window_* GetParent() { return parent; }
 	Point GetPosition() { return position; }
-	void SetPosition(Point position_) { position = position_; }
+	void SetPosition(Point position) { this->position = position; }
 	Point GetSize() { return size; }
+	void SetSize(Point size) { this->size = size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 	bool IsVisible() { return visible; }
 	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }

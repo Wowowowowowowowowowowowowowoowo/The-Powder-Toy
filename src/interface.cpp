@@ -7723,7 +7723,7 @@ void simulation_ui(pixel * vid_buf)
 	cb4.x = x0+xsize-16;	//Fullscreen
 	cb4.y = y0+269;
 	cb4.focus = 0;
-	cb4.checked = (kiosk_enable==1)?1:0;
+	//cb4.checked = (kiosk_enable==1)?1:0;
 #endif
 	
 	cb5.x = x0+xsize-16;	//Ambient heat
@@ -7739,7 +7739,7 @@ void simulation_ui(pixel * vid_buf)
 	cb7.x = x0+xsize-16;	//Fast Quit
 	cb7.y = y0+283;
 	cb7.focus = 0;
-	cb7.checked = fastquit;
+	//cb7.checked = Engine::Ref().IsFastQuit();
 	
 	list.x = x0+xsize-76;	//Air Mode
 	list.y = y0+135;
@@ -7881,8 +7881,8 @@ void simulation_ui(pixel * vid_buf)
 #ifndef ANDROID
 		if ((cb3.checked ? 2 : 1) != Engine::Ref().GetScale())
 			Engine::Ref().SetScale(cb3.checked ? 2 : 1);
-		if (cb4.checked ? 1 : 0 != kiosk_enable)
-			Engine::Ref().SetFullscreen(cb3.checked ? true : false);
+		//if (cb4.checked ? 1 : 0 != kiosk_enable)
+		//	Engine::Ref().SetFullscreen(cb3.checked ? true : false);
 #else
 		ngrav_completedisable = cb3.checked;
 		if (ngrav_completedisable)
@@ -7948,7 +7948,7 @@ void simulation_ui(pixel * vid_buf)
 		globalSim->saveEdgeMode = -1;
 	}
 	doUpdates = listUpdate.selected ? true : false;
-	fastquit = cb7.checked;
+	//fastquit = cb7.checked;
 
 	while (!sdl_poll())
 	{

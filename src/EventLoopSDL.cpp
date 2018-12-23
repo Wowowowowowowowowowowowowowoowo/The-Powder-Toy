@@ -183,7 +183,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	switch (event.type)
 	{
 	case SDL_QUIT:
-		if (fastquit)
+		if (Engine::Ref().IsFastQuit())
 			Engine::Ref().Shutdown();
 		return 1;
 	case SDL_KEYDOWN:
@@ -465,7 +465,7 @@ void BlueScreen(const char * detailMessage)
  * Legacy functions only beyond this point
  */
 
-int FPSwait = 0, fastquit = 0;
+int FPSwait = 0;
 int SDLPoll()
 {
 	SDL_Event event;

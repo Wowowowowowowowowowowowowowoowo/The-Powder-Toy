@@ -39,6 +39,7 @@
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/dialogs/InfoPrompt.h"
 #include "gui/dialogs/ErrorPrompt.h"
+#include "gui/options/OptionsUI.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/sign/CreateSign.h"
 #include "gui/rendermodes/RenderModesUI.h"
@@ -643,7 +644,8 @@ void PowderToy::ReportBugBtn()
 
 void PowderToy::OpenOptionsBtn()
 {
-	simulation_ui(vid_buf);
+	OptionsUI *optionsUI = new OptionsUI(sim);
+	Engine::Ref().ShowWindow(optionsUI);
 	save_presets();
 }
 

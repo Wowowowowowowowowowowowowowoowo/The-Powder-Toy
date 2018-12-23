@@ -309,8 +309,6 @@ int core_count()
 	return numCPU;
 }
 
-int kiosk_enable = 0;
-
 void clear_sim()
 {
 	memset(bmap, 0, sizeof(bmap));
@@ -1043,7 +1041,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[i], "kiosk", 5))
 		{
-			kiosk_enable = 1;
+			Engine::Ref().SetFullscreen(1);
 			hud_enable = false;
 		}
 		else if (!strncmp(argv[i], "scripts", 8))
@@ -1139,7 +1137,7 @@ int main(int argc, char *argv[])
 	if (!SDLOpen())
 	{
 		Engine::Ref().SetScale(1);
-		kiosk_enable = 0;
+		Engine::Ref().SetFullscreen(false);
 		if (!SDLOpen())
 			exit(1);
 	}

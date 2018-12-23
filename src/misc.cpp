@@ -264,9 +264,9 @@ void save_presets()
 	cJSON_AddNumberToObject(root, "DNS", prevDNS);
 	cJSON_AddNumberToObject(root, "DNSstatic", prevDNSstatic);
 	cJSON_AddNumberToObject(root, "Scale", Engine::Ref().GetScale());
-	if (kiosk_enable)
+	if (Engine::Ref().IsFullscreen())
 		cJSON_AddTrueToObject(root, "FullScreen");
-	if (fastquit)
+	if (Engine::Ref().IsFastQuit())
 		cJSON_AddTrueToObject(root, "FastQuit");
 	else
 		cJSON_AddFalseToObject(root, "FastQuit");
@@ -595,13 +595,9 @@ void load_presets(void)
 				Engine::Ref().SetScale(scale);
 		}
 		if ((tmpobj = cJSON_GetObjectItem(root, "Fullscreen")))
-		{
-			kiosk_enable = tmpobj->valueint;
-			if (kiosk_enable)
-				Engine::Ref().SetFullscreen(kiosk_enable);
-		}
+			Engine::Ref().SetFullscreen(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
-			fastquit = tmpobj->valueint;
+			Engine::Ref().SetFastQuit(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowX")))
 			savedWindowX = tmpobj->valueint;
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowY")))

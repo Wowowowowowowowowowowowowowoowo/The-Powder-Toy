@@ -8,7 +8,6 @@ Checkbox::Checkbox(Point position, Point size_, std::string text_):
 	Component(position, size_),
 	checked(false),
 	tooltip(NULL),
-	callback(NULL),
 	textInside(false)
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
@@ -29,7 +28,6 @@ Checkbox::Checkbox(Point position, Point size_, std::string text_):
 
 Checkbox::~Checkbox()
 {
-	delete callback;
 	delete tooltip;
 }
 
@@ -59,12 +57,6 @@ void Checkbox::SetTooltipText(std::string newTooltip)
 		tooltip->SetTip(newTooltip);
 }
 
-void Checkbox::SetCallback(CheckboxAction *callback_)
-{
-	delete callback;
-	callback = callback_;
-}
-
 void Checkbox::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (IsClicked() && isMouseInside && enabled)
@@ -72,7 +64,7 @@ void Checkbox::OnMouseUp(int x, int y, unsigned char button)
 		checked = !checked;
 		if (callback)
 		{
-			callback->CheckboxActionCallback(this, button);
+			callback(checked);
 		}
 	}
 }
@@ -88,7 +80,7 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 	else
 		vid->DrawRect(position.X, position.Y, size.Y, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
 
-	ARGBColour textColor = 0;
+	ARGBColour textColor = color;
 	ARGBColour innerColor = 0;
 	if (!enabled)
 	{
@@ -105,11 +97,6 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 		if (checked)
 		{
 			innerColor = color;
-			textColor = color;
-		}
-		else
-		{
-			textColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
 		}
 	}
 	else
@@ -117,14 +104,9 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 		// button clicked and held down
 		if (IsClicked())
 		{
-			if (checked)
-			{
-				textColor = COLARGB(150, COLR(color), COLG(color), COLB(color));
-			}
-			else
+			if (!checked)
 			{
 				innerColor = color;
-				textColor = color;
 			}
 		}
 		// Mouse over button, not held down
@@ -133,18 +115,21 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 			if (checked)
 			{
 				innerColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
-				textColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
 			}
 			else
 			{
 				innerColor = COLARGB(125, COLR(color), COLG(color), COLB(color));
-				textColor = COLARGB(225, COLR(color), COLG(color), COLB(color));
 			}
 		}
 	}
 	// inner checkbox color
 	if (innerColor)
-		vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
+	{
+		if (useCheckIcon)
+			vid->DrawChar(position.X + size.Y / 2 - 3, position.Y + size.Y / 2 - 3, '\xCF', COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
+		else
+			vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
+	}
 
 	Point textSize = VideoBuffer::TextSize(text);
 	vid->DrawText((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));

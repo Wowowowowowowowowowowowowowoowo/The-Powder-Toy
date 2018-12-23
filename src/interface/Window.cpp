@@ -187,12 +187,13 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	// draw the focused component on top
 	if (focused)
 		focused->OnDraw(videoBuffer);
+
+	OnDraw(videoBuffer);
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoDraw(videoBuffer->GetVid(), size, (*iter)->GetPosition());
 	}
-
-	OnDraw(videoBuffer);
 
 	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
@@ -245,13 +246,13 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseDown(x, y, button))
 		return;
-	
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoMouseDown(x-position.X, y-position.Y, button);
+		(*iter)->DoMouseDown(x - position.X, y - position.Y, button);
 	}
 
-	if (InsideSubwindow(x, y))
+	if (InsideSubwindow(x - position.X, y - position.Y))
 		return;
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
@@ -290,7 +291,7 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseUp(x, y, button))
 		return;
-	
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseUp(x-position.X, y-position.Y, button);
@@ -306,6 +307,9 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 		}
 	}
 #endif
+	if (InsideSubwindow(x - position.X, y - position.Y))
+		return;
+
 	isMouseDown = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
