@@ -4,11 +4,14 @@
 #include <string>
 #include "graphics/Pixel.h"
 
+// legacy / should be deleted variables
 extern int savedWindowX;
 extern int savedWindowY;
 
+// legacy variables
 extern unsigned short sdl_mod;
-extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
+extern std::string sdl_textinput;
+extern int sdl_key, sdl_wheel;
 
 
 void SaveWindowPosition();
@@ -19,6 +22,7 @@ void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_);
 void SDLBlit(pixel * vid);
 
 unsigned int CalculateMousePosition(int *x, int *y);
+int SDLGetModifiers();
 
 
 

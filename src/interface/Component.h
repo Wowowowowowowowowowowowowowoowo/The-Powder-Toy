@@ -59,8 +59,9 @@ public:
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
 	virtual void OnMouseWheel(int x, int y, int d) { }
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
-	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnTextInput(const char *text) { }
 
 	virtual void OnFocus() { }
 	virtual void OnDefocus() { }

@@ -288,6 +288,6 @@ extern bool openProp;
 class PowderToy;
 extern PowderToy *the_game;
 #endif
-int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel);
+int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt);
 void main_end_hack();
 #endif

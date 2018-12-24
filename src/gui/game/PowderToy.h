@@ -21,9 +21,7 @@ public:
 private:
 	Point mouse;
 	Point cursor;
-	int lastMouseDown, heldKey, heldAscii, releasedKey;
-	unsigned short heldModifier;
-	int mouseWheel;
+	int lastMouseDown, heldKey;
 	bool mouseCanceled;
 	int16_t orientation[3];
 
@@ -181,16 +179,16 @@ public:
 	void OnMouseDown(int x, int y, unsigned char button);
 	void OnMouseUp(int x, int y, unsigned char button);
 	void OnMouseWheel(int x, int y, int d);
-	void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
-	void OnKeyRelease(int key, unsigned short character, unsigned short modifiers);
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 	void OnDefocus();
 	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	bool BeforeMouseDown(int x, int y, unsigned char button);
 	bool BeforeMouseUp(int x, int y, unsigned char button);
 	bool BeforeMouseWheel(int x, int y, int d);
-	bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers);
-	bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers);
+	bool BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	bool BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 
 	void OpenBrowserBtn(unsigned char b);
 	void ReloadSaveBtn(unsigned char b);

@@ -30,7 +30,8 @@ int savedWindowX = INT_MAX;
 int savedWindowY = INT_MAX;
 
 unsigned short sdl_mod;
-int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
+std::string sdl_textinput = "";
+int sdl_key, sdl_wheel;
 
 
 void LoadWindowPosition()
@@ -177,6 +178,11 @@ unsigned int CalculateMousePosition(int *x, int *y)
 	return mouseState;
 }
 
+int SDLGetModifiers()
+{
+	return SDL_GetModState();
+}
+
 Point lastMousePosition;
 int EventProcess(SDL_Event event, Window_ * eventHandler)
 {
@@ -188,11 +194,10 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		return 1;
 	case SDL_KEYDOWN:
 		sdl_key = event.key.keysym.sym; // LEGACY
-		sdl_ascii = event.key.keysym.sym; // LEGACY
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.sym, static_cast<unsigned short>(sdl_mod));
+			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 
 		if (eventHandler && event.key.keysym.sym == SDLK_ESCAPE && eventHandler->CanQuit())
 			return true;
@@ -206,13 +211,18 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		}
 		break;
 	case SDL_KEYUP:
-		sdl_rkey = event.key.keysym.sym; // LEGACY
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.sym, static_cast<unsigned short>(sdl_mod));
+			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 		break;
 
+	case SDL_TEXTINPUT:
+		sdl_textinput = std::string(event.text.text);
+		if (eventHandler)
+			eventHandler->DoTextInput(event.text.text);
+
+		break;
 	case SDL_MOUSEWHEEL:
 	{
 		int x = event.wheel.x;
@@ -236,6 +246,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
+		SDL_CaptureMouse(SDL_TRUE);
 		break;
 	}
 	case SDL_MOUSEBUTTONUP:
@@ -244,6 +255,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
+		SDL_CaptureMouse(SDL_FALSE);
 		break;
 	}
 	case SDL_MOUSEMOTION:
@@ -278,11 +290,12 @@ void MainLoop()
 				top->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
 				lastMousePosition = Point(mx, my);
 			}
-			top->DoKeyRelease(0, 0, 0);
+			top->DoKeyRelease(0, 0, false, false, false, false);
 			sendNewEvents = false;
 		}
 		top->UpdateComponents();
 
+		sdl_textinput = "";
 		while (SDL_PollEvent(&event))
 		{
 			int ret = EventProcess(event, top);
@@ -469,11 +482,12 @@ int FPSwait = 0;
 int SDLPoll()
 {
 	SDL_Event event;
-	sdl_key=sdl_rkey=sdl_wheel=sdl_ascii=0;
+	sdl_key=sdl_wheel=0;
 	if (Engine::Ref().IsShutdown())
 		return 1;
 	loop_time = SDL_GetTicks();
 
+	sdl_textinput = "";
 	while (SDL_PollEvent(&event))
 	{
 		int ret = EventProcess(event, nullptr);

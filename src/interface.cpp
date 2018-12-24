@@ -503,14 +503,21 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor+=2;
 				ed->cursorstart = ed->cursor;
 			}
-			if (sdl_ascii>=' ' && sdl_ascii<127 && l<ed->limit)
+			if (!sdl_textinput.length())
+				break;
+			for (std::string::value_type c : sdl_textinput)
+			{
+				if (!(c >= ' ' && c < 127 && l < ed->limit))
+					break;
+			}
+			for (std::string::value_type c : sdl_textinput)
 			{
 				if (ed->highlightlength)
 				{
 					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 					ed->cursor = ed->highlightstart;
 				}
-				ch = sdl_ascii;
+				ch = c;
 				ts[0]=ed->hide?0x8D:ch;
 				ts[1]=0;
 				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))

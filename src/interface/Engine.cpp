@@ -160,3 +160,8 @@ std::string Engine::ClipboardPull()
 {
 	return PullFromClipboard();
 }
+
+int Engine::GetModifiers()
+{
+	return SDLGetModifiers();
+}

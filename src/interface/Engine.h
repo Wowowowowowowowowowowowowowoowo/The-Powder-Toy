@@ -41,6 +41,7 @@ public:
 
 	void ClipboardPush(std::string text);
 	std::string ClipboardPull();
+	int GetModifiers();
 
 private:
 	void ShowWindowDelayed();

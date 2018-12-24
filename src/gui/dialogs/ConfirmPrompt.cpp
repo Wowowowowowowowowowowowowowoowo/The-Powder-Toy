@@ -35,7 +35,7 @@ ConfirmPrompt::ConfirmPrompt(ConfirmAction *confirmAction, std::string title, st
 	this->AddComponent(okButton);
 }
 
-void ConfirmPrompt::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void ConfirmPrompt::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (key == SDLK_RETURN)
 	{

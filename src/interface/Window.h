@@ -33,13 +33,14 @@ public:
 	void DoTick(uint32_t ticks);
 	void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 
-	virtual void DoMouseMove(int x, int y, int dx, int dy);
-	virtual void DoMouseDown(int x, int y, unsigned char button);
-	virtual void DoMouseUp(int x, int y, unsigned char button);
-	virtual void DoMouseWheel(int x, int y, int d);
-	virtual void DoKeyPress(int key, unsigned short character, unsigned short modifiers);
-	virtual void DoKeyRelease(int key, unsigned short character, unsigned short modifiers);
-	virtual void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
+	void DoMouseMove(int x, int y, int dx, int dy);
+	void DoMouseDown(int x, int y, unsigned char button);
+	void DoMouseUp(int x, int y, unsigned char button);
+	void DoMouseWheel(int x, int y, int d);
+	void DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void DoTextInput(const char *text);
+	void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }
@@ -64,12 +65,14 @@ protected:
 	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(VideoBuffer *buf) { }
+	virtual void OnDrawAfterSubwindows(VideoBuffer *buf) { }
 	virtual void OnMouseMove(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
 	virtual void OnMouseWheel(int x, int y, int d) { }
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
-	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnTextInput(const char *text) { }
 	virtual void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) { }
 
 	virtual void OnFocus() { }
@@ -80,8 +83,8 @@ protected:
 	virtual bool BeforeMouseDown(int x, int y, unsigned char button) { return true; }
 	virtual bool BeforeMouseUp(int x, int y, unsigned char button) { return true; }
 	virtual bool BeforeMouseWheel(int x, int y, int d) { return true; }
-	virtual bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers) { return true; }
-	virtual bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers) { return true; }
+	virtual bool BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { return true; }
+	virtual bool BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { return true; }
 	virtual bool BeforeTextInput(const char *text) { return true; }
 
 	void VideoBufferHack();

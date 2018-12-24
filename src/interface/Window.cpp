@@ -349,42 +349,61 @@ void Window_::DoMouseWheel(int x, int y, int d)
 	OnMouseWheel(x, y, d);
 }
 
-void Window_::DoKeyPress(int key, unsigned short character, unsigned short modifiers)
+void Window_::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (!BeforeKeyPress(key, character, modifiers))
+	if (!BeforeKeyPress(key, scan, repeat, shift, ctrl, alt))
 		return;
 
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoKeyPress(key, character, modifiers);
+		(*iter)->DoKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 	
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
-			(*iter)->OnKeyPress(key, character, modifiers);
+			(*iter)->OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 
-	OnKeyPress(key, character, modifiers);
+	OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 }
 
-void Window_::DoKeyRelease(int key, unsigned short character, unsigned short modifiers)
+void Window_::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (!BeforeKeyRelease(key, character, modifiers))
+	if (!BeforeKeyRelease(key, scan, repeat, shift, ctrl, alt))
 		return;
 	
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoKeyRelease(key, character, modifiers);
+		(*iter)->DoKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
 
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
-			(*iter)->OnKeyRelease(key, character, modifiers);
+			(*iter)->OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
 
-	OnKeyRelease(key, character, modifiers);
+	OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
+}
+
+void Window_::DoTextInput(const char *text)
+{
+	if (!BeforeTextInput(text))
+		return;
+
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoTextInput(text);
+	}
+
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
+			(*iter)->OnTextInput(text);
+	}
+
+	OnTextInput(text);
 }
 
 void Window_::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)

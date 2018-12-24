@@ -93,10 +93,33 @@ void Textbox::InsertText(std::string inserttext)
 		callback->TextChangedCallback(this);
 }
 
-void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+bool Textbox::CharacterValid(char character)
 {
-	Label::OnKeyPress(key, character, modifiers);
-	if (modifiers & (KMOD_CTRL|KMOD_GUI))
+	switch (type)
+	{
+	case NUMBER:
+		return character >= '0' && character <= '9';
+	case MULTILINE:
+		if (character == '\n')
+			return true;
+	case TEXT:
+		return character >= ' ' && character <= '~';
+	}
+	return false;
+}
+
+bool Textbox::StringValid(const char *str)
+{
+	for (char c : std::string(str))
+		if (!CharacterValid(c))
+			return false;
+	return true;
+}
+
+void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+{
+	Label::OnKeyPress(key, scan, repeat, shift, ctrl, alt);
+	if (ctrl)
 	{
 		switch (key)
 		{
@@ -149,7 +172,7 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 		}
 		return;
 	}
-	if (modifiers&KMOD_SHIFT)
+	if (shift)
 	{
 		if (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN)
 			return;
@@ -288,15 +311,13 @@ void Textbox::OnKeyPress(int key, unsigned short character, unsigned short modif
 			InsertText("\n");
 		}
 		break;
-	default:
-		if (this->type == NUMBER ? character >= '0' && character <= '9' : character >= ' ' && character <= '~')
-		{
-			std::stringstream convert;
-			convert << static_cast<char>(character);
-			InsertText(convert.str());
-		}
-		break;
 	}
+}
+
+void Textbox::OnTextInput(const char *text)
+{
+	if (StringValid(text))
+		InsertText(text);
 }
 
 void Textbox::OnDraw(VideoBuffer* vid)

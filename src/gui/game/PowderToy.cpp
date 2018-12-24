@@ -44,6 +44,7 @@
 #include "gui/sign/CreateSign.h"
 #include "gui/rendermodes/RenderModesUI.h"
 #include "simulation/elements/LIFE.h"
+#include "simulation/elements/STKM.h"
 
 #include "gui/update/UpdateProgress.h"
 
@@ -61,10 +62,6 @@ PowderToy::PowderToy():
 	cursor(Point(0, 0)),
 	lastMouseDown(0),
 	heldKey(0),
-	heldAscii(0),
-	releasedKey(0),
-	heldModifier(0),
-	mouseWheel(0),
 	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
@@ -1159,11 +1156,10 @@ void PowderToy::OnTick(uint32_t ticks)
 	orStr << orientation[0] << ", " << orientation[1] << ", " << orientation[2] << std::endl;
 	luacon_log(mystrdup(orStr.str().c_str()));*/
 #endif
-	sdl_key = heldKey; // ui_edit_process in deco editor uses these two globals so we have to set them ):
-	sdl_ascii = heldAscii;
-	main_loop_temp(mouseDown, lastMouseDown, heldKey, releasedKey, heldModifier, mouseX, mouseY, mouseWheel);
+	//sdl_key = heldKey; // ui_edit_process in deco editor uses this global so we have to set it ):
+	main_loop_temp(mouseDown, lastMouseDown, heldKey, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
 	lastMouseDown = mouseDown;
-	heldKey = heldAscii = releasedKey = mouseWheel = 0;
+	heldKey = 0;
 
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
@@ -2108,26 +2104,39 @@ bool PowderToy::BeforeMouseWheel(int x, int y, int d)
 
 void PowderToy::OnMouseWheel(int x, int y, int d)
 {
-	mouseWheel += d;
 	if (PlacingZoomWindow())
 	{
 		zoomSize = std::max(2, std::min(zoomSize+d, 60));
 		zoomFactor = 256/zoomSize;
 		UpdateZoomCoordinates(zoomMousePosition);
 	}
+	else
+	{
+		if (!shiftHeld && !ctrlHeld)
+		{
+			currentBrush->ChangeRadius(Point(d, d));
+		}
+		else if (shiftHeld && !ctrlHeld)
+		{
+			currentBrush->ChangeRadius(Point(d, 0));
+		}
+		else if (ctrlHeld && !shiftHeld)
+		{
+			currentBrush->ChangeRadius(Point(0, d));
+		}
+	}
 }
 
-bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short modifiers)
+bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	heldModifier = modifiers;
-	heldKey = key;
-	heldAscii = character;
+	if (!repeat)
+		heldKey = key;
 	// do nothing when deco textboxes are selected
 	if (deco_disablestuff)
 		return true;
 
 #ifdef LUACONSOLE
-	if (!luacon_keyevent(key, character, modifiers, LUACON_KDOWN))
+	if (!luacon_keyevent(key, scan, Engine::Ref().GetModifiers(), LUACON_KDOWN))
 	{
 		heldKey = 0;
 		return false;
@@ -2141,7 +2150,7 @@ bool PowderToy::BeforeKeyPress(int key, unsigned short character, unsigned short
 	return true;
 }
 
-void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	switch (key)
 	{
@@ -2198,6 +2207,9 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			break;
 		}
 	}
+
+	if (repeat)
+		return;
 
 	// handle normal keypresses
 	switch (key)
@@ -2558,33 +2570,65 @@ void PowderToy::OnKeyPress(int key, unsigned short character, unsigned short mod
 			ReloadSave();
 		break;
 	}
+
+	// STKM & STKM2
+	if (state != LOAD)
+	{
+		STKM_ElementDataContainer::StkmKeys pressedKey;
+		bool stk2 = false, moveStkm = false;
+		switch (key)
+		{
+		case 'w':
+			stk2 = true;
+		case SDLK_UP:
+			pressedKey = STKM_ElementDataContainer::Up;
+			moveStkm = true;
+			break;
+		case 'a':
+			stk2 = true;
+		case SDLK_LEFT:
+			pressedKey = STKM_ElementDataContainer::Left;
+			moveStkm = true;
+			break;
+		case 's':
+			stk2 = true;
+		case SDLK_DOWN:
+			pressedKey = STKM_ElementDataContainer::Down;
+			moveStkm = true;
+			break;
+		case 'd':
+			stk2 = true;
+		case SDLK_RIGHT:
+			pressedKey = STKM_ElementDataContainer::Right;
+			moveStkm = true;
+			break;
+		}
+		if (moveStkm)
+			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyPress(pressedKey, stk2);
+	}
 }
 
-bool PowderToy::BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers)
+bool PowderToy::BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	heldModifier = modifiers;
-	releasedKey = key;
-
 	if (deco_disablestuff)
 		return true;
 
 #ifdef LUACONSOLE
-	if (!luacon_keyevent(key, key < 256 ? key : 0, modifiers, LUACON_KUP))
-	{
-		releasedKey = 0;
+	if (!luacon_keyevent(key, key < 256 ? key : 0, Engine::Ref().GetModifiers(), LUACON_KUP))
 		return false;
-	}
 #endif
 	return true;
 }
 
-void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short modifiers)
+void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	// temporary
 	if (key == 0)
 	{
 		ctrlHeld = shiftHeld = altHeld = 0;
 	}
+	if (repeat)
+		return;
 	switch (key)
 	{
 	case SDLK_LCTRL:
@@ -2616,6 +2660,42 @@ void PowderToy::OnKeyRelease(int key, unsigned short character, unsigned short m
 			HideZoomWindow();
 		break;
 	}
+
+	// STKM & STKM2
+	if (state != LOAD)
+	{
+		STKM_ElementDataContainer::StkmKeys pressedKey;
+		bool stk2 = false, moveStkm = false;
+		switch (key)
+		{
+		case 'w':
+			stk2 = true;
+		case SDLK_UP:
+			pressedKey = STKM_ElementDataContainer::Up;
+			moveStkm = true;
+			break;
+		case 'a':
+			stk2 = true;
+		case SDLK_LEFT:
+			pressedKey = STKM_ElementDataContainer::Left;
+			moveStkm = true;
+			break;
+		case 's':
+			stk2 = true;
+		case SDLK_DOWN:
+			pressedKey = STKM_ElementDataContainer::Down;
+			moveStkm = true;
+			break;
+		case 'd':
+			stk2 = true;
+		case SDLK_RIGHT:
+			pressedKey = STKM_ElementDataContainer::Right;
+			moveStkm = true;
+			break;
+		}
+		if (moveStkm)
+			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyRelease(pressedKey, stk2);
+	}
 }
 
 void PowderToy::OnDefocus()
@@ -2627,7 +2707,7 @@ void PowderToy::OnDefocus()
 
 	ctrlHeld = shiftHeld = altHeld = false;
 	openBrowserButton->SetTooltipText("Find & open a simulation");
-	lastMouseDown = heldKey = heldAscii = releasedKey = mouseWheel = 0; // temporary
+	lastMouseDown = heldKey = 0; // temporary
 	ResetStampState();
 	UpdateDrawMode();
 	UpdateToolStrength();

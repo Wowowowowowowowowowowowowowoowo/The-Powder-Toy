@@ -1225,7 +1225,7 @@ int main(int argc, char *argv[])
 }
 
 	//while (!sdl_poll()) //the main loop
-int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel)
+int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt)
 {
 	if (true)
 	{
@@ -1300,7 +1300,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			Point initialDrawPoint = the_game->GetInitialDrawPoint();
 			Point snappedCursor = the_game->AdjustCoordinates(Point(x, y));
 			bool isMouseDown = the_game->IsMouseDown();
-			if (sdl_mod & KMOD_ALT)
+			if (alt)
 			{
 				if (drawState == PowderToy::LINE)
 					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
@@ -1311,7 +1311,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			snappedCursor = the_game->SnapCoordinatesWall(snappedCursor, initialDrawPoint);
 			if (drawState != PowderToy::RECT || !isMouseDown)
 			{
-				if (isMouseDown && (sdl_mod & KMOD_ALT))
+				if (isMouseDown && alt)
 					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[the_game->GetToolIndex()], currentBrush);
 				else if ((x < XRES && y < YRES) || isMouseDown)
 					render_cursor(vid_buf, mx, my, activeTools[the_game->GetToolIndex()], currentBrush);
@@ -1383,7 +1383,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			PowderToy::DrawState drawState = the_game->GetDrawState();
 			Point initialDrawPoint = the_game->AdjustCoordinates(the_game->GetInitialDrawPoint());
 			Point snappedCursor = the_game->AdjustCoordinates(Point(x, y));
-			if (sdl_mod & KMOD_ALT)
+			if (alt)
 			{
 				if (drawState == PowderToy::LINE)
 					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
@@ -1451,22 +1451,20 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		{
 			if (sdl_key)
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (the_game->GetStampState() != PowderToy::LOAD)
-				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
 			if (sdl_key=='f')
 			{
 				if (debug_flags & DEBUG_PARTICLE_UPDATES)
 				{
 					the_game->SetPause(1);
-					if (sdl_mod & (KMOD_ALT))
+					if (alt)
 					{
 						ParticleDebug(0, 0, 0);
 					}
-					else if (sdl_mod & KMOD_SHIFT)
+					else if (shift)
 					{
 						ParticleDebug(1, mx, my);
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+					else if (ctrl)
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1483,7 +1481,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+					if (ctrl)
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1503,7 +1501,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='s')
 			{
 				// if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_GUI))))
+				if ((globalSim->elementCount[PT_STKM2]>0 && (Engine::Ref().GetModifiers()&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && ctrl))
 					tab_save(tab_num);
 			}
 			if (sdl_key=='o')
@@ -1511,7 +1509,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 #ifdef TOUCHUI
 				catalogue_ui(vid_buf);
 #else
-				if  (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+				if  (ctrl)
 				{
 					catalogue_ui(vid_buf);
 				}
@@ -1527,27 +1525,27 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
 			}
-			if (active_menu == SC_FAV2 && (sdl_mod & KMOD_RCTRL) && (sdl_mod & KMOD_RSHIFT))
+			if (active_menu == SC_FAV2 && (Engine::Ref().GetModifiers() & KMOD_RCTRL) && (Engine::Ref().GetModifiers() & KMOD_RSHIFT))
 			{
 				active_menu = SC_CRACKER;
 			}
 			if (sdl_key==SDLK_TAB)
 			{
-				if (!(sdl_mod & KMOD_CTRL))
+				if (!ctrl)
 					currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
 			}
 			if (sdl_key==SDLK_LEFTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
+					if (alt && !ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(-1, -1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
+					else if (shift && !ctrl)
 					{
 						currentBrush->ChangeRadius(Point(-1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(0, -1));
 					}
@@ -1560,15 +1558,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key==SDLK_RIGHTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
+					if (alt && !ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(1, 1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
+					else if (shift && !ctrl)
 					{
 						currentBrush->ChangeRadius(Point(1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(0, 1));
 					}
@@ -1578,7 +1576,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 				}
 			}
-			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
+			if ((sdl_key=='d' && (ctrl || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
@@ -1589,7 +1587,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				SPECIFIC_DELETE = !SPECIFIC_DELETE;
 			else if (sdl_key == SDLK_SEMICOLON)
 			{
-				if (sdl_mod&(KMOD_CTRL|KMOD_GUI))
+				if (ctrl)
 					SPECIFIC_DELETE = !SPECIFIC_DELETE;
 				else
 					REPLACE_MODE = !REPLACE_MODE;
@@ -1601,13 +1599,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='g')
 			{
-				if(sdl_mod & (KMOD_CTRL|KMOD_GUI))
+				if (ctrl)
 				{
 					drawgrav_enable =! drawgrav_enable;
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_SHIFT))
+					if (shift)
 						GRID_MODE = (GRID_MODE+9)%10;
 					else
 						GRID_MODE = (GRID_MODE+1)%10;
@@ -1615,7 +1613,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='=')
 			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+				if (ctrl)
 				{
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
@@ -1647,7 +1645,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 
-			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL|KMOD_GUI)))) //Gravity, by Moach
+			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || ctrl)) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 
@@ -1668,7 +1666,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
-			if (sdl_key=='y' && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
+			if (sdl_key=='y' && !ctrl)
 			{
 				++airMode;
 
@@ -1698,11 +1696,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			if (sdl_key=='t')
 				show_tabs = !show_tabs;
-			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
+			if (sdl_key=='h' && !ctrl)
 			{
 				hud_enable = !hud_enable;
 			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & (KMOD_CTRL|KMOD_GUI))))
+			if (sdl_key==SDLK_F1 || (sdl_key=='h' && ctrl))
 			{
 				if (!GetToolTipAlpha(INTROTIP))
 				{
@@ -1722,13 +1720,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}*/
 			if (!the_game->MouseClicksIgnored())
 			{
-				if (sdl_key == SDLK_UP && (sdl_mod & KMOD_CTRL) && tab_num > 1)
+				if (sdl_key == SDLK_UP && ctrl && tab_num > 1)
 				{
 					tab_save(tab_num);
 					tab_num--;
 					tab_load(tab_num);
 				}
-				else if (sdl_key == SDLK_DOWN && (sdl_mod & KMOD_CTRL) && tab_num < num_tabs)
+				else if (sdl_key == SDLK_DOWN && ctrl && tab_num < num_tabs)
 				{
 					tab_save(tab_num);
 					tab_num++;
@@ -1774,25 +1772,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			clearrect(vid_buf, XRES-20-new_message_len, YRES-38, new_message_len+8, 16);
 			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
 			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
-		}
-
-		if (sdl_wheel)
-		{
-			if (!the_game->PlacingZoomWindow())
-			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
-				}
-				else if (sdl_mod & (KMOD_CTRL|KMOD_GUI) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					currentBrush->ChangeRadius(Point(0, sdl_wheel));
-				}
-			}
 		}
 
 #ifdef TOUCHUI
@@ -1852,8 +1831,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		if (deco_disablestuff)
 			b = 0;
-
-		sdl_wheel = 0;
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)

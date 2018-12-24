@@ -309,9 +309,9 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 	}
 }
 
-void Label::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (modifiers & (KMOD_CTRL|KMOD_GUI))
+	if (ctrl)
 	{
 		switch (key)
 		{
@@ -346,7 +346,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 		}
 		}
 	}
-	if (modifiers&KMOD_SHIFT)
+	if (shift)
 	{
 		switch (key)
 		{
