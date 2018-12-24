@@ -29,7 +29,7 @@ public:
 	~ProfileViewer();
 
 	void OnTick(uint32_t ticks);
-	void OnDraw(VideoBuffer *buf);
+	void OnDrawAfterSubwindows(VideoBuffer *buf);
 
 	// callback functions for all the buttons
 	void EnableEditing();

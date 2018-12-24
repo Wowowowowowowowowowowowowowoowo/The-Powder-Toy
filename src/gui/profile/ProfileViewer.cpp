@@ -274,17 +274,17 @@ void ProfileViewer::SaveProfile()
 
 void ProfileViewer::OpenProfile()
 {
-	Platform::OpenLink("http://powdertoy.co.uk/User.html?Name="+name);
+	Platform::OpenLink("https://powdertoy.co.uk/User.html?Name="+name);
 }
 
 void ProfileViewer::OpenProfileEdit()
 {
-	Platform::OpenLink("http://powdertoy.co.uk/Profile.html");
+	Platform::OpenLink("https://powdertoy.co.uk/Profile.html");
 }
 
 void ProfileViewer::UploadAvatar()
 {
-	Platform::OpenLink("http://powdertoy.co.uk/Profile/Avatar.html");
+	Platform::OpenLink("https://powdertoy.co.uk/Profile/Avatar.html");
 }
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
@@ -304,7 +304,7 @@ void ProfileViewer::ResizeArea(int biographyLabelHeight)
 		scrollArea->SetScrollable(false, 0);
 }
 
-void ProfileViewer::OnDraw(VideoBuffer *buf)
+void ProfileViewer::OnDrawAfterSubwindows(VideoBuffer *buf)
 {
 	if (avatar)
 		buf->DrawImage(avatar, 210, 10-scrollArea->GetScrollPosition(), 40, 40);

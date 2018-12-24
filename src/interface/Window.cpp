@@ -195,6 +195,8 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 		(*iter)->DoDraw(videoBuffer->GetVid(), size, (*iter)->GetPosition());
 	}
 
+	OnDrawAfterSubwindows(videoBuffer);
+
 	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
 	if (copyBuf)

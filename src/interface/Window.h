@@ -82,6 +82,7 @@ protected:
 	virtual bool BeforeMouseWheel(int x, int y, int d) { return true; }
 	virtual bool BeforeKeyPress(int key, unsigned short character, unsigned short modifiers) { return true; }
 	virtual bool BeforeKeyRelease(int key, unsigned short character, unsigned short modifiers) { return true; }
+	virtual bool BeforeTextInput(const char *text) { return true; }
 
 	void VideoBufferHack();
 	bool InsideSubwindow(int x, int y);
