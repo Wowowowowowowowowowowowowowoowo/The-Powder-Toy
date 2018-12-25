@@ -20,7 +20,6 @@
 #include <stdlib.h>
 
 extern const unsigned char app_icon[];
-extern const unsigned char app_icon_bitmap[];
 extern const unsigned char icon_doc_32_png[];
 extern size_t icon_doc_32_png_size;
 extern const unsigned char icon_doc_16_png[];
