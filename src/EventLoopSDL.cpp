@@ -166,13 +166,15 @@ void SDLBlit(pixel * vid)
 
 unsigned int CalculateMousePosition(int *x, int *y)
 {
-	int mx, my;
-	unsigned int mouseState = SDL_GetMouseState(&mx, &my);
+	int globalMx, globalMy;
+	unsigned int mouseState = SDL_GetGlobalMouseState(&globalMx, &globalMy);
+	int windowX, windowY;
+	SDL_GetWindowPosition(sdl_window, &windowX, &windowY);
 
 	if (x)
-		*x = mx / Engine::Ref().GetScale();
+		*x = (globalMx - windowX) / Engine::Ref().GetScale();
 	if (y)
-		*y = my / Engine::Ref().GetScale();
+		*y = (globalMy - windowY) / Engine::Ref().GetScale();
 
 	return mouseState;
 }
@@ -182,7 +184,19 @@ int SDLGetModifiers()
 	return SDL_GetModState();
 }
 
+bool calculatedInitialMouse = false;
+bool hasMouseMoved = false;
 Point lastMousePosition;
+
+// When the mouse hasn't moved yet, sdl will always report (0, 0) as the position in events
+// By using SDL_GetGlobalMouseState, we can get the real mouse position
+// (should be accurate except for resizable windows / fullscreen)
+void GetTempMousePosition(int *x, int *y)
+{
+	if (!hasMouseMoved)
+		CalculateMousePosition(x, y);
+}
+
 int EventProcess(SDL_Event event, Window_ * eventHandler)
 {
 	switch (event.type)
@@ -242,6 +256,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	case SDL_MOUSEBUTTONDOWN:
 	{
 		int mx = event.motion.x, my = event.motion.y;
+		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
 			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
@@ -251,6 +266,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	case SDL_MOUSEBUTTONUP:
 	{
 		int mx = event.motion.x, my = event.motion.y;
+		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
 			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
@@ -260,10 +276,32 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	case SDL_MOUSEMOTION:
 	{
 		int mx = event.motion.x, my = event.motion.y;
+		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
 			eventHandler->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
 		lastMousePosition = Point(mx, my);
+		hasMouseMoved = true;
 		break;
+	}
+	case SDL_WINDOWEVENT:
+	{
+		switch (event.window.event)
+		{
+		// Wait for the window to be shown, then try to calculate the initial mouse position
+		// This is only necessary to have the cursor show in the correct position instead of (0, 0)
+		// Because all mouse events will call CalculateMousePosition anyway
+		case SDL_WINDOWEVENT_SHOWN:
+			if (!calculatedInitialMouse)
+			{
+				int mousex, mousey;
+				CalculateMousePosition(&mousex, &mousey);
+				lastMousePosition = Point(mousex, mousey);
+				if (eventHandler)
+					eventHandler->DoMouseMove(mousex, mousey, 0, 0);
+				calculatedInitialMouse = true;
+			}
+			break;
+		}
 	}
 	}
 	return 0;
