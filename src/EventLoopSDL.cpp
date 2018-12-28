@@ -11,7 +11,6 @@
 #include "defines.h"
 #include "graphics.h"
 #include "interface.h"
-#include "misc.h" // mystrdup, remove after sdl2 port
 
 #include "common/Platform.h"
 #include "interface/Engine.h"
@@ -308,6 +307,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 }
 
 uint32_t lastTick;
+bool inOldInterface = false;
 void MainLoop()
 {
 	SDL_Event event;
@@ -349,6 +349,7 @@ void MainLoop()
 		limit_fps();
 
 		engine.ProcessWindowUpdates();
+		inOldInterface = false;
 	}
 }
 
@@ -522,8 +523,12 @@ int SDLPoll()
 	sdl_key=sdl_wheel=0;
 	if (Engine::Ref().IsShutdown())
 		return 1;
-	loop_time = SDL_GetTicks();
 
+	if (!inOldInterface)
+	{
+		inOldInterface = true;
+		the_game->OnDefocus();
+	}
 	sdl_textinput = "";
 	while (SDL_PollEvent(&event))
 	{

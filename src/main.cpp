@@ -229,7 +229,6 @@ int screenWidth = 0;
 int screenHeight = 0;
 int do_open = 0;
 bool sys_pause = false;
-int sys_shortcuts = 1;
 bool legacy_enable = false; //Used to disable new features such as heat, will be set by save.
 bool aheat_enable = false; //Ambient heat
 bool decorations_enable = true;
@@ -256,7 +255,6 @@ int autosave = 0;
 int realistic = 0;
 bool explUnlocked = false;
 int old_menu = 0;
-int loop_time = 0;
 bool doUpdates = true;
 
 int drawinfo = 0;
@@ -1447,7 +1445,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 			ptsaveOpenID = 0;
 		}
 
-		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by lua scripts
+		if (!deco_disablestuff)
 		{
 			if (sdl_key)
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);

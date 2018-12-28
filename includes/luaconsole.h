@@ -24,6 +24,7 @@
 #include "LuaCompat.h"
 #include "defines.h"
 #include "graphics/Pixel.h"
+#include "lua/LuaEvents.h"
 
 #define LUACON_MDOWN 1
 #define LUACON_MUP 2
@@ -46,13 +47,15 @@ extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 extern char* log_history[20];
 extern int log_history_times[20];
 
+extern unsigned long loop_time;
+
 void luacon_open();
 void luacon_openmultiplayer();
 void luacon_openscriptmanager();
 void luaopen_multiplayer(lua_State *l);
 void luaopen_scriptmanager(lua_State *l);
 int luaopen_bit(lua_State *L);
-int luacon_step(int mx, int my);
+void luacon_step(int mx, int my);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
 void luacon_log(char *log);
 int luacon_keyevent(int key, unsigned short character, int modifier, int event);
@@ -107,7 +110,6 @@ int luatpt_fillcircle(lua_State* l);
 int luatpt_drawline(lua_State* l);
 int luatpt_textwidth(lua_State* l);
 int luatpt_get_name(lua_State* l);
-int luatpt_set_shortcuts(lua_State* l);
 int luatpt_delete(lua_State* l);
 int luatpt_register_step(lua_State* l);
 int luatpt_unregister_step(lua_State* l);
@@ -159,4 +161,6 @@ extern bool ranLuaCode;
 void ReadLuaCode();
 void ExecuteEmbededLuaCode();
 #endif
+
+bool HandleEvent(LuaEvents::EventTypes eventType, Event * event);
 #endif

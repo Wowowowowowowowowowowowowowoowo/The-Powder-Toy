@@ -3055,7 +3055,6 @@ int elements_free(lua_State * l)
 
 void initPlatformAPI(lua_State * l)
 {
-	//Methods
 	struct luaL_Reg platformAPIMethods [] = {
 		{"platform", platform_platform},
 		{"build", platform_build},
@@ -3071,7 +3070,6 @@ void initPlatformAPI(lua_State * l)
 	};
 	luaL_register(l, "platform", platformAPIMethods);
 
-	//elem shortcut
 	lua_getglobal(l, "platform");
 	lua_setglobal(l, "plat");
 }
@@ -3167,6 +3165,51 @@ int platform_getOnScreenKeyboardInput(lua_State * l)
 	Platform::GetOnScreenKeyboardInput(buff, limit, autoCorrect);
 	lua_pushstring(l, buff);
 	free(buff);
+	return 1;
+}
+
+void initEventAPI(lua_State * l)
+{
+	struct luaL_Reg eventAPIMethods [] = {
+		{"register", event_register},
+		{"unregister", event_unregister},
+		{"getmodifiers", event_getmodifiers},
+		{NULL, NULL}
+	};
+	luaL_register(l, "event", eventAPIMethods);
+
+	lua_getglobal(l, "event");
+	lua_setglobal(l, "evt");
+
+	lua_pushinteger(l, LuaEvents::keypress); lua_setfield(l, -2, "keypress");
+	lua_pushinteger(l, LuaEvents::keyrelease); lua_setfield(l, -2, "keyrelease");
+	lua_pushinteger(l, LuaEvents::textinput); lua_setfield(l, -2, "textinput");
+	lua_pushinteger(l, LuaEvents::mousedown); lua_setfield(l, -2, "mousedown");
+	lua_pushinteger(l, LuaEvents::mouseup); lua_setfield(l, -2, "mouseup");
+	lua_pushinteger(l, LuaEvents::mousemove); lua_setfield(l, -2, "mousemove");
+	lua_pushinteger(l, LuaEvents::mousewheel); lua_setfield(l, -2, "mousewheel");
+	lua_pushinteger(l, LuaEvents::tick); lua_setfield(l, -2, "tick");
+	lua_pushinteger(l, LuaEvents::blur); lua_setfield(l, -2, "blur");
+	lua_pushinteger(l, LuaEvents::close); lua_setfield(l, -2, "close");
+}
+
+int event_register(lua_State * l)
+{
+	int eventName = luaL_checkinteger(l, 1);
+	luaL_checktype(l, 2, LUA_TFUNCTION);
+	return LuaEvents::RegisterEventHook(l, "tptevents-" + Format::NumberToString<int>(eventName));
+}
+
+int event_unregister(lua_State * l)
+{
+	int eventName = luaL_checkinteger(l, 1);
+	luaL_checktype(l, 2, LUA_TFUNCTION);
+	return LuaEvents::UnregisterEventHook(l, "tptevents-" + Format::NumberToString<int>(eventName));
+}
+
+int event_getmodifiers(lua_State * l)
+{
+	lua_pushnumber(l, Engine::Ref().GetModifiers());
 	return 1;
 }
 

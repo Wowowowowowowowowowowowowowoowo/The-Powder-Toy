@@ -200,7 +200,6 @@ extern Tool* activeTools[3];
 extern float toolStrength;
 extern int autosave;
 extern int realistic;
-extern int loop_time;
 extern bool explUnlocked;
 extern int old_menu;
 extern int decobox_hidden;
@@ -252,7 +251,6 @@ extern int stamp_count;
 extern int ptsaveOpenID;
 extern int saveURIOpen;
 extern int do_open;
-extern int sys_shortcuts;
 extern pixel *vid_buf;
 extern pixel *vid3d;
 

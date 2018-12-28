@@ -31,6 +31,7 @@
 #include "interface/Button.h"
 #include "interface/Engine.h"
 #include "interface/Window.h"
+#include "lua/LuaEvents.h"
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
@@ -50,6 +51,9 @@
 
 PowderToy::~PowderToy()
 {
+	CloseEvent ev = CloseEvent();
+	HandleEvent(LuaEvents::close, &ev);
+
 	Snapshot::ClearSnapshots();
 	main_end_hack();
 	delete clipboardData;
@@ -62,7 +66,6 @@ PowderToy::PowderToy():
 	cursor(Point(0, 0)),
 	lastMouseDown(0),
 	heldKey(0),
-	mouseCanceled(false),
 	numNotifications(0),
 	voteDownload(NULL),
 	delayedHttpChecks(true),
@@ -1144,19 +1147,14 @@ void PowderToy::LoadRenderPreset(int preset)
 void PowderToy::OnTick(uint32_t ticks)
 {
 	int mouseX, mouseY;
-	int mouseDown = mouse_get_state(&mouseX, &mouseY);
 #ifdef LUACONSOLE
-	// lua mouse "tick", call the function every frame. When drawing is rewritten, this needs to be changed to cancel drawing.
-	if (mouseDown && !luacon_mouseevent(mouseX, mouseY, mouseDown, LUACON_MPRESS, 0))
-		mouseCanceled = true;
-	if (mouseCanceled)
-		mouseDown = 0;
-	
+
 	/*std::stringstream orStr;
 	orStr << orientation[0] << ", " << orientation[1] << ", " << orientation[2] << std::endl;
 	luacon_log(mystrdup(orStr.str().c_str()));*/
 #endif
 	//sdl_key = heldKey; // ui_edit_process in deco editor uses this global so we have to set it ):
+	int mouseDown = mouse_get_state(&mouseX, &mouseY);
 	main_loop_temp(mouseDown, lastMouseDown, heldKey, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
 	lastMouseDown = mouseDown;
 	heldKey = 0;
@@ -1703,10 +1701,9 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 		{
 			isMouseDown = false;
 			drawState = POINTS;
-#ifdef LUACONSOLE
-			// special lua mouse event
-			luacon_mouseevent(x, y, 0, LUACON_MUPZOOM, 0);
-#endif
+			// special lua mouseevent for moving in / out of zoom window
+			MouseUpEvent ev = MouseUpEvent(x, y, 0, 2);
+			HandleEvent(LuaEvents::mouseup, &ev);
 		}
 		mouseInZoom = tmpMouseInZoom;
 	}
@@ -1720,12 +1717,8 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 
 bool PowderToy::BeforeMouseDown(int x, int y, unsigned char button)
 {
-#ifdef LUACONSOLE
-	// lua mouse event, cancel mouse action if the function returns false
-	if (!luacon_mouseevent(x, y, button, LUACON_MDOWN, 0))
-		return false;
-#endif
-	return true;
+	MouseDownEvent ev = MouseDownEvent(x, y, button);
+	return HandleEvent(LuaEvents::mousedown, &ev);
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)
@@ -1833,13 +1826,9 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 
 bool PowderToy::BeforeMouseUp(int x, int y, unsigned char button)
 {
-	mouseCanceled = false;
-#ifdef LUACONSOLE
 	// lua mouse event, cancel mouse action if the function returns false
-	if (!luacon_mouseevent(x, y, button, LUACON_MUP, 0))
-		return false;
-#endif
-	return true;
+	MouseUpEvent ev = MouseUpEvent(x, y, button, 0);
+	return HandleEvent(LuaEvents::mouseup, &ev);
 }
 
 void PowderToy::OnMouseUp(int x, int y, unsigned char button)
@@ -2093,13 +2082,8 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 
 bool PowderToy::BeforeMouseWheel(int x, int y, int d)
 {
-#ifdef LUACONSOLE
-	int mouseX, mouseY;
-	// lua mouse event, cancel mouse action if the function returns false
-	if (!luacon_mouseevent(x, y, mouse_get_state(&mouseX, &mouseY), 0, d))
-		return false;
-#endif
-	return true;
+	MouseWheelEvent ev = MouseWheelEvent(x, y, d);
+	return HandleEvent(LuaEvents::mousewheel, &ev);
 }
 
 void PowderToy::OnMouseWheel(int x, int y, int d)
@@ -2135,18 +2119,12 @@ bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool 
 	if (deco_disablestuff)
 		return true;
 
-#ifdef LUACONSOLE
-	if (!luacon_keyevent(key, scan, Engine::Ref().GetModifiers(), LUACON_KDOWN))
+	KeyEvent ev = KeyEvent(key, scan, repeat, shift, ctrl, alt);
+	if (!HandleEvent(LuaEvents::keypress, &ev))
 	{
 		heldKey = 0;
 		return false;
 	}
-#endif
-
-	// lua can disable all key shortcuts
-	if (!sys_shortcuts)
-		return false;
-
 	return true;
 }
 
@@ -2613,11 +2591,8 @@ bool PowderToy::BeforeKeyRelease(int key, int scan, bool repeat, bool shift, boo
 	if (deco_disablestuff)
 		return true;
 
-#ifdef LUACONSOLE
-	if (!luacon_keyevent(key, key < 256 ? key : 0, Engine::Ref().GetModifiers(), LUACON_KUP))
-		return false;
-#endif
-	return true;
+	KeyEvent ev = KeyEvent(key, scan, repeat, shift, ctrl, alt);
+	return HandleEvent(LuaEvents::keyrelease, &ev);
 }
 
 void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
@@ -2698,19 +2673,26 @@ void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ct
 	}
 }
 
+bool PowderToy::BeforeTextInput(const char *text)
+{
+	TextInputEvent ev = TextInputEvent(text);
+	return HandleEvent(LuaEvents::textinput, &ev);
+}
+
 void PowderToy::OnDefocus()
 {
-#ifdef LUACONSOLE
-	if (ctrlHeld || shiftHeld || altHeld)
-		luacon_keyevent(0, 0, 0, LUACON_KUP);
-#endif
-
 	ctrlHeld = shiftHeld = altHeld = false;
 	openBrowserButton->SetTooltipText("Find & open a simulation");
 	lastMouseDown = heldKey = 0; // temporary
 	ResetStampState();
 	UpdateDrawMode();
 	UpdateToolStrength();
+
+	BlurEvent ev = BlurEvent();
+	HandleEvent(LuaEvents::blur, &ev);
+	// Send fake mouseup event to Lua
+	MouseUpEvent ev2 = MouseUpEvent(0, 0, 0, 1);
+	HandleEvent(LuaEvents::mouseup, &ev2);
 }
 
 void PowderToy::OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)

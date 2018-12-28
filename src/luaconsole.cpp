@@ -34,7 +34,6 @@ extern "C"
 }
 
 #include "defines.h"
-#include "EventLoopSDL.h"
 #include "powder.h"
 #include "graphics.h"
 #include "gravity.h"
@@ -46,7 +45,7 @@ extern "C"
 #include "save.h"
 
 #include "common/Format.h"
-#include "common/SDL_keysym.h"
+#include "common/Platform.h"
 #include "interface/Engine.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
@@ -69,6 +68,8 @@ int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
 int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, tptPart, cIndex;
+
+unsigned long loop_time = 0;
 
 void luacon_open()
 {
@@ -103,7 +104,6 @@ void luacon_open()
 		{"drawline", &luatpt_drawline},
 		{"textwidth", &luatpt_textwidth},
 		{"get_name", &luatpt_get_name},
-		{"set_shortcuts", &luatpt_set_shortcuts},
 		{"delete", &luatpt_delete},
 		{"register_step", &luatpt_register_step},
 		{"unregister_step", &luatpt_unregister_step},
@@ -179,6 +179,7 @@ void luacon_open()
 	initGraphicsAPI(l);
 	initElementsAPI(l);
 	initPlatformAPI(l);
+	initEventAPI(l);
 	lua_getglobal(l, "tpt");
 
 	tptProperties = lua_gettop(l);
@@ -817,7 +818,7 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 	int len = lua_objlen(l, -1);
 	for (int i = 1; i <= len && keycontinue; i++)
 	{
-		loop_time = GetTicks();
+		loop_time = Platform::GetTime();
 		lua_rawgeti(l, -1, i);
 		if ((modifier & (KMOD_CTRL|KMOD_GUI)) && (character < ' ' || character > '~') && key < 256)
 			lua_pushlstring(l, (const char*)&key, 1);
@@ -875,7 +876,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	int len = lua_objlen(l, -1);
 	for (int i = 1; i <= len && mpcontinue; i++)
 	{
-		loop_time = GetTicks();
+		loop_time = Platform::GetTime();
 		lua_rawgeti(l, -1, i);
 		lua_pushinteger(l, mx);
 		lua_pushinteger(l, my);
@@ -915,7 +916,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 	return mpcontinue;
 }
 
-int luacon_step(int mx, int my)
+void luacon_step(int mx, int my)
 {
 	lua_pushinteger(l, my);
 	lua_pushinteger(l, mx);
@@ -929,42 +930,8 @@ int luacon_step(int mx, int my)
 	}
 	lua_pop(l, 1);
 
-	lua_pushstring(l, "stepfunctions");
-	lua_rawget(l, LUA_REGISTRYINDEX);
-	if (!lua_istable(l, -1))
-	{
-		lua_pop(l, 1);
-		lua_newtable(l);
-		lua_pushstring(l, "stepfunctions");
-		lua_pushvalue(l, -2);
-		lua_rawset(l, LUA_REGISTRYINDEX);
-	}
-	int len = lua_objlen(l, -1);
-	for (int i = 1; i <= len; i++)
-	{
-		loop_time = GetTicks();
-		lua_rawgeti(l, -1, i);
-		int callret = lua_pcall(l, 0, 0, 0);
-		if (callret)
-		{
-			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
-			{
-				for (int j = i; j <= len-1; j++)
-				{
-					lua_rawgeti(l, -2, j+1);
-					lua_rawseti(l, -3, j);
-				}
-				lua_pushnil(l);
-				lua_rawseti(l, -3, len);
-				i--;
-			}
-			luacon_log(mystrdup(luacon_geterror()));
-			lua_pop(l, 1);
-		}
-		len = lua_objlen(l, -1);
-	}
-	lua_pop(l, 1);
-	return 0;
+	TickEvent ev = TickEvent();
+	HandleEvent(LuaEvents::tick, &ev);
 }
 
 int luaL_tostring(lua_State *L, int n)
@@ -1031,7 +998,7 @@ int luacon_eval(const char *command, char **result)
 	}
 	tmp = (char*)malloc(strlen(lastCode) + 8);
 	sprintf(tmp, "return %s", lastCode);
-	loop_time = GetTicks();
+	loop_time = Platform::GetTime();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
 	if(lua_type(l, -1) != LUA_TFUNCTION)
 	{
@@ -1111,11 +1078,11 @@ int luacon_eval(const char *command, char **result)
 
 void lua_hook(lua_State *L, lua_Debug *ar)
 {
-	if(ar->event == LUA_HOOKCOUNT && GetTicks()-loop_time > 3000)
+	if(ar->event == LUA_HOOKCOUNT && Platform::GetTime() - loop_time > 3000)
 	{
 		if (confirm_ui(lua_vid_buf,"Infinite Loop","The Lua code might have an infinite loop. Press OK to stop it","OK"))
 			luaL_error(l,"Error: Infinite loop");
-		loop_time = GetTicks();
+		loop_time = Platform::GetTime();
 	}
 }
 
@@ -1129,6 +1096,7 @@ int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, 
 		lua_pushinteger(l, y);
 		lua_pushinteger(l, surround_space);
 		lua_pushinteger(l, nt);
+		loop_time = Platform::GetTime();
 		callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
@@ -1153,6 +1121,7 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	lua_pushinteger(l, *colr);
 	lua_pushinteger(l, *colg);
 	lua_pushinteger(l, *colb);
+	loop_time = Platform::GetTime();
 	callret = lua_pcall(l, 4, 10, 0);
 	if (callret)
 	{
@@ -1981,19 +1950,6 @@ int luatpt_get_name(lua_State* l)
 	return 1;
 }
 
-int luatpt_set_shortcuts(lua_State* l)
-{
-	int acount = lua_gettop(l);
-	if (acount == 0)
-	{
-		lua_pushnumber(l, sys_shortcuts);
-		return 1;
-	}
-	int shortcut = luaL_checkinteger(l, 1);
-	sys_shortcuts = (shortcut==0?0:1);
-	return 0;
-}
-
 int luatpt_delete(lua_State* l)
 {
 	int arg1, arg2;
@@ -2808,7 +2764,7 @@ void ExecuteEmbededLuaCode()
 			"))
 			luacon_log(mystrdup(luacon_geterror())); //if large above thing errored
 
-		loop_time = GetTicks();
+		loop_time = Platform::GetTime();
 #if LUA_VERSION_NUM >= 502
 		if (luaL_dostring(l, "local code = loadfile(\"newluacode.txt\", nil, env) if code then code() end"))
 #else
@@ -2821,3 +2777,17 @@ void ExecuteEmbededLuaCode()
 }
 
 #endif
+
+/**
+* Handles an event
+*
+* @param eventType Value from the EventTypes enum
+* @param event The event object
+* @return true if event canceled
+*/
+bool HandleEvent(LuaEvents::EventTypes eventType, Event * event)
+{
+#ifdef LUACONSOLE
+	return LuaEvents::HandleEvent(l, event, "tptevents-" + Format::NumberToString<int>(eventType));
+#endif
+}

@@ -22,7 +22,6 @@ private:
 	Point mouse;
 	Point cursor;
 	int lastMouseDown, heldKey;
-	bool mouseCanceled;
 	int16_t orientation[3];
 
 	// notifications
@@ -173,22 +172,23 @@ public:
 	void TranslateSave(Point point);
 	void TransformSave(int a, int b, int c, int d);
 
-	void OnTick(uint32_t ticks);
-	void OnDraw(VideoBuffer *buf);
-	void OnMouseMove(int x, int y, Point difference);
-	void OnMouseDown(int x, int y, unsigned char button);
-	void OnMouseUp(int x, int y, unsigned char button);
-	void OnMouseWheel(int x, int y, int d);
-	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	void OnDefocus();
-	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
+	void OnTick(uint32_t ticks) override;
+	void OnDraw(VideoBuffer *buf) override;
+	void OnMouseMove(int x, int y, Point difference) override;
+	void OnMouseDown(int x, int y, unsigned char button) override;
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnMouseWheel(int x, int y, int d) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnDefocus() override;
+	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) override;
 
-	bool BeforeMouseDown(int x, int y, unsigned char button);
-	bool BeforeMouseUp(int x, int y, unsigned char button);
-	bool BeforeMouseWheel(int x, int y, int d);
-	bool BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	bool BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	bool BeforeMouseDown(int x, int y, unsigned char button) override;
+	bool BeforeMouseUp(int x, int y, unsigned char button) override;
+	bool BeforeMouseWheel(int x, int y, int d) override;
+	bool BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	bool BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	bool BeforeTextInput(const char *text) override;
 
 	void OpenBrowserBtn(unsigned char b);
 	void ReloadSaveBtn(unsigned char b);
