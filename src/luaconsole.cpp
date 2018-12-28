@@ -18,6 +18,7 @@
 #ifdef LUACONSOLE
 #include <cmath>
 #include <cstring>
+#include <iostream>
 #include <sstream>
 
 #if defined(LIN) || defined(MACOSX)
@@ -60,8 +61,7 @@ extern "C"
 Simulation * luaSim;
 pixel *lua_vid_buf;
 int *lua_el_func, *lua_el_mode, *lua_gr_func;
-char* log_history[20];
-int log_history_times[20];
+std::deque<std::pair<std::string, int>> logHistory;
 int getPartIndex_curIdx;
 lua_State *l;
 int tptProperties; //Table for some TPT properties
@@ -309,11 +309,6 @@ tpt.partsdata = nil");
 	{
 		lua_el_mode[i] = 0;
 		lua_gr_func[i] = 0;
-	}
-	for (i = 0; i < 20; i++)
-	{
-		log_history[i] = NULL;
-		log_history_times[i] = 0;
 	}
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 
@@ -830,7 +825,7 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 		int callret = lua_pcall(l, 4, 1, 0);
 		if (callret)
 		{
-			char *error, *tolog;
+			char *error;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for (int j = i;j <= len-1; j++)
@@ -843,9 +838,9 @@ int luacon_keyevent(int key, unsigned short character, int modifier, int event)
 				i--;
 			}
 			error = (char*)luacon_geterror();
-			tolog = (char*)malloc(strlen(error) + 15);
-			sprintf(tolog, "In key event: %s", error);
-			luacon_log(tolog);
+			std::stringstream tolog;
+			tolog << "In key event: " << error;
+			luacon_log(tolog.str());
 			lua_pop(l, 1);
 		}
 		else
@@ -886,7 +881,7 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 		int callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
-			char *error, *tolog;
+			char *error;
 			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
 			{
 				for (int j = i; j <= len-1; j++)
@@ -899,9 +894,9 @@ int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel)
 				i--;
 			}
 			error = (char*)luacon_geterror();
-			tolog = (char*)malloc(strlen(error) + 17);
-			sprintf(tolog, "In mouse event: %s", error);
-			luacon_log(tolog);
+			std::stringstream tolog;
+			tolog << "In mouse event: " << error;
+			luacon_log(tolog.str());
 			lua_pop(l, 1);
 		}
 		else
@@ -958,19 +953,13 @@ int luaL_tostring(lua_State *L, int n)
 	return 1;
 }
 
-void luacon_log(char *log)
+void luacon_log(std::string log)
 {
-	int i;
-	if (log_history[19])
-		free(log_history[19]);
-	for (i = 19; i > 0; i--)
-	{
-		log_history[i] = log_history[i-1];
-		log_history_times[i] = log_history_times[i-1];
-	}
-	log_history[0] = log;
-	log_history_times[0] = 150;
-	printf("%s\n",log);
+	if (logHistory.size() >= 20)
+		logHistory.pop_back();
+
+	logHistory.push_front(std::pair<std::string, int>(log, 150));
+	std::cout << log << std::endl;
 }
 
 char *lastCode = NULL;
@@ -1101,9 +1090,9 @@ int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, 
 		if (callret)
 		{
 			char *error = (char*)luacon_geterror();
-			char *tolog = (char*)malloc(strlen(error) + 21);
-			sprintf(tolog, "In particle update: %s", error);
-			luacon_log(tolog);
+			std::stringstream tolog;
+			tolog << "In particle update: " << error;
+			luacon_log(tolog.str());
 		}
 		if(lua_isboolean(l, -1)){
 			retval = lua_toboolean(l, -1);
@@ -1126,9 +1115,9 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	if (callret)
 	{
 		char *error = (char*)luacon_geterror();
-		char *tolog = (char*)malloc(strlen(error) + 23);
-		sprintf(tolog, "In graphics function: %s", error);
-		luacon_log(tolog);
+		std::stringstream tolog;
+		tolog << "In graphics function: " << error;
+		luacon_log(tolog.str());
 		lua_pop(l, 1);
 	}
 	else
@@ -1158,7 +1147,6 @@ const char *luacon_geterror()
 
 void luacon_close()
 {
-	int i;
 	lua_close(l);
 	if (lastCode)
 		free(lastCode);
@@ -1166,11 +1154,6 @@ void luacon_close()
 		free(logs);
 	if (LuaCode)
 		free(LuaCode);
-	for (i = 0; i < 20; i++)
-	{
-		if (log_history[i])
-			free(log_history[i]);
-	}
 	console_limit_history(0, last_command);
 	console_limit_history(0, last_command_result);
 }
@@ -1190,7 +1173,7 @@ int process_command_lua(pixel *vid_buf, char *command, char **result)
 			{
 				*result = mystrdup(luacon_geterror());
 				if (!console_mode)
-					luacon_log(mystrdup(*result));
+					luacon_log(*result);
 			}
 		}
 	}
@@ -1451,6 +1434,7 @@ int luatpt_log(lua_State* l)
 	else
 	{
 		luacon_log(buffer);
+		free(buffer);
 		return 0;
 	}
 }
@@ -2762,7 +2746,7 @@ void ExecuteEmbededLuaCode()
 				socket = { gettime = socket.gettime }} --[[I think socket.gettime() is safe?]]\n\
 				\n\
 			"))
-			luacon_log(mystrdup(luacon_geterror())); //if large above thing errored
+			luacon_log(luacon_geterror()); //if large above thing errored
 
 		loop_time = Platform::GetTime();
 #if LUA_VERSION_NUM >= 502
@@ -2771,7 +2755,7 @@ void ExecuteEmbededLuaCode()
 		if (luaL_dostring(l, "local code = loadfile(\"newluacode.txt\") if code then setfenv(code, env) code() end"))
 #endif
 		{
-			luacon_log(mystrdup(luacon_geterror()));
+			luacon_log(luacon_geterror());
 		}
 	}
 }

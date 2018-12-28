@@ -701,7 +701,7 @@ void PowderToy::TogglePause()
 #ifdef LUACONSOLE
 		std::stringstream logmessage;
 		logmessage << "Updated particles from #" << sim->debug_currentParticle << " to end due to unpause";
-		luacon_log(mystrdup(logmessage.str().c_str()));
+		luacon_log(logmessage.str());
 #endif
 		sim->UpdateParticles(sim->debug_currentParticle, NPART);
 		sim->UpdateAfter();

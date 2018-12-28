@@ -19,6 +19,7 @@
 #ifndef LUACONSOLEH
 #define LUACONSOLEH
 
+#include <deque>
 #include <string>
 
 #include "LuaCompat.h"
@@ -44,8 +45,7 @@ extern Simulation * luaSim;
 
 extern pixel *lua_vid_buf;
 extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
-extern char* log_history[20];
-extern int log_history_times[20];
+extern std::deque<std::pair<std::string, int>> logHistory;
 
 extern unsigned long loop_time;
 
@@ -57,7 +57,7 @@ void luaopen_scriptmanager(lua_State *l);
 int luaopen_bit(lua_State *L);
 void luacon_step(int mx, int my);
 int luacon_mouseevent(int mx, int my, int mb, int event, int mouse_wheel);
-void luacon_log(char *log);
+void luacon_log(std::string log);
 int luacon_keyevent(int key, unsigned short character, int modifier, int event);
 int luacon_eval(const char *command, char **result);
 int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, int nt);

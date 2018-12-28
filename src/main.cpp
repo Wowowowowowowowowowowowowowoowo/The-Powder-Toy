@@ -775,7 +775,7 @@ void ParticleDebug(int mode, int x, int y)
 			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
 	}
 #ifdef LUACONSOLE
-	luacon_log(mystrdup(logmessage.str().c_str()));
+	luacon_log(logmessage.str());
 #endif
 
 	// call simulation functions run before updating particles if we are updating #0
@@ -1159,7 +1159,7 @@ int main(int argc, char *argv[])
 	char *autorun_result = NULL;
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
-		luacon_log(mystrdup(luacon_geterror()));
+		luacon_log(luacon_geterror());
 	}
 	if (autorun_result)
 	{
@@ -1171,7 +1171,7 @@ int main(int argc, char *argv[])
 		if (luacon_eval("dofile(\"scriptmanager.lua\")", &autorun_result))
 		{
 			//scriptmanager.lua errored, log error and open the included one
-			luacon_log(mystrdup(luacon_geterror()));
+			luacon_log(luacon_geterror());
 			luacon_openscriptmanager();
 		}
 	}
@@ -1180,6 +1180,8 @@ int main(int argc, char *argv[])
 	// TPTMP through the script manager, use that version instead
 	if (!file_exists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
 		luacon_openmultiplayer();
+	if (autorun_result)
+		free(autorun_result);
 #endif
 	for (int i = 0; i < 10; i++)
 	{

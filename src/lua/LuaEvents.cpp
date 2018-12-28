@@ -220,7 +220,7 @@ bool LuaEvents::HandleEvent(lua_State *l, Event *event, std::string eventName)
 				lua_rawseti(l, -3, len);
 				i--;
 			}
-			luacon_log((char*)luacon_geterror());
+			luacon_log(luacon_geterror());
 			lua_pop(l, 1);
 		}
 		else
