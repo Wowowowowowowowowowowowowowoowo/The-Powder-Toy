@@ -1157,6 +1157,7 @@ int main(int argc, char *argv[])
 #ifdef LUACONSOLE
 	lua_vid_buf = the_game->GetVid()->GetVid();
 	char *autorun_result = NULL;
+	luacon_openeventcompat();
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
 		luacon_log(luacon_geterror());

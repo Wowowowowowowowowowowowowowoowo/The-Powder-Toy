@@ -316,8 +316,8 @@ new=function(x,y,w,h)
 	intext:moveadd(function(self,x,y) self.t:onmove(x,y) end)
 	function intext:setfocus(focus)
 		self.focus=focus
-		if focus then tpt.set_shortcuts(0) self:setcolor(255,255,0)
-		else tpt.set_shortcuts(1) self:setcolor(255,255,255) end
+		if focus then self:setcolor(255,255,0)
+		else self:setcolor(255,255,255) end
 	end
 	function intext:movecursor(amt)
 		self.cursor = self.cursor+amt

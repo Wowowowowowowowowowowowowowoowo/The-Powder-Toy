@@ -324,6 +324,11 @@ void luacon_openscriptmanager()
 #endif
 }
 
+void luacon_openeventcompat()
+{
+	luaopen_eventcompat(l);
+}
+
 #ifndef FFI
 int luacon_partread(lua_State* l)
 {
