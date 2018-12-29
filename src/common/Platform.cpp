@@ -23,6 +23,7 @@
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
 #include <mach-o/dyld.h>
+#include <sys/time.h> // gettimeofday
 #endif
 
 #ifdef LIN
