@@ -33,14 +33,14 @@ public:
 	void DoTick(uint32_t ticks);
 	void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 
-	void DoMouseMove(int x, int y, int dx, int dy);
-	void DoMouseDown(int x, int y, unsigned char button);
-	void DoMouseUp(int x, int y, unsigned char button);
-	void DoMouseWheel(int x, int y, int d);
-	void DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	void DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	void DoTextInput(const char *text);
-	void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
+	virtual void DoMouseMove(int x, int y, int dx, int dy);
+	virtual void DoMouseDown(int x, int y, unsigned char button);
+	virtual void DoMouseUp(int x, int y, unsigned char button);
+	virtual void DoMouseWheel(int x, int y, int d);
+	virtual void DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	virtual void DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	virtual void DoTextInput(const char *text);
+	virtual void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }

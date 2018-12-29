@@ -18,7 +18,7 @@ public:
 	int GetMaxScrollSize() { return scrollSize; }
 
 protected:
-	void DoMouseWheel(int x, int y, int d);
+	void DoMouseWheel(int x, int y, int d) override;
 };
 
 #endif
