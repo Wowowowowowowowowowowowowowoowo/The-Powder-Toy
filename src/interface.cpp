@@ -7070,17 +7070,13 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		//clear button
 		if (b && !bq && mx >= window_offset_x+230 && my >= 2+255+6 && mx <= window_offset_x + 230+26 && my <= 2+255+5+13)
 		{
-			class ResetDeco : public ConfirmAction
-			{
-			public:
-				virtual void Action(bool isConfirmed)
+			ConfirmPrompt *confirm = new ConfirmPrompt([](bool wasConfirmed) {
+				if (wasConfirmed)
 				{
-					if (isConfirmed)
-						for (int i = 0; i < NPART; i++)
-							parts[i].dcolour = COLARGB(0, 0, 0, 0);
+					for (int i = 0; i < NPART; i++)
+						parts[i].dcolour = COLARGB(0, 0, 0, 0);
 				}
-			};
-			ConfirmPrompt *confirm = new ConfirmPrompt(new ResetDeco(), "Reset Decoration Layer", "Do you really want to erase everything?", "Erase");
+			}, "Reset Decoration Layer", "Do you really want to erase everything?", "Erase");
 			Engine::Ref().ShowWindow(confirm);
 		}
 		if (b && !bq && mx > (on_left?143:502) && my > 264 && mx < (on_left?203:562) && my < 280)

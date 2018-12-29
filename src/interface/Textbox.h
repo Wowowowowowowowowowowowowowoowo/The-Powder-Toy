@@ -1,18 +1,10 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
 
+#include <functional>
 #include "Label.h"
 
 class VideoBuffer;
-class Textbox;
-class TextboxAction
-{
-public:
-	TextboxAction() { }
-	virtual ~TextboxAction() { }
-	virtual void TextChangedCallback(Textbox *textbox) { }
-};
-
 class Textbox : public Label
 {
 public:
@@ -20,9 +12,9 @@ public:
 	enum texttype { TEXT, MULTILINE, NUMBER };
 
 	Textbox(Point position, Point size, std::string text, bool multiline = false);
-	~Textbox();
 
-	void SetCallback(TextboxAction *callback_);
+	// Callback doesn't return the text. A reference to the textbox should be copied to get the text or display text
+	void SetCallback(std::function<void(void)> callback) { this->callback = callback; }
 
 	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 	virtual void OnTextInput(const char *text);
@@ -38,7 +30,7 @@ private:
 	Point sizeLimit;
 	unsigned int characterLimit;
 	bool autoCorrect;
-	TextboxAction *callback;
+	std::function<void(void)> callback = nullptr;
 	texttype type;
 
 	bool DeleteHighlight(bool updateDisplayText);

@@ -194,15 +194,9 @@ void ProfileViewer::EnableEditing()
 	scrollArea->AddComponent(biographyLabel);
 
 	// Enable editing when this button is clicked
-	class BiographyChangedAction : public TextboxAction
-	{
-	public:
-		virtual void TextChangedCallback(Textbox *textbox)
-		{
-			dynamic_cast<ProfileViewer*>(textbox->GetParent()->GetParent())->ResizeArea(textbox->GetSize().Y);
-		}
-	};
-	dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
+	dynamic_cast<Textbox*>(biographyLabel)->SetCallback([&]() {
+		this->ResizeArea(biographyLabel->GetSize().Y);
+	});
 	dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
 
 	enableEditingButton->SetCallback([&](int mb) { this->SaveProfile(); });

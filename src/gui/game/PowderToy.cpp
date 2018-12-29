@@ -737,16 +737,14 @@ void PowderToy::SaveStampBtn(bool alt)
 // misc main gui functions
 void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 {
-	class ConfirmUpdate : public ConfirmAction
-	{
-		std::string file;
-	public:
-		ConfirmUpdate(std::string file) : file(file) { }
-
-		virtual void Action(bool isConfirmed)
+#ifdef ANDROID
+	std::string title = "\bwDo you want to update TPT?";
+#else
+	std::string title = "\bwDo you want to update Jacob1's Mod?";
+#endif
+	ConfirmPrompt *confirm = new ConfirmPrompt([file](bool wasConfirmed) {
+		if (wasConfirmed)
 		{
-			if (isConfirmed)
-			{
 #ifdef ANDROID
 				Platform::OpenLink(file);
 #else
@@ -762,15 +760,8 @@ void PowderToy::ConfirmUpdate(std::string changelog, std::string file)
 				});
 				Engine::Ref().ShowWindow(update);
 #endif
-			}
 		}
-	};
-#ifdef ANDROID
-	std::string title = "\bwDo you want to update TPT?";
-#else
-	std::string title = "\bwDo you want to update Jacob1's Mod?";
-#endif
-	ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmUpdate(file), title, changelog, "\btUpdate");
+	}, title, changelog, "\btUpdate");
 	Engine::Ref().ShowWindow(confirm);
 }
 
@@ -1272,18 +1263,10 @@ void PowderToy::OnTick(uint32_t ticks)
 		message << "Switching to double size mode since your screen was determined to be large enough: ";
 		message << screenWidth << "x" << screenHeight << " detected, " << (XRES+BARSIZE)*2 << "x" << (YRES+MENUSIZE)*2 << " required";
 		message << "\nTo undo this, hit Cancel. You can toggle double size mode in settings at any time.";
-		class ConfirmScale : public ConfirmAction
-		{
-		public:
-			virtual void Action(bool isConfirmed)
-			{
-				if (!isConfirmed)
-				{
-					Engine::Ref().SetScale(1);
-				}
-			}
-		};
-		ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmScale(), "Large screen detected", message.str());
+		ConfirmPrompt *confirm = new ConfirmPrompt([](bool wasConfirmed) {
+			if (!wasConfirmed)
+				Engine::Ref().SetScale(1);
+		}, "Large screen detected", message.str());
 		Engine::Ref().ShowWindow(confirm);
 		doubleScreenDialog = false;
 	}
@@ -2061,25 +2044,13 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			break;
 		}
 
-		class ConfirmQuit : public ConfirmAction
-		{
-			PowderToy *you_just_lost;
-		public:
-			ConfirmQuit(PowderToy *the_game) :
-				you_just_lost(the_game)
+		ConfirmPrompt *confirm = new ConfirmPrompt([&](bool wasConfirmed) {
+			if (wasConfirmed)
 			{
-
+				this->ignoreQuits = false;
+				this->toDelete = true;
 			}
-			virtual void Action(bool isConfirmed)
-			{
-				if (isConfirmed)
-				{
-					you_just_lost->ignoreQuits = false;
-					you_just_lost->toDelete = true;
-				}
-			}
-		};
-		ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmQuit(this), "You are about to quit", "Are you sure you want to exit the game?", "Quit");
+		}, "You are about to quit", "Are you sure you want to exit the game?", "Quit");
 		Engine::Ref().ShowWindow(confirm);
 		break;
 	}
@@ -2123,27 +2094,21 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		}
 		else
 		{
-			class ConfirmInstall : public ConfirmAction
-			{
-			public:
-				virtual void Action(bool isConfirmed)
+			ConfirmPrompt *confirm = new ConfirmPrompt([](bool wasConfirmed) {
+				if (wasConfirmed)
 				{
-					if (isConfirmed)
+					if (Platform::RegisterExtension())
 					{
-						if (Platform::RegisterExtension())
-						{
-							InfoPrompt *info = new InfoPrompt("Install Success", "Powder Toy has been installed!");
-							Engine::Ref().ShowWindow(info);
-						}
-						else
-						{
-							ErrorPrompt *error = new ErrorPrompt("Install failed - You may not have permission or you may be on a platform that does not support installation");
-							Engine::Ref().ShowWindow(error);
-						}
+						InfoPrompt *info = new InfoPrompt("Install Success", "Powder Toy has been installed!");
+						Engine::Ref().ShowWindow(info);
+					}
+					else
+					{
+						ErrorPrompt *error = new ErrorPrompt("Install failed - You may not have permission or you may be on a platform that does not support installation");
+						Engine::Ref().ShowWindow(error);
 					}
 				}
-			};
-			ConfirmPrompt *confirm = new ConfirmPrompt(new ConfirmInstall(), "Install Powder Toy", "You are about to install The Powder Toy", "Install");
+			}, "Install Powder Toy", "You are about to install The Powder Toy", "Install");
 			Engine::Ref().ShowWindow(confirm);
 		}
 		break;

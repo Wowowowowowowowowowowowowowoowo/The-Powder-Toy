@@ -3,7 +3,7 @@
 #include "interface/Label.h"
 #include "interface/Button.h"
 
-ConfirmPrompt::ConfirmPrompt(ConfirmAction *confirmAction, std::string title, std::string message, std::string OK, std::string cancel):
+ConfirmPrompt::ConfirmPrompt(std::function<void(bool)> confirmAction, std::string title, std::string message, std::string OK, std::string cancel):
 	Window_(Point(CENTERED, CENTERED), Point(250, 55)),
 	confirmAction(confirmAction),
 	wasConfirmed(false)
@@ -38,6 +38,5 @@ void ConfirmPrompt::OnKeyPress(int key, int scan, bool repeat, bool shift, bool 
 
 ConfirmPrompt::~ConfirmPrompt()
 {
-	confirmAction->Action(wasConfirmed);
-	delete confirmAction;
+	confirmAction(wasConfirmed);
 }
