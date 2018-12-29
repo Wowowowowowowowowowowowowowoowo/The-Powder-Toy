@@ -715,18 +715,17 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 					part_change_type(i, x, y, PT_NEUT);
 					parts[i].ctype = 0;
 				}
-#ifndef NOMOD
-				else if (TYP(r) == PT_PINV)
-				{
-					if (!parts[ID(r)].life)
-					{
-						part_change_type(i, x, y, PT_ELEC);
-						parts[i].ctype = 0;
-					}
-				}
-#endif
 				break;
 			}
+#ifndef NOMOD
+			case PT_PINV:
+				if (!parts[ID(r)].life)
+				{
+					part_change_type(i, x, y, PT_ELEC);
+					parts[i].ctype = 0;
+				}
+				break;
+#endif
 			case PT_BIZR:
 			case PT_BIZRG:
 			case PT_BIZRS:
