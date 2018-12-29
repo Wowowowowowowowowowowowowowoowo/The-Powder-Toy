@@ -32,7 +32,7 @@ int COAL_update(UPDATE_FUNC_ARGS)
 	else if (parts[i].tmp<40&&parts[i].tmp>0)
 		parts[i].tmp--;
 	else if (parts[i].tmp<=0) {
-		sim->part_create(i, x, y, PT_BCOL);
+		sim->part_change_type(i, x, y, PT_BCOL);
 		return 1;
 	}
 
