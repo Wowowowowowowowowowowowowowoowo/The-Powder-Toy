@@ -6863,11 +6863,13 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 			parts[i].tmp2 = framenum;
 		}*/
 
-	
-	ui_edit_process(mx, my, b, bq, &box_R);
-	ui_edit_process(mx, my, b, bq, &box_G);
-	ui_edit_process(mx, my, b, bq, &box_B);
-	ui_edit_process(mx, my, b, bq, &box_A);
+	if (!decobox_hidden)
+	{
+		ui_edit_process(mx, my, b, bq, &box_R);
+		ui_edit_process(mx, my, b, bq, &box_G);
+		ui_edit_process(mx, my, b, bq, &box_B);
+		ui_edit_process(mx, my, b, bq, &box_A);
+	}
 
 	if(on_left==1)
 	{
