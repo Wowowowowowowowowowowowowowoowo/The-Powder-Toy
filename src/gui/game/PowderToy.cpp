@@ -1809,6 +1809,9 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		if (drawState == LINE || drawState == RECT)
 		{
 			initialDrawPoint = cursor;
+			// WIND lines are constantly being drawn as mouse is down, so we want to take a snapshot at the start
+			if (((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_WIND)
+				Snapshot::TakeSnapshot(sim);
 		}
 		else if (drawState == POINTS)
 		{
@@ -2015,7 +2018,9 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		{
 			if (altHeld)
 				cursor = LineSnapCoords(initialDrawPoint, cursor);
-			Snapshot::TakeSnapshot(sim);
+			// WIND lines are constantly being drawn as mouse is down, so we don't need to take a snapshot on mouseup
+			if (((ToolTool*)activeTools[toolIndex])->GetID() != TOOL_WIND)
+				Snapshot::TakeSnapshot(sim);
 			activeTools[toolIndex]->DrawLine(sim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
 		}
 		else if (drawState == RECT)
