@@ -194,7 +194,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 				highlightstr[ed->highlightlength] = 0;
 				drawhighlightwrap(vid_buf, ed->x, ed->y, ed->w-14, 0, ed->str, ed->highlightstart, ed->highlightlength);
 			}
-			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", deletecolor, deletecolor, deletecolor, 255);
+			drawtext(vid_buf, ed->x+ed->w-10, ed->y, "\xAA", deletecolor, deletecolor, deletecolor, 255);
 		} else {
 			ret = drawtext(vid_buf, ed->x, ed->y, str, 255, 255, 255, 255);
 			if (ed->highlightlength)
@@ -203,7 +203,7 @@ int ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 				highlightstr[ed->highlightlength] = 0;
 				drawhighlight(vid_buf, ed->x+textwidth(str)-textwidth(&str[ed->highlightstart]), ed->y, highlightstr);
 			}
-			drawtext(vid_buf, ed->x+ed->w-11, ed->y-1, "\xAA", deletecolor, deletecolor, deletecolor, 255);
+			drawtext(vid_buf, ed->x+ed->w-10, ed->y, "\xAA", deletecolor, deletecolor, deletecolor, 255);
 		}
 	}
 	else if (!ed->focus)
@@ -5172,7 +5172,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			bc = authoritah && !fake404save ? 255 : 150;
 			drawrect(vid_buf, 200, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, bc);
 			drawtext(vid_buf, 218, YRES+MENUSIZE-63, "Delete", 255, 255, 255, bc);
-			drawtext(vid_buf, 206, YRES+MENUSIZE-64, "\xAA", 255, 255, 255, bc);
+			drawtext(vid_buf, 207, YRES+MENUSIZE-63, "\xAA", 255, 255, 255, bc);
 			//Open in browser button
 			bc = !fake404save ? 255 : 150;
 			drawrect(vid_buf, 250, YRES+MENUSIZE-68, 107, 18, 255, 255, 255, bc);

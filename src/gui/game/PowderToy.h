@@ -1,6 +1,7 @@
 #ifndef POWDERTOY_H
 #define POWDERTOY_H
 
+#include <functional>
 #include <string>
 #include "defines.h"
 #include "interface/Window.h"
@@ -26,7 +27,7 @@ private:
 
 	// notifications
 	int numNotifications;
-	Button * AddNotification(std::string message);
+	Button * AddNotification(std::string message, std::function<void(int)> callback);
 
 	// website stuff
 	Download *versionCheck;

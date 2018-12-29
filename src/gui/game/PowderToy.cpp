@@ -348,17 +348,14 @@ void PowderToy::DelayedHttpInitialization()
 			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
 		else
 			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		Button *notification = AddNotification(message);
-		notification->SetCallback([&](int mb) {
+		AddNotification(message, [&](int mb) {
 			if (mb == 1)
 			{
 				prevDNS = prevDNSalt;
 				save_presets();
 				Platform::DoRestart(true);
 			}
-			this->RemoveComponent(notification);
 		});
-		AddComponent(notification);
 	}
 	if (prevDNSstatic != prevDNSstaticalt && prevDNSstatic != 0 && prevDNSstaticalt != 0)
 	{
@@ -367,17 +364,14 @@ void PowderToy::DelayedHttpInitialization()
 			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
 		else
 			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		Button *notification = AddNotification(message);
-		notification->SetCallback([&](int mb) {
+		AddNotification(message, [&](int mb) {
 			if (mb == 1)
 			{
 				prevDNSstatic = prevDNSstaticalt;
 				save_presets();
 				Platform::DoRestart(true);
 			}
-			this->RemoveComponent(notification);
 		});
-		AddComponent(notification);
 	}
 #endif
 }
@@ -1008,12 +1002,27 @@ void PowderToy::HideZoomWindow()
 	zoomEnabled = false;
 }
 
-Button * PowderToy::AddNotification(std::string message)
+Button * PowderToy::AddNotification(std::string message, std::function<void(int)> callback)
 {
 	int messageSize = VideoBuffer::TextSize(message).X;
-	Button *notificationButton = new Button(Point(XRES-19-messageSize-5, YRES-22-20*numNotifications), Point(messageSize+5, 15), message);
+	Button *notificationButton = new Button(Point(XRES - 26 - messageSize - 5, YRES - 22 - 20 * numNotifications),
+	        Point(messageSize + 5, 15), message);
 	notificationButton->SetColor(COLRGB(255, 216, 32));
+	Button *discardButton = new Button(Point(XRES - 24, YRES - 22 - 20 * numNotifications), Point(15, 15), "\xAA");
+	discardButton->SetColor(COLRGB(255, 216, 32));
+
+	notificationButton->SetCallback([this, notificationButton, discardButton, callback](int mb) {
+		this->RemoveComponent(notificationButton);
+		this->RemoveComponent(discardButton);
+		callback(mb);
+	});
+	discardButton->SetCallback([this, notificationButton, discardButton](int mb) {
+		this->RemoveComponent(notificationButton);
+		this->RemoveComponent(discardButton);
+	});
+
 	AddComponent(notificationButton);
+	AddComponent(discardButton);
 	numNotifications++;
 	return notificationButton;
 }
@@ -1116,13 +1125,10 @@ void PowderToy::OnTick(uint32_t ticks)
 					changelogStream << changelog;
 					std::string changelogText = changelogStream.str();
 
-					Button *notification = AddNotification("A new version is available - click here!");
-					notification->SetCallback([this, changelogText, file, notification](int mb) {
+					AddNotification("A new version is available - click here!", [this, changelogText, file](int mb) {
 						if (mb == 1)
 							this->ConfirmUpdate(changelogText, file);
-						this->RemoveComponent(notification);
 					});
-					AddComponent(notification);
 				}
 
 
@@ -1132,11 +1138,9 @@ void PowderToy::OnTick(uint32_t ticks)
 					std::string message = notifications[i]["Text"].asString();
 					std::string link = notifications[i]["Link"].asString();
 
-					Button *notification = AddNotification(message);
-					notification->SetCallback([this, link, notification](int mb) {
+					AddNotification(message, [link](int mb) {
 						if (mb == 1)
 							Platform::OpenLink(link);
-						this->RemoveComponent(notification);
 					});
 				}
 			}
@@ -1191,11 +1195,9 @@ void PowderToy::OnTick(uint32_t ticks)
 					std::string message = notifications[i]["Text"].asString();
 					std::string link = notifications[i]["Link"].asString();
 
-					Button *notification = AddNotification(message);
-					notification->SetCallback([this, link, notification](int mb) {
+					AddNotification(message, [link](int mb) {
 						if (mb == 1)
 							Platform::OpenLink(link);
-						this->RemoveComponent(notification);
 					});
 				}
 			}
