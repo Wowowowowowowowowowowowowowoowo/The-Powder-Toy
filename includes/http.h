@@ -21,11 +21,6 @@
 #include <string>
 
 extern std::string userAgent;
-extern unsigned int prevDNS;
-extern unsigned int prevDNSstatic;
-extern unsigned int prevDNSalt;
-extern unsigned int prevDNSstaticalt;
-extern bool swappedDNS, swappedDNSstatic;
 
 void http_init(char *proxy);
 void http_done(void);

@@ -83,11 +83,6 @@ static long http_timeout = 15;
 static long http_timeout_reuse = 5;
 static int http_use_proxy = 0;
 static struct sockaddr_in http_proxy;
-static struct sockaddr_in dnscheck1;
-static struct sockaddr_in dnscheck2;
-static struct sockaddr_in dnscheckstatic1;
-static struct sockaddr_in dnscheckstatic2;
-bool swappedDNS = false, swappedDNSstatic = false;
 
 #define DNS_CACHE_SIZE 6
 struct dns_cache
@@ -97,11 +92,6 @@ struct dns_cache
 	sockaddr_in addr;
 };
 static dns_cache dns_cache[DNS_CACHE_SIZE];
-
-unsigned int prevDNS = 0;
-unsigned int prevDNSstatic = 0;
-unsigned int prevDNSalt = 0;
-unsigned int prevDNSstaticalt = 0;
 
 static int splituri(const char *uri, char **host, char **path)
 {
@@ -238,51 +228,7 @@ void http_init(char *proxy)
 		free(host);
 		free(port);
 	}
-
-	// Ensure these two DNS match, if not, pick the DNS used in two out of three of: official DNS, starcatcher DNS, powder.pref cache
-	// If none match, fallback to starcatcher DNS
-	bool success1 = !resolve("powdertoy.co.uk", "80", &dnscheck1);
-	bool success2 = !resolve("tpt.starcatcher.us", "80", &dnscheck2);
-	bool successstatic1 = !resolve("static.powdertoy.co.uk", "80", &dnscheckstatic1);
-	bool successstatic2 = !resolve("statictpt.starcatcher.us", "80", &dnscheckstatic2);
 	clear_dns_cache();
-
-	// dns for above two URLs don't match
-	if (dnscheck1.sin_addr.s_addr != dnscheck2.sin_addr.s_addr)
-	{
-		// if the powder.pref dns is the same as the powdertoy.co.uk DNS, use that
-		if (dnscheck1.sin_addr.s_addr == prevDNS && success1)
-			add_dns_cache("powdertoy.co.uk", "80", &dnscheck1);
-		// else, use tpt.starcatcher.us
-		else if (success2)
-		{
-			add_dns_cache("powdertoy.co.uk", "80", &dnscheck2);
-			swappedDNS = true;
-		}
-	}
-	else if (success1)
-		add_dns_cache("powdertoy.co.uk", "80", &dnscheck1);
-
-	// dns for above two static URLs don't match
-	if (dnscheckstatic1.sin_addr.s_addr != dnscheckstatic2.sin_addr.s_addr)
-	{
-		// if the powder.pref dns is the same as the static.powdertoy.co.uk DNS, use that
-		if (dnscheckstatic1.sin_addr.s_addr == prevDNSstatic && successstatic1)
-			add_dns_cache("static.powdertoy.co.uk", "80", &dnscheckstatic1);
-		// else, use statictpt.starcatcher.us
-		else if (successstatic2)
-		{
-			add_dns_cache("static.powdertoy.co.uk", "80", &dnscheckstatic2);
-			swappedDNSstatic = true;
-		}
-	}
-	else if (successstatic1)
-		add_dns_cache("static.powdertoy.co.uk", "80", &dnscheckstatic1);
-
-	prevDNS = swappedDNS ? dnscheck2.sin_addr.s_addr : dnscheck1.sin_addr.s_addr;
-	prevDNSalt = swappedDNS ? dnscheck1.sin_addr.s_addr : dnscheck2.sin_addr.s_addr;
-	prevDNSstatic = swappedDNSstatic ? dnscheckstatic2.sin_addr.s_addr : dnscheckstatic1.sin_addr.s_addr;
-	prevDNSstaticalt = swappedDNSstatic ? dnscheckstatic1.sin_addr.s_addr : dnscheckstatic2.sin_addr.s_addr;
 
 	std::stringstream userAgentBuilder;
 	userAgentBuilder << "PowderToy/" << SAVE_VERSION << "." << MINOR_VERSION << " ";

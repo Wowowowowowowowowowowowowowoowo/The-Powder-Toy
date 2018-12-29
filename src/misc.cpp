@@ -37,7 +37,6 @@
 #include "hud.h"
 #include "cJSON.h"
 #include "update.h"
-#include "http.h"
 
 #include "common/Platform.h"
 #include "game/Favorite.h"
@@ -261,8 +260,6 @@ void save_presets()
 
 	//General settings
 	cJSON_AddStringToObject(root, "Proxy", http_proxy_string);
-	cJSON_AddNumberToObject(root, "DNS", prevDNS);
-	cJSON_AddNumberToObject(root, "DNSstatic", prevDNSstatic);
 	cJSON_AddNumberToObject(root, "Scale", Engine::Ref().GetScale());
 	if (Engine::Ref().IsFullscreen())
 		cJSON_AddTrueToObject(root, "FullScreen");
@@ -576,16 +573,6 @@ void load_presets(void)
 			strncpy(http_proxy_string, tmpobj->valuestring, 255);
 		else
 			http_proxy_string[0] = 0;
-		if ((tmpobj = cJSON_GetObjectItem(root, "DNS")) && tmpobj->type == cJSON_Number)
-			prevDNS = (unsigned int)tmpobj->valuedouble;
-		else
-			http_proxy_string[0] = 0;
-		if ((tmpobj = cJSON_GetObjectItem(root, "DNSstatic")) && tmpobj->type == cJSON_Number)
-			prevDNSstatic = (unsigned int)tmpobj->valuedouble;
-		else
-			http_proxy_string[0] = 0;
-		
-		
 		if ((tmpobj = cJSON_GetObjectItem(root, "Scale")))
 		{
 			int scale = tmpobj->valueint;

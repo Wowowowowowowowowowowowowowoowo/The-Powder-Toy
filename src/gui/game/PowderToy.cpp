@@ -6,7 +6,6 @@
 #include "defines.h"
 #include "EventLoopSDL.h" // for two mouse_get_state that should be removed ...
 #include "gravity.h"
-#include "http.h"
 #include "interface.h"
 #include "luaconsole.h"
 #include "powder.h"
@@ -340,40 +339,6 @@ void PowderToy::DelayedHttpInitialization()
 		versionCheck->Start();
 	if (sessionCheck)
 		sessionCheck->Start();
-#ifndef TOUCHUI
-	if (prevDNS != prevDNSalt && prevDNS != 0 && prevDNSalt != 0)
-	{
-		std::string message;
-		if (swappedDNS)
-			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
-		else
-			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		AddNotification(message, [&](int mb) {
-			if (mb == 1)
-			{
-				prevDNS = prevDNSalt;
-				save_presets();
-				Platform::DoRestart(true);
-			}
-		});
-	}
-	if (prevDNSstatic != prevDNSstaticalt && prevDNSstatic != 0 && prevDNSstaticalt != 0)
-	{
-		std::string message;
-		if (swappedDNSstatic)
-			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
-		else
-			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
-		AddNotification(message, [&](int mb) {
-			if (mb == 1)
-			{
-				prevDNSstatic = prevDNSstaticalt;
-				save_presets();
-				Platform::DoRestart(true);
-			}
-		});
-	}
-#endif
 }
 
 void PowderToy::OpenBrowserBtn(unsigned char b)
