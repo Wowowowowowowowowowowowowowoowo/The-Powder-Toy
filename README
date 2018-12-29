@@ -275,7 +275,6 @@ None (at least that I know of)
 TODO: '>' means currently being worked on/added next
 >Use new tpt++ methods to fetch saves and not over 2 year old ones.
 >Rewrite save browser and save preview UI to new interface
->Increase element limit to 2^10
 Support alternate save servers
 Support multiple logins / "remember me" setting
 make open ui more colorful like tpt++, also fix cut off description in save uploading ui
@@ -286,5 +285,5 @@ Possible future plans:
 customizable settings menu completely, ability to add and read options. (also HUD option settings)
 CMND - command element to run old commands
 finish what was started and add ability for multiple Simulation*s to run at once?
-Things never backported: lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a), png/bmp saving
+Things never backported: lua panic, regex removal, old/lua syntax highlighting (https://github.com/simtr/The-Powder-Toy/commit/ecf1f0e3917386f087dbe569862bd6486a4b366a)
 ability to hide certain saves (based on things like number of votes, unpublished / published, username, etc.)

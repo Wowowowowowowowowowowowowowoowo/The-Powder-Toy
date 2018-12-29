@@ -915,3 +915,15 @@ and other fixes from tpt++.
 Version 41.1 2018-10-01
 Fix simulation getting corrupted and breaking everything. Fix BOMB not
 destroying PBCN. Change default menusection to powders.
+
+Version 42.0 2018-12-29
+Use faster RNG. Upgrade to SDL2. This allows for many improvements, like a
+resizable window, new fullscreen mode, major fps improvements with double scale
+mode, and more. Rewrite options interface to use new UI. Add new event api to
+replace legacy register_/unregister_ functions. Add eventcompat.lua in order to
+ensure old scripts using the deprecated api don't break. Fix PHOT+PINV = ELEC.
+Support hex format for all integer properties in PROP tool. Fix invisible
+textboxes in deco editor. Fix ctrl+backspace bug in old UI textboxes. Fix
+issues undoing shift+WIND tool. Fix line drawing creating extra particles with
+flat brushes. Show "X" button next to notifications. Mac version not supported
+at the moment due to issues with the sdl2 upgrade.
