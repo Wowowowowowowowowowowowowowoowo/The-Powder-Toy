@@ -498,8 +498,8 @@ if platform == "Windows":
 		envCopy = env.Clone()
 		envCopy.Append(CCFLAGS='-mstackrealign')
 		sources += envCopy.Object('src/gravity.cpp')
-elif platform == "Darwin":
-	sources += ["src/SDLMain.m"]
+#elif platform == "Darwin":
+#	sources += ["src/SDLMain.m"]
 
 
 #Program output name
