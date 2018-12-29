@@ -3166,7 +3166,13 @@ void menu_select_element(int b, Tool* over)
 				char hud_curr[16];
 				sprintf(hud_curr,"%i",currentHud[toolID-HUD_REALSTART]);
 				if (hud_menu[toolID].name.find("#") != hud_menu[toolID].name.npos)
-					currentHud[toolID-HUD_REALSTART] = atoi(input_ui(vid_buf,hud_menu[toolID].name.c_str(),"Enter number of decimal places",hud_curr,""));
+				{
+					int decimals = atoi(input_ui(vid_buf,hud_menu[toolID].name.c_str(),"Enter number of decimal places",hud_curr,""));
+					if (decimals <= 10)
+						currentHud[toolID-HUD_REALSTART] = decimals;
+					else
+						error_ui(vid_buf, 0, "# of Decimal places cannot be more than 10");
+				}
 				else
 					currentHud[toolID-HUD_REALSTART] = !currentHud[toolID-HUD_REALSTART];
 				if (DEBUG_MODE)
