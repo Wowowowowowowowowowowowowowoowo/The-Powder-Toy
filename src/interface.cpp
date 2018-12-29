@@ -421,7 +421,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				if (start < ed->cursor)
 				{
 					memmove(ed->str+start, ed->str+ed->cursor, l-ed->cursor+1);
-					ed->cursor = start;
+					ed->cursorstart = ed->cursor = start;
 					break;
 				}
 			}
