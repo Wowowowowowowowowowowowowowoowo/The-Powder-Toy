@@ -2450,9 +2450,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 			}
 			else
 			{
-				if ((oldy != tempy && shape != SQUARE_BRUSH) || i == x-rx)
-					oldy--;
-				for (j = oldy+1; j >= tempy; j--)
+				for (j = oldy; j >= tempy; j--)
 				{
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (shape == TRI_BRUSH)
