@@ -17,6 +17,7 @@
 #else
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctime>
 #endif
 
 #ifdef MACOSX
@@ -144,6 +145,21 @@ void Millisleep(long int t)
 	s.tv_sec = t/1000;
 	s.tv_nsec = (t%1000)*10000000;
 	nanosleep(&s, NULL);
+#endif
+}
+
+unsigned long GetTime()
+{
+#ifdef WIN
+	return GetTickCount();
+#elif defined(MACOSX)
+	struct timeval s;
+	gettimeofday(&s, NULL);
+	return (unsigned int)(s.tv_sec * 1000 + s.tv_usec / 1000);
+#else
+	struct timespec s;
+	clock_gettime(CLOCK_MONOTONIC, &s);
+	return s.tv_sec * 1000 + s.tv_nsec / 1000000;
 #endif
 }
 

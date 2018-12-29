@@ -36,8 +36,9 @@ public:
 	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
 	Window_* GetParent() { return parent; }
 	Point GetPosition() { return position; }
-	void SetPosition(Point position_) { position = position_; }
+	void SetPosition(Point position) { this->position = position; }
 	Point GetSize() { return size; }
+	void SetSize(Point size) { this->size = size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 	bool IsVisible() { return visible; }
 	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }
@@ -58,8 +59,9 @@ public:
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
 	virtual void OnMouseWheel(int x, int y, int d) { }
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers) { }
-	virtual void OnKeyRelease(int key, unsigned short character, unsigned short modifiers) { }
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
+	virtual void OnTextInput(const char *text) { }
 
 	virtual void OnFocus() { }
 	virtual void OnDefocus() { }

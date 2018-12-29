@@ -2,41 +2,61 @@
 #define ENGINE_H
 
 #include <stack>
+#include <string>
 #include "Window.h"
 #include "common/Singleton.h"
 #include "common/tpt-stdint.h"
 #include "common/Point.h"
 
-union SDL_Event;
 class Engine : public Singleton<Engine>
 {
 public:
 	Engine();
 	~Engine();
 
-	void MainLoop();
+	bool Running() { return top != nullptr; }
+	void Shutdown() { isShutdown = true; }
+	bool IsShutdown() { return isShutdown; }
+
 	void ShowWindow(Window_ *window);
 	void CloseWindow(Window_ *window);
+	void CloseTop();
+	Window_ * GetTop() { return top; }
+	void ProcessWindowUpdates();
 
-	int GetScale();
-	void SetScale(int newScale);
+	unsigned int GetScale();
+	void SetScale(unsigned int scale);
 
-	int Get3dDepth();
-	void Set3dDepth(int depth);
+	bool IsResizable();
+	void SetResizable(bool resizable);
 
-	Point GetLastMousePosition() { return lastMousePosition; }
+	bool IsFullscreen();
+	void SetFullscreen(bool fullscreen);
+
+	bool IsAltFullscreen();
+	void SetAltFullscreen(bool altFullscreen);
+
+	bool IsFastQuit() { return fastQuit; }
+	void SetFastQuit(bool fastQuit) { this->fastQuit = fastQuit; }
+
+	void ClipboardPush(std::string text);
+	std::string ClipboardPull();
+	int GetModifiers();
 
 private:
-	bool EventProcess(SDL_Event event);
 	void ShowWindowDelayed();
 	void CloseWindowDelayed();
+
 	std::stack<Window_*> windows;
 	Window_ *top, *nextTop;
+	bool isShutdown = false;
 
-	Point lastMousePosition;
-	uint32_t lastTick;
+	unsigned int scale = 1;
+	bool resizable = false;
+	bool fullscreen = false;
+	bool altFullscreen = false;
 
-	int depth3d;
+	bool fastQuit = false;
 };
 
 #endif

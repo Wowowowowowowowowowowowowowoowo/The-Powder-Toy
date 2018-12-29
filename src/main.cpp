@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "SDLCompat.h"
+#include "EventLoopSDL.h"
 #include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>
@@ -229,7 +229,6 @@ int screenWidth = 0;
 int screenHeight = 0;
 int do_open = 0;
 bool sys_pause = false;
-int sys_shortcuts = 1;
 bool legacy_enable = false; //Used to disable new features such as heat, will be set by save.
 bool aheat_enable = false; //Ambient heat
 bool decorations_enable = true;
@@ -240,7 +239,6 @@ int last_fav_menu = SC_FAV;
 int framerender = 0;
 bool pretty_powder = false;
 int limitFPS = 60;
-int main_loop = 1;
 int finding = 0;
 int foundParticles = 0;
 int highesttemp = MAX_TEMP;
@@ -257,7 +255,6 @@ int autosave = 0;
 int realistic = 0;
 bool explUnlocked = false;
 int old_menu = 0;
-int loop_time = 0;
 bool doUpdates = true;
 
 int drawinfo = 0;
@@ -309,8 +306,6 @@ int core_count()
 #endif
 	return numCPU;
 }
-
-int kiosk_enable = 0;
 
 void clear_sim()
 {
@@ -780,7 +775,7 @@ void ParticleDebug(int mode, int x, int y)
 			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
 	}
 #ifdef LUACONSOLE
-	luacon_log(mystrdup(logmessage.str().c_str()));
+	luacon_log(logmessage.str());
 #endif
 
 	// call simulation functions run before updating particles if we are updating #0
@@ -909,152 +904,6 @@ int main(int argc, char *argv[])
 }
 #else
 
-void BlueScreen(const char * detailMessage)
-{
-	//std::string errorDetails = "Details: " + std::string(detailMessage);
-	SDL_Event event;
-	const char * errorHelp = "An unrecoverable fault has occurred, please report this to jacob1:\n"
-		" http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117\n"
-		" OR the built in bug reporter.\n\n"
-		"Note: TPT will now restart and reload your work";
-	int positionX = (XRES+BARSIZE)/2-textwidth(errorHelp)/2-50, positionY = (YRES+MENUSIZE)/2-100;
-
-	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 17, 114, 169, 210);
-	
-	drawtext(vid_buf, positionX, positionY, "ERROR", 255, 255, 255, 255);
-	drawtext(vid_buf, positionX, positionY + 14, detailMessage, 255, 255, 255, 255);
-	drawtext(vid_buf, positionX, positionY  + 28, errorHelp, 255, 255, 255, 255);
-
-	pixel* vid_buf2 = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
-	memcpy(vid_buf2, vid_buf, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-	std::vector<Point> food;
-	std::list<Point> tron;
-	unsigned int tronSize = 5, score = 0;
-	int tronDirection = 2;
-	char scoreString[20];
-	bool gameRunning = false, gameLost = false;
-	for (int i = 0; i < 10; i++)
-		food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
-	for (unsigned int i = 0; i < tronSize; i++)
-		tron.push_back(Point(20, 10+i));
-
-	//Death loop
-	while(1)
-	{
-		while (SDL_PollEvent(&event))
-		{
-			if (event.type == SDL_QUIT)
-			{
-				Platform::DoRestart(true);
-			}
-			else if (event.type == SDL_KEYDOWN)
-			{
-				switch (event.key.keysym.sym)
-				{
-				case SDLK_UP:
-					if (tronDirection != 2)
-						tronDirection = 0;
-					break;
-				case SDLK_RIGHT:
-					if (tronDirection != 3)
-						tronDirection = 1;
-					break;
-				case SDLK_DOWN:
-					if (tronDirection != 0)
-						tronDirection = 2;
-					break;
-				case SDLK_LEFT:
-					if (tronDirection != 1)
-						tronDirection = 3;
-					break;
-				default:
-#ifdef ANDROID
-					Platform::DoRestart(true);
-#endif
-					break;
-				}
-				gameRunning = true;
-			}
-			else if (event.type == SDL_MOUSEBUTTONDOWN)
-			{
-				if (event.button.button != SDL_BUTTON_WHEELUP && event.button.button != SDL_BUTTON_WHEELDOWN)
-				{
-					int mx = event.motion.x/sdl_scale, my = event.motion.y/sdl_scale;
-					if (my < (YRES+MENUSIZE)/4)
-					{
-						if (tronDirection != 2)
-							tronDirection = 0;
-					}
-					else if (my > YRES+MENUSIZE-(YRES+MENUSIZE)/4)
-					{
-						if (tronDirection != 0)
-							tronDirection = 2;
-					}
-					else if (mx < (XRES+BARSIZE)/4)
-					{
-						if (tronDirection != 1)
-							tronDirection = 3;
-					}
-					else if (mx > XRES+BARSIZE-(XRES+BARSIZE)/4)
-					{
-						if (tronDirection != 3)
-							tronDirection = 1;
-					}
-					gameRunning = true;
-				}
-			}
-		}
-		if (gameRunning && !gameLost)
-		{
-			Point tronHead = ((Point)tron.back());
-			tronHead.X -= (tronDirection-2)%2;
-			tronHead.Y += (tronDirection-1)%2;
-			if (tronHead.X > 1 && tronHead.X < XRES+BARSIZE-2 && tronHead.Y > 1 && tronHead.Y < YRES+MENUSIZE-2)
-				tron.push_back(tronHead);
-			else
-				gameLost = true;
-
-			sprintf(scoreString, "Score: %i", score);
-			drawtext(vid_buf, XRES-BARSIZE-50, 10, scoreString, 255, 255, 255, 255);
-			for (std::vector<Point>::iterator iter = food.begin(); iter != food.end(); ++iter)
-			{
-				Point moo = (Point)*iter;
-				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)] = PIXRGB(255, 0, 0);
-				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)+1] = PIXRGB(100, 0, 0);
-				vid_buf[moo.X + moo.Y*(XRES+BARSIZE)-1] = PIXRGB(100, 0, 0);
-				vid_buf[moo.X + (moo.Y+1)*(XRES+BARSIZE)] = PIXRGB(100, 0, 0);
-				vid_buf[moo.X + (moo.Y-1)*(XRES+BARSIZE)] = PIXRGB(100, 0, 0);
-				if (tronHead.X >= moo.X - 3 && tronHead.X <= moo.X + 3 && tronHead.Y >= moo.Y - 3 && tronHead.Y <= moo.Y + 3)
-				{
-					food.erase(iter, iter+1);
-					food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
-					food.push_back(Point(rand()%(XRES+BARSIZE-6)+3, rand()%(YRES+MENUSIZE-6)+3));
-					tronSize += 20;
-					score++;
-					break;
-				}
-			}
-			if (!(rand()%20))
-				tronSize++;
-			int i = tronSize;
-			for (std::list<Point>::iterator iter = tron.begin(); iter != tron.end(); ++iter)
-			{
-				Point point = *iter;
-				vid_buf[point.X + point.Y*(XRES+BARSIZE)] = PIXRGB(0, 255-(int)(200.0f/tronSize*i), 0);
-				i--;
-				if (iter != --tron.end() && point == tronHead)
-					gameLost = true;
-			}
-			while (tron.size() > tronSize)
-				tron.pop_front();
-		}
-		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
-		if (gameRunning && !gameLost)
-			memcpy(vid_buf, vid_buf2, (XRES+BARSIZE)*(YRES+MENUSIZE)*PIXELSIZE);
-		SDL_Delay(5);
-	}
-}
-
 void SigHandler(int signal)
 {
 	switch(signal){
@@ -1176,7 +1025,8 @@ int main(int argc, char *argv[])
 	{
 		if (!strncmp(argv[i], "scale:", 6))
 		{
-			sdl_scale = (argv[i][6]=='2') ? 2 : 1;
+			unsigned int scale = (argv[i][6]=='2') ? 2 : 1;
+			Engine::Ref().SetScale(scale);
 		}
 		else if (!strncmp(argv[i], "proxy:", 6))
 		{
@@ -1189,8 +1039,7 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[i], "kiosk", 5))
 		{
-			kiosk_enable = 1;
-			//sdl_scale = 2; //Removed because some displays cannot handle the resolution
+			Engine::Ref().SetFullscreen(1);
 			hud_enable = false;
 		}
 		else if (!strncmp(argv[i], "scripts", 8))
@@ -1283,12 +1132,20 @@ int main(int argc, char *argv[])
 
 	stamp_init();
 
-	if (!sdl_open())
+	if (!SDLOpen())
 	{
-		sdl_scale = 1;
-		kiosk_enable = 0;
-		if (!sdl_open()) exit(1);
+		Engine::Ref().SetScale(1);
+		Engine::Ref().SetFullscreen(false);
+		if (!SDLOpen())
+			exit(1);
 	}
+#ifndef ANDROID
+	if (firstRun && Engine::Ref().GetScale() == 1 && screenWidth - 30 > VIDXRES * 2 && screenHeight - 30 > VIDYRES * 2)
+	{
+		Engine::Ref().SetScale(2);
+		doubleScreenDialog = true;
+	}
+#endif
 	save_presets();
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
@@ -1300,9 +1157,10 @@ int main(int argc, char *argv[])
 #ifdef LUACONSOLE
 	lua_vid_buf = the_game->GetVid()->GetVid();
 	char *autorun_result = NULL;
+	luacon_openeventcompat();
 	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
-		luacon_log(mystrdup(luacon_geterror()));
+		luacon_log(luacon_geterror());
 	}
 	if (autorun_result)
 	{
@@ -1314,7 +1172,7 @@ int main(int argc, char *argv[])
 		if (luacon_eval("dofile(\"scriptmanager.lua\")", &autorun_result))
 		{
 			//scriptmanager.lua errored, log error and open the included one
-			luacon_log(mystrdup(luacon_geterror()));
+			luacon_log(luacon_geterror());
 			luacon_openscriptmanager();
 		}
 	}
@@ -1323,6 +1181,8 @@ int main(int argc, char *argv[])
 	// TPTMP through the script manager, use that version instead
 	if (!file_exists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
 		luacon_openmultiplayer();
+	if (autorun_result)
+		free(autorun_result);
 #endif
 	for (int i = 0; i < 10; i++)
 	{
@@ -1353,7 +1213,7 @@ int main(int argc, char *argv[])
 	Engine::Ref().ShowWindow(the_game);
 	try
 	{
-		Engine::Ref().MainLoop();
+		MainLoop();
 	}
 	catch (std::exception& e)
 	{
@@ -1366,11 +1226,10 @@ int main(int argc, char *argv[])
 }
 
 	//while (!sdl_poll()) //the main loop
-int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel)
+int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt)
 {
 	if (true)
 	{
-		main_loop = 2;
 		//change mouse position while it is in a zoom window
 		//tmpMouseInZoom is used later, so that it only interrupts drawing, not things like copying / saving stamps
 		Point cursor = the_game->AdjustCoordinates(Point(x, y));
@@ -1442,7 +1301,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			Point initialDrawPoint = the_game->GetInitialDrawPoint();
 			Point snappedCursor = the_game->AdjustCoordinates(Point(x, y));
 			bool isMouseDown = the_game->IsMouseDown();
-			if (sdl_mod & KMOD_ALT)
+			if (alt)
 			{
 				if (drawState == PowderToy::LINE)
 					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
@@ -1453,7 +1312,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			snappedCursor = the_game->SnapCoordinatesWall(snappedCursor, initialDrawPoint);
 			if (drawState != PowderToy::RECT || !isMouseDown)
 			{
-				if (isMouseDown && (sdl_mod & KMOD_ALT))
+				if (isMouseDown && alt)
 					render_cursor(vid_buf, snappedCursor.X, snappedCursor.Y, activeTools[the_game->GetToolIndex()], currentBrush);
 				else if ((x < XRES && y < YRES) || isMouseDown)
 					render_cursor(vid_buf, mx, my, activeTools[the_game->GetToolIndex()], currentBrush);
@@ -1525,7 +1384,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			PowderToy::DrawState drawState = the_game->GetDrawState();
 			Point initialDrawPoint = the_game->AdjustCoordinates(the_game->GetInitialDrawPoint());
 			Point snappedCursor = the_game->AdjustCoordinates(Point(x, y));
-			if (sdl_mod & KMOD_ALT)
+			if (alt)
 			{
 				if (drawState == PowderToy::LINE)
 					snappedCursor = the_game->LineSnapCoords(initialDrawPoint, snappedCursor);
@@ -1589,26 +1448,24 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			ptsaveOpenID = 0;
 		}
 
-		if (!deco_disablestuff && sys_shortcuts==1)//all shortcuts can be disabled by lua scripts
+		if (!deco_disablestuff)
 		{
 			if (sdl_key)
 				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (the_game->GetStampState() != PowderToy::LOAD)
-				((STKM_ElementDataContainer*)globalSim->elementData[PT_STKM])->HandleKeys(sdl_key, sdl_rkey);
 			if (sdl_key=='f')
 			{
 				if (debug_flags & DEBUG_PARTICLE_UPDATES)
 				{
 					the_game->SetPause(1);
-					if (sdl_mod & (KMOD_ALT))
+					if (alt)
 					{
 						ParticleDebug(0, 0, 0);
 					}
-					else if (sdl_mod & KMOD_SHIFT)
+					else if (shift)
 					{
 						ParticleDebug(1, mx, my);
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					else if (ctrl)
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1625,7 +1482,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					if (ctrl)
 					{
 						if (!(finding & 0x1))
 							finding |= 0x1;
@@ -1645,7 +1502,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key=='s')
 			{
 				// if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((globalSim->elementCount[PT_STKM2]>0 && (sdl_mod&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && (sdl_mod&(KMOD_CTRL|KMOD_META))))
+				if ((globalSim->elementCount[PT_STKM2]>0 && (Engine::Ref().GetModifiers()&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && ctrl))
 					tab_save(tab_num);
 			}
 			if (sdl_key=='o')
@@ -1653,7 +1510,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 #ifdef TOUCHUI
 				catalogue_ui(vid_buf);
 #else
-				if  (sdl_mod & (KMOD_CTRL|KMOD_META))
+				if  (ctrl)
 				{
 					catalogue_ui(vid_buf);
 				}
@@ -1669,27 +1526,27 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			{
 				element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
 			}
-			if (active_menu == SC_FAV2 && (sdl_mod & KMOD_RCTRL) && (sdl_mod & KMOD_RSHIFT))
+			if (active_menu == SC_FAV2 && (Engine::Ref().GetModifiers() & KMOD_RCTRL) && (Engine::Ref().GetModifiers() & KMOD_RSHIFT))
 			{
 				active_menu = SC_CRACKER;
 			}
 			if (sdl_key==SDLK_TAB)
 			{
-				if (!(sdl_mod & KMOD_CTRL))
+				if (!ctrl)
 					currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
 			}
 			if (sdl_key==SDLK_LEFTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
+					if (alt && !ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(-1, -1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					else if (shift && !ctrl)
 					{
 						currentBrush->ChangeRadius(Point(-1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(0, -1));
 					}
@@ -1702,15 +1559,15 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			if (sdl_key==SDLK_RIGHTBRACKET) {
 				if (!the_game->PlacingZoomWindow())
 				{
-					if (sdl_mod & (KMOD_LALT|KMOD_RALT) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
+					if (alt && !ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(1, 1));
 					}
-					else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					else if (shift && !ctrl)
 					{
 						currentBrush->ChangeRadius(Point(1, 0));
 					}
-					else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
+					else if (ctrl && !shift)
 					{
 						currentBrush->ChangeRadius(Point(0, 1));
 					}
@@ -1720,7 +1577,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					}
 				}
 			}
-			if ((sdl_key=='d' && ((sdl_mod & (KMOD_CTRL|KMOD_META)) || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
+			if ((sdl_key=='d' && (ctrl || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
 			{
 				DEBUG_MODE = !DEBUG_MODE;
 				SetCurrentHud();
@@ -1731,7 +1588,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				SPECIFIC_DELETE = !SPECIFIC_DELETE;
 			else if (sdl_key == SDLK_SEMICOLON)
 			{
-				if (sdl_mod&(KMOD_CTRL|KMOD_META))
+				if (ctrl)
 					SPECIFIC_DELETE = !SPECIFIC_DELETE;
 				else
 					REPLACE_MODE = !REPLACE_MODE;
@@ -1743,13 +1600,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='g')
 			{
-				if(sdl_mod & (KMOD_CTRL|KMOD_META))
+				if (ctrl)
 				{
 					drawgrav_enable =! drawgrav_enable;
 				}
 				else
 				{
-					if (sdl_mod & (KMOD_SHIFT))
+					if (shift)
 						GRID_MODE = (GRID_MODE+9)%10;
 					else
 						GRID_MODE = (GRID_MODE+1)%10;
@@ -1757,7 +1614,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}
 			if (sdl_key=='=')
 			{
-				if (sdl_mod & (KMOD_CTRL|KMOD_META))
+				if (ctrl)
 				{
 					for (int i = 0; i < NPART; i++)
 						if (parts[i].type == PT_SPRK)
@@ -1789,7 +1646,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 			}
 
-			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || (sdl_mod & (KMOD_CTRL|KMOD_META)))) //Gravity, by Moach
+			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || ctrl)) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 
@@ -1810,7 +1667,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 				}
 				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
 			}
-			if (sdl_key=='y' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+			if (sdl_key=='y' && !ctrl)
 			{
 				++airMode;
 
@@ -1840,11 +1697,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 
 			if (sdl_key=='t')
 				show_tabs = !show_tabs;
-			if (sdl_key=='h' && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+			if (sdl_key=='h' && !ctrl)
 			{
 				hud_enable = !hud_enable;
 			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && (sdl_mod & (KMOD_CTRL|KMOD_META))))
+			if (sdl_key==SDLK_F1 || (sdl_key=='h' && ctrl))
 			{
 				if (!GetToolTipAlpha(INTROTIP))
 				{
@@ -1864,13 +1721,13 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			}*/
 			if (!the_game->MouseClicksIgnored())
 			{
-				if (sdl_key == SDLK_UP && (sdl_mod & KMOD_CTRL) && tab_num > 1)
+				if (sdl_key == SDLK_UP && ctrl && tab_num > 1)
 				{
 					tab_save(tab_num);
 					tab_num--;
 					tab_load(tab_num);
 				}
-				else if (sdl_key == SDLK_DOWN && (sdl_mod & KMOD_CTRL) && tab_num < num_tabs)
+				else if (sdl_key == SDLK_DOWN && ctrl && tab_num < num_tabs)
 				{
 					tab_save(tab_num);
 					tab_num++;
@@ -1880,7 +1737,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 #ifdef INTERNAL
 		int counterthing;
-		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_META)))//frame capture
+		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_GUI)))//frame capture
 		{
 			if (sdl_mod & (KMOD_SHIFT)) {
 				if (vs>=1)
@@ -1916,25 +1773,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 			clearrect(vid_buf, XRES-20-new_message_len, YRES-38, new_message_len+8, 16);
 			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
 			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
-		}
-
-		if (sdl_wheel)
-		{
-			if (!the_game->PlacingZoomWindow())
-			{
-				if (!(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, sdl_wheel));
-				}
-				else if (sdl_mod & (KMOD_SHIFT) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
-				{
-					currentBrush->ChangeRadius(Point(sdl_wheel, 0));
-				}
-				else if (sdl_mod & (KMOD_CTRL|KMOD_META) && !(sdl_mod & (KMOD_SHIFT)))
-				{
-					currentBrush->ChangeRadius(Point(0, sdl_wheel));
-				}
-			}
 		}
 
 #ifdef TOUCHUI
@@ -1994,8 +1832,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		if (deco_disablestuff)
 			b = 0;
-
-		sdl_wheel = 0;
 
 		if (b && !bq && x>=(XRES-19-new_message_len) &&
 		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
@@ -2118,7 +1954,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					//flood fill
 					else if (lm == 3)
 					{
-						if (!((sdl_mod&(KMOD_CTRL|KMOD_META)) && (sdl_mod&KMOD_SHIFT)))
+						if (!((sdl_mod&(KMOD_CTRL|KMOD_GUI)) && (sdl_mod&KMOD_SHIFT)))
 							lb = 0;
 						else
 							activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
@@ -2128,7 +1964,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					{
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+						else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 							toolStrength = .1f;
 						activeTool->DrawLine(globalSim, currentBrush, Point(lx, ly), Point(mx, my), true, toolStrength);
 						lx = mx;
@@ -2144,24 +1980,24 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 					lb = b;
 					lm = 0;
 					//start line tool
-					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 					{
 						lm = 1;//line
 					}
 					//start box tool
-					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)))
 					{
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
+					else if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & (KMOD_SHIFT)) && (((ToolTool*)activeTool)->GetID() == -1 || ((ToolTool*)activeTool)->GetID() == TOOL_PROP))
 					{
 						ctrlzSnapshot();
 						activeTool->FloodFill(globalSim, currentBrush, Point(mx, my));
 						lm = 3;
 					}
 					//sample
-					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_META))) || b==SDL_BUTTON_MIDDLE)
+					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL|KMOD_GUI))) || b==SDL_BUTTON_MIDDLE)
 					{
 						activeTools[activeToolID] = activeTool->Sample(globalSim, Point(mx, my));
 						lb = 0;
@@ -2174,7 +2010,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 						//get tool strength, shift (or ctrl+shift) makes it faster and ctrl makes it slower
 						if (sdl_mod & KMOD_SHIFT)
 							toolStrength = 10.0f;
-						else if (sdl_mod & (KMOD_CTRL|KMOD_META))
+						else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 							toolStrength = .1f;
 
 						activeTool->DrawPoint(globalSim, currentBrush, Point(mx, my), toolStrength);
@@ -2218,7 +2054,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_
 		}
 		mouseInZoom = tmpMouseInZoom;
 
-		if (elapsedTime != currentTime && main_loop == 2)
+		if (elapsedTime != currentTime)
 		{
 			frames = frames + 1;
 			totalfps = totalfps + FPSB2;

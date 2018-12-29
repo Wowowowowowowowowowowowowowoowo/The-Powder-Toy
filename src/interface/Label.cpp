@@ -1,9 +1,12 @@
 #include "common/tpt-minmax.h"
 #include <algorithm>
 #include <cstdlib>
+#include "EventLoopSDL.h"
 #include "Label.h"
-#include "misc.h"
+#include "common/Format.h"
+#include "common/tpt-math.h"
 #include "graphics/VideoBuffer.h"
+#include "interface/Engine.h"
 
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
@@ -25,14 +28,14 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	autosizeX = (size.X == AUTOSIZE);
 	autosizeY = (size.Y == AUTOSIZE);
 	// remove non ascii chars, and newlines for non multiline labels
-	text = CleanString(text, true, false, !multiline);
+	text = Format::CleanString(text, true, false, !multiline);
 	UpdateDisplayText();
 }
 
 void Label::SetText(std::string text_)
 {
 	text = text_;
-	text = CleanString(text, true, false, !multiline);
+	text = Format::CleanString(text, true, false, !multiline);
 	UpdateDisplayText();
 	cursor = cursorStart = text.length();
 	cursorPosReset = true;
@@ -243,7 +246,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 //this function moves the cursor a certain amount, and checks at the end for special characters to move past like \r, \b, and \0F
 void Label::MoveCursor(unsigned int *cursor, int amount)
 {
-	int cur = *cursor, sign = isign((float)amount), offset = 0;
+	int cur = *cursor, sign = isign<int>(amount), offset = 0;
 	if (!amount)
 		return;
 
@@ -306,9 +309,9 @@ void Label::OnMouseMoved(int x, int y, Point difference)
 	}
 }
 
-void Label::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (modifiers & (KMOD_CTRL|KMOD_META))
+	if (ctrl)
 	{
 		switch (key)
 		{
@@ -319,7 +322,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 			std::string copyStr = text.substr(start, len);
 			copyStr.erase(std::remove(copyStr.begin(), copyStr.end(), '\r'), copyStr.end()); //strip special newlines
 			if (copyStr.length())
-				clipboard_push_text((char*)copyStr.c_str());
+				Engine::Ref().ClipboardPush(copyStr);
 			break;
 		}
 		case 'a':
@@ -343,7 +346,7 @@ void Label::OnKeyPress(int key, unsigned short character, unsigned short modifie
 		}
 		}
 	}
-	if (modifiers&KMOD_SHIFT)
+	if (shift)
 	{
 		switch (key)
 		{

@@ -114,9 +114,14 @@ public:
 		playerp->fan = false;
 	}
 
+	enum StkmKeys
+	{
+		Up, Left, Down, Right
+	};
 	int Run(Stickman *playerp, UPDATE_FUNC_ARGS);
 	void Interact(Simulation *sim, Stickman *playerp, int i, int x, int y);
-	void HandleKeys(int sdl_key, int sdl_rkey);
+	void HandleKeyPress(StkmKeys key, bool stk2);
+	void HandleKeyRelease(StkmKeys key, bool stk2);
 	void STKM_default_element(Simulation *sim, Stickman *playerp);
 	void STKM_set_element(Simulation *sim, Stickman *playerp, int element);
 };

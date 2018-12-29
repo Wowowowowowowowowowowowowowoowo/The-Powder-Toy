@@ -13,4 +13,15 @@ static inline float remainder_p(float x, float y)
 	return std::fmod(x, y) + (x>=0 ? 0 : y);
 }
 
+template <typename T>
+static inline int isign(T i)
+{
+	if (i < 0)
+		return -1;
+	if (i > 0)
+		return 1;
+	return 0;
+}
+
+
 #endif

@@ -125,5 +125,9 @@ int platform_clipboardPaste(lua_State * l);
 int platform_showOnScreenKeyboard(lua_State * l);
 int platform_getOnScreenKeyboardInput(lua_State * l);
 
+void initEventAPI(lua_State * l);
+int event_register(lua_State * l);
+int event_unregister(lua_State * l);
+int event_getmodifiers(lua_State * l);
 #endif
 #endif

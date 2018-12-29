@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common/tpt-math.h"
 #include "simulation/ElementsCommon.h"
 
 int RPEL_update(UPDATE_FUNC_ARGS)
@@ -31,8 +32,8 @@ int RPEL_update(UPDATE_FUNC_ARGS)
 			{
 				if (!parts[i].ctype || parts[i].ctype == parts[ID(r)].type)
 				{
-					parts[ID(r)].vx += isign((float)rx)*((parts[i].temp-273.15f)/10.0f);
-					parts[ID(r)].vy += isign((float)ry)*((parts[i].temp-273.15f)/10.0f);
+					parts[ID(r)].vx += isign<int>(rx)*((parts[i].temp-273.15f)/10.0f);
+					parts[ID(r)].vy += isign<int>(ry)*((parts[i].temp-273.15f)/10.0f);
 				}
 			}
 		}

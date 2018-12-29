@@ -229,28 +229,28 @@ def findLibs(env, conf):
 			if not conf.CheckLib('mingw32') or not conf.CheckLib('ws2_32'):
 				FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 
-		if not conf.CheckLib('SDLmain'):
+		if not conf.CheckLib('SDL2main'):
 			FatalError("libSDLmain not found or not installed")
 
 	#Look for SDL
 	runSdlConfig = platform == "Linux" or compilePlatform == "Linux" or platform == "FreeBSD"
-	if platform == "Darwin" and conf.CheckFramework("SDL"):
-		runSdlConfig = False
-	elif not conf.CheckLib("SDL"):
-		FatalError("SDL development library not found or not installed")
+	#if platform == "Darwin" and conf.CheckFramework("SDL"):
+	#	runSdlConfig = False
+	if not conf.CheckLib("SDL2"):
+		FatalError("SDL2 development library not found or not installed")
 
 	if runSdlConfig:
 		try:
-			env.ParseConfig('sdl-config --cflags')
+			env.ParseConfig('sdl2-config --cflags')
 			if GetOption('static'):
-				env.ParseConfig('sdl-config --static-libs')
+				env.ParseConfig('sdl2-config --static-libs')
 			else:
-				env.ParseConfig('sdl-config --libs')
+				env.ParseConfig('sdl2-config --libs')
 		except:
 			pass
 
 	#look for SDL.h
-	if not conf.CheckCHeader('SDL/SDL.h'):
+	if not conf.CheckCHeader('SDL2/SDL.h'):
 		if conf.CheckCHeader('SDL.h'):
 			env.Append(CPPDEFINES=['SDL_R_INCL'])
 		else:

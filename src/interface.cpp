@@ -17,9 +17,6 @@
 
 #include "gui/profile/ProfileViewer.h"
 
-#include "common/tpt-minmax.h"
-#include "SDLCompat.h"
-
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -44,24 +41,23 @@
 #include <unistd.h>
 #endif
 
-#include "http.h"
-#include "md5.h"
-#include "font.h"
-#include "defines.h"
-#include "powder.h"
-#include "interface.h"
-#include "misc.h"
+#include "cJSON.h"
 #include "console.h"
-#include "luaconsole.h"
-#include "gravity.h"
+#include "defines.h"
+#include "EventLoopSDL.h"
+#include "font.h"
 #include "graphics.h"
+#include "gravity.h"
+#include "interface.h"
+#include "http.h"
+#include "hud.h"
 #include "images.h"
-
+#include "luaconsole.h"
+#include "md5.h"
+#include "misc.h"
+#include "powder.h"
 #include "powdergraphics.h"
 #include "save.h"
-#include "hud.h"
-#include "cJSON.h"
-#include "json/json.h"
 #include "update.h"
 
 #include "common/Format.h"
@@ -73,19 +69,17 @@
 #include "game/Save.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
+#include "interface/Engine.h"
+#include "json/json.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
 
-#include "interface/Engine.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
 #include "simulation/elements/ANIM.h"
-
-unsigned short sdl_mod;
-int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
 
 int svf_messages = 0;
 int svf_login = 0;
@@ -133,7 +127,6 @@ char *tag_names[TAG_MAX];
 int tag_votes[TAG_MAX];
 
 int hud_menunum = 0;
-int has_quit = 0;
 int dateformat = 7;
 int show_ids = 0;
 
@@ -392,7 +385,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			break;
 		case SDLK_DELETE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -420,7 +413,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_BACKSPACE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -450,28 +443,27 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		default:
-			if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
+			if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='c')//copy
 			{
 				if (ed->highlightlength)
 				{
 					char highlightstr[1024];
 					strncpy(highlightstr, &str[ed->highlightstart], ed->highlightlength);
 					highlightstr[ed->highlightlength] = 0;
-					clipboard_push_text(highlightstr);
+					Engine::Ref().ClipboardPush(highlightstr);
 				}
 				else if (l)
-					clipboard_push_text(ed->str);
+					Engine::Ref().ClipboardPush(ed->str);
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='v')//paste
+			else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='v')//paste
 			{
-				char *paste = clipboard_pull_text();
-				if (!paste)
+				std::string paste = Engine::Ref().ClipboardPull();
+				if (!paste.length())
 					return;
-				int pl = strlen(paste);
-				if ((textwidth(str)+textwidth(paste) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
+				int pl = paste.length();
+				if ((textwidth(str)+textwidth(paste.c_str()) > ed->w-14 && !ed->multiline) || (pl+(int)strlen(ed->str)>ed->limit) || (float)(((textwidth(str)+textwidth(paste.c_str()))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
 				{
-					free(paste);
 					break;
 				}
 				if (ed->highlightlength)
@@ -480,18 +472,17 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					ed->cursor = ed->highlightstart;
 				}
 				memmove(ed->str+ed->cursor+pl, ed->str+ed->cursor, l-ed->cursor+1);
-				memcpy(ed->str+ed->cursor,paste,pl);
+				memcpy(ed->str+ed->cursor,paste.c_str(),pl);
 				ed->cursor += pl;
 				ed->cursorstart = ed->cursor;
-				free(paste);
 				break;
 			}
-			else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
+			else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='a')//highlight all
 			{
 				ed->cursorstart = 0;
 				ed->cursor = l;
 			}
-			if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (svf_admin || svf_mod))
+			if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (svf_admin || svf_mod))
 			{
 				if (ed->cursor > 1 && ed->str[ed->cursor-2] == '\b')
 					break;
@@ -512,14 +503,21 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor+=2;
 				ed->cursorstart = ed->cursor;
 			}
-			if (sdl_ascii>=' ' && sdl_ascii<127 && l<ed->limit)
+			if (!sdl_textinput.length())
+				break;
+			for (std::string::value_type c : sdl_textinput)
+			{
+				if (!(c >= ' ' && c < 127 && l < ed->limit))
+					break;
+			}
+			for (std::string::value_type c : sdl_textinput)
 			{
 				if (ed->highlightlength)
 				{
 					memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
 					ed->cursor = ed->highlightstart;
 				}
-				ch = sdl_ascii;
+				ch = c;
 				ts[0]=ed->hide?0x8D:ch;
 				ts[1]=0;
 				if ((textwidth(str)+textwidth(ts) > ed->w-14 && !ed->multiline) || (float)(((textwidth(str)+textwidth(ts))/(ed->w-14)*12) > ed->h && ed->multiline && ed->limit != 1023))
@@ -534,8 +532,8 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 	}
 	if (mb && !mbq && ed->focus && mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+(ed->multiline?ed->h:11))
 	{
-		int clickTime = SDL_GetTicks()-ed->lastClick;
-		ed->lastClick = SDL_GetTicks();
+		int clickTime = GetTicks()-ed->lastClick;
+		ed->lastClick = GetTicks();
 		if (clickTime < 300)
 		{
 			ed->clickPosition = ed->cursor;
@@ -546,7 +544,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 		}
 		ed->cursorstart = ed->cursor;
 	}
-	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+	else if (!mb && GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
 	if (ed->numClicks >= 2)
 	{
@@ -688,19 +686,19 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 					ed->cursorstart++;
 			}
 		}
-		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='c')//copy
+		else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='c')//copy
 		{
 			if (ed->highlightlength)
 			{
 				char highlightstr[1024];
 				strncpy(highlightstr, &ed->str[ed->highlightstart], ed->highlightlength);
 				highlightstr[ed->highlightlength] = 0;
-				clipboard_push_text(highlightstr);
+				Engine::Ref().ClipboardPush(highlightstr);
 			}
 			else if (l)
-				clipboard_push_text(ed->str);
+				Engine::Ref().ClipboardPush(ed->str);
 		}
-		else if(sdl_mod & (KMOD_CTRL|KMOD_META) && sdl_key=='a')//highlight all
+		else if(sdl_mod & (KMOD_CTRL|KMOD_GUI) && sdl_key=='a')//highlight all
 		{
 			ed->cursorstart = 0;
 			ed->cursor = l;
@@ -708,8 +706,8 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 	}
 	if (mb && !mbq && ed->focus)
 	{
-		int clickTime = SDL_GetTicks()-ed->lastClick;
-		ed->lastClick = SDL_GetTicks();
+		int clickTime = GetTicks()-ed->lastClick;
+		ed->lastClick = GetTicks();
 		if (clickTime < 300)
 		{
 			ed->clickPosition = ed->cursor;
@@ -720,7 +718,7 @@ void ui_label_process(int mx, int my, int mb, int mbq, ui_label *ed)
 		}
 		ed->cursorstart = ed->cursor;
 	}
-	else if (!mb && SDL_GetTicks()-ed->lastClick > 300)
+	else if (!mb && GetTicks()-ed->lastClick > 300)
 		ed->numClicks = 0;
 	if (ed->numClicks >= 2)
 	{
@@ -953,7 +951,7 @@ void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed)
 	{
 		if (mb && !mbq)
 		{
-			clipboard_push_text(ed->text);
+			Engine::Ref().ClipboardPush(ed->text);
 			ed->state = 2;
 		}
 		ed->hover = 1;
@@ -1353,7 +1351,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 
 	if (selectedl != -1)
 	{
-		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
 			Favorite::Ref().AddFavorite(globalSim->elements[selectedl].Identifier);
 			save_presets();
@@ -1367,7 +1365,7 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 	}
 	if (selectedr != -1)
 	{
-		if ((sdl_mod & (KMOD_CTRL|KMOD_META)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
+		if ((sdl_mod & (KMOD_CTRL|KMOD_GUI)) && (sdl_mod & KMOD_SHIFT) && !(sdl_mod & KMOD_ALT))
 		{
 			if (Favorite::Ref().IsFavorite(globalSim->elements[selectedr].Identifier))
 			{
@@ -2227,7 +2225,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 
 		if (b==1&&bq==0&&d!=-1)
 		{
-			if (sdl_mod & (KMOD_CTRL|KMOD_META))
+			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				if (!stamps[d].dodelete)
 				{
@@ -2315,7 +2313,7 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			break;
 		}
 	}
-	if (sdl_mod & (KMOD_CTRL|KMOD_META))
+	if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 		*reorder = 0;
 
 	while (!sdl_poll())
@@ -2976,9 +2974,9 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i)
 				over = current;
 #ifndef TOUCHUI
 				//draw rectangles around hovered on tools
-				if ((sdl_mod & KMOD_ALT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_SHIFT) && ((ElementTool*)current)->GetID() >= 0)
+				if ((sdl_mod & KMOD_ALT) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & KMOD_SHIFT) && ((ElementTool*)current)->GetID() >= 0)
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
-				else if ((sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & KMOD_ALT) && current->GetType() != INVALID_TOOL)
+				else if ((sdl_mod & KMOD_SHIFT) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & KMOD_ALT) && current->GetType() != INVALID_TOOL)
 					drawtext(vid_buf, x+30-xoff, y-1, "\xED", 255, 205, 50, 255);
 				else
 					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 55, 55, 255);
@@ -3187,11 +3185,11 @@ void menu_select_element(int b, Tool* over)
 			currR = COLR(decocolor), currG = COLG(decocolor), currB = COLB(decocolor), currA = COLA(decocolor);
 			RGB_to_HSV(currR, currG, currB, &currH, &currS, &currV);
 		}
-		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
-		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_ALT)))
 		{
 			Favorite::Ref().AddFavorite(over->GetIdentifier());
 			FillMenus();
@@ -3231,11 +3229,11 @@ void menu_select_element(int b, Tool* over)
 		else if (over->GetType() == HUD_MENU_BUTTON)
 		{
 		}
-		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
+		else if ((sdl_mod & (KMOD_ALT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_SHIFT)) && ((ElementTool*)over)->GetID() >= 0)
 		{
 			activeTools[2] = over;
 		}
-		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_META)) && !(sdl_mod & (KMOD_ALT)))
+		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_ALT)))
 		{
 			Favorite::Ref().RemoveFavorite(over->GetIdentifier());
 			Favorite::Ref().RemoveRecent(over->GetIdentifier());
@@ -3262,7 +3260,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 	int i = 0;
 	bool isQuickoptionClicked = false, switchTabsOverride = false;
 	//normal quickoptions
-	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+	if (!show_tabs && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 	{
 		while(quickmenu[i].icon!=NULL)
 		{
@@ -3389,7 +3387,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 		clickedQuickoption = -1;
 	if ((clickedQuickoption >= 0 && !b && bq) || switchTabsOverride)
 	{
-		if (!show_tabs && !switchTabsOverride && !(sdl_mod & (KMOD_CTRL|KMOD_META)))
+		if (!show_tabs && !switchTabsOverride && !(sdl_mod & (KMOD_CTRL|KMOD_GUI)))
 		{
 			if (bq == 1)
 			{
@@ -3417,7 +3415,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 					tab_save(tab_num);
 					num_tabs++;
 					tab_num = num_tabs;
-					if (sdl_mod & (KMOD_CTRL|KMOD_META))
+					if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 						NewSim();
 					tab_save(tab_num);
 				}
@@ -3481,219 +3479,6 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 		draw_image(vid_buf, tabThumbnails[hoverQuickoption-1], (XRES+BARSIZE)/3, YRES/3, (XRES+BARSIZE)/3+1, YRES/3, quickoptionsThumbnailFade*21);
 		quickoptionsThumbnailFade--;
 	}
-}
-
-SDLKey MapNumpad(SDLKey key)
-{
-	switch(key)
-	{
-	case SDLK_KP8:
-		return SDLK_UP;
-	case SDLK_KP2:
-		return SDLK_DOWN;
-	case SDLK_KP6:
-		return SDLK_RIGHT;
-	case SDLK_KP4:
-		return SDLK_LEFT;
-	case SDLK_KP7:
-		return SDLK_HOME;
-	case SDLK_KP1:
-		return SDLK_END;
-	case SDLK_KP_PERIOD:
-		return SDLK_DELETE;
-	case SDLK_KP0:
-	case SDLK_KP3:
-	case SDLK_KP9:
-		return SDLK_UNKNOWN;
-	default:
-		return key;
-	}
-}
-
-int EventProcess(SDL_Event event)
-{
-	if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-	{
-		if (event.key.keysym.unicode == 0)
-		{
-			// If unicode is zero, this could be a numpad key with numlock off, or numlock on and shift on (unicode is set to 0 by SDL or the OS in these circumstances. If numlock is on, unicode is the relevant digit character).
-			// For some unknown reason, event.key.keysym.mod seems to be unreliable on some computers (keysum.mod&KEY_MOD_NUM is opposite to the actual value), so check keysym.unicode instead.
-			// Note: unicode is always zero for SDL_KEYUP events, so this translation won't always work properly for keyup events.
-			SDLKey newKey = MapNumpad(event.key.keysym.sym);
-			if (newKey != event.key.keysym.sym)
-			{
-				event.key.keysym.sym = newKey;
-				event.key.keysym.unicode = 0;
-			}
-		}
-	}
-	switch (event.type)
-	{
-	case SDL_KEYDOWN:
-		sdl_key = event.key.keysym.sym;
-		sdl_ascii = event.key.keysym.unicode;
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-		if (event.key.keysym.sym=='q' && (sdl_mod & (KMOD_CTRL|KMOD_META)))
-		{
-			if (confirm_ui(vid_buf, "You are about to quit", "Are you sure you want to quit?", "Quit"))
-			{
-				has_quit = 1;
-				return 1;
-			}
-		}
-		break;
-	case SDL_KEYUP:
-		sdl_rkey = event.key.keysym.sym;
-		sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-		if (event.button.button == SDL_BUTTON_WHEELUP)
-			sdl_wheel++;
-		if (event.button.button == SDL_BUTTON_WHEELDOWN)
-			sdl_wheel--;
-		break;
-	case SDL_VIDEORESIZE:
-		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
-		// if we don't do this, the touchscreen calibration variables won't ever be set properly
-		SetSDLVideoMode((XRES + BARSIZE) * sdl_scale, (YRES + MENUSIZE) * sdl_scale);
-		break;
-	case SDL_QUIT:
-		if (fastquit)
-			has_quit = 1;
-		return 1;
-	case SDL_SYSWMEVENT:
-#if defined(LIN) && defined(SDL_VIDEO_DRIVER_X11)
-		if (event.syswm.msg->subsystem != SDL_SYSWM_X11)
-			break;
-		sdl_wminfo.info.x11.lock_func();
-		XEvent xe = event.syswm.msg->event.xevent;
-		if (xe.type==SelectionClear)
-		{
-			if (clipboard_text!=NULL) {
-				free(clipboard_text);
-				clipboard_text = NULL;
-			}
-		}
-		else if (xe.type==SelectionRequest)
-		{
-			XEvent xr;
-			xr.xselection.type = SelectionNotify;
-			xr.xselection.requestor = xe.xselectionrequest.requestor;
-			xr.xselection.selection = xe.xselectionrequest.selection;
-			xr.xselection.target = xe.xselectionrequest.target;
-			xr.xselection.property = xe.xselectionrequest.property;
-			xr.xselection.time = xe.xselectionrequest.time;
-			if (xe.xselectionrequest.target==XA_TARGETS)
-			{
-				// send list of supported formats
-				Atom targets[] = {XA_TARGETS, XA_STRING, XA_UTF8_STRING};
-				xr.xselection.property = xe.xselectionrequest.property;
-				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, XA_ATOM, 32, PropModeReplace, (unsigned char*)targets, (int)(sizeof(targets)/sizeof(Atom)));
-			}
-			// TODO: Supporting more targets would be nice
-			else if ((xe.xselectionrequest.target==XA_STRING || xe.xselectionrequest.target==XA_UTF8_STRING) && clipboard_text)
-			{
-				XChangeProperty(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, xe.xselectionrequest.property, xe.xselectionrequest.target, 8, PropModeReplace, (unsigned char*)clipboard_text, strlen(clipboard_text)+1);
-			}
-			else
-			{
-				// refuse clipboard request
-				xr.xselection.property = None;
-			}
-			XSendEvent(sdl_wminfo.info.x11.display, xe.xselectionrequest.requestor, 0, 0, &xr);
-		}
-		sdl_wminfo.info.x11.unlock_func();
-#elif WIN
-		switch (event.syswm.msg->msg)
-		{
-		case WM_USER+614:
-			if (!ptsaveOpenID && !saveURIOpen && num_tabs < 24-GetNumMenus() && main_loop)
-				ptsaveOpenID = event.syswm.msg->lParam;
-			//If we are already opening a save, we can't have it do another one, so just start it in a new process
-			else
-			{
-				char *exename = Platform::ExecutableName(), args[64];
-				sprintf(args, "ptsave noopen:%i", event.syswm.msg->lParam);
-				if (exename)
-				{
-					ShellExecute(NULL, "open", exename, args, NULL, SW_SHOWNORMAL);
-					free(exename);
-				}
-				//I doubt this will happen ... but as a last resort just open it in this window anyway
-				else
-					saveURIOpen = event.syswm.msg->lParam;
-			}
-			break;
-		}
-#else
-		break;
-#endif
-	}
-	return 0;
-}
-
-int FPSwait = 0, fastquit = 0;
-int sdl_poll(void)
-{
-	SDL_Event event;
-	sdl_key=sdl_rkey=sdl_wheel=sdl_ascii=0;
-	if (has_quit)
-		return 1;
-	loop_time = SDL_GetTicks();
-	if (main_loop > 0)
-	{
-		main_loop--;
-		if (main_loop == 0)
-		{
-			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-			FPSwait = 2;
-			the_game->OnDefocus();
-		}
-		else
-			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
-	}
-
-	while (SDL_PollEvent(&event))
-	{
-		int ret = EventProcess(event);
-		if (ret)
-			return ret;
-	}
-
-	sdl_mod = static_cast<unsigned short>(SDL_GetModState());
-	limit_fps();
-	sendNewEvents = true;
-	return 0;
-}
-
-int pastFPS = 0;
-float FPSB2 = 60.0f;
-double frameTimeAvg = 0.0, correctedFrameTimeAvg = 60.0;
-void limit_fps()
-{
-	int frameTime = SDL_GetTicks() - currentTime;
-
-	frameTimeAvg = frameTimeAvg * .8 + frameTime * .2;
-	if (limitFPS > 2)
-	{
-		double offset = 1000.0 / limitFPS - frameTimeAvg;
-		if (offset > 0)
-			//millisleep((Uint32)(offset + 0.5));
-			SDL_Delay((Uint32)(offset + 0.5));
-	}
-
-	int correctedFrameTime = SDL_GetTicks() - currentTime;
-	correctedFrameTimeAvg = correctedFrameTimeAvg * 0.95 + correctedFrameTime * 0.05;
-	elapsedTime = currentTime-pastFPS;
-	if (elapsedTime >= 200)
-	{
-		if (!FPSwait)
-			FPSB2 = 1000.0f/(float)correctedFrameTimeAvg;
-		if (main_loop && FPSwait > 0)
-			FPSwait--;
-		pastFPS = currentTime;
-	}
-	currentTime = SDL_GetTicks();
 }
 
 int search_ui(pixel *vid_buf)
@@ -4269,7 +4054,7 @@ int search_ui(pixel *vid_buf)
 			else if ((mp!=-1 && !st && !uih) || do_open==1)
 			{
 				strcpy(search_expr, ed.str);
-				if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_META)) || do_open==1) {
+				if (open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL, sdl_mod&(KMOD_CTRL|KMOD_GUI)) || do_open==1) {
 					goto finish;
 				}
 			}
@@ -5187,7 +4972,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 
 							if (!b && bq && mx > 61+(XRES/2) && mx < 61+(XRES/2)+textwidth(info->commentauthors[cc]) && my > ccy+58+comment_scroll && my < ccy+70+comment_scroll && my < YRES+MENUSIZE-76-ed.h+2)
 							{
-								if (sdl_mod & (KMOD_CTRL|KMOD_META)) //open profile
+								if (sdl_mod & (KMOD_CTRL|KMOD_GUI)) //open profile
 								{
 									/*char link[128];
 									strcpy(link, "http://" SERVER "/User.html?Name=");
@@ -5673,7 +5458,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			ProfileViewer *temp = new ProfileViewer(profileToOpen);
 			Engine *moreTemp = new Engine();
 			moreTemp->ShowWindow(temp);
-			moreTemp->MainLoop();
+			//moreTemp->MainLoop();
+			MainLoop();
 			delete moreTemp;
 			profileToOpen = "";
 		}
@@ -7293,7 +7079,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 		{
 			char hex[32];
 			sprintf(hex,"0x%.8X",(currA<<24)+(currR<<16)+(currG<<8)+currB);
-			clipboard_push_text(hex);
+			Engine::Ref().ClipboardPush(hex);
 			the_game->SetInfoTip("Copied to clipboard");
 		}
 		deco_disablestuff = 1;
@@ -7313,7 +7099,7 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 #ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
-		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_META));
+		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_GUI));
 	else if (sdl_key==SDLK_LEFT)
 		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->PreviousFrame(globalSim);
 	else if (sdl_key==SDLK_DELETE)
@@ -7896,298 +7682,6 @@ openfin:
 		free_saveslist(saves);
 	free(vid_buf2);
 	return;
-}
-
-void simulation_ui(pixel * vid_buf)
-{
-	int xsize = 300;
-	int ysize = 340;
-	int x0=(XRES-xsize)/2,y0=(YRES-ysize)/2,b=1,bq,mx,my;
-	int oldedgeMode = globalSim->GetEdgeMode();
-	ui_checkbox cb, cb2, cb3, cb5, cb6, cb7;
-#ifndef ANDROID
-	ui_checkbox cb4;
-#endif
-	const char * airModeList[] = {"On", "Pressure Off", "Velocity Off", "Off", "No Update"};
-	int airModeListCount = 5;
-	const char * gravityModeList[] = {"Vertical", "Off", "Radial"};
-	int gravityModeListCount = 3;
-	const char * edgeModeList[] = {"Void", "Solid", "Loop"};//, "Empty"};
-	int edgeModeListCount = 3;
-	const char * updateList[] = {"No Update Check", "Updates On (http://starcatcher.us/TPT)"};
-	int updateListCount = 2;
-	ui_list list;
-	ui_list list2;
-	ui_list list3;
-	ui_list listUpdate;
-
-	cb.x = x0+xsize-16;		//Heat simulation
-	cb.y = y0+23;
-	cb.focus = 0;
-	cb.checked = !legacy_enable;
-
-	cb2.x = x0+xsize-16;	//Newt. Gravity
-	cb2.y = y0+79;
-	cb2.focus = 0;
-	cb2.checked = ngrav_enable;
-	
-	cb3.x = x0+xsize-16;	//Large window
-	cb3.y = y0+255;
-	cb3.focus = 0;
-#ifdef ANDROID
-	cb3.checked = (ngrav_completedisable)?1:0;
-#else
-	cb3.checked = (sdl_scale>=2)?1:0;
-#endif
-	
-#ifndef ANDROID
-	cb4.x = x0+xsize-16;	//Fullscreen
-	cb4.y = y0+269;
-	cb4.focus = 0;
-	cb4.checked = (kiosk_enable==1)?1:0;
-#endif
-	
-	cb5.x = x0+xsize-16;	//Ambient heat
-	cb5.y = y0+51;
-	cb5.focus = 0;
-	cb5.checked = aheat_enable;
-
-	cb6.x = x0+xsize-16;	//Water equalisation
-	cb6.y = y0+107;
-	cb6.focus = 0;
-	cb6.checked = water_equal_test;
-
-	cb7.x = x0+xsize-16;	//Fast Quit
-	cb7.y = y0+283;
-	cb7.focus = 0;
-	cb7.checked = fastquit;
-	
-	list.x = x0+xsize-76;	//Air Mode
-	list.y = y0+135;
-	list.w = 72;
-	list.h = 16;
-	list.focus = 0;
-	strcpy(list.def, "[air mode]");
-	list.selected = airMode;
-	list.items = airModeList;
-	list.count = airModeListCount;
-	
-	list2.x = x0+xsize-76;	//Gravity Mode
-	list2.y = y0+163;
-	list2.w = 72;
-	list2.h = 16;
-	list2.focus = 0;
-	strcpy(list2.def, "[gravity mode]");
-	list2.selected = gravityMode;
-	list2.items = gravityModeList;
-	list2.count = gravityModeListCount;
-
-	list3.x = x0+xsize-76;	//Edge Mode
-	list3.y = y0+191;
-	list3.w = 72;
-	list3.h = 16;
-	list3.focus = 0;
-	strcpy(list3.def, "[edge mode]");
-	list3.selected = globalSim->GetEdgeMode();
-	list3.items = edgeModeList;
-	list3.count = edgeModeListCount;
-
-	listUpdate.x = x0+xsize-199;
-	listUpdate.y = y0+219;
-	listUpdate.w = 195;
-	listUpdate.h = 16;
-	strcpy(listUpdate.def, "[update server]");
-	listUpdate.selected = doUpdates ? 1 : 0;
-	listUpdate.items = updateList;
-	listUpdate.count = updateListCount;
-
-	while (!sdl_poll())
-	{
-		b = mouse_get_state(&mx, &my);
-		if (!b)
-			break;
-	}
-
-	while (!sdl_poll())
-	{
-		bq = b;
-		b = mouse_get_state(&mx, &my);
-
-		clearrect(vid_buf, x0-1, y0-1, xsize+3, ysize+3);
-		drawrect(vid_buf, x0, y0, xsize, ysize, 192, 192, 192, 255);
-		drawtext(vid_buf, x0+8, y0+8, "Simulation options", 255, 216, 32, 255);
-
-		drawtext(vid_buf, x0+8, y0+26, "Heat simulation", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Heat simulation"), y0+26, "Introduced in version 34.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+40, "Can cause odd behavior when disabled.", 255, 255, 255, 120);
-		
-		drawtext(vid_buf, x0+8, y0+54, "Ambient heat simulation", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Ambient heat simulation"), y0+54, "Introduced in version 50.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+68, "Can cause odd / broken behavior with many saves.", 255, 255, 255, 120);
-
-		drawtext(vid_buf, x0+8, y0+82, "Newtonian gravity", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Newtonian gravity"), y0+82, "Introduced in version 48.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+96, "May also cause poor performance on single core computers", 255, 255, 255, 120);
-
-		drawtext(vid_buf, x0+8, y0+110, "Water Equalization", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Water Equalization"), y0+110, "Introduced in version 61.", 255, 255, 255, 180);
-		drawtext(vid_buf, x0+12, y0+124, "May cause poor performance with a lot of water.", 255, 255, 255, 120);
-		
-		drawtext(vid_buf, x0+8, y0+138, "Air Simulation Mode \bg(y)", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12, y0+152, "airMode", 255, 255, 255, 120);
-		
-		drawtext(vid_buf, x0+8, y0+166, "Gravity Simulation Mode \bg(w)", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12, y0+180, "gravityMode", 255, 255, 255, 120);
-
-		drawtext(vid_buf, x0+8, y0+194, "Edge Mode", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12, y0+208, "edgeMode", 255, 255, 255, 120);
-
-		drawtext(vid_buf, x0+8, y0+222, "Update Check", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12, y0+236, "doUpdates", 255, 255, 255, 120);
-		
-		draw_line(vid_buf, x0, y0+250, x0+xsize, y0+250, 150, 150, 150, XRES+BARSIZE);
-
-#ifndef ANDROID
-		drawtext(vid_buf, x0+8, y0+256, "Large window", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Large window"), y0+256, "\bg- Double window size for larger screens", 255, 255, 255, 180);
-		
-		drawtext(vid_buf, x0+8, y0+270, "Fullscreen", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fullscreen"), y0+270, "\bg- Fill the entire screen", 255, 255, 255, 180);
-#else
-		drawtext(vid_buf, x0+8, y0+256, "Ngrav Disable", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Ngrav Disable"), y0+256, "\bg- Completely disable Newtonian Gravity", 255, 255, 255, 180);
-		drawtext(vid_buf, x0-2, y0+270, "\bg  Might fix crashes on startup or opening saves", 255, 255, 255, 180);
-#endif
-
-		drawtext(vid_buf, x0+8, y0+284, "Fast Quit", 255, 255, 255, 255);
-		drawtext(vid_buf, x0+12+textwidth("Fast Quit"), y0+284, "\bg- Hitting 'X' will always exit out of tpt", 255, 255, 255, 180);
-
-#ifndef ANDROID
-		drawtext(vid_buf, x0+12, y0+ysize-34, "Open Data Folder", 255, 255, 255, 255);
-		drawrect(vid_buf, x0+8, y0+ysize-38, 90, 16, 192, 192, 192, 255);
-		drawtext(vid_buf, x0+25+textwidth("Open Data Folder"), y0+ysize-34, "\bg- Open the data and preferences folder", 255, 255, 255, 180);
-#endif
-
-		drawtext(vid_buf, x0+5, y0+ysize-11, "OK", 255, 255, 255, 255);
-		drawrect(vid_buf, x0, y0+ysize-16, xsize, 16, 192, 192, 192, 255);
-
-		ui_checkbox_draw(vid_buf, &cb);
-		ui_checkbox_draw(vid_buf, &cb2);
-		ui_checkbox_draw(vid_buf, &cb3);
-#ifndef ANDROID
-		ui_checkbox_draw(vid_buf, &cb4);
-#endif
-		ui_checkbox_draw(vid_buf, &cb5);
-		ui_checkbox_draw(vid_buf, &cb6);
-		ui_checkbox_draw(vid_buf, &cb7);
-		ui_list_draw(vid_buf, &list);
-		ui_list_draw(vid_buf, &list2);
-		ui_list_draw(vid_buf, &list3);
-		ui_list_draw(vid_buf, &listUpdate);
-		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
-		ui_checkbox_process(mx, my, b, bq, &cb);
-		ui_checkbox_process(mx, my, b, bq, &cb2);
-		ui_checkbox_process(mx, my, b, bq, &cb3);
-#ifndef ANDROID
-		ui_checkbox_process(mx, my, b, bq, &cb4);
-#endif
-		ui_checkbox_process(mx, my, b, bq, &cb5);
-		ui_checkbox_process(mx, my, b, bq, &cb6);
-		ui_checkbox_process(mx, my, b, bq, &cb7);
-		ui_list_process(vid_buf, mx, my, b, bq, &list);
-		ui_list_process(vid_buf, mx, my, b, bq, &list2);
-		ui_list_process(vid_buf, mx, my, b, bq, &list3);
-		ui_list_process(vid_buf, mx, my, b, bq, &listUpdate);
-
-#ifndef ANDROID
-		if (((cb3.checked)?2:1) != sdl_scale || ((cb4.checked)?1:0) != kiosk_enable)
-		{
-			set_scale((cb3.checked)?2:1, (cb4.checked)?1:0);
-		}
-#else
-		ngrav_completedisable = cb3.checked;
-		if (ngrav_completedisable)
-			cb2.checked = false;
-#endif
-
-		if (b && !bq)
-		{
-			if (mx>=x0 && mx<x0+xsize && my>=y0+ysize-16 && my<=y0+ysize)
-				break;
-#ifndef ANDROID
-			else if (mx>=x0+8 && mx<x0+98 && my>=y0+ysize-38 && my<=y0+ysize-22)
-			{
-				//one of these should always be defined
-#ifdef WIN
-				const char* openCommand = "explorer ";
-#elif MACOSX
-				const char* openCommand = "open ";
-//#elif LIN
-#else
-				const char* openCommand = "xdg-open ";
-#endif
-				char* workingDirectory = new char[FILENAME_MAX+strlen(openCommand)];
-				sprintf(workingDirectory, "%s\"%s\"", openCommand, getcwd(NULL, 0));
-				int ret = system(workingDirectory);
-				if (ret)
-					std::cout << "Error, could not open data directory" << std::endl;
-				delete[] workingDirectory;
-			}
-			else if (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize)
-				break;
-#endif
-		}
-
-		if (sdl_key==SDLK_RETURN)
-			break;
-		if (sdl_key==SDLK_ESCAPE)
-			break;
-	}
-
-	water_equal_test = cb6.checked;
-	legacy_enable = !cb.checked;
-	aheat_enable = cb5.checked;
-	if(list.selected>=0 && list.selected<=4)
-		airMode = list.selected;
-	if(list2.selected>=0 && list2.selected<=2)
-		gravityMode = list2.selected;
-	if ((int)ngrav_enable != cb2.checked)
-	{
-		if(cb2.checked)
-			start_grav_async();
-		else
-			stop_grav_async();
-	}
-	int edgeMode = (char)list3.selected;
-	if (edgeMode == 1 && oldedgeMode != 1)
-		draw_bframe();
-	else if (edgeMode != 1 && oldedgeMode == 1)
-		erase_bframe();
-	if (edgeMode != oldedgeMode)
-	{
-		globalSim->edgeMode = edgeMode;
-		globalSim->saveEdgeMode = -1;
-	}
-	doUpdates = listUpdate.selected ? true : false;
-	fastquit = cb7.checked;
-
-	while (!sdl_poll())
-	{
-		b = mouse_get_state(&mx, &my);
-		if (!b)
-			break;
-	}
-}
-
-int mouse_get_state(int *x, int *y)
-{
-	//Wrapper around SDL_GetMouseState to divide by sdl_scale
-	Uint8 sdl_b;
-	int sdl_x, sdl_y;
-	sdl_b = SDL_GetMouseState(&sdl_x, &sdl_y);
-	*x = sdl_x/sdl_scale;
-	*y = sdl_y/sdl_scale;
-	return sdl_b;
 }
 
 void clear_save_info()

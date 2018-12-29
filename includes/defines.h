@@ -83,8 +83,8 @@
 #endif
 #define XRES	612
 #define YRES	384
-#define VIDXRES XRES+BARSIZE
-#define VIDYRES YRES+MENUSIZE
+#define VIDXRES (XRES+BARSIZE)
+#define VIDYRES (YRES+MENUSIZE)
 #define NPART XRES*YRES
 const int menuStartPosition = XRES+BARSIZE-17;
 const int menuIconWidth = 17;
@@ -167,13 +167,11 @@ extern bool doubleScreenDialog;
 extern int screenWidth;
 extern int screenHeight;
 extern float FPSB2;
-extern int main_loop;
 extern int elapsedTime;
 
 extern int NUM_PARTS;
 
 extern bool legacy_enable;
-extern int kiosk_enable;
 extern bool aheat_enable;
 extern bool decorations_enable;
 extern int active_menu;
@@ -202,7 +200,6 @@ extern Tool* activeTools[3];
 extern float toolStrength;
 extern int autosave;
 extern int realistic;
-extern int loop_time;
 extern bool explUnlocked;
 extern int old_menu;
 extern int decobox_hidden;
@@ -254,7 +251,6 @@ extern int stamp_count;
 extern int ptsaveOpenID;
 extern int saveURIOpen;
 extern int do_open;
-extern int sys_shortcuts;
 extern pixel *vid_buf;
 extern pixel *vid3d;
 
@@ -280,7 +276,6 @@ Save *stamp_load(int i, int reorder);
 int tab_load(int tabNum, bool del = false, bool showException = true);
 void stamp_init();
 void del_stamp(int d);
-int set_scale(int scale, int kiosk);
 void ctrlzSnapshot();
 
 extern bool sendNewEvents;
@@ -291,6 +286,6 @@ extern bool openProp;
 class PowderToy;
 extern PowderToy *the_game;
 #endif
-int main_loop_temp(int b, int bq, int sdl_key, int sdl_rkey, unsigned short sdl_mod, int x, int y, int sdl_wheel);
+int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt);
 void main_end_hack();
 #endif

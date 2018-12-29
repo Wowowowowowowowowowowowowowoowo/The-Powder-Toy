@@ -110,7 +110,7 @@ CreateSign::CreateSign(int signID, Point pos):
 	}
 }
 
-void CreateSign::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void CreateSign::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (key == SDLK_RETURN)
 	{

@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 #include "defines.h"
+#include "EventLoopSDL.h"
 #include "graphics.h"
 #include "gravity.h"
 #include "interface.h"
@@ -19,6 +20,7 @@
 #include "save.h"
 #include "hud.h"
 
+#include "common/Format.h"
 #include "common/Platform.h"
 #include "game/Authors.h"
 #include "game/Brush.h"
@@ -126,7 +128,7 @@ int simulation_signNewIndex(lua_State *l)
 	if (!key.compare("text"))
 	{
 		const char *temp = luaL_checkstring(l, 3);
-		std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+		std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
 		if (!cleaned.empty())
 			signs[id]->SetText(cleaned);
 		else
@@ -186,7 +188,7 @@ int simulation_newsign(lua_State *l)
 	if (y < 0 || y >= YRES)
 		return luaL_error(l, "Invalid Y coordinate");
 
-	std::string cleaned = CleanString(temp, false, true, true).substr(0, 45);
+	std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
 	signs.push_back(new Sign(cleaned, x, y, (Sign::Justification)ju));
 	lua_pushnumber(l, signs.size());
 	return 1;
@@ -1921,17 +1923,7 @@ int renderer_debugHUD(lua_State * l)
 
 int renderer_depth3d(lua_State * l)
 {
-	int acount = lua_gettop(l);
-	if (acount == 0)
-	{
-		lua_pushnumber(l, Engine::Ref().Get3dDepth());
-		return 1;
-	}
-	int depth3d = luaL_optint(l, 1, -3);
-	if (depth3d < -30 || depth3d > 30)
-		return luaL_error(l, "3D depth is too large");
-	Engine::Ref().Set3dDepth(depth3d);
-	return 0;
+	return luaL_error(l, "This feature is no longer supported");
 }
 
 /*
@@ -3063,7 +3055,6 @@ int elements_free(lua_State * l)
 
 void initPlatformAPI(lua_State * l)
 {
-	//Methods
 	struct luaL_Reg platformAPIMethods [] = {
 		{"platform", platform_platform},
 		{"build", platform_build},
@@ -3079,7 +3070,6 @@ void initPlatformAPI(lua_State * l)
 	};
 	luaL_register(l, "platform", platformAPIMethods);
 
-	//elem shortcut
 	lua_getglobal(l, "platform");
 	lua_setglobal(l, "plat");
 }
@@ -3129,14 +3119,15 @@ int platform_openLink(lua_State * l)
 
 int platform_clipboardCopy(lua_State * l)
 {
-	lua_pushstring(l, clipboard_pull_text());
+	std::string text = Engine::Ref().ClipboardPull();
+	lua_pushstring(l, text.c_str());
 	return 1;
 }
 
 int platform_clipboardPaste(lua_State * l)
 {
 	luaL_checktype(l, 1, LUA_TSTRING);
-	clipboard_push_text((char*)luaL_optstring(l, 1, ""));
+	Engine::Ref().ClipboardPush(luaL_optstring(l, 1, ""));
 	return 0;
 }
 
@@ -3174,6 +3165,51 @@ int platform_getOnScreenKeyboardInput(lua_State * l)
 	Platform::GetOnScreenKeyboardInput(buff, limit, autoCorrect);
 	lua_pushstring(l, buff);
 	free(buff);
+	return 1;
+}
+
+void initEventAPI(lua_State * l)
+{
+	struct luaL_Reg eventAPIMethods [] = {
+		{"register", event_register},
+		{"unregister", event_unregister},
+		{"getmodifiers", event_getmodifiers},
+		{NULL, NULL}
+	};
+	luaL_register(l, "event", eventAPIMethods);
+
+	lua_getglobal(l, "event");
+	lua_setglobal(l, "evt");
+
+	lua_pushinteger(l, LuaEvents::keypress); lua_setfield(l, -2, "keypress");
+	lua_pushinteger(l, LuaEvents::keyrelease); lua_setfield(l, -2, "keyrelease");
+	lua_pushinteger(l, LuaEvents::textinput); lua_setfield(l, -2, "textinput");
+	lua_pushinteger(l, LuaEvents::mousedown); lua_setfield(l, -2, "mousedown");
+	lua_pushinteger(l, LuaEvents::mouseup); lua_setfield(l, -2, "mouseup");
+	lua_pushinteger(l, LuaEvents::mousemove); lua_setfield(l, -2, "mousemove");
+	lua_pushinteger(l, LuaEvents::mousewheel); lua_setfield(l, -2, "mousewheel");
+	lua_pushinteger(l, LuaEvents::tick); lua_setfield(l, -2, "tick");
+	lua_pushinteger(l, LuaEvents::blur); lua_setfield(l, -2, "blur");
+	lua_pushinteger(l, LuaEvents::close); lua_setfield(l, -2, "close");
+}
+
+int event_register(lua_State * l)
+{
+	int eventName = luaL_checkinteger(l, 1);
+	luaL_checktype(l, 2, LUA_TFUNCTION);
+	return LuaEvents::RegisterEventHook(l, "tptevents-" + Format::NumberToString<int>(eventName));
+}
+
+int event_unregister(lua_State * l)
+{
+	int eventName = luaL_checkinteger(l, 1);
+	luaL_checktype(l, 2, LUA_TFUNCTION);
+	return LuaEvents::UnregisterEventHook(l, "tptevents-" + Format::NumberToString<int>(eventName));
+}
+
+int event_getmodifiers(lua_State * l)
+{
+	lua_pushnumber(l, Engine::Ref().GetModifiers());
 	return 1;
 }
 

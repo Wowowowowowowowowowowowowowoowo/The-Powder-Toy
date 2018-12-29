@@ -72,28 +72,14 @@ void RenderModesUI::SwapInterface()
 #endif
 }
 
-class ToggleRenderModeAction : public CheckboxAction
-{
-	int render_md;
-public:
-	ToggleRenderModeAction(unsigned int render_md):
-		render_md(render_md)
-	{
-
-	}
-
-	virtual void CheckboxActionCallback(Checkbox *checkbox, unsigned char b)
-	{
-		if (checkbox->IsChecked())
-			Renderer::Ref().AddRenderMode(render_md);
-		else
-			Renderer::Ref().RemoveRenderMode(render_md);
-	}
-};
-
 void RenderModesUI::InitializeRenderCheckbox(Checkbox *checkbox, unsigned int mode)
 {
-	checkbox->SetCallback(new ToggleRenderModeAction(mode));
+	checkbox->SetCallback([mode](bool checked) {
+		if (checked)
+			Renderer::Ref().AddRenderMode(mode);
+		else
+			Renderer::Ref().RemoveRenderMode(mode);
+	});
 #ifdef TOUCHUI
 	checkbox->SetColor(COLRGB(255, 127, 255));
 #endif
@@ -103,29 +89,15 @@ void RenderModesUI::InitializeRenderCheckbox(Checkbox *checkbox, unsigned int mo
 	renderCheckboxes.push_back(std::pair<Checkbox*, unsigned int>(checkbox, mode));
 }
 
-class ToggleDisplayModeAction : public CheckboxAction
-{
-	int display_md;
-public:
-	ToggleDisplayModeAction(unsigned int display_md):
-		display_md(display_md)
-	{
-
-	}
-
-	virtual void CheckboxActionCallback(Checkbox *checkbox, unsigned char b)
-	{
-		if (checkbox->IsChecked())
-			Renderer::Ref().AddDisplayMode(display_md);
-		else
-			Renderer::Ref().RemoveDisplayMode(display_md);
-		display_mode = Renderer::Ref().GetDisplayModesRaw();
-	}
-};
-
 void RenderModesUI::InitializeDisplayCheckbox(Checkbox *checkbox, unsigned int mode)
 {
-	checkbox->SetCallback(new ToggleDisplayModeAction(mode));
+	checkbox->SetCallback([mode](bool checked) {
+		if (checked)
+			Renderer::Ref().AddDisplayMode(mode);
+		else
+			Renderer::Ref().RemoveDisplayMode(mode);
+		display_mode = Renderer::Ref().GetDisplayModesRaw();
+	});
 #ifdef TOUCHUI
 	checkbox->SetColor(COLRGB(127, 255, 255));
 #endif
@@ -135,28 +107,14 @@ void RenderModesUI::InitializeDisplayCheckbox(Checkbox *checkbox, unsigned int m
 	displayCheckboxes.push_back(std::pair<Checkbox*, unsigned int>(checkbox, mode));
 }
 
-class ToggleColorModeAction : public CheckboxAction
-{
-	int color_md;
-public:
-	ToggleColorModeAction(unsigned int color_md):
-		color_md(color_md)
-	{
-
-	}
-
-	virtual void CheckboxActionCallback(Checkbox *checkbox, unsigned char b)
-	{
-		if (checkbox->IsChecked())
-			Renderer::Ref().SetColorMode(color_md);
-		else
-			Renderer::Ref().SetColorMode(COLOR_DEFAULT);
-	}
-};
-
 void RenderModesUI::InitializeColorCheckbox(Checkbox *checkbox, unsigned int mode)
 {
-	checkbox->SetCallback(new ToggleColorModeAction(mode));
+	checkbox->SetCallback([mode](bool checked) {
+		if (checked)
+			Renderer::Ref().SetColorMode(mode);
+		else
+			Renderer::Ref().SetColorMode(COLOR_DEFAULT);
+	});
 #ifdef TOUCHUI
 	checkbox->SetColor(COLRGB(255, 255, 127));
 #endif
@@ -431,7 +389,7 @@ void RenderModesUI::OnDraw(VideoBuffer *buf)
 	}
 }
 
-void RenderModesUI::OnKeyPress(int key, unsigned short character, unsigned short modifiers)
+void RenderModesUI::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (key == SDLK_RETURN)
 		this->toDelete = true;

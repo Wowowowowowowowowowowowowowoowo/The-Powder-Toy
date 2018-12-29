@@ -102,11 +102,6 @@ void Button::OnMouseMoved(int x, int y, Point difference)
 
 }
 
-void Button::OnKeyPress(int key, unsigned short character, unsigned char modifiers)
-{
-	
-}
-
 void Button::OnDraw(VideoBuffer* vid)
 {
 	// clear area

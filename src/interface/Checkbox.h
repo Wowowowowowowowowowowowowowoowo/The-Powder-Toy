@@ -1,6 +1,7 @@
 #ifndef CHECKBOX_H
 #define CHECKBOX_H
 
+#include <functional>
 #include <string>
 #include "common/Point.h"
 #include "graphics/ARGBColour.h"
@@ -9,19 +10,14 @@
 class VideoBuffer;
 class Checkbox;
 class ToolTip;
-class CheckboxAction
-{
-public:
-	virtual ~CheckboxAction() { }
-	virtual void CheckboxActionCallback(Checkbox *checkbox, unsigned char b) = 0;
-};
 
 class Checkbox : public Component
 {
 	bool checked;
 	std::string text;
+	bool useCheckIcon = false;
 	ToolTip *tooltip;
-	CheckboxAction *callback;
+	std::function<void(bool)> callback = nullptr;
 
 	bool textInside;
 
@@ -33,9 +29,10 @@ public:
 
 	void SetChecked(bool checked_) { checked = checked_; }
 	void SetText(std::string text_);
+	void UseCheckIcon(bool useIcon) { useCheckIcon = useIcon; }
 	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
-	void SetCallback(CheckboxAction *callback_);
+	void SetCallback(std::function<void(bool)> callback) { this->callback = callback; }
 
 	virtual void OnMouseUp(int x, int y, unsigned char button);
 	virtual void OnDraw(VideoBuffer* vid);

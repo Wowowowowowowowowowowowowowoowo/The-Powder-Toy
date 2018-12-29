@@ -142,7 +142,7 @@ extern command_history *last_command;
 extern command_history *last_command_result;
 
 extern unsigned short sdl_mod;
-extern int sdl_key, sdl_rkey, sdl_wheel, sdl_ascii;
+extern int sdl_key, sdl_wheel;
 
 extern int svf_messages;
 extern int svf_login;
@@ -191,8 +191,6 @@ extern int tag_votes[TAG_MAX];
 extern int hud_menunum;
 extern int dateformat;
 extern int show_ids;
-extern int fastquit;
-extern int has_quit;
 
 extern ARGBColour decocolor;
 extern ui_edit box_R;
@@ -271,12 +269,6 @@ Tool* menu_draw(int mx, int my, int b, int bq, int i);
 void menu_draw_text(Tool* over, int y);
 void menu_select_element(int b, Tool* over);
 
-union SDL_Event;
-int EventProcess(SDL_Event event);
-int sdl_poll(void);
-
-void limit_fps();
-
 int search_ui(pixel *vid_buf);
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open);
@@ -312,10 +304,6 @@ int console_ui(pixel *vid_buf);
 void init_color_boxes();
 
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);
-
-void simulation_ui(pixel *vid_buf);
-
-int mouse_get_state(int *x, int *y);
 
 void converttotime(const char *timestamp, char **timestring, int show_day, int show_year, int show_time);
 

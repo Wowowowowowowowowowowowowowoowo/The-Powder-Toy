@@ -8,7 +8,7 @@ class InfoPrompt : public Window_
 public:
 	InfoPrompt(std::string title, std::string message, std::string OK = "OK");
 
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 };
 
 #endif

@@ -584,19 +584,13 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	}
 
 #ifdef LUACONSOLE
-	for (std::vector<std::string>::iterator iter = save->logMessages.begin(), end = save->logMessages.end(); iter != end; ++iter)
-	{
-		char *log = mystrdup((*iter).c_str());
-		luacon_log(log);
-	}
+	for (auto logMessage : save->logMessages)
+		luacon_log(logMessage);
 
 	if (!strcmp(svf_user, "jacob1") && replace == 1)
 	{
-		for (std::vector<std::string>::iterator iter = save->adminLogMessages.begin(), end = save->adminLogMessages.end(); iter != end; ++iter)
-		{
-			char *log = mystrdup((*iter).c_str());
-			luacon_log(log);
-		}
+		for (auto adminLogMessage : save->adminLogMessages)
+			luacon_log(adminLogMessage);
 	}
 #endif
 

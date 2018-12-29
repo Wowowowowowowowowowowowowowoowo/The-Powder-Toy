@@ -552,20 +552,16 @@ void DrawRecordsInfo(Simulation * sim)
 void DrawLuaLogs()
 {
 #ifdef LUACONSOLE
-	int i;
-	for (i = 0; i < 20; i++)
+	for (int i = logHistory.size() - 1; i >= 0; i--)
 	{
-		if (log_history[i])
-		{
-			int alpha = log_history_times[i]*5>255?255:log_history_times[i]*5;
-			drawtext_outline(vid_buf, 16, (YRES-16)-i*12, log_history[i], 255, 255, 255, alpha, 0, 0, 0, alpha);
-			log_history_times[i]--;
-			if (log_history_times[i] < 0)
-			{
-				free(log_history[i]);
-				log_history[i] = NULL;
-			}
-		}
+		auto logPair = logHistory[i];
+		int alpha = logPair.second * 5;
+		if (alpha > 255)
+			alpha = 255;
+		drawtext_outline(vid_buf, 16, (YRES - 16) - i * 12, logPair.first.c_str(), 255, 255, 255, alpha, 0, 0, 0, alpha);
+		logHistory[i].second--;
+		if (logPair.second <= 1)
+			logHistory.pop_back();
 	}
 #endif
 }

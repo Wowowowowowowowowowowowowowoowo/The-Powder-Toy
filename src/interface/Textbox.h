@@ -24,7 +24,8 @@ public:
 
 	void SetCallback(TextboxAction *callback_);
 
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	virtual void OnTextInput(const char *text);
 	virtual void OnDraw(VideoBuffer* vid);
 	virtual void OnFocus();
 
@@ -42,6 +43,9 @@ private:
 
 	bool DeleteHighlight(bool updateDisplayText);
 	void InsertText(std::string inserttext);
+
+	bool CharacterValid(char c);
+	bool StringValid(const char *str);
 
 protected:
 	bool ShowCursor() { return true; }

@@ -187,12 +187,15 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	// draw the focused component on top
 	if (focused)
 		focused->OnDraw(videoBuffer);
+
+	OnDraw(videoBuffer);
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoDraw(videoBuffer->GetVid(), size, (*iter)->GetPosition());
 	}
 
-	OnDraw(videoBuffer);
+	OnDrawAfterSubwindows(videoBuffer);
 
 	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
@@ -245,13 +248,13 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseDown(x, y, button))
 		return;
-	
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoMouseDown(x-position.X, y-position.Y, button);
+		(*iter)->DoMouseDown(x - position.X, y - position.Y, button);
 	}
 
-	if (InsideSubwindow(x, y))
+	if (InsideSubwindow(x - position.X, y - position.Y))
 		return;
 	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
 	{
@@ -290,7 +293,7 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseUp(x, y, button))
 		return;
-	
+
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseUp(x-position.X, y-position.Y, button);
@@ -306,6 +309,9 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 		}
 	}
 #endif
+	if (InsideSubwindow(x - position.X, y - position.Y))
+		return;
+
 	isMouseDown = false;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -343,42 +349,61 @@ void Window_::DoMouseWheel(int x, int y, int d)
 	OnMouseWheel(x, y, d);
 }
 
-void Window_::DoKeyPress(int key, unsigned short character, unsigned short modifiers)
+void Window_::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (!BeforeKeyPress(key, character, modifiers))
+	if (!BeforeKeyPress(key, scan, repeat, shift, ctrl, alt))
 		return;
 
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoKeyPress(key, character, modifiers);
+		(*iter)->DoKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 	
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
-			(*iter)->OnKeyPress(key, character, modifiers);
+			(*iter)->OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 
-	OnKeyPress(key, character, modifiers);
+	OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 }
 
-void Window_::DoKeyRelease(int key, unsigned short character, unsigned short modifiers)
+void Window_::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (!BeforeKeyRelease(key, character, modifiers))
+	if (!BeforeKeyRelease(key, scan, repeat, shift, ctrl, alt))
 		return;
 	
 	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoKeyRelease(key, character, modifiers);
+		(*iter)->DoKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
 
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
-			(*iter)->OnKeyRelease(key, character, modifiers);
+			(*iter)->OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
 
-	OnKeyRelease(key, character, modifiers);
+	OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
+}
+
+void Window_::DoTextInput(const char *text)
+{
+	if (!BeforeTextInput(text))
+		return;
+
+	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	{
+		(*iter)->DoTextInput(text);
+	}
+
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		if (IsFocused(*iter) && (*iter)->IsVisible() && (*iter)->IsEnabled())
+			(*iter)->OnTextInput(text);
+	}
+
+	OnTextInput(text);
 }
 
 void Window_::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)

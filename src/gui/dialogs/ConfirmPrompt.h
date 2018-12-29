@@ -19,7 +19,7 @@ public:
 	bool wasConfirmed;
 	void Action(bool isConfirmed);
 
-	virtual void OnKeyPress(int key, unsigned short character, unsigned short modifiers);
+	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 };
 
 #endif
