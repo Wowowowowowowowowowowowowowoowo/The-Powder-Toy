@@ -221,7 +221,7 @@ def findLibs(env, conf):
 		if msvc:
 			libChecks = ['shell32', 'wsock32', 'user32', 'Advapi32', 'ws2_32']
 			if GetOption('static'):
-				libChecks += ['libcmt', 'dxguid']
+				libChecks += ['imm32', 'version', 'Ole32', 'OleAut32']
 			for i in libChecks:
 				if not conf.CheckLib(i):
 					FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
@@ -230,7 +230,7 @@ def findLibs(env, conf):
 				FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 
 		if not conf.CheckLib('SDL2main'):
-			FatalError("libSDLmain not found or not installed")
+			FatalError("libSDL2main not found or not installed")
 
 	#Look for SDL
 	runSdlConfig = platform == "Linux" or compilePlatform == "Linux" or platform == "FreeBSD"

@@ -1,8 +1,15 @@
 #include <iostream>
+#ifdef WIN
+#include <direct.h>
+#define getcwd _getcwd
+#endif
+#if defined(LIN) || defined(MACOSX)
 #include <unistd.h> // getcwd
+#endif
 
 #include "OptionsUI.h"
 #include "gravity.h"
+#include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
 #include "interface/Checkbox.h"
@@ -84,8 +91,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 
 	// set dropdown widths to width of largest one
 	int maxWidth = airSimDropdown->GetSize().X;
-	maxWidth = std::max(maxWidth, gravityDropdown->GetSize().X);
-	maxWidth = std::max(maxWidth, edgeModeDropdown->GetSize().X);
+	maxWidth = tpt::max(maxWidth, gravityDropdown->GetSize().X);
+	maxWidth = tpt::max(maxWidth, edgeModeDropdown->GetSize().X);
 	int xPos = size.X - 5 - maxWidth;
 	airSimDropdown->SetPosition(Point(xPos, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetSize(Point(maxWidth, airSimDropdown->GetSize().Y));

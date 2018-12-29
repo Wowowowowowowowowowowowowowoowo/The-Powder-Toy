@@ -1,4 +1,5 @@
 #include "Dropdown.h"
+#include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Window.h"
 
@@ -10,7 +11,7 @@ Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options)
 	{
 		int maxWidth = 25;
 		for (auto option : options)
-			maxWidth = std::max(maxWidth, VideoBuffer::TextSize(option).X);
+			maxWidth = tpt::max(maxWidth, VideoBuffer::TextSize(option).X);
 		this->size.X = maxWidth + 5;
 	}
 	if (size.Y == AUTOSIZE)
@@ -62,7 +63,7 @@ DropdownOptions::DropdownOptions(Point position, Point size, Dropdown * dropdown
 void DropdownOptions::OnMouseMove(int x, int y, Point difference)
 {
 	if (Point(x, y).IsInside(position, position + size))
-		hoveredOption = std::min((size_t)((y - position.Y) / 15), dropdown->options.size() - 1);
+		hoveredOption = tpt::min((size_t)((y - position.Y) / 15), dropdown->options.size() - 1);
 	else
 		hoveredOption = -1;
 }

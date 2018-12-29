@@ -54,6 +54,7 @@ config.log
 /updatepackager/
 /generated/
 /includes/SDL/*
+/includes/SDL2/*
 /includes/lua5.1/*
 /includes/lua5.2/*
 /includes/luajit-2.0/*
