@@ -1451,6 +1451,46 @@ char *input_ui(pixel *vid_buf, const char *title, const char *prompt, const char
 	return mystrdup(ed.str);
 }
 
+template <typename T>
+bool parseInteger(pixel *vid_buf, char * str, T & value)
+{
+	// #FFFFFFFF
+	if (str[0] == '#' && str[1])
+	{
+		std::stringstream parser;
+		parser << std::hex << str + 1;
+		parser >> value;
+		if (!parser.eof())
+		{
+			error_ui(vid_buf, 0, "Invalid unsigned integer");
+			return false;
+		}
+	}
+	// 0xFFFFFFFF
+	else if (str[0] == '0' && str[1] == 'x' && str[2])
+	{
+		std::stringstream parser;
+		parser << std::hex << str + 2;
+		parser >> value;
+		if (!parser.eof())
+		{
+			error_ui(vid_buf, 0, "Invalid unsigned integer");
+			return false;
+		}
+	}
+	else
+	{
+		std::stringstream parser(str);
+		parser >> value;
+		if (!parser.eof())
+		{
+			error_ui(vid_buf, 0, "Invalid unsigned integer");
+			return false;
+		}
+	}
+	return true;
+}
+
 int propSelected = 0;
 char propValue[255] = "";
 void prop_edit_ui(pixel *vid_buf)
@@ -1596,13 +1636,8 @@ void prop_edit_ui(pixel *vid_buf)
 	else if (format == 0)
 	{
 		int value;
-		std::stringstream parser(ed2.str);
-		parser >> value;
-		if (!parser.eof())
-		{
-			error_ui(vid_buf, 0, "Invalid signed integer");
+		if (!parseInteger<int>(vid_buf, ed2.str, value))
 			goto exit;
-		}
 		propTool->propValue.Integer = value;
 		propTool->propType = Integer;
 	}
@@ -1637,38 +1672,9 @@ void prop_edit_ui(pixel *vid_buf)
 	else if (format == 3)
 	{
 		unsigned int value;
-		if (ed2.str[0] == '#' && ed2.str[1]) // #FFFFFFFF
-		{
-			std::stringstream parser;
-			parser << std::hex << ed2.str+1;
-			parser >> value;
-			if (!parser.eof())
-			{
-				error_ui(vid_buf, 0, "Invalid unsigned integer");
-				goto exit;
-			}
-		}
-		else if (ed2.str[0] == '0' && ed2.str[1] == 'x' && ed2.str[2]) // 0xFFFFFFFF
-		{
-			std::stringstream parser;
-			parser << std::hex << ed2.str+2;
-			parser >> value;
-			if (!parser.eof())
-			{
-				error_ui(vid_buf, 0, "Invalid unsigned integer");
-				goto exit;
-			}
-		}
-		else
-		{
-			std::stringstream parser(ed2.str);
-			parser >> value;
-			if (!parser.eof())
-			{
-				error_ui(vid_buf, 0, "Invalid unsigned integer");
-				goto exit;
-			}
-		}
+
+		if (!parseInteger<unsigned int>(vid_buf, ed2.str, value))
+			goto exit;
 		propTool->propValue.UInteger = value;
 		propTool->propType = UInteger;
 	}
