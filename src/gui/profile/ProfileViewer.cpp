@@ -45,28 +45,11 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	{
 		avatarUploadButton = new Button(Point(210, 10), Point(40, 40), "\x81");
 		// Enable editing when this button is clicked
-		class UploadAvatarAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				dynamic_cast<ProfileViewer*>(button->GetParent()->GetParent())->UploadAvatar();
-			}
-		};
-		avatarUploadButton->SetCallback(new UploadAvatarAction());
+		avatarUploadButton->SetCallback([&](int mb) { this->UploadAvatar(); });
 		scrollArea->AddComponent(avatarUploadButton);
 
-		// Enable editing when this button is clicked
-		class EnableEditingAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				dynamic_cast<ProfileViewer*>(button->GetParent())->EnableEditing();
-			}
-		};
 		enableEditingButton = new Button(Point(0, size.Y-16), Point(this->size.X/2+1, 16), "Enable Editing");
-		enableEditingButton->SetCallback(new EnableEditingAction());
+		enableEditingButton->SetCallback([&](int mb) { this->EnableEditing(); });
 		enableEditingButton->SetEnabled(false);
 		this->AddComponent(enableEditingButton);
 	}
@@ -76,20 +59,11 @@ ProfileViewer::ProfileViewer(std::string profileName):
 		enableEditingButton = NULL;
 	}
 
-	// Open profile online when this button is clicked
-	class OpenProfileAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfile();
-		}
-	};
 	if (ownProfile)
 		openProfileButton = new Button(Point(size.X/2, size.Y-16), Point(this->size.X/2, 16), "Open Profile Online");
 	else
 		openProfileButton = new Button(Point(0, size.Y-16), Point(this->size.X, 16), "Open Profile Online");
-	openProfileButton->SetCallback(new OpenProfileAction());
+	openProfileButton->SetCallback([&](int mb) { this->OpenProfile(); });
 	this->AddComponent(openProfileButton);
 }
 
@@ -231,28 +205,10 @@ void ProfileViewer::EnableEditing()
 	dynamic_cast<Textbox*>(biographyLabel)->SetCallback(new BiographyChangedAction());
 	dynamic_cast<Textbox*>(biographyLabel)->SetType(Textbox::MULTILINE);
 
-	// Save profile when this button is clicked
-	class ProfileSaveAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<ProfileViewer*>(button->GetParent())->SaveProfile();
-		}
-	};
-	enableEditingButton->SetCallback(new ProfileSaveAction());
+	enableEditingButton->SetCallback([&](int mb) { this->SaveProfile(); });
 	enableEditingButton->SetText("Save");
 
-	// Open profile editor online when this button is clicked
-	class ProfileEditAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<ProfileViewer*>(button->GetParent())->OpenProfileEdit();
-		}
-	};
-	openProfileButton->SetCallback(new ProfileEditAction());
+	openProfileButton->SetCallback([&](int mb) { this->OpenProfileEdit(); });
 	openProfileButton->SetText("Edit profile online");
 }
 

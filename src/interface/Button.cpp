@@ -9,7 +9,6 @@ Button::Button(Point position, Point size_, std::string text_):
 	Component(position, size_),
 	textColor(COLRGB(255, 255, 255)),
 	tooltip(NULL),
-	callback(NULL),
 	alignment(CENTER),
 	state(NORMAL),
 	isCloseButton(false),
@@ -29,7 +28,6 @@ Button::Button(Point position, Point size_, std::string text_):
 
 Button::~Button()
 {
-	delete callback;
 	delete tooltip;
 }
 
@@ -70,12 +68,6 @@ void Button::SetTooltipText(std::string newTooltip)
 		tooltip->SetTip(newTooltip);
 }
 
-void Button::SetCallback(ButtonAction *callback_)
-{
-	delete callback;
-	callback = callback_;
-}
-
 void Button::OnMouseDown(int x, int y, unsigned char button)
 {
 
@@ -88,18 +80,13 @@ void Button::OnMouseUp(int x, int y, unsigned char button)
 		if (callback)
 		{
 			if (state == HOLD)
-				callback->ButtionActionCallback(this, IsHeld() ? 4 : button);
+				callback(IsHeld() ? 4 : button);
 			else
-				callback->ButtionActionCallback(this, button);
+				callback(button);
 		}
 		if (isCloseButton && GetParent())
 			GetParent()->toDelete = true;
 	}
-}
-
-void Button::OnMouseMoved(int x, int y, Point difference)
-{
-
 }
 
 void Button::OnDraw(VideoBuffer* vid)

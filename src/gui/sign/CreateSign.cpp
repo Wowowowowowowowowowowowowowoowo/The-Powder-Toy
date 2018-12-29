@@ -24,74 +24,34 @@ CreateSign::CreateSign(int signID, Point pos):
 	pointerLabel = new Label(signTextbox->Below(Point(0, 4)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Pointer:");
 	this->AddComponent(pointerLabel);
 
-	class PointerAction : public ButtonAction
-	{
-		Sign::Justification ju;
-	public:
-		PointerAction(Sign::Justification ju):
-				ButtonAction(),
-				ju(ju)
-		{
-
-		}
-
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<CreateSign*>(button->GetParent())->SetJustification(ju);
-		}
-	};
 	leftJuButton = new Button(pointerLabel->Right(Point(8, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\xA0 Left");
-	leftJuButton->SetCallback(new PointerAction(Sign::Left));
+	leftJuButton->SetCallback([&](int mb) { this->SetJustification(Sign::Left); });
 	this->AddComponent(leftJuButton);
 
 	middleJuButton = new Button(leftJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9E Middle");
-	middleJuButton->SetCallback(new PointerAction(Sign::Middle));
+	middleJuButton->SetCallback([&](int mb) { this->SetJustification(Sign::Middle); });
 	this->AddComponent(middleJuButton);
 
 	rightJuButton = new Button(middleJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9F Right");
-	rightJuButton->SetCallback(new PointerAction(Sign::Right));
+	rightJuButton->SetCallback([&](int mb) { this->SetJustification(Sign::Right); });
 	this->AddComponent(rightJuButton);
 
 	noneJuButton = new Button(rightJuButton->Right(Point(5, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\x9D None");
-	noneJuButton->SetCallback(new PointerAction(Sign::NoJustification));
+	noneJuButton->SetCallback([&](int mb) { this->SetJustification(Sign::NoJustification); });
 	this->AddComponent(noneJuButton);
 
-	class MoveAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<CreateSign*>(button->GetParent())->MoveSign();
-		}
-	};
 	moveButton = new Button(leftJuButton->Below(Point(0, 4)), leftJuButton->GetSize(), "Move");
-	moveButton->SetCallback(new MoveAction());
+	moveButton->SetCallback([&](int mb) { this->MoveSign(); });
 	moveButton->SetCloseButton(true);
 	this->AddComponent(moveButton);
 
-	class DeleteAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<CreateSign*>(button->GetParent())->DeleteSign();
-		}
-	};
 	deleteButton = new Button(middleJuButton->Below(Point(0, 4)), middleJuButton->GetSize(), "\x85 Delete");
-	deleteButton->SetCallback(new DeleteAction());
+	deleteButton->SetCallback([&](int mb) { this->DeleteSign(); });
 	deleteButton->SetCloseButton(true);
 	this->AddComponent(deleteButton);
 
-	class OkAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<CreateSign*>(button->GetParent())->SaveSign();
-		}
-	};
 	okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
-	okButton->SetCallback(new OkAction());
+	okButton->SetCallback([&](int mb) { this->SaveSign(); });
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
 

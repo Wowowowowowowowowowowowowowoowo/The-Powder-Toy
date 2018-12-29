@@ -151,18 +151,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	this->AddComponent(descLabel);
 
 
-	// TODO: better callback functions for buttons
-	class OpenDataFolderAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<OptionsUI*>(button->GetParent()->GetParent())->DataFolderClicked();
-		}
-	};
-
 	dataFolderButton = new Button(updatesCheckbox->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
-	dataFolderButton->SetCallback(new OpenDataFolderAction());
+	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
 	this->AddComponent(dataFolderButton);
 
 

@@ -8,7 +8,6 @@
 #include "common/Point.h"
 #include "interface/Window.h"
 
-class Dropdown;
 class VideoBuffer;
 
 class Dropdown : public Component

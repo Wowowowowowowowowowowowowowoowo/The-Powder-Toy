@@ -8,7 +8,6 @@
 #include "Component.h"
 
 class VideoBuffer;
-class Checkbox;
 class ToolTip;
 
 class Checkbox : public Component

@@ -164,36 +164,21 @@ PowderToy::PowderToy():
 	const int tooltipAlpha = -2;
 	const int minWidth = 0;
 #endif
-	class OpenBrowserAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenBrowserBtn(b);
-		}
-	};
+
 #ifdef TOUCHUI
 	openBrowserButton = new Button(Point(xOffset, YRES+MENUSIZE-20), Point(minWidth, ySize), "\x81");
 #else
 	openBrowserButton = new Button(Point(xOffset, YRES+MENUSIZE-16), Point(18-xOffset, ySize), "\x81");
 #endif
-	openBrowserButton->SetCallback(new OpenBrowserAction());
+	openBrowserButton->SetCallback([&](int mb) { this->OpenBrowserBtn(mb); });
 #ifdef TOUCHUI
 	openBrowserButton->SetState(Button::HOLD);
 #endif
 	openBrowserButton->SetTooltip(new ToolTip("Find & open a simulation", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(openBrowserButton);
 
-	class ReloadAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->ReloadSaveBtn(b);
-		}
-	};
 	reloadButton = new Button(openBrowserButton->Right(Point(1, 0)), Point(minWidth > 17 ? minWidth : 17, ySize), "\x91");
-	reloadButton->SetCallback(new ReloadAction());
+	reloadButton->SetCallback([&](int mb) { this->ReloadSaveBtn(mb); });
 	reloadButton->SetEnabled(false);
 #ifdef TOUCHUI
 	reloadButton->SetState(Button::HOLD);
@@ -201,149 +186,70 @@ PowderToy::PowderToy():
 	reloadButton->SetTooltip(new ToolTip("Reload the simulation \bg(ctrl+r)", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(reloadButton);
 
-	class SaveAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->DoSaveBtn(b);
-		}
-	};
 	saveButton = new Button(reloadButton->Right(Point(1, 0)), Point(minWidth > 151 ? minWidth : 151, ySize), "\x82 [untitled simulation]");
 	saveButton->SetAlign(Button::LEFT);
-	saveButton->SetCallback(new SaveAction());
+	saveButton->SetCallback([&](int mb) { this->DoSaveBtn(mb); });
 #ifdef TOUCHUI
 	saveButton->SetState(Button::HOLD);
 #endif
 	saveButton->SetTooltip(new ToolTip("Upload a new simulation", Point(minWidth > 16 ? minWidth : 16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(saveButton);
 
-	class VoteAction : public ButtonAction
-	{
-		bool voteType;
-	public:
-		VoteAction(bool up):
-			ButtonAction()
-		{
-			voteType = up;
-		}
-
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->DoVoteBtn(voteType);
-		}
-	};
 #ifdef TOUCHUI
 	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(minWidth > 40 ? minWidth: 40, ySize), "\xCB");
 #else
 	upvoteButton = new Button(saveButton->Right(Point(1, 0)), Point(minWidth > 40 ? minWidth: 40, ySize), "\xCB Vote");
 #endif
 	upvoteButton->SetColor(COLRGB(0, 187, 18));
-	upvoteButton->SetCallback(new VoteAction(true));
+	upvoteButton->SetCallback([&](int mb) { this->DoVoteBtn(true); });
 	upvoteButton->SetTooltip(new ToolTip("Like this save", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(upvoteButton);
 
 	downvoteButton = new Button(upvoteButton->Right(Point(0, 0)), Point(minWidth > 16 ? minWidth : 16, ySize), "\xCA");
 	downvoteButton->SetColor(COLRGB(187, 40, 0));
-	downvoteButton->SetCallback(new VoteAction(false));
+	downvoteButton->SetCallback([&](int mb) { this->DoVoteBtn(false); });
 	downvoteButton->SetTooltip(new ToolTip("Disike this save", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(downvoteButton);
 
 
 	// We now start placing buttons from the right side, because tags button is in the middle and uses whatever space is leftover
-	class PauseAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->TogglePauseBtn();
-		}
-	};
 	Point size = Point(minWidth > 15 ? minWidth : 15, ySize);
 	pauseButton = new Button(Point(XRES+BARSIZE-size.X-xOffset, openBrowserButton->GetPosition().Y), size, "\x90");
-	pauseButton->SetCallback(new PauseAction());
+	pauseButton->SetCallback([&](int mb) { this->TogglePauseBtn(); });
 	pauseButton->SetTooltip(new ToolTip("Pause the simulation \bg(space)", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(pauseButton);
 
-	class RenderOptionsAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->RenderOptionsBtn();
-		}
-	};
 	size = Point(minWidth > 17 ? minWidth : 17, ySize);
 	renderOptionsButton = new Button(pauseButton->Left(Point(size.X+1, 0)), size, "\xD8");
-	renderOptionsButton->SetCallback(new RenderOptionsAction());
+	renderOptionsButton->SetCallback([&](int mb) { this->RenderOptionsBtn(); });
 	renderOptionsButton->SetTooltip(new ToolTip("Renderer options", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(renderOptionsButton);
 
-	class LoginButtonAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->LoginBtn();
-		}
-	};
 	size = Point(minWidth > 95 ? minWidth : 95, ySize);
 	loginButton = new Button(renderOptionsButton->Left(Point(size.X+1, 0)), size, "\x84 [sign in]");
 	loginButton->SetAlign(Button::LEFT);
-	loginButton->SetCallback(new LoginButtonAction());
+	loginButton->SetCallback([&](int mb) { this->LoginBtn(); });
 	loginButton->SetTooltip(new ToolTip("Sign into the Simulation Server", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(loginButton);
 
-	class ClearSimAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			NewSim();
-		}
-	};
 	size = Point(minWidth > 17 ? minWidth : 17, ySize);
 	clearSimButton = new Button(loginButton->Left(Point(size.X+1, 0)), size, "\x92");
-	clearSimButton->SetCallback(new ClearSimAction());
+	clearSimButton->SetCallback([](int mb) { NewSim(); });
 	clearSimButton->SetTooltip(new ToolTip("Erase all particles and walls", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(clearSimButton);
 
-	class OpenOptionsAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenOptionsBtn();
-		}
-	};
 	size = Point(minWidth > 15 ? minWidth : 15, ySize);
 	optionsButton = new Button(clearSimButton->Left(Point(size.X+1, 0)), size, "\xCF");
-	optionsButton->SetCallback(new OpenOptionsAction());
+	optionsButton->SetCallback([&](int mb) { this->OpenOptionsBtn(); });
 	optionsButton->SetTooltip(new ToolTip("Simulation options", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(optionsButton);
 
-	class ReportBugAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->ReportBugBtn();
-		}
-	};
 	size = Point(minWidth > 15 ? minWidth : 15, ySize);
 	reportBugButton = new Button(optionsButton->Left(Point(size.X+1, 0)), size, "\xE7");
-	reportBugButton->SetCallback(new ReportBugAction());
+	reportBugButton->SetCallback([&](int mb) { this->ReportBugBtn(); });
 	reportBugButton->SetTooltip(new ToolTip("Report bugs and feedback to jacob1", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(reportBugButton);
 
-	class OpenTagsAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenTagsBtn();
-		}
-	};
 	Point tagsPos = downvoteButton->Right(Point(1, 0));
 #ifdef TOUCHUI
 	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, ySize), "\x83");
@@ -351,7 +257,7 @@ PowderToy::PowderToy():
 	openTagsButton = new Button(tagsPos, Point((reportBugButton->Left(Point(1, 0))-tagsPos).X, ySize), "\x83 [no tags set]");
 	openTagsButton->SetAlign(Button::LEFT);
 #endif
-	openTagsButton->SetCallback(new OpenTagsAction());
+	openTagsButton->SetCallback([&](int mb) { this->OpenTagsBtn(); });
 	openTagsButton->SetTooltip(new ToolTip("Add simulation tags", Point(16, YRES-24), TOOLTIP, tooltipAlpha));
 	AddComponent(openTagsButton);
 
@@ -437,52 +343,40 @@ void PowderToy::DelayedHttpInitialization()
 #ifndef TOUCHUI
 	if (prevDNS != prevDNSalt && prevDNS != 0 && prevDNSalt != 0)
 	{
-		class SwapDNSAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				if (b == 1)
-				{
-					prevDNS = prevDNSalt;
-					save_presets();
-					Platform::DoRestart(true);
-				}
-				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-			}
-		};
 		std::string message;
 		if (swappedDNS)
 			message = "Using alternate DNS due to mismatch. Click here to undo if online does not work";
 		else
 			message = "DNS mismatch found. Click here to use an alternate DNS if online does not work";
 		Button *notification = AddNotification(message);
-		notification->SetCallback(new SwapDNSAction());
+		notification->SetCallback([&](int mb) {
+			if (mb == 1)
+			{
+				prevDNS = prevDNSalt;
+				save_presets();
+				Platform::DoRestart(true);
+			}
+			this->RemoveComponent(notification);
+		});
 		AddComponent(notification);
 	}
 	if (prevDNSstatic != prevDNSstaticalt && prevDNSstatic != 0 && prevDNSstaticalt != 0)
 	{
-		class SwapDNSStaticAction : public ButtonAction
-		{
-		public:
-			virtual void ButtionActionCallback(Button *button, unsigned char b)
-			{
-				if (b == 1)
-				{
-					prevDNSstatic = prevDNSstaticalt;
-					save_presets();
-					Platform::DoRestart(true);
-				}
-				dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-			}
-		};
 		std::string message;
 		if (swappedDNSstatic)
 			message = "Using alternate static DNS due to mismatch. Click here to undo if online does not work";
 		else
 			message = "static DNS mismatch found. Click here to use an alternate DNS if online does not work";
 		Button *notification = AddNotification(message);
-		notification->SetCallback(new SwapDNSStaticAction());
+		notification->SetCallback([&](int mb) {
+			if (mb == 1)
+			{
+				prevDNSstatic = prevDNSstaticalt;
+				save_presets();
+				Platform::DoRestart(true);
+			}
+			this->RemoveComponent(notification);
+		});
 		AddComponent(notification);
 	}
 #endif
@@ -1213,25 +1107,6 @@ void PowderToy::OnTick(uint32_t ticks)
 
 				//std::string motd = root["MessageOfTheDay"].asString();
 
-				class DoUpdateAction : public ButtonAction
-				{
-					std::string changelog, filename;
-				public:
-					DoUpdateAction(std::string changelog_, std::string filename_):
-						ButtonAction(),
-						changelog(changelog_),
-						filename(filename_)
-					{
-
-					}
-
-					virtual void ButtionActionCallback(Button *button, unsigned char b)
-					{
-						if (b == 1)
-							dynamic_cast<PowderToy*>(button->GetParent())->ConfirmUpdate(changelog, filename);
-						button->GetParent()->RemoveComponent(button);
-					}
-				};
 				Json::Value updates = root["Updates"];
 				Json::Value stable = updates["Stable"];
 				int major = stable["Major"].asInt();
@@ -1248,30 +1123,18 @@ void PowderToy::OnTick(uint32_t ticks)
 					changelogStream << "\bbYour version: " << MOD_VERSION << "." << MOD_MINOR_VERSION << " (" << MOD_BUILD_VERSION << ")\nNew version: " << major << "." << minor << " (" << buildnum << ")\n\n\bwChangeLog:\n";
 #endif
 					changelogStream << changelog;
+					std::string changelogText = changelogStream.str();
 
 					Button *notification = AddNotification("A new version is available - click here!");
-					notification->SetCallback(new DoUpdateAction(changelogStream.str(), file));
+					notification->SetCallback([this, changelogText, file, notification](int mb) {
+						if (mb == 1)
+							this->ConfirmUpdate(changelogText, file);
+						this->RemoveComponent(notification);
+					});
 					AddComponent(notification);
 				}
 
 
-				class NotificationOpenAction : public ButtonAction
-				{
-					std::string link;
-				public:
-					NotificationOpenAction(std::string link_):
-						ButtonAction()
-					{
-						link = link_;
-					}
-
-					virtual void ButtionActionCallback(Button *button, unsigned char b)
-					{
-						if (b == 1)
-							Platform::OpenLink(link);
-						dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-					}
-				};
 				Json::Value notifications = root["Notifications"];
 				for (int i = 0; i < (int)notifications.size(); i++)
 				{
@@ -1279,7 +1142,11 @@ void PowderToy::OnTick(uint32_t ticks)
 					std::string link = notifications[i]["Link"].asString();
 
 					Button *notification = AddNotification(message);
-					notification->SetCallback(new NotificationOpenAction(link));
+					notification->SetCallback([this, link, notification](int mb) {
+						if (mb == 1)
+							Platform::OpenLink(link);
+						this->RemoveComponent(notification);
+					});
 				}
 			}
 			catch (std::exception &e)
@@ -1327,23 +1194,6 @@ void PowderToy::OnTick(uint32_t ticks)
 
 				//std::string motd = root["MessageOfTheDay"].asString();
 
-				class NotificationOpenAction : public ButtonAction
-				{
-					std::string link;
-				public:
-					NotificationOpenAction(std::string link_):
-						ButtonAction()
-					{
-						link = link_;
-					}
-
-					virtual void ButtionActionCallback(Button *button, unsigned char b)
-					{
-						if (b == 1)
-							Platform::OpenLink(link);
-						dynamic_cast<PowderToy*>(button->GetParent())->RemoveComponent(button);
-					}
-				};
 				Json::Value notifications = root["Notifications"];
 				for (int i = 0; i < (int)notifications.size(); i++)
 				{
@@ -1351,7 +1201,11 @@ void PowderToy::OnTick(uint32_t ticks)
 					std::string link = notifications[i]["Link"].asString();
 
 					Button *notification = AddNotification(message);
-					notification->SetCallback(new NotificationOpenAction(link));
+					notification->SetCallback([this, link, notification](int mb) {
+						if (mb == 1)
+							Platform::OpenLink(link);
+						this->RemoveComponent(notification);
+					});
 				}
 			}
 			catch (std::exception &e)

@@ -247,30 +247,16 @@ Point RenderModesUI::ButtonPos(Button *prev1, Button *prev2)
 #endif
 }
 
-class ToggleDisplayPresetAction : public ButtonAction
-{
-	int display_preset;
-public:
-	ToggleDisplayPresetAction(int display_preset):
-		display_preset(display_preset)
-	{
-
-	}
-
-	virtual void ButtionActionCallback(Button *button, unsigned char b)
-	{
-		if (Renderer::Ref().LoadRenderPreset(display_preset))
-		{
-			std::string tooltip = Renderer::Ref().GetRenderPresetToolTip(display_preset);
-			UpdateToolTip(tooltip, Point(XCNTR-textwidth(tooltip.c_str())/2, YCNTR-10), INFOTIP, 255);
-			save_presets();
-		}
-	}
-};
-
 void RenderModesUI::InitializeButton(Button *button, int preset)
 {
-	button->SetCallback(new ToggleDisplayPresetAction(preset));
+	button->SetCallback([preset](int mb) {
+		if (Renderer::Ref().LoadRenderPreset(preset))
+		{
+			std::string tooltip = Renderer::Ref().GetRenderPresetToolTip(preset);
+			UpdateToolTip(tooltip, Point(XCNTR - textwidth(tooltip.c_str()) / 2, YCNTR - 10), INFOTIP, 255);
+			save_presets();
+		}
+	});
 	buttons.push_back(button);
 	this->AddComponent(button);
 }

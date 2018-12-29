@@ -16,20 +16,12 @@ ConfirmPrompt::ConfirmPrompt(ConfirmAction *confirmAction, std::string title, st
 	this->Resize(Point(CENTERED, CENTERED), Point(250, messageLabel->GetSize().Y+39));
 	this->AddComponent(messageLabel);
 
-	class ConfirmButtonAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<ConfirmPrompt*>(button->GetParent())->wasConfirmed = true;
-		}
-	};
 	Button *cancelButton = new Button(Point(0, this->size.Y-15), Point(2*this->size.X/3+1, 15), cancel);
 	cancelButton->SetCloseButton(true);
 	this->AddComponent(cancelButton);
 
 	Button *okButton = new Button(Point(2*this->size.X/3, this->size.Y-15), Point(this->size.X/3+1, 15), OK);
-	okButton->SetCallback(new ConfirmButtonAction());
+	okButton->SetCallback([&](int mb) { this->wasConfirmed = true; });
 	okButton->SetTextColor(COLRGB(140, 140, 255));
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);

@@ -1,20 +1,14 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include <functional>
 #include <string>
 #include "common/Point.h"
 #include "graphics/ARGBColour.h"
 #include "Component.h"
 
 class VideoBuffer;
-class Button;
 class ToolTip;
-class ButtonAction
-{
-public:
-	virtual ~ButtonAction() { }
-	virtual void ButtionActionCallback(Button *button, unsigned char b) = 0;
-};
 
 class Button : public Component
 {
@@ -27,7 +21,7 @@ private:
 	std::string text;
 	ARGBColour textColor;
 	ToolTip *tooltip;
-	ButtonAction *callback;
+	std::function<void(int)> callback = nullptr;
 	TextAlign alignment;
 	State state;
 	bool isCloseButton;
@@ -45,18 +39,17 @@ public:
 	void SetTextColor(ARGBColour newColor);
 	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
-	void SetCallback(ButtonAction *callback_);
+	void SetCallback(std::function<void(int)> callback) { this->callback = callback; }
 	void SetAlign(TextAlign align) { alignment = align; }
 	void SetState(State state_) { state = state_; }
 	void SetCloseButton(bool isCloseButton_) { isCloseButton = isCloseButton_; }
 
 	bool IsHeld() { return timeHeldDown > heldThreshold; }
 
-	virtual void OnMouseDown(int x, int y, unsigned char button);
-	virtual void OnMouseUp(int x, int y, unsigned char button);
-	virtual void OnMouseMoved(int x, int y, Point difference);
-	virtual void OnDraw(VideoBuffer* vid);
-	virtual void OnTick(uint32_t ticks);
+	void OnMouseDown(int x, int y, unsigned char button) override;
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnDraw(VideoBuffer* vid) override;
+	void OnTick(uint32_t ticks) override;
 
 	static const int AUTOSIZE = -1;
 };
