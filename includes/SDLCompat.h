@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-#if defined(WIN) || defined(LIN)
+#if defined(WIN)
 #ifdef SDL_R_INCL
 #include <SDL_syswm.h>
 #else

@@ -184,6 +184,7 @@ public:
 	void OnDefocus() override;
 	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) override;
 
+	bool BeforeMouseMove(int x, int y, Point difference) override;
 	bool BeforeMouseDown(int x, int y, unsigned char button) override;
 	bool BeforeMouseUp(int x, int y, unsigned char button) override;
 	bool BeforeMouseWheel(int x, int y, int d) override;

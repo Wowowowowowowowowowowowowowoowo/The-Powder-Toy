@@ -1453,6 +1453,12 @@ void PowderToy::OnDraw(VideoBuffer *buf)
 	Renderer::Ref().RecordingTick();
 }
 
+bool PowderToy::BeforeMouseMove(int x, int y, Point difference)
+{
+	MouseMoveEvent ev = MouseMoveEvent(x, y, difference.X, difference.Y);
+	return HandleEvent(LuaEvents::mousemove, &ev);
+}
+
 void PowderToy::OnMouseMove(int x, int y, Point difference)
 {
 	mouse = Point(x, y);
