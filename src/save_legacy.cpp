@@ -19,7 +19,7 @@
 #include <bzlib.h>
 #include "defines.h"
 #include "powder.h"
-#include "save.h"
+#include "save_legacy.h"
 #include "graphics.h"
 #include "BSON.h"
 #include "interface.h"

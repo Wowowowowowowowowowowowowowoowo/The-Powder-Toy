@@ -57,7 +57,7 @@
 #include "misc.h"
 #include "powder.h"
 #include "powdergraphics.h"
-#include "save.h"
+#include "save_legacy.h"
 #include "update.h"
 
 #include "common/Format.h"

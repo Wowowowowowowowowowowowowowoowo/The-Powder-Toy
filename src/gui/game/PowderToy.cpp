@@ -12,7 +12,7 @@
 #include "powdergraphics.h"
 #include "PowderToy.h"
 #include "misc.h"
-#include "save.h"
+#include "save_legacy.h"
 #include "update.h"
 
 #include "common/Format.h"

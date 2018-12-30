@@ -17,7 +17,7 @@
 #include "luascriptinterface.h"
 #include "powder.h"
 #include "powdergraphics.h"
-#include "save.h"
+#include "save_legacy.h"
 #include "hud.h"
 
 #include "common/Format.h"

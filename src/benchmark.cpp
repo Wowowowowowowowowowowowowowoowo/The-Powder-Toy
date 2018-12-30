@@ -7,7 +7,7 @@
 #include "graphics.h"
 #include "powdergraphics.h"
 #include "benchmark.h"
-#include "save.h"
+#include "save_legacy.h"
 
 #include "common/Point.h"
 #include "game/Save.h"

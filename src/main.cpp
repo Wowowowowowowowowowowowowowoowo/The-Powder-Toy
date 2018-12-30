@@ -30,6 +30,7 @@
 #include <string.h>
 #include <math.h>
 #include "EventLoopSDL.h"
+#include "SDLCompat.h"
 #include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>
@@ -72,7 +73,7 @@
 #include "console.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
-#include "save.h"
+#include "save_legacy.h"
 #include "hud.h"
 #include "benchmark.h"
 

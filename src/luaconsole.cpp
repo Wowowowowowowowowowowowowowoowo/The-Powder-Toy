@@ -43,7 +43,7 @@ extern "C"
 #include "interface.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
-#include "save.h"
+#include "save_legacy.h"
 
 #include "common/Format.h"
 #include "common/Platform.h"
