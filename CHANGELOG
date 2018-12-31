@@ -927,3 +927,10 @@ textboxes in deco editor. Fix ctrl+backspace bug in old UI textboxes. Fix
 issues undoing shift+WIND tool. Fix line drawing creating extra particles with
 flat brushes. Show "X" button next to notifications. Mac version not supported
 at the moment due to issues with the sdl2 upgrade.
+
+Version 42.1 2018-12-30
+Fix mousemove Lua event. Fix PLUT always exploding quickly. Fix difficulty
+resizing window sometimes. Save resizable and alt fullscreen options to
+powder.pref. Add hidden option to change pixel rescaling mode when window
+is resized (beginning of konami code in options ui). This is extremely blurry
+so is hidden by default.
