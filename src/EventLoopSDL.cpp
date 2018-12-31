@@ -296,6 +296,8 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	{
 		int mx = event.motion.x, my = event.motion.y;
 		GetTempMousePosition(&mx, &my);
+		if (mx < 0 || my < 0 || mx >= VIDXRES || my >= VIDYRES)
+			break;
 		if (eventHandler)
 			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
@@ -623,6 +625,8 @@ int mouse_get_state(int *x, int *y)
 	//return (int)CalculateMousePosition(x, y);
 	*x = lastMousePosition.X;
 	*y = lastMousePosition.Y;
+	if (*x < 0 || *y < 0 || *x >= VIDXRES || *y >= VIDYRES)
+		return 0;
 	return SDL_GetMouseState(nullptr, nullptr);
 }
 
