@@ -123,11 +123,10 @@ int SDLOpen()
 	return 1;
 }
 
-void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_)
+void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_, bool recreateWindow)
 {
-	bool recreateWindow = false;
-	if (resizable != resizable_ && !fullscreen)
-		recreateWindow = true;
+	if (!(resizable != resizable_ && !fullscreen))
+		recreateWindow = false;
 	fullscreen = fullscreen_;
 	altFullscreen = altFullscreen_;
 	resizable = resizable_;

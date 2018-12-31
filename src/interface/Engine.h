@@ -28,7 +28,7 @@ public:
 	void SetScale(unsigned int scale);
 
 	bool IsResizable();
-	void SetResizable(bool resizable);
+	void SetResizable(bool resizable, bool recreateWindow);
 
 	bool IsFullscreen();
 	void SetFullscreen(bool fullscreen);

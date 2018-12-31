@@ -105,7 +105,7 @@ void Engine::SetScale(unsigned int scale)
 	if (this->scale != scale)
 	{
 		this->scale = scale;
-		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
 	}
 }
 
@@ -114,11 +114,11 @@ bool Engine::IsResizable()
 	return resizable;
 }
 
-void Engine::SetResizable(bool resizable)
+void Engine::SetResizable(bool resizable, bool recreateWindow)
 {
 	if (this->resizable != resizable)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		SDLSetScreen(resizable, fullscreen, altFullscreen, recreateWindow);
 		this->resizable = resizable;
 	}
 }
@@ -132,7 +132,7 @@ void Engine::SetFullscreen(bool fullscreen)
 {
 	if (this->fullscreen != fullscreen)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
 		this->fullscreen = fullscreen;
 	}
 }
@@ -146,7 +146,7 @@ void Engine::SetAltFullscreen(bool altFullscreen)
 {
 	if (this->altFullscreen != altFullscreen)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen);
+		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
 		this->altFullscreen = altFullscreen;
 	}
 }

@@ -245,7 +245,7 @@ void OptionsUI::DoubleSizeChecked(bool checked)
 
 void OptionsUI::ResizableChecked(bool checked)
 {
-	Engine::Ref().SetResizable(checked);
+	Engine::Ref().SetResizable(checked, true);
 }
 
 void OptionsUI::FullscreenChecked(bool checked)

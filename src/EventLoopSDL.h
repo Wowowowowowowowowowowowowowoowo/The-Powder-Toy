@@ -17,7 +17,7 @@ extern int sdl_key, sdl_wheel;
 void SaveWindowPosition();
 
 int SDLOpen();
-void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_);
+void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_, bool recreateWindow);
 
 void SDLBlit(pixel * vid);
 

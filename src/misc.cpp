@@ -261,8 +261,12 @@ void save_presets()
 	//General settings
 	cJSON_AddStringToObject(root, "Proxy", http_proxy_string);
 	cJSON_AddNumberToObject(root, "Scale", Engine::Ref().GetScale());
+	if (Engine::Ref().IsResizable())
+		cJSON_AddTrueToObject(root, "Resizable");
 	if (Engine::Ref().IsFullscreen())
-		cJSON_AddTrueToObject(root, "FullScreen");
+		cJSON_AddTrueToObject(root, "Fullscreen");
+	if (Engine::Ref().IsAltFullscreen())
+		cJSON_AddTrueToObject(root, "AltFullscreen");
 	if (Engine::Ref().IsFastQuit())
 		cJSON_AddTrueToObject(root, "FastQuit");
 	else
@@ -581,8 +585,12 @@ void load_presets(void)
 			if (scale >= 0 && scale <= 5)
 				Engine::Ref().SetScale(scale);
 		}
+		if ((tmpobj = cJSON_GetObjectItem(root, "Resizable")))
+			Engine::Ref().SetResizable(tmpobj->valueint ? true : false, false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "Fullscreen")))
 			Engine::Ref().SetFullscreen(tmpobj->valueint ? true : false);
+		if ((tmpobj = cJSON_GetObjectItem(root, "AltFullscreen")))
+			Engine::Ref().SetAltFullscreen(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
 			Engine::Ref().SetFastQuit(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowX")))
