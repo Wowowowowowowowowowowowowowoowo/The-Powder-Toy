@@ -13,13 +13,14 @@
 #include "interface.h"
 
 #include "common/Platform.h"
+#include "common/tpt-minmax.h"
 #include "interface/Engine.h"
 #include "gui/game/PowderToy.h" // for the_game->DeFocus(), remove once all interfaces get modernized
 
 
-SDL_Window * sdl_window;
-SDL_Renderer * sdl_renderer;
-SDL_Texture * sdl_texture;
+SDL_Window * sdl_window = nullptr;
+SDL_Renderer * sdl_renderer = nullptr;
+SDL_Texture * sdl_texture = nullptr;
 
 bool fullscreen = false;
 bool altFullscreen = false;
@@ -37,6 +38,10 @@ void LoadWindowPosition()
 {
 	int borderTop, borderLeft;
 	SDL_GetWindowBordersSize(sdl_window, &borderTop, &borderLeft, nullptr, nullptr);
+	// Sometimes (Windows), the border size may not be reported for 200+ frames
+	// So just have a default of 5 to ensure the window doesn't get stuck where it can't be moved
+	if (borderTop == 0)
+		borderTop = 5;
 
 	// SDL will check this for us
 	// This check won't work for multiple monitors
@@ -58,6 +63,7 @@ void SaveWindowPosition()
 }
 
 int sdl_opened = 0;
+void RecreateWindow();
 int SDLOpen()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -66,25 +72,7 @@ int SDLOpen()
 		return 0;
 	}
 
-	unsigned int flags = 0;
-	if (fullscreen)
-		flags = altFullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (resizable)
-		flags |= SDL_WINDOW_RESIZABLE;
-	sdl_window = SDL_CreateWindow("Jacob1'sMod", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	        VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale(), flags);
-	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
-	SDL_RenderSetLogicalSize(sdl_renderer, VIDXRES, VIDYRES);
-	//Uncomment this to force fullscreen to an integer resolution
-	//SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
-	sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-	        VIDXRES, VIDYRES);
-	if (fullscreen)
-		SDL_RaiseWindow(sdl_window);
-	//Uncomment this to enable resizing
-	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	//SDL_SetWindowResizable(sdl_window, SDL_TRUE);
-
+	RecreateWindow();
 
 	if (!sdl_opened)
 	{
@@ -99,9 +87,6 @@ int SDLOpen()
 			}
 		}
 	}
-
-	if (!firstRun)
-		LoadWindowPosition();
 
 #ifdef ANDROID
 	// hide overlay buttons that just get in the way
@@ -140,9 +125,17 @@ int SDLOpen()
 
 void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_)
 {
+	bool recreateWindow = false;
+	if (resizable != resizable_ && !fullscreen)
+		recreateWindow = true;
 	fullscreen = fullscreen_;
 	altFullscreen = altFullscreen_;
 	resizable = resizable_;
+	if (recreateWindow)
+	{
+		RecreateWindow();
+		return;
+	}
 	SDL_SetWindowSize(sdl_window, VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale());
 	unsigned int flags = 0;
 	if (fullscreen)
@@ -151,6 +144,41 @@ void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_)
 	if (fullscreen)
 		SDL_RaiseWindow(sdl_window);
 	SDL_SetWindowResizable(sdl_window, resizable ? SDL_TRUE : SDL_FALSE);
+}
+
+void RecreateWindow()
+{
+	unsigned int flags = 0;
+	if (fullscreen)
+		flags = altFullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (resizable)
+		flags |= SDL_WINDOW_RESIZABLE;
+
+	if (sdl_texture)
+		SDL_DestroyTexture(sdl_texture);
+	if (sdl_renderer)
+		SDL_DestroyRenderer(sdl_renderer);
+	if (sdl_window)
+	{
+		SaveWindowPosition();
+		SDL_DestroyWindow(sdl_window);
+	}
+
+	sdl_window = SDL_CreateWindow("Jacob1'sMod", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	        VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale(), flags);
+	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+	SDL_RenderSetLogicalSize(sdl_renderer, VIDXRES, VIDYRES);
+	//Uncomment this to force fullscreen to an integer resolution
+	//SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
+	sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+		VIDXRES, VIDYRES);
+	if (fullscreen)
+		SDL_RaiseWindow(sdl_window);
+	//Uncomment this to enable resizing
+	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+	if (!firstRun)
+		LoadWindowPosition();
 }
 
 void SDLBlit(pixel * vid)
