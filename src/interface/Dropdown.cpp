@@ -42,14 +42,18 @@ void Dropdown::OnMouseUp(int x, int y, unsigned char button)
 
 		DropdownOptions *dropdownOptions = new DropdownOptions(windowPos, windowSize, this);
 		this->GetParent()->AddSubwindow(dropdownOptions);
+		isSelectingOption = true;
 	}
 }
 
 void Dropdown::OnDraw(VideoBuffer* vid)
 {
-	vid->DrawRect(position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
+	ARGBColour col = color;
+	if (!enabled)
+		col = COLARGB(COLA(col), (int)(COLR(col) * .55f), (int)(COLG(col) * .55f), (int)(COLB(col) * .55f));
+	vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(col), COLG(col), COLB(col), COLA(col));
 	if (selectedOption < options.size())
-		vid->DrawText(position.X + 3, position.Y + 4, options[selectedOption], 255, 255, 255, 255);
+		vid->DrawText(position.X + 3, position.Y + 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
 }
 
 
@@ -58,6 +62,11 @@ DropdownOptions::DropdownOptions(Point position, Point size, Dropdown * dropdown
 	dropdown(dropdown)
 {
 
+}
+
+DropdownOptions::~DropdownOptions()
+{
+	dropdown->isSelectingOption = false;
 }
 
 void DropdownOptions::OnMouseMove(int x, int y, Point difference)

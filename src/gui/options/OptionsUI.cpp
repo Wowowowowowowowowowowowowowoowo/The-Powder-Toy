@@ -20,7 +20,7 @@
 #include "simulation/Simulation.h"
 
 OptionsUI::OptionsUI(Simulation *sim):
-	Window_(Point(CENTERED, CENTERED), Point(255, 400)),
+	Window_(Point(CENTERED, CENTERED), Point(300, 400)),
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())
 {
@@ -116,9 +116,20 @@ OptionsUI::OptionsUI(Simulation *sim):
 	resizableCheckbox->SetCallback([&](bool checked) { this->ResizableChecked(checked); });
 	this->AddComponent(resizableCheckbox);
 
-	descLabel = new Label(resizableCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Allow resizing and maximizing window");
-	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	resizableLabel = new Label(resizableCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Allow resizing window");
+	resizableLabel->SetColor(COLRGB(150, 150, 150));
+	this->AddComponent(resizableLabel);
+
+	filteringDropdown = new Dropdown(Point(0, 0), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Nearest", "Linear", "Best"});
+	filteringDropdown->SetPosition(Point(this->size.X - 5 - filteringDropdown->GetSize().X, resizableCheckbox->GetPosition().Y));
+	filteringDropdown->SetCallback([&](unsigned int option) { this->FilteringSelected(option); });
+	this->AddComponent(filteringDropdown);
+	filteringDropdown->SetVisible(false);
+
+	filteringLabel = new Label(Point(0, 0), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Pixel sampling mode:");
+	filteringLabel->SetPosition(Point(filteringDropdown->Left(Point(filteringLabel->GetSize().X + 5, 0)).X, filteringDropdown->GetPosition().Y));
+	this->AddComponent(filteringLabel);
+	filteringLabel->SetVisible(false);
 
 	fullscreenCheckbox = new Checkbox(resizableCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Fullscreen");
 	fullscreenCheckbox->UseCheckIcon(true);
@@ -129,7 +140,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	altFullscreenCheckbox = new Checkbox(fullscreenCheckbox->Right(Point(70, 0)), Point(Checkbox::AUTOSIZE, 13), "Change Resolution");
+	altFullscreenCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, 13), "Change Resolution");
+	altFullscreenCheckbox->SetPosition(Point(this->size.X - 5 - altFullscreenCheckbox->GetSize().X, fullscreenCheckbox->GetPosition().Y));
 	altFullscreenCheckbox->UseCheckIcon(true);
 	altFullscreenCheckbox->SetCallback([&](bool checked) { this->AltFullscreenChecked(checked); });
 	this->AddComponent(altFullscreenCheckbox);
@@ -183,6 +195,8 @@ void OptionsUI::InitializeOptions()
 
 	doubleSizeCheckbox->SetChecked(Engine::Ref().GetScale() >= 2);
 	resizableCheckbox->SetChecked(Engine::Ref().IsResizable());
+	filteringDropdown->SetSelectedOption(Engine::Ref().GetPixelFilteringMode());
+	filteringDropdown->SetEnabled(resizableCheckbox->IsChecked());
 	fullscreenCheckbox->SetChecked(Engine::Ref().IsFullscreen());
 	altFullscreenCheckbox->SetChecked(Engine::Ref().IsAltFullscreen());
 
@@ -246,6 +260,12 @@ void OptionsUI::DoubleSizeChecked(bool checked)
 void OptionsUI::ResizableChecked(bool checked)
 {
 	Engine::Ref().SetResizable(checked, true);
+	filteringDropdown->SetEnabled(checked);
+}
+
+void OptionsUI::FilteringSelected(unsigned int option)
+{
+	Engine::Ref().SetPixelFilteringMode(option, true);
 }
 
 void OptionsUI::FullscreenChecked(bool checked)
@@ -289,4 +309,34 @@ void OptionsUI::OnDraw(VideoBuffer * buf)
 {
 	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, size.X, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
 	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y, size.X, altFullscreenCheckbox->Below(Point(0, 17)).Y, 200, 200, 200, 255);
+
+	if (filteringDropdown->IsSelectingOption())
+	{
+		resizableLabel->SetText("These options make TPT appear extremely blurry");
+		resizableLabel->SetColor(COLRGB(255, 0, 0));
+	}
+	else
+	{
+		resizableLabel->SetText("Allow resizing window");
+		resizableLabel->SetColor(COLRGB(150, 150, 150));
+	}
+}
+
+void OptionsUI::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+{
+	if ((codeStep == 0 || codeStep == 1) && key == SDLK_UP)
+		codeStep++;
+	else if ((codeStep == 2 || codeStep == 3) && key == SDLK_DOWN)
+		codeStep++;
+	else if ((codeStep == 4 || codeStep == 6) && key == SDLK_LEFT)
+		codeStep++;
+	else if ((codeStep == 5 || codeStep == 7) && key == SDLK_RIGHT)
+		codeStep++;
+	else
+		codeStep = 0;
+	if (codeStep == 8)
+	{
+		filteringDropdown->SetVisible(true);
+		filteringLabel->SetVisible(true);
+	}
 }

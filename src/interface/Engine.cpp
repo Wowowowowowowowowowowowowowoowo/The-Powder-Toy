@@ -105,7 +105,7 @@ void Engine::SetScale(unsigned int scale)
 	if (this->scale != scale)
 	{
 		this->scale = scale;
-		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
 	}
 }
 
@@ -118,8 +118,22 @@ void Engine::SetResizable(bool resizable, bool recreateWindow)
 {
 	if (this->resizable != resizable)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen, recreateWindow);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, recreateWindow);
 		this->resizable = resizable;
+	}
+}
+
+int Engine::GetPixelFilteringMode()
+{
+	return pixelFilteringMode;
+}
+
+void Engine::SetPixelFilteringMode(int pixelFilteringMode, bool recreateWindow)
+{
+	if (this->pixelFilteringMode != pixelFilteringMode)
+	{
+		this->pixelFilteringMode = pixelFilteringMode;
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, recreateWindow);
 	}
 }
 
@@ -132,7 +146,7 @@ void Engine::SetFullscreen(bool fullscreen)
 {
 	if (this->fullscreen != fullscreen)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
 		this->fullscreen = fullscreen;
 	}
 }
@@ -146,7 +160,7 @@ void Engine::SetAltFullscreen(bool altFullscreen)
 {
 	if (this->altFullscreen != altFullscreen)
 	{
-		SDLSetScreen(resizable, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
 		this->altFullscreen = altFullscreen;
 	}
 }

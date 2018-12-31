@@ -263,6 +263,8 @@ void save_presets()
 	cJSON_AddNumberToObject(root, "Scale", Engine::Ref().GetScale());
 	if (Engine::Ref().IsResizable())
 		cJSON_AddTrueToObject(root, "Resizable");
+	if (Engine::Ref().GetPixelFilteringMode())
+		cJSON_AddTrueToObject(root, "ResizableMode");
 	if (Engine::Ref().IsFullscreen())
 		cJSON_AddTrueToObject(root, "Fullscreen");
 	if (Engine::Ref().IsAltFullscreen())
@@ -587,6 +589,8 @@ void load_presets(void)
 		}
 		if ((tmpobj = cJSON_GetObjectItem(root, "Resizable")))
 			Engine::Ref().SetResizable(tmpobj->valueint ? true : false, false);
+		if ((tmpobj = cJSON_GetObjectItem(root, "ResizableMode")))
+			Engine::Ref().SetPixelFilteringMode(tmpobj->valueint, false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "Fullscreen")))
 			Engine::Ref().SetFullscreen(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "AltFullscreen")))

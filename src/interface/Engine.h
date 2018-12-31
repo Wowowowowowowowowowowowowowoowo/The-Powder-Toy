@@ -30,6 +30,9 @@ public:
 	bool IsResizable();
 	void SetResizable(bool resizable, bool recreateWindow);
 
+	int GetPixelFilteringMode();
+	void SetPixelFilteringMode(int pixelFilteringMode, bool recreateWindow);
+
 	bool IsFullscreen();
 	void SetFullscreen(bool fullscreen);
 
@@ -53,6 +56,7 @@ private:
 
 	unsigned int scale = 1;
 	bool resizable = false;
+	int pixelFilteringMode = 0;
 	bool fullscreen = false;
 	bool altFullscreen = false;
 

@@ -5,17 +5,23 @@
 class Button;
 class Checkbox;
 class Dropdown;
+class Label;
 class Simulation;
 class OptionsUI : public Window_
 {
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;
 
+	Label *resizableLabel, *filteringLabel;
 	Checkbox *doubleSizeCheckbox, *resizableCheckbox, *fullscreenCheckbox, *altFullscreenCheckbox;
+	Dropdown *filteringDropdown;
+
 	Checkbox *fastQuitCheckbox, *updatesCheckbox;
 	Button *dataFolderButton;
 
 	Simulation * sim;
+
+	int codeStep = 0;
 
 	void InitializeOptions();
 	void HeatSimChecked(bool checked);
@@ -28,13 +34,15 @@ class OptionsUI : public Window_
 	void EdgeModeSelected(unsigned int option);
 	void DoubleSizeChecked(bool checked);
 	void ResizableChecked(bool checked);
+	void FilteringSelected(unsigned int option);
 	void FullscreenChecked(bool checked);
 	void AltFullscreenChecked(bool checked);
 	void FastQuitChecked(bool checked);
 	void UpdatesChecked(bool checked);
 	void DataFolderClicked();
 
-	virtual void OnDraw(VideoBuffer * buf);
+	void OnDraw(VideoBuffer * buf) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 public:
 	OptionsUI(Simulation * sim);

@@ -22,9 +22,10 @@ SDL_Window * sdl_window = nullptr;
 SDL_Renderer * sdl_renderer = nullptr;
 SDL_Texture * sdl_texture = nullptr;
 
+bool resizable = false;
+int pixelFilteringMode = 0;
 bool fullscreen = false;
 bool altFullscreen = false;
-bool resizable = false;
 
 int savedWindowX = INT_MAX;
 int savedWindowY = INT_MAX;
@@ -123,14 +124,17 @@ int SDLOpen()
 	return 1;
 }
 
-void SDLSetScreen(bool resizable_, bool fullscreen_, bool altFullscreen_, bool recreateWindow)
+void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_, bool canRecreateWindow)
 {
-	if (!(resizable != resizable_ && !fullscreen))
-		recreateWindow = false;
+	if (fullscreen_ || (resizable == resizable_ && pixelFilteringMode == pixelFilteringMode_))
+		canRecreateWindow = false;
+	//if (!((resizable != resizable_ || pixelFilteringMode != pixelFilteringMode_) && !fullscreen))
+	//	recreateWindow = false;
+	resizable = resizable_;
+	pixelFilteringMode = pixelFilteringMode_;
 	fullscreen = fullscreen_;
 	altFullscreen = altFullscreen_;
-	resizable = resizable_;
-	if (recreateWindow)
+	if (canRecreateWindow)
 	{
 		RecreateWindow();
 		return;
@@ -169,8 +173,19 @@ void RecreateWindow()
 	SDL_RenderSetLogicalSize(sdl_renderer, VIDXRES, VIDYRES);
 	//Uncomment this to force fullscreen to an integer resolution
 	//SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
+
+	std::string filteringMode = "nearest";
+	if (resizable)
+	{
+		if (pixelFilteringMode == 1)
+			filteringMode = "linear";
+		else if (pixelFilteringMode == 2)
+			filteringMode = "best";
+	}
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, filteringMode.c_str());
 	sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 		VIDXRES, VIDYRES);
+
 	if (fullscreen)
 		SDL_RaiseWindow(sdl_window);
 	//Uncomment this to enable resizing
