@@ -30,7 +30,6 @@
 #include <string.h>
 #include <math.h>
 #include "EventLoopSDL.h"
-#include "SDLCompat.h"
 #include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>

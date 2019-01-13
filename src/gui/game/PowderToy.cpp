@@ -261,73 +261,34 @@ PowderToy::PowderToy():
 	AddComponent(openTagsButton);
 
 #ifdef TOUCHUI
-	class EraseAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->ToggleEraseBtn(b == 4);
-		}
-	};
 	eraseButton = new Button(Point(XRES+1, 0), Point(BARSIZE-1, 25), "\xE8");
 	eraseButton->SetState(Button::HOLD);
-	eraseButton->SetCallback(new EraseAction());
+	eraseButton->SetCallback([&](int mb) { this->ToggleEraseBtn(mb == 4); });
 	eraseButton->SetTooltip(GetQTip("Swap to erase tool (hold to clear the sim)", eraseButton->GetPosition().Y+10));
 	AddComponent(eraseButton);
 
-	class OpenConsoleAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->OpenConsoleBtn(b == 4);
-		}
-	};
 	openConsoleButton = new Button(eraseButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "\xE9");
 	openConsoleButton->SetState(Button::HOLD);
-	openConsoleButton->SetCallback(new OpenConsoleAction());
+	openConsoleButton->SetCallback([&](int mb) { this->OpenConsoleBtn(mb == 4); });
+
 	openConsoleButton->SetTooltip(GetQTip("Open console (hold to show on screen keyboard)", openConsoleButton->GetPosition().Y+10));
 	AddComponent(openConsoleButton);
 
-	class SettingAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->ToggleSettingBtn(b == 4);
-		}
-	};
 	settingsButton = new Button(openConsoleButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "\xEB");
 	settingsButton->SetState(Button::HOLD);
-	settingsButton->SetCallback(new SettingAction());
+	settingsButton->SetCallback([&](int mb) { this->ToggleSettingBtn(mb == 4); });
 	settingsButton->SetTooltip(GetQTip("Toggle Decorations (hold to open options)", settingsButton->GetPosition().Y+10));
 	AddComponent(settingsButton);
 
-	class ZoomAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->StartZoomBtn(b == 4);
-		}
-	};
 	zoomButton = new Button(settingsButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "\xEC");
 	zoomButton->SetState(Button::HOLD);
-	zoomButton->SetCallback(new ZoomAction());
+	zoomButton->SetCallback([&](int mb) { this->StartZoomBtn(mb == 4); });
 	zoomButton->SetTooltip(GetQTip("Start placing the zoom window", zoomButton->GetPosition().Y+10));
 	AddComponent(zoomButton);
 
-	class StampAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<PowderToy*>(button->GetParent())->SaveStampBtn(b == 4);
-		}
-	};
 	stampButton = new Button(zoomButton->Below(Point(0, 1)), Point(BARSIZE-1, 25), "\xEA");
 	stampButton->SetState(Button::HOLD);
-	stampButton->SetCallback(new StampAction());
+	stampButton->SetCallback([&](int mb) { this->SaveStampBtn(mb == 4); });
 	stampButton->SetTooltip(GetQTip("Save a stamp (hold to load a stamp)", stampButton->GetPosition().Y+10));
 	AddComponent(stampButton);
 #endif
@@ -608,7 +569,7 @@ void PowderToy::OpenConsoleBtn(bool alt)
 void PowderToy::ToggleSettingBtn(bool alt)
 {
 	if (alt)
-		simulation_ui(vid_buf);
+		OpenOptionsBtn();
 	else
 	{
 		if (active_menu == SC_DECO || ngrav_completedisable)

@@ -29,16 +29,8 @@ RenderModesUI::RenderModesUI():
 	InitializeButtons();
 
 #ifdef TOUCHUI
-	class SwapInterfaceAction : public ButtonAction
-	{
-	public:
-		virtual void ButtionActionCallback(Button *button, unsigned char b)
-		{
-			dynamic_cast<RenderModesUI*>(button->GetParent())->SwapInterface();
-		}
-	};
 	swapButton = new Button(Point(0, 0), Point(40, MENUSIZE), "Adv.");
-	swapButton->SetCallback(new SwapInterfaceAction());
+	swapButton->SetCallback([&](int mb) { this->SwapInterface(); });
 	this->AddComponent(swapButton);
 #endif
 }
