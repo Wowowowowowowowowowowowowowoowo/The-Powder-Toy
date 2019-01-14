@@ -1,3 +1,5 @@
+// Android verison likes to try to compile this file
+#ifndef ANDROID
 #include <stdio.h>
 #include <stdlib.h>
 #include <bzlib.h>
@@ -111,3 +113,4 @@ end:
 		free(decompress_data);
 	return 0;
 }
+#endif
