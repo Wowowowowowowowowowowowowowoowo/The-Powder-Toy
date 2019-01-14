@@ -1,4 +1,4 @@
-#ifndef SDL1_2
+#ifdef SDL1_2
 #include <climits>
 #include <list>
 
@@ -18,53 +18,24 @@
 #include "gui/game/PowderToy.h" // for the_game->DeFocus(), remove once all interfaces get modernized
 
 
-SDL_Window * sdl_window = nullptr;
-SDL_Renderer * sdl_renderer = nullptr;
-SDL_Texture * sdl_texture = nullptr;
+SDL_Surface *sdl_scrn = nullptr;
 
 bool resizable = false;
 int pixelFilteringMode = 0;
 bool fullscreen = false;
 bool altFullscreen = false;
 
-int savedWindowX = INT_MAX;
-int savedWindowY = INT_MAX;
-
 unsigned short sdl_mod;
 std::string sdl_textinput = "";
 int sdl_key, sdl_wheel;
 
-
-void LoadWindowPosition()
-{
-	int borderTop, borderLeft;
-	SDL_GetWindowBordersSize(sdl_window, &borderTop, &borderLeft, nullptr, nullptr);
-	// Sometimes (Windows), the border size may not be reported for 200+ frames
-	// So just have a default of 5 to ensure the window doesn't get stuck where it can't be moved
-	if (borderTop == 0)
-		borderTop = 5;
-
-	// SDL will check this for us
-	// This check won't work for multiple monitors
-	//if (savedWindowX + borderLeft > 0 && savedWindowX + borderLeft < screenWidth
-	//        && savedWindowY + borderTop > 0 && savedWindowY + borderTop < screenHeight)
-		SDL_SetWindowPosition(sdl_window, savedWindowX + borderLeft, savedWindowY + borderTop);
-}
-
-void SaveWindowPosition()
-{
-	int x, y;
-	SDL_GetWindowPosition(sdl_window, &x, &y);
-
-	int borderTop, borderLeft;
-	SDL_GetWindowBordersSize(sdl_window, &borderTop, &borderLeft, nullptr, nullptr);
-
-	savedWindowX = x - borderLeft;
-	savedWindowY = y - borderTop;
-}
+// Irrelevant for Android (only thing that uses sdl 1.2)
+int savedWindowX = 0;
+int savedWindowY = 0;
+void LoadWindowPosition() {}
+void SaveWindowPosition() {}
 
 int sdl_opened = 0;
-void RecreateWindow();
 int SDLOpen()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -73,50 +44,19 @@ int SDLOpen()
 		return 0;
 	}
 
-	RecreateWindow();
-
-	if (!sdl_opened)
+	sdl_scrn = SDL_SetVideoMode(VIDXRES, VIDYRES, 32, SDL_SWSURFACE);
+	if (!sdl_scrn)
 	{
-		int displayIndex = SDL_GetWindowDisplayIndex(sdl_window);
-		if (displayIndex >= 0)
-		{
-			SDL_Rect rect;
-			if (!SDL_GetDisplayUsableBounds(displayIndex, &rect))
-			{
-				screenWidth = rect.w;
-				screenHeight = rect.h;
-			}
-		}
+		fprintf(stderr, "Creating window: %s\n", SDL_GetError());
+		return 0;
 	}
 
-#ifdef ANDROID
+	SDL_WM_SetCaption("The Powder Toy", "The Powder Toy");
+	SDL_EnableUNICODE(1);
+
 	// hide overlay buttons that just get in the way
 	SDL_ANDROID_SetScreenKeyboardShown(0);
 	//SDL_JoystickOpen(1);
-#endif
-
-#ifdef WIN
-	SDL_SysWMinfo SysInfo;
-	SDL_VERSION(&SysInfo.version);
-	if(SDL_GetWindowWMInfo(sdl_window, &SysInfo) <= 0)
-	{
-	    printf("%s : %p\n", SDL_GetError(), SysInfo.info.win.window);
-	    exit(-1);
-	}
-	HWND WindowHandle = SysInfo.info.win.window;
-
-	// Use GetModuleHandle to get the Exe HMODULE/HINSTANCE
-	HMODULE hModExe = GetModuleHandle(NULL);
-	HICON hIconSmall = (HICON)LoadImage(hModExe, MAKEINTRESOURCE(101), IMAGE_ICON, 16, 16, LR_SHARED);
-	HICON hIconBig = (HICON)LoadImage(hModExe, MAKEINTRESOURCE(101), IMAGE_ICON, 32, 32, LR_SHARED);
-	SendMessage(WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
-	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
-#endif
-#ifdef LIN
-	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void*)app_icon, 48, 48, 32, 192, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	SDL_SetWindowIcon(sdl_window, icon);
-	SDL_FreeSurface(icon);
-#endif
 
 	atexit(SDL_Quit);
 
@@ -126,115 +66,34 @@ int SDLOpen()
 
 void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_, bool canRecreateWindow)
 {
-	if (fullscreen_ || (resizable == resizable_ && pixelFilteringMode == pixelFilteringMode_))
-		canRecreateWindow = false;
-	resizable = resizable_;
-	pixelFilteringMode = pixelFilteringMode_;
-	fullscreen = fullscreen_;
-	altFullscreen = altFullscreen_;
-	if (canRecreateWindow)
-	{
-		RecreateWindow();
-		return;
-	}
-	SDL_SetWindowSize(sdl_window, VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale());
-	unsigned int flags = 0;
-	if (fullscreen)
-		flags = altFullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
-	SDL_SetWindowFullscreen(sdl_window, flags);
-	if (fullscreen)
-		SDL_RaiseWindow(sdl_window);
-	SDL_SetWindowResizable(sdl_window, resizable ? SDL_TRUE : SDL_FALSE);
-}
-
-void RecreateWindow()
-{
-	unsigned int flags = 0;
-	if (fullscreen)
-		flags = altFullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (resizable)
-		flags |= SDL_WINDOW_RESIZABLE;
-
-	if (sdl_texture)
-		SDL_DestroyTexture(sdl_texture);
-	if (sdl_renderer)
-		SDL_DestroyRenderer(sdl_renderer);
-	if (sdl_window)
-	{
-		SaveWindowPosition();
-		SDL_DestroyWindow(sdl_window);
-	}
-
-	sdl_window = SDL_CreateWindow("Jacob1'sMod", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	        VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale(), flags);
-	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
-	SDL_RenderSetLogicalSize(sdl_renderer, VIDXRES, VIDYRES);
-	//Uncomment this to force fullscreen to an integer resolution
-	//SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
-
-	std::string filteringMode = "nearest";
-	if (resizable)
-	{
-		if (pixelFilteringMode == 1)
-			filteringMode = "linear";
-		else if (pixelFilteringMode == 2)
-			filteringMode = "best";
-	}
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, filteringMode.c_str());
-	sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-		VIDXRES, VIDYRES);
-
-	if (fullscreen)
-		SDL_RaiseWindow(sdl_window);
-	//Uncomment this to enable resizing
-	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
-	if (!firstRun)
-		LoadWindowPosition();
+	// Do nothing, this is for Android only and none of these options are relevant
 }
 
 void SDLBlit(pixel * vid)
 {
-	SDL_UpdateTexture(sdl_texture, NULL, vid, VIDXRES * sizeof (Uint32));
-	// need to clear the renderer if there are black edges (fullscreen, or resizable window)
-	if (fullscreen || resizable)
-		SDL_RenderClear(sdl_renderer);
-	SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
-	SDL_RenderPresent(sdl_renderer);
+	pixel *dst;
+	if (SDL_MUSTLOCK(sdl_scrn))
+		if (SDL_LockSurface(sdl_scrn) < 0)
+			return;
+	dst = (pixel *)sdl_scrn->pixels;
+	for (int j = 0; j < VIDYRES; j++)
+	{
+		memcpy(dst, vid, VIDXRES * PIXELSIZE);
+		dst += sdl_scrn->pitch / PIXELSIZE;
+		vid += VIDXRES;
+	}
+	if (SDL_MUSTLOCK(sdl_scrn))
+		SDL_UnlockSurface(sdl_scrn);
+	SDL_UpdateRect(sdl_scrn, 0, 0, 0, 0);
 }
 
-unsigned int CalculateMousePosition(int *x, int *y)
-{
-	int globalMx, globalMy;
-	unsigned int mouseState = SDL_GetGlobalMouseState(&globalMx, &globalMy);
-	int windowX, windowY;
-	SDL_GetWindowPosition(sdl_window, &windowX, &windowY);
-
-	if (x)
-		*x = (globalMx - windowX) / Engine::Ref().GetScale();
-	if (y)
-		*y = (globalMy - windowY) / Engine::Ref().GetScale();
-
-	return mouseState;
-}
-
+unsigned int CalculateMousePosition(int *x, int *y) { return 0; }
 int SDLGetModifiers()
 {
 	return SDL_GetModState();
 }
 
-bool calculatedInitialMouse = false;
-bool hasMouseMoved = false;
 Point lastMousePosition;
-
-// When the mouse hasn't moved yet, sdl will always report (0, 0) as the position in events
-// By using SDL_GetGlobalMouseState, we can get the real mouse position
-// (should be accurate except for resizable windows / fullscreen)
-void GetTempMousePosition(int *x, int *y)
-{
-	if (!hasMouseMoved)
-		CalculateMousePosition(x, y);
-}
 
 int EventProcess(SDL_Event event, Window_ * eventHandler)
 {
@@ -249,7 +108,13 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+		{
+			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			char c[2];
+			sprintf(c, "%c", event.key.keysym.unicode);
+			std::string text = c;
+			eventHandler->DoTextInput(text.c_str());
+		}
 
 		if (eventHandler && event.key.keysym.sym == SDLK_ESCAPE && eventHandler->CanQuit())
 			return true;
@@ -266,83 +131,40 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 		break;
-
-	case SDL_TEXTINPUT:
-		sdl_textinput = std::string(event.text.text);
-		if (eventHandler)
-			eventHandler->DoTextInput(event.text.text);
-
-		break;
-	case SDL_MOUSEWHEEL:
-	{
-		int x = event.wheel.x;
-		int y = event.wheel.y;
-		if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
-		{
-			x *= -1;
-			y *= -1;
-		}
-
-		sdl_wheel = y; // LEGACY
-
-		if (eventHandler)
-			eventHandler->DoMouseWheel(lastMousePosition.X, lastMousePosition.Y, y);
-		break;
-	}
-
 	case SDL_MOUSEBUTTONDOWN:
 	{
 		int mx = event.motion.x, my = event.motion.y;
-		GetTempMousePosition(&mx, &my);
 		if (mx < 0 || my < 0 || mx >= VIDXRES || my >= VIDYRES)
 			break;
 		if (eventHandler)
-			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
+		{
+			if (event.button.button == SDL_BUTTON_WHEELUP)
+				eventHandler->DoMouseWheel(mx, my, 1);
+			else if (event.button.button == SDL_BUTTON_WHEELDOWN)
+				eventHandler->DoMouseWheel(mx, my, -1);
+			else
+				eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
+		}
 		lastMousePosition = Point(mx, my);
-		SDL_CaptureMouse(SDL_TRUE);
 		break;
 	}
 	case SDL_MOUSEBUTTONUP:
 	{
 		int mx = event.motion.x, my = event.motion.y;
-		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
 			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
-		SDL_CaptureMouse(SDL_FALSE);
 		break;
 	}
 	case SDL_MOUSEMOTION:
 	{
 		int mx = event.motion.x, my = event.motion.y;
-		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
 			eventHandler->DoMouseMove(mx, my, mx-lastMousePosition.X, my-lastMousePosition.Y);
 		lastMousePosition = Point(mx, my);
-		hasMouseMoved = true;
 		break;
-	}
-	case SDL_WINDOWEVENT:
-	{
-		switch (event.window.event)
-		{
-		// Wait for the window to be shown, then try to calculate the initial mouse position
-		// This is only necessary to have the cursor show in the correct position instead of (0, 0)
-		// Because all mouse events will call CalculateMousePosition anyway
-		case SDL_WINDOWEVENT_SHOWN:
-			if (!calculatedInitialMouse)
-			{
-				int mousex, mousey;
-				CalculateMousePosition(&mousex, &mousey);
-				lastMousePosition = Point(mousex, mousey);
-				if (eventHandler)
-					eventHandler->DoMouseMove(mousex, mousey, 0, 0);
-				calculatedInitialMouse = true;
-			}
-			break;
-		}
 	}
 	}
 	return 0;
@@ -402,7 +224,16 @@ void PushToClipboard(std::string text)
 
 std::string PullFromClipboard()
 {
-	return std::string(SDL_GetClipboardText());
+	if (SDL_HasClipboardText())
+	{
+		char *data = SDL_GetClipboardText();
+		if (!data)
+			return "";
+		std::string ret = data;
+		SDL_free(data);
+		return ret;
+	}
+	return "";
 }
 
 unsigned int GetTicks()
@@ -622,12 +453,7 @@ void sdl_blit(int unused1, int unused2, int unused3, int unused4, pixel *vid, in
 
 int mouse_get_state(int *x, int *y)
 {
-	//return (int)CalculateMousePosition(x, y);
-	*x = lastMousePosition.X;
-	*y = lastMousePosition.Y;
-	if (*x < 0 || *y < 0 || *x >= VIDXRES || *y >= VIDYRES)
-		return 0;
-	return SDL_GetMouseState(nullptr, nullptr);
+	return SDL_GetMouseState(x, y);
 }
 
 int sdl_poll()
