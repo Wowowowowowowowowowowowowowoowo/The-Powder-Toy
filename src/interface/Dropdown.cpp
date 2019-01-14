@@ -107,7 +107,7 @@ void DropdownOptions::OnDraw(VideoBuffer* vid)
 		else
 			vid->FillRect(0, yPos, size.X, optionHeight, 0, 0, 0, 255);
 		vid->DrawRect(0, yPos, size.X, optionHeight, 255, 255, 255, 255);
-		vid->DrawText(3, yPos + 4, dropdown->options[i], 255, 255, 255, 255);
+		vid->DrawText(3, yPos + (optionHeight / 2) - 4, dropdown->options[i], 255, 255, 255, 255);
 
 	}
 }

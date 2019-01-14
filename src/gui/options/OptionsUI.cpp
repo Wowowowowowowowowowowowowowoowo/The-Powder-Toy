@@ -23,7 +23,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 #ifndef TOUCHUI
 	Window_(Point(CENTERED, CENTERED), Point(300, 400)),
 #else
-	Window_(Point(CENTERED, CENTERED), Point(300, 330)),
+	Window_(Point(CENTERED, CENTERED), Point(300, 325)),
 #endif
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())
@@ -198,7 +198,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 #ifndef TOUCHUI
 	Button *okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
 #else
-	Button *okButton = new Button(Point(0, this->size.Y-30), Point(this->size.X+1, 30), "OK");
+	Button *okButton = new Button(Point(0, this->size.Y-25), Point(this->size.X+1, 25), "OK");
 #endif
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
