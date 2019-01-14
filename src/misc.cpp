@@ -517,10 +517,12 @@ void load_presets(void)
 					edgeMode = 0;
 				globalSim->edgeMode = edgeMode;
 			}
+#ifndef TOUCHUI
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				start_grav_async();
-			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravityDisable")))
-				ngrav_completedisable = tmpobj->valueint;
+#endif
+			//if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravityDisable")))
+			//	ngrav_completedisable = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientHeat")))
 				aheat_enable = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder")))

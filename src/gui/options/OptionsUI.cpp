@@ -20,16 +20,28 @@
 #include "simulation/Simulation.h"
 
 OptionsUI::OptionsUI(Simulation *sim):
+#ifndef TOUCHUI
 	Window_(Point(CENTERED, CENTERED), Point(300, 400)),
+#else
+	Window_(Point(CENTERED, CENTERED), Point(300, 330)),
+#endif
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())
 {
+#ifndef TOUCHUI
+	int checkboxHeight = 13;
+	bool useCheckIcon = true;
+#else
+	int checkboxHeight = 20;
+	bool useCheckIcon = false;
+#endif
+
 	Label *headerLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Options");
 	headerLabel->SetColor(COLRGB(140, 140, 255));
 	this->AddComponent(headerLabel);
 
-	heatSimCheckbox = new Checkbox(Point(5, 20), Point(Checkbox::AUTOSIZE, 13), "Heat simulation");
-	heatSimCheckbox->UseCheckIcon(true);
+	heatSimCheckbox = new Checkbox(Point(5, 20), Point(Checkbox::AUTOSIZE, checkboxHeight), "Heat simulation");
+	heatSimCheckbox->UseCheckIcon(useCheckIcon);
 	heatSimCheckbox->SetCallback([&](bool checked) { this->HeatSimChecked(checked); });
 	this->AddComponent(heatSimCheckbox);
 
@@ -37,8 +49,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	ambientCheckbox = new Checkbox(heatSimCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Ambient heat simulation");
-	ambientCheckbox->UseCheckIcon(true);
+	ambientCheckbox = new Checkbox(heatSimCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Ambient heat simulation");
+	ambientCheckbox->UseCheckIcon(useCheckIcon);
 	ambientCheckbox->SetCallback([&](bool checked) { this->AmbientChecked(checked); });
 	this->AddComponent(ambientCheckbox);
 
@@ -46,8 +58,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	newtonianCheckbox = new Checkbox(ambientCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Newtonian Gravity");
-	newtonianCheckbox->UseCheckIcon(true);
+	newtonianCheckbox = new Checkbox(ambientCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Newtonian Gravity");
+	newtonianCheckbox->UseCheckIcon(useCheckIcon);
 	newtonianCheckbox->SetCallback([&](bool checked) { this->NewtonianChecked(checked); });
 	this->AddComponent(newtonianCheckbox);
 
@@ -55,8 +67,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	waterEqalizationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Water Equalization");
-	waterEqalizationCheckbox->UseCheckIcon(true);
+	waterEqalizationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
+	waterEqalizationCheckbox->UseCheckIcon(useCheckIcon);
 	waterEqalizationCheckbox->SetCallback([&](bool checked) { this->WaterEqualizationChecked(checked); });
 	this->AddComponent(waterEqalizationCheckbox);
 
@@ -101,9 +113,10 @@ OptionsUI::OptionsUI(Simulation *sim):
 	edgeModeDropdown->SetPosition(Point(xPos, edgeModeDropdown->GetPosition().Y));
 	edgeModeDropdown->SetSize(Point(maxWidth, edgeModeDropdown->GetSize().Y));
 
-
-	doubleSizeCheckbox  = new Checkbox(Point(heatSimCheckbox->GetPosition().X, edgeModeDropdown->Below(Point(0, 12)).Y), Point(Checkbox::AUTOSIZE, 13), "Large Window");
-	doubleSizeCheckbox->UseCheckIcon(true);
+	Point sectionBelowEdgeDropdown = Point(heatSimCheckbox->GetPosition().X, edgeModeDropdown->Below(Point(0, 12)).Y);
+#ifndef TOUCHUI
+	doubleSizeCheckbox  = new Checkbox(sectionBelowEdgeDropdown, Point(Checkbox::AUTOSIZE, checkboxHeight), "Large Window");
+	doubleSizeCheckbox->UseCheckIcon(useCheckIcon);
 	doubleSizeCheckbox->SetCallback([&](bool checked) { this->DoubleSizeChecked(checked); });
 	this->AddComponent(doubleSizeCheckbox);
 
@@ -111,8 +124,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	resizableCheckbox = new Checkbox(doubleSizeCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Resizable Window");
-	resizableCheckbox->UseCheckIcon(true);
+	resizableCheckbox = new Checkbox(doubleSizeCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Resizable Window");
+	resizableCheckbox->UseCheckIcon(useCheckIcon);
 	resizableCheckbox->SetCallback([&](bool checked) { this->ResizableChecked(checked); });
 	this->AddComponent(resizableCheckbox);
 
@@ -131,7 +144,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 	this->AddComponent(filteringLabel);
 	filteringLabel->SetVisible(false);
 
-	fullscreenCheckbox = new Checkbox(resizableCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, 13), "Fullscreen");
+	fullscreenCheckbox = new Checkbox(resizableCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fullscreen");
 	fullscreenCheckbox->UseCheckIcon(true);
 	fullscreenCheckbox->SetCallback([&](bool checked) { this->FullscreenChecked(checked); });
 	this->AddComponent(fullscreenCheckbox);
@@ -140,28 +153,34 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-	altFullscreenCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, 13), "Change Resolution");
+	altFullscreenCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, checkboxHeight), "Change Resolution");
 	altFullscreenCheckbox->SetPosition(Point(this->size.X - 5 - altFullscreenCheckbox->GetSize().X, fullscreenCheckbox->GetPosition().Y));
-	altFullscreenCheckbox->UseCheckIcon(true);
+	altFullscreenCheckbox->UseCheckIcon(useCheckIcon);
 	altFullscreenCheckbox->SetCallback([&](bool checked) { this->AltFullscreenChecked(checked); });
 	this->AddComponent(altFullscreenCheckbox);
 
 	descLabel = new Label(altFullscreenCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Old fullscreen");
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
+#endif
 
-
-	fastQuitCheckbox = new Checkbox(fullscreenCheckbox->Below(Point(0, 24)), Point(Checkbox::AUTOSIZE, 13), "Fast Quit");
-	fastQuitCheckbox->UseCheckIcon(true);
+#ifndef TOUCHUI
+	fastQuitCheckbox = new Checkbox(fullscreenCheckbox->Below(Point(0, 24)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fast Quit");
+	fastQuitCheckbox->UseCheckIcon(useCheckIcon);
 	fastQuitCheckbox->SetCallback([&](bool checked) { this->FastQuitChecked(checked); });
 	this->AddComponent(fastQuitCheckbox);
 
 	descLabel = new Label(fastQuitCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Always exit completely when clicking \"X\"");
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
+#endif
 
-	updatesCheckbox = new Checkbox(fastQuitCheckbox->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, 13), "Update Check");
-	updatesCheckbox->UseCheckIcon(true);
+#ifndef TOUCHUI
+	updatesCheckbox = new Checkbox(fastQuitCheckbox->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Update Check");
+#else
+	updatesCheckbox = new Checkbox(sectionBelowEdgeDropdown, Point(Checkbox::AUTOSIZE, checkboxHeight), "Update Check");
+#endif
+	updatesCheckbox->UseCheckIcon(useCheckIcon);
 	updatesCheckbox->SetCallback([&](bool checked) { this->UpdatesChecked(checked); });
 	this->AddComponent(updatesCheckbox);
 
@@ -169,13 +188,18 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
-
+#ifndef TOUCHUI
 	dataFolderButton = new Button(updatesCheckbox->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
 	this->AddComponent(dataFolderButton);
+#endif
 
 
+#ifndef TOUCHUI
 	Button *okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
+#else
+	Button *okButton = new Button(Point(0, this->size.Y-30), Point(this->size.X+1, 30), "OK");
+#endif
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
 
@@ -193,14 +217,18 @@ void OptionsUI::InitializeOptions()
 	gravityDropdown->SetSelectedOption(gravityMode);
 	edgeModeDropdown->SetSelectedOption(sim->edgeMode);
 
+#ifndef TOUCHUI
 	doubleSizeCheckbox->SetChecked(Engine::Ref().GetScale() >= 2);
 	resizableCheckbox->SetChecked(Engine::Ref().IsResizable());
 	filteringDropdown->SetSelectedOption(Engine::Ref().GetPixelFilteringMode());
 	filteringDropdown->SetEnabled(resizableCheckbox->IsChecked());
 	fullscreenCheckbox->SetChecked(Engine::Ref().IsFullscreen());
 	altFullscreenCheckbox->SetChecked(Engine::Ref().IsAltFullscreen());
+#endif
 
+#ifndef TOUCHUI
 	fastQuitCheckbox->SetChecked(Engine::Ref().IsFastQuit());
+#endif
 	updatesCheckbox->SetChecked(doUpdates);
 }
 
@@ -308,6 +336,7 @@ void OptionsUI::DataFolderClicked()
 void OptionsUI::OnDraw(VideoBuffer * buf)
 {
 	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, size.X, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
+#ifndef TOUCHUI
 	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y, size.X, altFullscreenCheckbox->Below(Point(0, 17)).Y, 200, 200, 200, 255);
 
 	if (filteringDropdown->IsSelectingOption())
@@ -320,10 +349,12 @@ void OptionsUI::OnDraw(VideoBuffer * buf)
 		resizableLabel->SetText("Allow resizing window");
 		resizableLabel->SetColor(COLRGB(150, 150, 150));
 	}
+#endif
 }
 
 void OptionsUI::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
+#ifndef TOUCHUI
 	if ((codeStep == 0 || codeStep == 1) && key == SDLK_UP)
 		codeStep++;
 	else if ((codeStep == 2 || codeStep == 3) && key == SDLK_DOWN)
@@ -339,4 +370,5 @@ void OptionsUI::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		filteringDropdown->SetVisible(true);
 		filteringLabel->SetVisible(true);
 	}
+#endif
 }

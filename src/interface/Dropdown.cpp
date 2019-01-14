@@ -16,7 +16,11 @@ Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options)
 	}
 	if (size.Y == AUTOSIZE)
 	{
+#ifndef TOUCHUI
 		this->size.Y = 16;
+#else
+		this->size.Y = 24;
+#endif
 	}
 }
 
@@ -38,7 +42,7 @@ void Dropdown::OnMouseUp(int x, int y, unsigned char button)
 		int numOptions = options.size();
 		int optionHeight = windowSize.Y;
 		windowPos.Y = windowPos.Y - ((numOptions - 1) * optionHeight) / 2 + 1;
-		windowSize.Y = numOptions * 15 + 1;
+		windowSize.Y = numOptions * (optionHeight - 1) + 1;
 
 		DropdownOptions *dropdownOptions = new DropdownOptions(windowPos, windowSize, this);
 		this->GetParent()->AddSubwindow(dropdownOptions);
@@ -53,7 +57,7 @@ void Dropdown::OnDraw(VideoBuffer* vid)
 		col = COLARGB(COLA(col), (int)(COLR(col) * .55f), (int)(COLG(col) * .55f), (int)(COLB(col) * .55f));
 	vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(col), COLG(col), COLB(col), COLA(col));
 	if (selectedOption < options.size())
-		vid->DrawText(position.X + 3, position.Y + 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
+		vid->DrawText(position.X + 3, position.Y + (size.Y / 2) - 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
 }
 
 
@@ -61,7 +65,7 @@ DropdownOptions::DropdownOptions(Point position, Point size, Dropdown * dropdown
 	Window_(position, size),
 	dropdown(dropdown)
 {
-
+	optionHeight = dropdown->size.Y - 1;
 }
 
 DropdownOptions::~DropdownOptions()
@@ -71,17 +75,19 @@ DropdownOptions::~DropdownOptions()
 
 void DropdownOptions::OnMouseMove(int x, int y, Point difference)
 {
+#ifndef TOUCHUI
 	if (Point(x, y).IsInside(position, position + size))
-		hoveredOption = tpt::min((size_t)((y - position.Y) / 15), dropdown->options.size() - 1);
+		hoveredOption = tpt::min((size_t)((y - position.Y) / optionHeight), dropdown->options.size() - 1);
 	else
 		hoveredOption = -1;
+#endif
 }
 
 void DropdownOptions::OnMouseUp(int x, int y, unsigned char button)
 {
 	if (Point(x, y).IsInside(position, position + size))
 	{
-		dropdown->selectedOption = (y - position.Y) / 15;
+		dropdown->selectedOption = (y - position.Y) / optionHeight;
 		if (dropdown->callback)
 			dropdown->callback(dropdown->selectedOption);
 	}

@@ -51,7 +51,7 @@ int gravwl_timeout = 0;
 int gravityMode = 0; // starts enabled in "vertical" mode...
 bool ngrav_enable = false; //Newtonian gravity
 #ifdef ANDROID
-bool ngrav_completedisable = true;
+bool ngrav_completedisable = false;
 #else
 bool ngrav_completedisable = false;
 #endif

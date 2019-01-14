@@ -38,6 +38,7 @@ class DropdownOptions : public Window_
 {
 	Dropdown * dropdown;
 	unsigned int hoveredOption = -1;
+	unsigned int optionHeight;
 
 public:
 	DropdownOptions(Point position, Point size, Dropdown * dropdown);
