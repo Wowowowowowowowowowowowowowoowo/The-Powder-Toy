@@ -30,6 +30,7 @@
 #include <string.h>
 #include <math.h>
 #include "EventLoopSDL.h"
+#include "SDLCompat.h" // Required for windows versions to find SDL_Main
 #include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>
@@ -1784,9 +1785,21 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 			if (hover == SC_DECO && active_menu != SC_DECO)
 				last_active_menu = active_menu;
 			if (hover == SC_FAV)
-				active_menu = last_fav_menu;
+			{
+				if (last_fav_menu != active_menu)
+				{
+					active_menu = last_fav_menu;
+					Platform::Vibrate(1);
+				}
+			}
 			else
-				active_menu = hover;
+			{
+				if (hover != active_menu)
+				{
+					active_menu = hover;
+					Platform::Vibrate(1);
+				}
+			}
 		}
 		menu_ui_v3(vid_buf, active_menu, b, bq, x, y); //draw the elements in the current menu
 #else
