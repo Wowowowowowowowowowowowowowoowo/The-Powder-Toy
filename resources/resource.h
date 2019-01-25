@@ -1,0 +1,11 @@
+#define LUASCRIPT 256
+
+#define IDI_ICON1 101
+#define IDI_ICON2 102
+#define IDI_ICON3 103
+#define IDI_ICON4 104
+#define IDI_DOC_ICON 110
+#define IDI_TPTMP 120
+#define IDI_SCRIPTMANAGER 121
+#define IDI_EVENTCOMPAT 122
+

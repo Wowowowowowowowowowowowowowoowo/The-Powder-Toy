@@ -491,7 +491,7 @@ if not GetOption('nolua') and not GetOption('renderer'):
 	sources += Glob("src/socket/*.c") + ["src/LuaCompat.c"]
 
 if platform == "Windows":
-	sources += env.RES('src/Resources/powder-res.rc')
+	sources += env.RES('resources/powder-res.rc')
 	if not msvc:
 		sources = filter(lambda source: not 'src\\gravity.cpp' in str(source), sources)
 		sources = filter(lambda source: not 'src/gravity.cpp' in str(source), sources)
