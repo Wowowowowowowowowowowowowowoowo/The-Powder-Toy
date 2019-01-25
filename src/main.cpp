@@ -48,10 +48,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
-#ifdef MACOSX
-#include <CoreServices/CoreServices.h>
-#include <sys/stat.h>
-#endif
 
 #ifdef X86_SSE
 #include <xmmintrin.h>
@@ -927,23 +923,6 @@ void SigHandler(int signal)
 	}
 }
 
-void ChdirToDataDirectory()
-{
-#ifdef MACOSX
-	FSRef ref;
-	OSType folderType = kApplicationSupportFolderType;
-	char path[PATH_MAX];
-
-	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
-
-	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
-
-	std::string tptPath = std::string(path) + "/The Powder Toy";
-	mkdir(tptPath.c_str(), 0755);
-	chdir(tptPath.c_str());
-#endif
-}
-
 //int main(int argc, char *argv[])
 //{
 	pixel *part_vbuf; //Extra video buffer
@@ -1014,7 +993,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	if (!usedDdir)
-		ChdirToDataDirectory();
+		Platform::ChdirToDataDirectory();
 
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost

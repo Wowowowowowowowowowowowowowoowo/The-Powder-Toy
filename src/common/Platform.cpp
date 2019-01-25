@@ -22,7 +22,9 @@
 
 #ifdef MACOSX
 #include <ApplicationServices/ApplicationServices.h>
+#include <CoreServices/CoreServices.h>
 #include <mach-o/dyld.h>
+#include <sys/stat.h>
 #include <sys/time.h> // gettimeofday
 #endif
 
@@ -461,6 +463,23 @@ bool RegisterExtension()
 	return !success;
 #elif defined MACOSX
 	return false;
+#endif
+}
+
+void ChdirToDataDirectory()
+{
+#ifdef MACOSX
+	FSRef ref;
+	OSType folderType = kApplicationSupportFolderType;
+	char path[PATH_MAX];
+
+	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
+
+	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
+
+	std::string tptPath = std::string(path) + "/The Powder Toy";
+	mkdir(tptPath.c_str(), 0755);
+	chdir(tptPath.c_str());
 #endif
 }
 
