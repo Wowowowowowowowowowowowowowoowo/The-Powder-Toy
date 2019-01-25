@@ -1,7 +1,7 @@
 #ifdef LUACONSOLE
 #ifdef _MSC_VER
 #include "common/Platform.h"
-#include "Resources/resource.h"
+#include "resource.h"
 #endif
 #include "luaconsole.h"
 
