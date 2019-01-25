@@ -934,3 +934,7 @@ resizing window sometimes. Save resizable and alt fullscreen options to
 powder.pref. Add hidden option to change pixel rescaling mode when window
 is resized (beginning of konami code in options ui). This is extremely blurry
 so is hidden by default.
+
+Version 42.2 2018-01-24
+Fix interfaces sometimes closing when the window loses focus. Include new
+tpt icon.
