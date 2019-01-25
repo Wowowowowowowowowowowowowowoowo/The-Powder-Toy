@@ -48,6 +48,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+#ifdef MACOSX
+#include <CoreServices/CoreServices.h>
+#include <sys/stat.h>
+#endif
 
 #ifdef X86_SSE
 #include <xmmintrin.h>
@@ -923,6 +927,23 @@ void SigHandler(int signal)
 	}
 }
 
+void ChdirToDataDirectory()
+{
+#ifdef MACOSX
+	FSRef ref;
+	OSType folderType = kApplicationSupportFolderType;
+	char path[PATH_MAX];
+
+	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
+
+	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
+
+	std::string tptPath = std::string(path) + "/The Powder Toy";
+	mkdir(tptPath.c_str(), 0755);
+	chdir(tptPath.c_str());
+#endif
+}
+
 //int main(int argc, char *argv[])
 //{
 	pixel *part_vbuf; //Extra video buffer
@@ -965,6 +986,36 @@ int main(int argc, char *argv[])
 	display_mode = Renderer::Ref().GetDisplayModesRaw();
 	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
 
+	bool usedDdir = false;
+	for (int i = 1; i < argc; i++)
+	{
+		if (!strncmp(argv[i], "ddir", 5) && i+1<argc)
+		{
+			int ret = chdir(argv[i+1]);
+			if (ret)
+				std::cout << "Error, could not change directory\n";
+			i++;
+			usedDdir = true;
+		}
+		else if (!strncmp(argv[i], "ptsave", 7) && i+1<argc)
+		{
+			//Prevent reading of any arguments after ptsave for security
+			i++;
+			argc = i+2;
+			break;
+		}
+		else if (!strncmp(argv[i], "open", 5) && i+1<argc)
+		{
+			int openDataSize;
+			char *openData = (char*)file_load(argv[i+1], &openDataSize);
+			saveDataOpen = new Save(openData, openDataSize);
+			free(openData);
+			i++;
+		}
+	}
+	if (!usedDdir)
+		ChdirToDataDirectory();
+
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost
 	
@@ -987,32 +1038,6 @@ int main(int argc, char *argv[])
 
 	TRON_init_graphics();
 	init_color_boxes();
-
-	for (int i = 1; i < argc; i++)
-	{
-		if (!strncmp(argv[i], "ddir", 5) && i+1<argc)
-		{
-			int ret = chdir(argv[i+1]);
-			if (ret)
-				std::cout << "Error, could not change directory\n";
-			i++;
-		}
-		else if (!strncmp(argv[i], "ptsave", 7) && i+1<argc)
-		{
-			//Prevent reading of any arguments after ptsave for security
-			i++;
-			argc = i+2;
-			break;
-		}
-		else if (!strncmp(argv[i], "open", 5) && i+1<argc)
-		{
-			int openDataSize;
-			char *openData = (char*)file_load(argv[i+1], &openDataSize);
-			saveDataOpen = new Save(openData, openDataSize);
-			free(openData);
-			i++;
-		}
-	}
 
 	timesplayed = timesplayed + 1;
 	if (DEBUG_MODE)
