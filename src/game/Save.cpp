@@ -2017,6 +2017,10 @@ void Save::BuildSave()
 					fanVY = 255;
 				fanData[fanDataLen++] = fanVY;
 			}
+			else if (blockMap[y][x] == WL_STASIS)
+			{
+				RESTRICTVERSION(94, 0);
+			}
 		}
 	}
 
@@ -2270,7 +2274,7 @@ void Save::BuildSave()
 				{
 					RESTRICTVERSION(92, 0);
 				}
-				/*else if (particles[i].type == PT_PIPE || particles[i].type == PT_PPIP)
+				else if (particles[i].type == PT_PIPE || particles[i].type == PT_PPIP)
 				{
 					RESTRICTVERSION(93, 0);
 				}
@@ -2281,7 +2285,7 @@ void Save::BuildSave()
 					{
 						RESTRICTVERSION(93, 0);
 					}
-				}*/
+				}
 				if (PMAPBITS > 8)
 				{
 					if (TypeInCtype(particles[i].type, particles[i].ctype) && particles[i].ctype > 0xFF)
@@ -2295,6 +2299,17 @@ void Save::BuildSave()
 					else if (TypeInTmp2(particles[i].type, particles[i].tmp2) && particles[i].tmp2 > 0xFF)
 					{
 						RESTRICTVERSION(93, 0);
+					}
+				}
+				if (particles[i].type == PT_LDTC)
+				{
+					RESTRICTVERSION(94, 0);
+				}
+				if (particles[i].type == PT_TSNS || particles[i].type == PT_PSNS)
+				{
+					if (particles[i].tmp == 2)
+					{
+						RESTRICTVERSION(94, 0);
 					}
 				}
 				// Get the pmap entry for the next particle in the same position

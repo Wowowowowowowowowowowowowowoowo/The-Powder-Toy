@@ -937,4 +937,5 @@ so is hidden by default.
 
 Version 42.2 2018-01-25
 Fix interfaces sometimes closing when the window loses focus. Re-center
-windows icon. Upgrade Linux icon to 128x128 (when it decides to show up)
+windows icon. Upgrade Linux icon to 128x128 (when it decides to show up).
+Fix mac data directory.
