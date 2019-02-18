@@ -9,7 +9,7 @@ class Label;
 class Simulation;
 class OptionsUI : public Window_
 {
-	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox;
+	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;
 
 	Label *resizableLabel, *filteringLabel;
@@ -27,6 +27,7 @@ class OptionsUI : public Window_
 	void HeatSimChecked(bool checked);
 	void AmbientChecked(bool checked);
 	void NewtonianChecked(bool checked);
+	void DecorationsChecked(bool checked);
 	void WaterEqualizationChecked(bool checked);
 	void AirSimSelected(unsigned int option);
 	void GravitySelected(unsigned int option);

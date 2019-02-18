@@ -23,7 +23,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 #ifndef TOUCHUI
 	Window_(Point(CENTERED, CENTERED), Point(300, 400)),
 #else
-	Window_(Point(CENTERED, CENTERED), Point(300, 325)),
+	Window_(Point(CENTERED, CENTERED), Point(300, 362)),
 #endif
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())
@@ -67,7 +67,22 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 
+#ifdef TOUCHUI
+	decorationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Decorations");
+	decorationCheckbox->UseCheckIcon(useCheckIcon);
+	decorationCheckbox->SetCallback([&](bool checked) { this->DecorationsChecked(checked); });
+	this->AddComponent(decorationCheckbox);
+
+	descLabel = new Label(decorationCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Show deco color on elements");
+	descLabel->SetColor(COLRGB(150, 150, 150));
+	this->AddComponent(descLabel);
+#endif
+
+#ifdef TOUCHUI
+	waterEqalizationCheckbox = new Checkbox(decorationCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
+#else
 	waterEqalizationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
+#endif
 	waterEqalizationCheckbox->UseCheckIcon(useCheckIcon);
 	waterEqalizationCheckbox->SetCallback([&](bool checked) { this->WaterEqualizationChecked(checked); });
 	this->AddComponent(waterEqalizationCheckbox);
@@ -217,7 +232,9 @@ void OptionsUI::InitializeOptions()
 	gravityDropdown->SetSelectedOption(gravityMode);
 	edgeModeDropdown->SetSelectedOption(sim->edgeMode);
 
-#ifndef TOUCHUI
+#ifdef TOUCHUI
+	decorationCheckbox->SetChecked(decorations_enable);
+#else
 	doubleSizeCheckbox->SetChecked(Engine::Ref().GetScale() >= 2);
 	resizableCheckbox->SetChecked(Engine::Ref().IsResizable());
 	filteringDropdown->SetSelectedOption(Engine::Ref().GetPixelFilteringMode());
@@ -248,6 +265,11 @@ void OptionsUI::NewtonianChecked(bool checked)
 		start_grav_async();
 	else
 		stop_grav_async();
+}
+
+void OptionsUI::DecorationsChecked(bool checked)
+{
+	decorations_enable = checked;
 }
 
 void OptionsUI::WaterEqualizationChecked(bool checked)
