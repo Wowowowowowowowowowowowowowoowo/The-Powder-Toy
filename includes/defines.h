@@ -34,11 +34,11 @@
 #define MOD_VERSION 42
 #define MOD_MINOR_VERSION 3
 #define MOD_SAVE_VERSION 25 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 106 //For update checks
+#define MOD_BUILD_VERSION 107 //For update checks
 
 #define MOBILE_MAJOR 1
-#define MOBILE_MINOR 6
-#define MOBILE_BUILD 112
+#define MOBILE_MINOR 7
+#define MOBILE_BUILD 113
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
