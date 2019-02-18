@@ -166,6 +166,10 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		lastMousePosition = Point(mx, my);
 		break;
 	}
+	case SDL_VIDEORESIZE:
+		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
+		// if we don't do this, the touchscreen calibration variables won't ever be set properly
+		sdl_scrn = SDL_SetVideoMode(VIDXRES, VIDYRES, 32, SDL_SWSURFACE);
 	}
 	return 0;
 }
