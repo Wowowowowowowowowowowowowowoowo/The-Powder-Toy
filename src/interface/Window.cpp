@@ -118,6 +118,15 @@ void Window_::FocusComponent(Component *toFocus)
 	}
 }
 
+void Window_::DefocusComponent(Component *toDefocus)
+{
+	if (focused && focused == toDefocus)
+	{
+		focused->OnDefocus();
+		focused = nullptr;
+	}
+}
+
 void Window_::UpdateComponents()
 {
 	for (int i = Components.size()-1; i >= 0; i--)

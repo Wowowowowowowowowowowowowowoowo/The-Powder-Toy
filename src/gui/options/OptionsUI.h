@@ -12,8 +12,9 @@ class OptionsUI : public Window_
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;
 
-	Label *resizableLabel, *filteringLabel;
+	Label *resizableLabel, *filteringLabel, *forceIntegerScalingLabel;
 	Checkbox *doubleSizeCheckbox, *resizableCheckbox, *fullscreenCheckbox, *altFullscreenCheckbox;
+	Checkbox *forceIntegerScalingCheckbox;
 	Dropdown *filteringDropdown;
 
 	Checkbox *fastQuitCheckbox, *updatesCheckbox;
@@ -38,6 +39,7 @@ class OptionsUI : public Window_
 	void FilteringSelected(unsigned int option);
 	void FullscreenChecked(bool checked);
 	void AltFullscreenChecked(bool checked);
+	void ForceIntegerScalingChecked(bool checked);
 	void FastQuitChecked(bool checked);
 	void UpdatesChecked(bool checked);
 	void DataFolderClicked();

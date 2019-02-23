@@ -36,3 +36,11 @@ bool Component::IsMouseDown()
 		return parent->IsMouseDown();
 	return false;
 }
+
+void Component::SetVisible(bool visible)
+{
+	this->visible = visible;
+	toAdd = false;
+	if (!visible && parent)
+		parent->DefocusComponent(this);
+}

@@ -23,6 +23,7 @@ public:
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);
 	void FocusComponent(Component *toFocus);
+	void DefocusComponent(Component *toDefocus);
 	void UpdateComponents();
 	bool IsFocused(const Component *other) const { return other == focused; }
 	bool IsClicked(const Component *other) const { return other == clicked; }

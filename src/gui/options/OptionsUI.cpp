@@ -148,6 +148,16 @@ OptionsUI::OptionsUI(Simulation *sim):
 	resizableLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(resizableLabel);
 
+	forceIntegerScalingCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, checkboxHeight), "Force Integer Scaling");
+	forceIntegerScalingCheckbox->SetPosition(Point(this->size.X - 5 - forceIntegerScalingCheckbox->GetSize().X, resizableCheckbox->GetPosition().Y));
+	forceIntegerScalingCheckbox->UseCheckIcon(useCheckIcon);
+	forceIntegerScalingCheckbox->SetCallback([&](bool checked) { this->ForceIntegerScalingChecked(checked); });
+	this->AddComponent(forceIntegerScalingCheckbox);
+
+	forceIntegerScalingLabel = new Label(forceIntegerScalingCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Less Blurry");
+	forceIntegerScalingLabel->SetColor(COLRGB(150, 150, 150));
+	this->AddComponent(forceIntegerScalingLabel);
+
 	filteringDropdown = new Dropdown(Point(0, 0), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Nearest", "Linear", "Best"});
 	filteringDropdown->SetPosition(Point(this->size.X - 5 - filteringDropdown->GetSize().X, resizableCheckbox->GetPosition().Y));
 	filteringDropdown->SetCallback([&](unsigned int option) { this->FilteringSelected(option); });
@@ -241,6 +251,7 @@ void OptionsUI::InitializeOptions()
 	filteringDropdown->SetEnabled(resizableCheckbox->IsChecked());
 	fullscreenCheckbox->SetChecked(Engine::Ref().IsFullscreen());
 	altFullscreenCheckbox->SetChecked(Engine::Ref().IsAltFullscreen());
+	forceIntegerScalingCheckbox->SetChecked(Engine::Ref().IsForceIntegerScaling());
 #endif
 
 #ifndef TOUCHUI
@@ -328,6 +339,11 @@ void OptionsUI::AltFullscreenChecked(bool checked)
 	Engine::Ref().SetAltFullscreen(checked);
 }
 
+void OptionsUI::ForceIntegerScalingChecked(bool checked)
+{
+	Engine::Ref().SetForceIntegerScaling(checked);
+}
+
 void OptionsUI::FastQuitChecked(bool checked)
 {
 	Engine::Ref().SetFastQuit(checked);
@@ -391,6 +407,9 @@ void OptionsUI::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 	{
 		filteringDropdown->SetVisible(true);
 		filteringLabel->SetVisible(true);
+
+		forceIntegerScalingCheckbox->SetVisible(false);
+		forceIntegerScalingLabel->SetVisible(false);
 	}
 #endif
 }

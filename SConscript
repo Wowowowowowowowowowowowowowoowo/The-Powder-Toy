@@ -425,6 +425,7 @@ if GetOption('native') and not msvc:
 
 #Add optimization flags and defines
 if GetOption('debugging'):
+	env.Append(CPPDEFINES=['DEBUG'])
 	if msvc:
 		env.Append(CCFLAGS=['/Od'])
 		if GetOption('static'):

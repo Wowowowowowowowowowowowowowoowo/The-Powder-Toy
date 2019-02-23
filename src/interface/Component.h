@@ -41,7 +41,7 @@ public:
 	void SetSize(Point size) { this->size = size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 	bool IsVisible() { return visible; }
-	void SetVisible(bool visible_) { visible = visible_; toAdd = false; }
+	void SetVisible(bool visible);
 	bool IsEnabled() { return enabled; }
 	void SetEnabled(bool enabled_) { enabled = enabled_; if (!enabled) isMouseInside = false; }
 	virtual void SetColor(ARGBColour newColor) { color = newColor; }

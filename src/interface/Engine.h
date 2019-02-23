@@ -39,6 +39,9 @@ public:
 	bool IsAltFullscreen();
 	void SetAltFullscreen(bool altFullscreen);
 
+	bool IsForceIntegerScaling();
+	void SetForceIntegerScaling(bool forceIntegerScaling);
+
 	bool IsFastQuit() { return fastQuit; }
 	void SetFastQuit(bool fastQuit) { this->fastQuit = fastQuit; }
 
@@ -59,6 +62,7 @@ private:
 	int pixelFilteringMode = 0;
 	bool fullscreen = false;
 	bool altFullscreen = false;
+	bool forceIntegerScaling = true;
 
 	bool fastQuit = false;
 };

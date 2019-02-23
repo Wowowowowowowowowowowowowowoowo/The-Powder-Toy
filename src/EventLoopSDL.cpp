@@ -26,6 +26,7 @@ bool resizable = false;
 int pixelFilteringMode = 0;
 bool fullscreen = false;
 bool altFullscreen = false;
+bool forceIntegerScaling = true;
 
 int savedWindowX = INT_MAX;
 int savedWindowY = INT_MAX;
@@ -124,20 +125,28 @@ int SDLOpen()
 	return 1;
 }
 
-void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_, bool canRecreateWindow)
+void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_,
+				  bool forceIntegerScaling_, bool canRecreateWindow)
 {
-	if (fullscreen_ || (resizable == resizable_ && pixelFilteringMode == pixelFilteringMode_))
-		canRecreateWindow = false;
+	bool changingFullscreen = fullscreen_ != fullscreen || (altFullscreen_ != altFullscreen && fullscreen);
+	bool changingResizable = resizable != resizable_ || pixelFilteringMode != pixelFilteringMode_;
+	//if (fullscreen_ || (resizable == resizable_ && pixelFilteringMode == pixelFilteringMode_))
+	//	canRecreateWindow = false;
 	resizable = resizable_;
 	pixelFilteringMode = pixelFilteringMode_;
 	fullscreen = fullscreen_;
 	altFullscreen = altFullscreen_;
-	if (canRecreateWindow)
+	forceIntegerScaling = forceIntegerScaling_;
+	if ((changingFullscreen || (changingResizable && resizable && !fullscreen)) && canRecreateWindow)
 	{
 		RecreateWindow();
 		return;
 	}
+	if (changingResizable && canRecreateWindow)
+		SDL_RestoreWindow(sdl_window);
+
 	SDL_SetWindowSize(sdl_window, VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale());
+	SDL_RenderSetIntegerScale(sdl_renderer, forceIntegerScaling && fullscreen ? SDL_TRUE : SDL_FALSE);
 	unsigned int flags = 0;
 	if (fullscreen)
 		flags = altFullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -169,8 +178,7 @@ void RecreateWindow()
 	        VIDXRES * Engine::Ref().GetScale(), VIDYRES * Engine::Ref().GetScale(), flags);
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdl_renderer, VIDXRES, VIDYRES);
-	//Uncomment this to force fullscreen to an integer resolution
-	//SDL_RenderSetIntegerScale(sdl_renderer, SDL_TRUE);
+	SDL_RenderSetIntegerScale(sdl_renderer, forceIntegerScaling && fullscreen ? SDL_TRUE : SDL_FALSE);
 
 	std::string filteringMode = "nearest";
 	if (resizable)
@@ -301,7 +309,9 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
+#ifndef DEBUG
 		SDL_CaptureMouse(SDL_TRUE);
+#endif
 		break;
 	}
 	case SDL_MOUSEBUTTONUP:
@@ -311,7 +321,9 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
+#ifndef DEBUG
 		SDL_CaptureMouse(SDL_FALSE);
+#endif
 		break;
 	}
 	case SDL_MOUSEMOTION:

@@ -105,7 +105,7 @@ void Engine::SetScale(unsigned int scale)
 	if (this->scale != scale)
 	{
 		this->scale = scale;
-		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, true);
 	}
 }
 
@@ -118,7 +118,7 @@ void Engine::SetResizable(bool resizable, bool recreateWindow)
 {
 	if (this->resizable != resizable)
 	{
-		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, recreateWindow);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, recreateWindow);
 		this->resizable = resizable;
 	}
 }
@@ -133,7 +133,7 @@ void Engine::SetPixelFilteringMode(int pixelFilteringMode, bool recreateWindow)
 	if (this->pixelFilteringMode != pixelFilteringMode)
 	{
 		this->pixelFilteringMode = pixelFilteringMode;
-		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, recreateWindow);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, recreateWindow);
 	}
 }
 
@@ -146,7 +146,7 @@ void Engine::SetFullscreen(bool fullscreen)
 {
 	if (this->fullscreen != fullscreen)
 	{
-		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, true);
 		this->fullscreen = fullscreen;
 	}
 }
@@ -160,8 +160,22 @@ void Engine::SetAltFullscreen(bool altFullscreen)
 {
 	if (this->altFullscreen != altFullscreen)
 	{
-		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, true);
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, true);
 		this->altFullscreen = altFullscreen;
+	}
+}
+
+bool Engine::IsForceIntegerScaling()
+{
+	return forceIntegerScaling;
+}
+
+void Engine::SetForceIntegerScaling(bool forceIntegerScaling)
+{
+	if (this->forceIntegerScaling != forceIntegerScaling)
+	{
+		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, true);
+		this->forceIntegerScaling = forceIntegerScaling;
 	}
 }
 

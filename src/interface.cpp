@@ -3671,7 +3671,7 @@ int search_ui(pixel *vid_buf)
 
 		if (page_count)
 		{
-			char pagecount[16];
+			char pagecount[17];
 			sprintf(pagecount,"Page %i",search_page+1);
 			drawtext(vid_buf, (XRES-textwidth(pagecount))/2+xOffset, YRES+MENUSIZE-10, pagecount, 255, 255, 255, 255);
 		}

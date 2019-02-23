@@ -269,6 +269,8 @@ void save_presets()
 		cJSON_AddTrueToObject(root, "Fullscreen");
 	if (Engine::Ref().IsAltFullscreen())
 		cJSON_AddTrueToObject(root, "AltFullscreen");
+	if (!Engine::Ref().IsForceIntegerScaling())
+		cJSON_AddFalseToObject(root, "ForceIntegerScaling");
 	if (Engine::Ref().IsFastQuit())
 		cJSON_AddTrueToObject(root, "FastQuit");
 	else
@@ -597,6 +599,8 @@ void load_presets(void)
 			Engine::Ref().SetFullscreen(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "AltFullscreen")))
 			Engine::Ref().SetAltFullscreen(tmpobj->valueint ? true : false);
+		if ((tmpobj = cJSON_GetObjectItem(root, "ForceIntegerScaling")))
+			Engine::Ref().SetForceIntegerScaling(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
 			Engine::Ref().SetFastQuit(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowX")))
