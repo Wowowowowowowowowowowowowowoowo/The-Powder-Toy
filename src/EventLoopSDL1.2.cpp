@@ -64,7 +64,8 @@ int SDLOpen()
 	return 1;
 }
 
-void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_, bool canRecreateWindow)
+void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_,
+				  bool forceIntegerScaling_, bool canRecreateWindow)
 {
 	// Do nothing, this is for Android only and none of these options are relevant
 }

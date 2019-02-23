@@ -130,8 +130,6 @@ void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bo
 {
 	bool changingFullscreen = fullscreen_ != fullscreen || (altFullscreen_ != altFullscreen && fullscreen);
 	bool changingResizable = resizable != resizable_ || pixelFilteringMode != pixelFilteringMode_;
-	//if (fullscreen_ || (resizable == resizable_ && pixelFilteringMode == pixelFilteringMode_))
-	//	canRecreateWindow = false;
 	resizable = resizable_;
 	pixelFilteringMode = pixelFilteringMode_;
 	fullscreen = fullscreen_;
