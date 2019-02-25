@@ -1,6 +1,7 @@
 #include "common/tpt-minmax.h"
 #include <cstring>
 #include <sstream>
+#include "SDLCompat.h" // for SDL_Start/StopTextInput
 #include "json/json.h"
 
 #include "defines.h"
@@ -2016,6 +2017,8 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		break;
 	case SDL_SCANCODE_GRAVE:
 		console_mode = !console_mode;
+		SDL_StopTextInput();
+		SDL_StartTextInput();
 		break;
 	case SDL_SCANCODE_EQUALS:
 		if (ctrl)
