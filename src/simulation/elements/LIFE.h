@@ -4,6 +4,7 @@
 #include "simulation/ElementDataContainer.h"
 #include "simulation/GolNumbers.h"
 #include "simulation/Simulation.h"
+#include "simulation/WallNumbers.h"
 
 class LIFE_ElementDataContainer : public ElementDataContainer
 {
@@ -52,14 +53,14 @@ public:
 				}
 				if (TYP(r) == PT_LIFE)
 				{
-					unsigned char golnum = (unsigned char)(parts[ID(r)].ctype+1);
+					unsigned char golnum = (unsigned char)(parts[ID(r)].ctype + 1);
 					if (golnum <= 0 || golnum > NGOL)
 					{
 						sim->part_kill(ID(r));
 						continue;
 					}
 					gol[ny][nx] = golnum;
-					if (parts[ID(r)].tmp == grule[golnum][9]-1)
+					if (parts[ID(r)].tmp == grule[golnum][9] - 1)
 					{
 						for (int nnx = -1; nnx <= 1; nnx++)
 						{
@@ -99,9 +100,9 @@ public:
 			}
 		}
 		//go through every particle again, but check neighbor map, then update particles
-		for (int ny = CELL; ny < YRES-CELL; ny++)
+		for (int ny = CELL; ny < YRES - CELL; ny++)
 		{
-			for (int nx = CELL; nx < XRES-CELL; nx++)
+			for (int nx = CELL; nx < XRES - CELL; nx++)
 			{
 				int r = pmap[ny][nx];
 				if (r && TYP(r) != PT_LIFE)
@@ -109,31 +110,34 @@ public:
 				int neighbors = gol2[ny][nx][0];
 				if (neighbors)
 				{
-					int golnum = gol[ny][nx];
-					if (!r)
+					if (!(bmap[ny/CELL][nx/CELL] == WL_STASIS && emap[ny/CELL][nx/CELL] < 8))
 					{
-						//Find which type we can try and create
-						int creategol = 0xFF;
-						for (int i = 1; i < 9; i++)
+						int golnum = gol[ny][nx];
+						if (!r)
 						{
-							if (!gol2[ny][nx][i])
-								break;
-							golnum = (gol2[ny][nx][i]>>4);
-							if (grule[golnum][neighbors] >= 2 && (gol2[ny][nx][i]&0xF) >= (neighbors%2)+neighbors/2)
+							//Find which type we can try and create
+							int creategol = 0xFF;
+							for (int i = 1; i < 9; i++)
 							{
-								if (golnum < creategol)
-									creategol = golnum;
+								if (!gol2[ny][nx][i])
+									break;
+								golnum = (gol2[ny][nx][i]>>4);
+								if (grule[golnum][neighbors] >= 2 && (gol2[ny][nx][i] & 0xF) >= (neighbors % 2) + neighbors / 2)
+								{
+									if (golnum < creategol)
+										creategol = golnum;
+								}
 							}
+							if (creategol < 0xFF)
+								if (sim->part_create(-1, nx, ny, PT_LIFE, creategol-1) > -1)
+									createdSomething = true;
 						}
-						if (creategol < 0xFF)
-							if (sim->part_create(-1, nx, ny, PT_LIFE, creategol-1) > -1)
-								createdSomething = true;
-					}
-					//subtract 1 because it counted itself
-					else if (grule[golnum][neighbors-1] == 0 || grule[golnum][neighbors-1] == 2)
-					{
-						if (parts[ID(r)].tmp == grule[golnum][9]-1)
-							parts[ID(r)].tmp--;
+						//subtract 1 because it counted itself
+						else if (grule[golnum][neighbors-1] == 0 || grule[golnum][neighbors-1] == 2)
+						{
+							if (parts[ID(r)].tmp == grule[golnum][9]-1)
+								parts[ID(r)].tmp--;
+						}
 					}
 					//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
 					for (int z = 0; z < 9; z++)
