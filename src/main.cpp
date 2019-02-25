@@ -68,6 +68,7 @@
 #include "powdergraphics.h"
 #include "http.h"
 #include "interface.h"
+#include "IntroText.h"
 #include "md5.h"
 #include "update.h"
 #include "console.h"
@@ -103,127 +104,11 @@
 #include "gui/game/PowderToy.h"
 
 pixel *vid_buf;
-pixel *vid3d = NULL;
-
-#ifdef TOUCHUI
-static const char *it_msg =
-	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.freenode.net #powder\n"
-	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"Android version " MTOS(MOBILE_MAJOR) "." MTOS(MOBILE_MINOR) " build " MTOS(MOBILE_BUILD) "\n"
-	"\n"
-	"\bgTouch and drag the menus on the right side to show each menusection.\n"
-	"For scrollable menusections, the menus can be dragged around.\n"
-	"Use the volume keys to change the tool size for particles.\n"
-	"To open online saves, tap the 'Find & open a simulation' button on the very bottom left.\n"
-	"To pause and unpause the game, use the pause button on the very bottom right.\n\n"
-	"\boThe buttons on the right do the following actions respectively:\n"
-	"\bo   Toggle erase tool (hold button down to clear screen)\n"
-	"\bo   Open the console (hold button to show the on screen keyboard)\n"
-	"\bo   Toggle Newtonian gravity, or decorations while in deco menu (hold to open simulation settings)\n"
-	"\bo   Place or remove a zoom window\n"
-	"\bo   Save a stamp (hold to load a stamp)\n\n"
-	"\boWhen placing a stamp, you may do the following:\n"
-	"\bo   Drag the stamp around wherever you want.\n"
-	"\bo   Tap the stamp without moving it to place.\n"
-	"\bo   Touch any location outside of the stamp to shift it by one pixel.\n"
-	"\bo   Rotate the stamp by first tapping around the edges and then dragging in a circle.\n"
-	"\n"
-	"Contributors: \bgStanislaw K Skowronek (Designed the original Powder Toy),\n"
-	"\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
-	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1, mniip\n"
-	"\n"
-	"\bgTo use online features such as saving, you need to register at: \brhttps://powdertoy.co.uk/Register.html\n"
-	"\n"
-	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
-#else
-static const char *it_msg =
-	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.freenode.net #powder\n"
-	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
-	"\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "." MTOS(MOD_MINOR_VERSION) " build " MTOS(MOD_BUILD_VERSION) "\bg   Codebase based on C version 83.0\n"
-	"\n"
-	"\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
-	"\bgTo choose a material, hover over one of the icons on the right, it will show a selection of elements in that group.\n"
-	"\bgPick your material from the menu using mouse left/right buttons.\n"
-	"Draw freeform lines by dragging your mouse left/right button across the drawing area.\n"
-	"Shift+drag will create straight lines of particles.\n"
-	"Ctrl+drag will result in filled rectangles.\n"
-	"Ctrl+Shift+click will flood-fill a closed area.\n"
-	"Use the mouse scroll wheel, or '[' and ']', to change the tool size for particles.\n"
-	"Middle click or Alt+Click to \"sample\" the particles.\n"
-	"Ctrl+Z will act as Undo.\n"
-	"\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength\n"
-	"The spacebar can be used to pause and unpause physics.\n"
-	"Use 'S' to save parts of the window as 'stamps'.\n"
-	"'L' will load the most recent stamp, 'K' shows a library of stamps you saved.\n"
-	"The numbers on the keyboard will change the display mode\n"
-	"\n"
-	"Contributors: \bgStanislaw K Skowronek (Designed the original Powder Toy),\n"
-	"\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
-	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1, mniip\n"
-	"Thanks to cracker64 for the update server for my mod\n"
-	"\n"
-	"\bgTo use online features such as saving, you need to register at: \brhttps://powdertoy.co.uk/Register.html\n"
-	"\n"
-	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
-#endif
-
-
-#ifdef X86
-	"X86 "
-#endif
-#ifdef X86_SSE
-	"X86_SSE "
-#endif
-#ifdef X86_SSE2
-	"X86_SSE2 "
-#endif
-#ifdef X86_SSE3
-	"X86_SSE3 "
-#endif
-#ifdef LIN
-#ifdef _64BIT
-	"LIN64 "
-#else
-	"LIN32 "
-#endif
-#endif
-#ifdef WIN
-#ifdef _64BIT
-	"WIN64 "
-#else
-	"WIN32 "
-#endif
-#endif
-#ifdef MACOSX
-	"MACOSX "
-#endif
-#ifdef ANDROID
-	"ANDROID "
-#endif
-#ifdef LUACONSOLE
-	"LUACONSOLE "
-#endif
-#ifdef GRAVFFT
-	"GRAVFFT "
-#endif
-    ;
-
-typedef struct
-{
-	int start, inc;
-	pixel *vid;
-} upstruc;
-
-char new_message_msg[255];
-float mheat = 0.0f;
 
 int ptsaveOpenID = 0;
 int saveURIOpen = 0;
 Save * saveDataOpen = NULL;
 
-#ifdef INTERNAL
-	int vs = 0;
-#endif
 bool firstRun = false;
 bool doubleScreenDialog = false;
 int screenWidth = 0;
@@ -927,7 +812,6 @@ void SigHandler(int signal)
 //{
 	pixel *part_vbuf; //Extra video buffer
 	pixel *part_vbuf_store;
-	int new_message_len = 0;
 	int afk = 0, afkstart = 0, lastx = 1, lasty = 0; // afk tracking for stats
 	bool mouseInZoom = false;
 	int username_flash = 0, username_flash_t = 1;
@@ -1120,7 +1004,7 @@ int main(int argc, char *argv[])
 #endif
 				puts("Got ptsave:id");
 				saveURIOpen = tempSaveID;
-				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
+				UpdateToolTip(introText, Point(16, 20), INTROTIP, 0);
 			}
 			break;
 		}
@@ -1213,7 +1097,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
+	UpdateToolTip(introText, Point(16, 20), INTROTIP, 10235);
 
 	Engine::Ref().ShowWindow(the_game);
 	try
@@ -1231,7 +1115,7 @@ int main(int argc, char *argv[])
 }
 
 	//while (!sdl_poll()) //the main loop
-int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt)
+int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shift, bool ctrl, bool alt)
 {
 	if (true)
 	{
@@ -1404,7 +1288,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 		{
 			//Clear all settings and simulation data
 			NewSim();
-			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
+			UpdateToolTip(introText, Point(16, 20), INTROTIP, 0);
 
 			try
 			{
@@ -1451,333 +1335,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 				tab_save(tab_num);
 			}
 			ptsaveOpenID = 0;
-		}
-
-		if (!deco_disablestuff)
-		{
-			if (sdl_key)
-				UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
-			if (sdl_key=='f')
-			{
-				if (debug_flags & DEBUG_PARTICLE_UPDATES)
-				{
-					the_game->SetPause(1);
-					if (alt)
-					{
-						ParticleDebug(0, 0, 0);
-					}
-					else if (shift)
-					{
-						ParticleDebug(1, mx, my);
-					}
-					else if (ctrl)
-					{
-						if (!(finding & 0x1))
-							finding |= 0x1;
-						else
-							finding &= ~0x1;
-					}
-					else
-					{
-						if  (globalSim->debug_currentParticle)
-							ParticleDebug(1, -1, -1);
-						else
-							framerender = 1;
-					}
-				}
-				else
-				{
-					if (ctrl)
-					{
-						if (!(finding & 0x1))
-							finding |= 0x1;
-						else
-							finding &= ~0x1;
-					}
-					else
-					{
-						the_game->SetPause(1);
-						if  (globalSim->debug_currentParticle)
-							ParticleDebug(1, -1, -1);
-						else
-							framerender = 1;
-					}
-				}
-			}
-			if (sdl_key=='s')
-			{
-				// if stkm2 is out, you must be holding right ctrl, else just either ctrl
-				if ((globalSim->elementCount[PT_STKM2]>0 && (Engine::Ref().GetModifiers()&KMOD_RCTRL)) || (globalSim->elementCount[PT_STKM2]<=0 && ctrl))
-					tab_save(tab_num);
-			}
-			if (sdl_key=='o')
-			{
-#ifdef TOUCHUI
-				catalogue_ui(vid_buf);
-#else
-				if  (ctrl)
-				{
-					catalogue_ui(vid_buf);
-				}
-				else
-				{
-					old_menu = !old_menu;
-					if (old_menu)
-						UpdateToolTip("Experimental old menu activated, press 'o' to turn off", Point(XCNTR-textwidth("Experimental old menu activated, press 'o' to turn off")/2, YCNTR-10), INFOTIP, 500);
-				}
-#endif
-			}
-			if(sdl_key=='e')
-			{
-				element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
-			}
-			if (active_menu == SC_FAV2 && (Engine::Ref().GetModifiers() & KMOD_RCTRL) && (Engine::Ref().GetModifiers() & KMOD_RSHIFT))
-			{
-				active_menu = SC_CRACKER;
-			}
-			if (sdl_key==SDLK_TAB)
-			{
-				if (!ctrl)
-					currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
-			}
-			if (sdl_key==SDLK_LEFTBRACKET) {
-				if (!the_game->PlacingZoomWindow())
-				{
-					if (alt && !ctrl && !shift)
-					{
-						currentBrush->ChangeRadius(Point(-1, -1));
-					}
-					else if (shift && !ctrl)
-					{
-						currentBrush->ChangeRadius(Point(-1, 0));
-					}
-					else if (ctrl && !shift)
-					{
-						currentBrush->ChangeRadius(Point(0, -1));
-					}
-					else
-					{
-						currentBrush->ChangeRadius(Point(-(int)ceil((currentBrush->GetRadius().X/5)+0.5f), -(int)ceil((currentBrush->GetRadius().Y/5)+0.5f)));
-					}
-				}
-			}
-			if (sdl_key==SDLK_RIGHTBRACKET) {
-				if (!the_game->PlacingZoomWindow())
-				{
-					if (alt && !ctrl && !shift)
-					{
-						currentBrush->ChangeRadius(Point(1, 1));
-					}
-					else if (shift && !ctrl)
-					{
-						currentBrush->ChangeRadius(Point(1, 0));
-					}
-					else if (ctrl && !shift)
-					{
-						currentBrush->ChangeRadius(Point(0, 1));
-					}
-					else
-					{
-						currentBrush->ChangeRadius(Point((int)ceil((currentBrush->GetRadius().X/5)+0.5f), (int)ceil((currentBrush->GetRadius().Y/5)+0.5f)));
-					}
-				}
-			}
-			if ((sdl_key=='d' && (ctrl || globalSim->elementCount[PT_STKM2]<=0)) || sdl_key == SDLK_F3)
-			{
-				DEBUG_MODE = !DEBUG_MODE;
-				SetCurrentHud();
-			}
-			if (sdl_key==SDLK_INSERT)
-				REPLACE_MODE = !REPLACE_MODE;
-			else if (sdl_key == SDLK_DELETE && active_menu != SC_DECO)
-				SPECIFIC_DELETE = !SPECIFIC_DELETE;
-			else if (sdl_key == SDLK_SEMICOLON)
-			{
-				if (ctrl)
-					SPECIFIC_DELETE = !SPECIFIC_DELETE;
-				else
-					REPLACE_MODE = !REPLACE_MODE;
-			}
-			if (sdl_key==SDLK_BACKQUOTE)
-			{
-				console_mode = !console_mode;
-				//hud_enable = !console_mode;
-			}
-			if (sdl_key=='g')
-			{
-				if (ctrl)
-				{
-					drawgrav_enable =! drawgrav_enable;
-				}
-				else
-				{
-					if (shift)
-						GRID_MODE = (GRID_MODE+9)%10;
-					else
-						GRID_MODE = (GRID_MODE+1)%10;
-				}
-			}
-			if (sdl_key=='=')
-			{
-				if (ctrl)
-				{
-					for (int i = 0; i < NPART; i++)
-						if (parts[i].type == PT_SPRK)
-						{
-							if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && globalSim->elements[parts[i].ctype].Enabled)
-							{
-								parts[i].type = parts[i].ctype;
-								parts[i].life = parts[i].ctype = 0;
-							}
-							else
-								globalSim->part_kill(i);
-						}
-					globalSim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
-				}
-				else
-				{
-					for (int nx = 0; nx < XRES/CELL; nx++)
-						for (int ny = 0; ny < YRES/CELL; ny++)
-						{
-							globalSim->air->pv[ny][nx] = 0;
-							globalSim->air->vx[ny][nx] = 0;
-							globalSim->air->vy[ny][nx] = 0;
-						}
-					for (int i = 0; i < NPART; i++)
-						if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUNG)
-						{
-							parts[i].pavg[0] = parts[i].pavg[1] = 0;
-						}
-				}
-			}
-
-			if (sdl_key=='w' && (globalSim->elementCount[PT_STKM2]<=0 || ctrl)) //Gravity, by Moach
-			{
-				++gravityMode; // cycle gravity mode
-
-				std::string toolTip;
-				switch (gravityMode)
-				{
-				default:
-					gravityMode = 0;
-				case 0:
-					toolTip = "Gravity: Vertical";
-					break;
-				case 1:
-					toolTip = "Gravity: Off";
-					break;
-				case 2:
-					toolTip = "Gravity: Radial";
-					break;
-				}
-				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
-			}
-			if (sdl_key=='y' && !ctrl)
-			{
-				++airMode;
-
-				std::string toolTip;
-				switch (airMode)
-				{
-				default:
-					airMode = 0;
-				case 0:
-					toolTip = "Air: On";
-					break;
-				case 1:
-					toolTip = "Air: Pressure Off";
-					break;
-				case 2:
-					toolTip = "Air: Velocity Off";
-					break;
-				case 3:
-					toolTip = "Air: Off";
-					break;
-				case 4:
-					toolTip = "Air: No Update";
-					break;
-				}
-				UpdateToolTip(toolTip, Point(XCNTR-textwidth(toolTip.c_str())/2, YCNTR-10), INFOTIP, 255);
-			}
-
-			if (sdl_key=='t')
-				show_tabs = !show_tabs;
-			if (sdl_key=='h' && !ctrl)
-			{
-				hud_enable = !hud_enable;
-			}
-			if (sdl_key==SDLK_F1 || (sdl_key=='h' && ctrl))
-			{
-				if (!GetToolTipAlpha(INTROTIP))
-				{
-					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 10235);
-				}
-				else
-				{
-					UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 0);
-				}
-			}
-			//TODO: Superseded by new display mode switching, need some keyboard shortcuts
-			/*else if (sdl_key=='c')
-			{
-				set_cmode((cmode+1) % CM_COUNT);
-				if (it > 50)
-					it = 50;
-			}*/
-			if (!the_game->MouseClicksIgnored())
-			{
-				if (sdl_key == SDLK_UP && ctrl && tab_num > 1)
-				{
-					tab_save(tab_num);
-					tab_num--;
-					tab_load(tab_num);
-				}
-				else if (sdl_key == SDLK_DOWN && ctrl && tab_num < num_tabs)
-				{
-					tab_save(tab_num);
-					tab_num++;
-					tab_load(tab_num);
-				}
-			}
-		}
-#ifdef INTERNAL
-		int counterthing;
-		if (sdl_key=='v'&&!(sdl_mod & (KMOD_CTRL|KMOD_GUI)))//frame capture
-		{
-			if (sdl_mod & (KMOD_SHIFT)) {
-				if (vs>=1)
-					vs = 0;
-				else
-					vs = 3;//every other frame
-			}
-			else
-			{
-				if (vs>=1)
-					vs = 0;
-				else
-					vs = 1;
-			}
-			counterthing = 0;
-		}
-		if (vs)
-		{
-			if (counterthing+1>=vs)
-			{
-				dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
-				counterthing = 0;
-			}
-			counterthing = (counterthing+1)%3;
-		}
-#endif
-
-		if (svf_messages)
-		{
-			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
-			new_message_len = textwidth(new_message_msg);
-
-			clearrect(vid_buf, XRES-20-new_message_len, YRES-38, new_message_len+8, 16);
-			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
-			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
 		}
 
 #ifdef TOUCHUI
@@ -1850,14 +1407,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 		if (deco_disablestuff)
 			b = 0;
 
-		if (b && !bq && x>=(XRES-19-new_message_len) &&
-		        x<=(XRES-14) && y>=(YRES-37) && y<=(YRES-24) && svf_messages)
-		{
-			if (b == 1)
-				Platform::OpenLink("http://" SERVER "/Conversations.html");
-			svf_messages = 0;
-			b = 0;
-		}
 		if (update_flag)
 		{
 			info_box(vid_buf, "Finalizing update...");
@@ -1900,7 +1449,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ct
 		//there is a click
 		else if (b)
 		{
-			UpdateToolTip(it_msg, Point(16, 20), INTROTIP, 255);
+			UpdateToolTip(introText, Point(16, 20), INTROTIP, 255);
 
 			/*if (tmpMouseInZoom != mouseInZoom && !lm)
 				b = lb = 0;
@@ -2155,8 +1704,6 @@ void main_end_hack()
 #endif
 	if (part_vbuf_store)
 		free(part_vbuf_store);
-	if (vid3d)
-		free(vid3d);
 	for (int i = 1; i < 10; i++)
 	{
 		char name[30] = {0};

@@ -370,10 +370,6 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 		frameNum = 0;
 	}
 #endif
-#ifdef INTERNAL
-	if (vs)
-		strappend(uitext, "[FRAME CAPTURE]");
-#endif
 	if (strlen(uitext) > 0 && uitext[strlen(uitext)-1] == ' ')
 		uitext[strlen(uitext)-1] = 0;
 }

@@ -255,7 +255,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&(KMOD_CTRL|KMOD_GUI), event.key.keysym.mod&KMOD_ALT);
 
 		if (eventHandler && event.key.keysym.sym == SDLK_ESCAPE && eventHandler->CanQuit())
 			return true;
@@ -272,7 +272,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&(KMOD_CTRL|KMOD_GUI), event.key.keysym.mod&KMOD_ALT);
 		break;
 
 	case SDL_TEXTINPUT:
@@ -385,6 +385,7 @@ void MainLoop()
 		top->UpdateComponents();
 
 		sdl_textinput = "";
+		sdl_key = sdl_wheel = 0;
 		while (SDL_PollEvent(&event))
 		{
 			int ret = EventProcess(event, top);
@@ -572,7 +573,6 @@ int FPSwait = 0;
 int SDLPoll()
 {
 	SDL_Event event;
-	sdl_key=sdl_wheel=0;
 	if (Engine::Ref().IsShutdown())
 		return 1;
 
@@ -582,6 +582,7 @@ int SDLPoll()
 		the_game->OnDefocus();
 	}
 	sdl_textinput = "";
+	sdl_key = sdl_wheel = 0;
 	while (SDL_PollEvent(&event))
 	{
 		int ret = EventProcess(event, nullptr);

@@ -144,7 +144,6 @@ extern command_history *last_command_result;
 extern unsigned short sdl_mod;
 extern int sdl_key, sdl_wheel;
 
-extern int svf_messages;
 extern int svf_login;
 extern int svf_admin;
 extern int svf_mod;

@@ -1405,6 +1405,59 @@ void Simulation::Tick()
 	}
 }
 
+std::string Simulation::ParticleDebug(int mode, int x, int y)
+{
+	int debug_currentParticle = globalSim->debug_currentParticle;
+	int i;
+	std::stringstream logmessage;
+
+	// update one particle at a time
+	if (mode == 0)
+	{
+		if (!NUM_PARTS)
+			return "";
+		i = debug_currentParticle;
+		while (i < NPART && !globalSim->parts[i].type)
+			i++;
+		if (i == NPART)
+			logmessage << "End of particles reached, updated sim";
+		else
+			logmessage << "Updated particle #" << i;
+	}
+	// update all particles up to particle under mouse (or to end of sim)
+	else if (mode == 1)
+	{
+		if (x < 0 || x >= XRES || y < 0 || y >= YRES || !pmap[y][x] || (i = ID(pmap[y][x])) < debug_currentParticle)
+		{
+			i = NPART;
+			logmessage << "Updated particles from #" << debug_currentParticle << " to end, updated sim";
+		}
+		else
+			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
+	}
+
+	// call simulation functions run before updating particles if we are updating #0
+	if (debug_currentParticle == 0)
+	{
+		framerender = 1;
+		globalSim->RecalcFreeParticles(true);
+		globalSim->UpdateBefore();
+		framerender = 0;
+	}
+	// update the particles
+	globalSim->UpdateParticles(debug_currentParticle, i);
+	if (i < NPART-1)
+		globalSim->debug_currentParticle = i+1;
+	// we reached the end, call simulation functions run after updating particles
+	else
+	{
+		globalSim->UpdateAfter();
+		globalSim->currentTick++;
+		globalSim->debug_currentParticle = 0;
+	}
+	return logmessage.str();
+}
+
 int PCLN_update(UPDATE_FUNC_ARGS);
 int CLNE_update(UPDATE_FUNC_ARGS);
 int PBCN_update(UPDATE_FUNC_ARGS);

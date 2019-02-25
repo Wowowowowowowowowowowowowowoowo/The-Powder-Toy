@@ -22,7 +22,7 @@ public:
 private:
 	Point mouse;
 	Point cursor;
-	int lastMouseDown, heldKey;
+	int lastMouseDown, heldKey = 0, heldScan = 0;
 	int16_t orientation[3];
 
 	// notifications
@@ -127,6 +127,7 @@ public:
 
 	void ConfirmUpdate(std::string changelog, std::string file);
 	bool MouseClicksIgnored();
+	void AdjustCursorSize(int d, bool keyShortcut);
 	Point AdjustCoordinates(Point mouse);
 	Point SnapCoordinatesWall(Point pos1, Point pos2);
 	bool IsMouseInZoom(Point mouse);

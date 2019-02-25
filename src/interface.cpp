@@ -81,7 +81,6 @@
 #include "gui/game/PowderToy.h"
 #include "simulation/elements/ANIM.h"
 
-int svf_messages = 0;
 int svf_login = 0;
 int svf_admin = 0;
 int svf_mod = 0;
@@ -503,7 +502,7 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 				ed->cursor+=2;
 				ed->cursorstart = ed->cursor;
 			}
-			if (!sdl_textinput.length())
+			if (sdl_textinput.length() != 1)
 				break;
 			for (std::string::value_type c : sdl_textinput)
 			{
@@ -2115,7 +2114,6 @@ fail:
 	svf_own = 0;
 	svf_admin = 0;
 	svf_mod = 0;
-	svf_messages = 0;
 	save_presets();
 	return false;
 }

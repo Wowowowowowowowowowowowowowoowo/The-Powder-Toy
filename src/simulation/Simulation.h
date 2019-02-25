@@ -17,6 +17,7 @@
 #define Simulation_h
 
 #include <cstddef> // offsetof, for FloodProp
+#include <string>
 #include "graphics/ARGBColour.h"
 #include "graphics/Pixel.h"
 #include "simulation/Air.h"
@@ -73,6 +74,7 @@ public:
 	void UpdateAfter();
 	bool UpdateParticle(int i); // called by UpdateParticles
 	void Tick();
+	std::string ParticleDebug(int mode, int x, int y);
 	
 	bool LoadSave(int loadX, int loadY, Save *save, int replace, bool includePressure=true);
 	Save * CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool includePressure=true);

@@ -313,9 +313,9 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 {
 	if (ctrl)
 	{
-		switch (key)
+		switch (scan)
 		{
-		case 'c':
+		case SDL_SCANCODE_C:
 		{
 			int start = (cursor > cursorStart) ? cursorStart : cursor;
 			int len = std::abs((int)(cursor-cursorStart));
@@ -325,10 +325,13 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 				Engine::Ref().ClipboardPush(copyStr);
 			break;
 		}
-		case 'a':
+		case SDL_SCANCODE_A:
 			cursorStart = 0;
 			cursor = clickPosition = text.length();
 			break;
+		}
+		switch (key)
+		{
 		case SDLK_LEFT:
 		{
 			unsigned int start, end;

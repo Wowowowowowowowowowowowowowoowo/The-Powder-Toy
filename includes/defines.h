@@ -158,10 +158,6 @@ union PropertyValue
 
 typedef unsigned char uint8;
 
-#ifdef INTERNAL
-	extern int vs;
-#endif
-
 extern bool firstRun;
 extern bool doubleScreenDialog;
 extern int screenWidth;
@@ -252,7 +248,6 @@ extern int ptsaveOpenID;
 extern int saveURIOpen;
 extern int do_open;
 extern pixel *vid_buf;
-extern pixel *vid3d;
 
 extern int scrollSpeed;
 extern float scrollDeceleration;
@@ -286,6 +281,6 @@ extern bool openProp;
 class PowderToy;
 extern PowderToy *the_game;
 #endif
-int main_loop_temp(int b, int bq, int sdl_key, int x, int y, bool shift, bool ctrl, bool alt);
+int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shift, bool ctrl, bool alt);
 void main_end_hack();
 #endif

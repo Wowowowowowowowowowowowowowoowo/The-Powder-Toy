@@ -6,7 +6,9 @@
 #include "defines.h"
 #include "EventLoopSDL.h" // for two mouse_get_state that should be removed ...
 #include "gravity.h"
+#include "hud.h"
 #include "interface.h"
+#include "IntroText.h"
 #include "luaconsole.h"
 #include "powder.h"
 #include "powdergraphics.h"
@@ -64,7 +66,6 @@ PowderToy::PowderToy():
 	mouse(Point(0, 0)),
 	cursor(Point(0, 0)),
 	lastMouseDown(0),
-	heldKey(0),
 	numNotifications(0),
 	voteDownload(NULL),
 	delayedHttpChecks(true),
@@ -760,6 +761,32 @@ bool PowderToy::MouseClicksIgnored()
 	return PlacingZoomWindow() || state != NONE;
 }
 
+void PowderToy::AdjustCursorSize(int d, bool keyShortcut)
+{
+	if (PlacingZoomWindow())
+	{
+		if (keyShortcut && !altHeld)
+			d = static_cast<int>(std::ceil(zoomSize / 5.0f + 0.5f));
+		zoomSize = std::max(2, std::min(zoomSize+d, 60));
+		zoomFactor = 256/zoomSize;
+		UpdateZoomCoordinates(zoomMousePosition);
+		return;
+	}
+
+	if (altHeld && !ctrlHeld && !shiftHeld)
+		currentBrush->ChangeRadius(Point(d > 0 ? 1 : -1, d > 0 ? 1 : -1));
+	else if (shiftHeld && !ctrlHeld)
+		currentBrush->ChangeRadius(Point(d, 0));
+	else if (ctrlHeld && !shiftHeld)
+		currentBrush->ChangeRadius(Point(0, d));
+	else
+	{
+		if (keyShortcut && !altHeld)
+			d = d * static_cast<int>(std::ceil(currentBrush->GetRadius().X / 5.0f + 0.5f));
+		currentBrush->ChangeRadius(Point(d, d));
+	}
+}
+
 Point PowderToy::AdjustCoordinates(Point mouse)
 {
 	//adjust coords into the simulation area
@@ -975,9 +1002,10 @@ void PowderToy::OnTick(uint32_t ticks)
 #endif
 	//sdl_key = heldKey; // ui_edit_process in deco editor uses this global so we have to set it ):
 	int mouseDown = mouse_get_state(&mouseX, &mouseY);
-	main_loop_temp(mouseDown, lastMouseDown, heldKey, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
+	main_loop_temp(mouseDown, lastMouseDown, heldKey, heldScan, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
 	lastMouseDown = mouseDown;
 	heldKey = 0;
+	heldScan = 0;
 
 	if (!loginFinished)
 		loginCheckTicks = (loginCheckTicks+1)%51;
@@ -1864,33 +1892,39 @@ bool PowderToy::BeforeMouseWheel(int x, int y, int d)
 
 void PowderToy::OnMouseWheel(int x, int y, int d)
 {
-	if (PlacingZoomWindow())
-	{
-		zoomSize = std::max(2, std::min(zoomSize+d, 60));
-		zoomFactor = 256/zoomSize;
-		UpdateZoomCoordinates(zoomMousePosition);
-	}
-	else
-	{
-		if (!shiftHeld && !ctrlHeld)
-		{
-			currentBrush->ChangeRadius(Point(d, d));
-		}
-		else if (shiftHeld && !ctrlHeld)
-		{
-			currentBrush->ChangeRadius(Point(d, 0));
-		}
-		else if (ctrlHeld && !shiftHeld)
-		{
-			currentBrush->ChangeRadius(Point(0, d));
-		}
-	}
+	AdjustCursorSize(d, false);
 }
 
 bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (!repeat)
+	{
 		heldKey = key;
+		heldScan = scan;
+	}
+
+	if (ctrl && !ctrlHeld)
+	{
+		ctrlHeld = true;
+		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
+		UpdateToolStrength();
+		if (active_menu == SC_FAV2 && (Engine::Ref().GetModifiers() & KMOD_RCTRL) && (Engine::Ref().GetModifiers() & KMOD_RSHIFT))
+		{
+			active_menu = SC_CRACKER;
+		}
+	}
+	if (shift && !shiftHeld)
+	{
+		shiftHeld = true;
+		UpdateToolStrength();
+		if (active_menu == SC_FAV2 && (Engine::Ref().GetModifiers() & KMOD_RCTRL) && (Engine::Ref().GetModifiers() & KMOD_RSHIFT))
+		{
+			active_menu = SC_CRACKER;
+		}
+	}
+	if (alt && !altHeld)
+		altHeld = true;
+
 	// do nothing when deco textboxes are selected
 	if (deco_disablestuff)
 		return true;
@@ -1899,6 +1933,7 @@ bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool 
 	if (!HandleEvent(LuaEvents::keypress, &ev))
 	{
 		heldKey = 0;
+		heldScan = 0;
 		return false;
 	}
 	return true;
@@ -1906,27 +1941,7 @@ bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool 
 
 void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	switch (key)
-	{
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-	case SDLK_LGUI:
-	case SDLK_RGUI:
-		ctrlHeld = true;
-		openBrowserButton->SetTooltipText("Open a simulation from your hard drive \bg(ctrl+o)");
-		UpdateToolStrength();
-		break;
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		shiftHeld = true;
-		UpdateToolStrength();
-		break;
-	case SDLK_LALT:
-	case SDLK_RALT:
-		altHeld = true;
-		break;
-	}
-
+	UpdateToolTip(introText, Point(16, 20), INTROTIP, 255);
 	if (deco_disablestuff)
 		return;
 
@@ -1936,17 +1951,6 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 	{
 		switch (key)
 		{
-		case 'r':
-			// vertical invert
-			if (ctrlHeld && shiftHeld)
-				TransformSave(1, 0, 0, -1);
-			// horizontal invert
-			else if (shiftHeld)
-				TransformSave(-1, 0, 0, 1);
-			// rotate counterclockwise 90 degrees
-			else
-				TransformSave(0, 1, -1, 0);
-			break;
 		case SDLK_LEFT:
 			TranslateSave(Point(-1, 0));
 			break;
@@ -1960,16 +1964,28 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			TranslateSave(Point(0, 1));
 			break;
 		}
+		if (scan == SDL_SCANCODE_R && !repeat)
+		{
+			// vertical invert
+			if (ctrlHeld && shiftHeld)
+				TransformSave(1, 0, 0, -1);
+			// horizontal invert
+			else if (shiftHeld)
+				TransformSave(-1, 0, 0, 1);
+			// rotate counterclockwise 90 degrees
+			else
+				TransformSave(0, 1, -1, 0);
+		}
 	}
 
 	if (repeat)
 		return;
 
 	// handle normal keypresses
-	switch (key)
+	switch (scan)
 	{
-	case 'q':
-	case SDLK_ESCAPE:
+	case SDL_SCANCODE_Q:
+	case SDL_SCANCODE_ESCAPE:
 	{
 		if (this->Subwindows.size() && insideRenderOptions)
 		{
@@ -1988,7 +2004,82 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		Engine::Ref().ShowWindow(confirm);
 		break;
 	}
-	case 'r':
+	case SDL_SCANCODE_F5:
+		if (state != LOAD)
+			ReloadSave();
+		break;
+	case SDL_SCANCODE_INSERT:
+		REPLACE_MODE = !REPLACE_MODE;
+		break;
+	case SDL_SCANCODE_DELETE:
+		SPECIFIC_DELETE = !SPECIFIC_DELETE;
+		break;
+	case SDL_SCANCODE_GRAVE:
+		console_mode = !console_mode;
+		break;
+	case SDL_SCANCODE_EQUALS:
+		if (ctrl)
+		{
+			for (int i = 0; i < sim->parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_SPRK)
+				{
+					if (parts[i].ctype >= 0 && parts[i].ctype < PT_NUM && globalSim->elements[parts[i].ctype].Enabled)
+					{
+						parts[i].type = parts[i].ctype;
+						parts[i].life = parts[i].ctype = 0;
+					}
+					else
+						sim->part_kill(i);
+				}
+			sim->elementData[PT_WIFI]->Simulation_Cleared(globalSim);
+		}
+		else
+		{
+			for (int nx = 0; nx < XRES/CELL; nx++)
+				for (int ny = 0; ny < YRES/CELL; ny++)
+				{
+					sim->air->pv[ny][nx] = 0;
+					sim->air->vx[ny][nx] = 0;
+					sim->air->vy[ny][nx] = 0;
+				}
+			for (int i = 0; i < sim->parts_lastActiveIndex; i++)
+				if (parts[i].type == PT_QRTZ || parts[i].type == PT_GLAS || parts[i].type == PT_TUNG)
+				{
+					parts[i].pavg[0] = parts[i].pavg[1] = 0;
+				}
+		}
+		break;
+	case SDL_SCANCODE_TAB:
+		if (!ctrl)
+			currentBrush->SetShape((currentBrush->GetShape()+1)%BRUSH_NUM);
+		break;
+	case SDL_SCANCODE_W:
+		if (sim->elementCount[PT_STKM2] <= 0 || ctrl)
+		{
+			++gravityMode; // cycle gravity mode
+
+			std::string toolTip;
+			switch (gravityMode)
+			{
+			default:
+				gravityMode = 0;
+			case 0:
+				toolTip = "Gravity: Vertical";
+				break;
+			case 1:
+				toolTip = "Gravity: Off";
+				break;
+			case 2:
+				toolTip = "Gravity: Radial";
+				break;
+			}
+			UpdateToolTip(toolTip, Point(XCNTR - VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
+		}
+		 break;
+	case SDL_SCANCODE_E:
+		element_search_ui(vid_buf, &activeTools[0], &activeTools[1]);
+		break;
+	case SDL_SCANCODE_R:
 		if (state != LOAD)
 		{
 			if (ctrlHeld)
@@ -1997,15 +2088,45 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 				((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->golGeneration = 0;
 		}
 		break;
-	case 'y':
+	case SDL_SCANCODE_T:
+		show_tabs = !show_tabs;
+		break;
+	case SDL_SCANCODE_Y:
 		if (ctrlHeld)
 		{
 			Snapshot::RestoreRedoSnapshot(sim);
 		}
+		else
+		{
+			++airMode;
+
+			std::string toolTip;
+			switch (airMode)
+			{
+			default:
+				airMode = 0;
+			case 0:
+				toolTip = "Air: On";
+				break;
+			case 1:
+				toolTip = "Air: Pressure Off";
+				break;
+			case 2:
+				toolTip = "Air: Velocity Off";
+				break;
+			case 3:
+				toolTip = "Air: Off";
+				break;
+			case 4:
+				toolTip = "Air: No Update";
+				break;
+			}
+			UpdateToolTip(toolTip, Point(XCNTR - VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
+		}
 		break;
-	case 'u':
+	case SDL_SCANCODE_U:
 		if (ctrlHeld)
-			Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+			Platform::OpenLink("https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
 		else
 		{
 			aheat_enable = !aheat_enable;
@@ -2015,7 +2136,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 				SetInfoTip("Ambient Heat: Off");
 		}
 		break;
-	case 'i':
+	case SDL_SCANCODE_I:
 		if (!ctrlHeld)
 		{
 			for (int nx = 0; nx < XRES/CELL; nx++)
@@ -2046,20 +2167,43 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			Engine::Ref().ShowWindow(confirm);
 		}
 		break;
-	case 'p':
+	case SDL_SCANCODE_O:
+#ifdef TOUCHUI
+		catalogue_ui(vid_buf);
+#else
+		if  (ctrl)
+		{
+			catalogue_ui(vid_buf);
+		}
+		else
+		{
+			old_menu = !old_menu;
+			if (old_menu)
+				UpdateToolTip("Experimental old menu activated, press 'o' to turn off",
+						Point(XCNTR - VideoBuffer::TextSize("Experimental old menu activated, press 'o' to turn off").X / 2, YCNTR - 10), INFOTIP, 500);
+		}
+#endif
+		break;
+	case SDL_SCANCODE_P:
 		if (ctrlHeld)
 		{
 			openProp = true;
 			activeTools[shiftHeld ? 1 : 0] = GetToolFromIdentifier("DEFAULT_UI_PROPERTY");
 			break;
 		}
-	case SDLK_F2:
+	case SDL_SCANCODE_F2:
 		if (Renderer::Ref().TakeScreenshot(ctrlHeld, 0).length())
 			SetInfoTip("Saved screenshot");
 		else
 			SetInfoTip("Error saving screenshot");
 		break;
-	case 'a':
+	case SDL_SCANCODE_LEFTBRACKET:
+		AdjustCursorSize(-1, true);
+		break;
+	case SDL_SCANCODE_RIGHTBRACKET:
+		AdjustCursorSize(1, true);
+		break;
+	case SDL_SCANCODE_A:
 		if (ctrlHeld && (svf_mod || svf_admin))
 		{
 			std::string authorString = authors.toStyledString();
@@ -2067,19 +2211,109 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			Engine::Ref().ShowWindow(info);
 		}
 		break;
-	case 's':
+	case SDL_SCANCODE_S:
+	{
 		//if stkm2 is out, you must be holding left ctrl, else not be holding ctrl at all
-		if (sim->elementCount[PT_STKM2] > 0 ? ctrlHeld : !ctrlHeld)
+		bool stk2 = sim->elementCount[PT_STKM2] > 0;
+		if (stk2 ? Engine::Ref().GetModifiers()&KMOD_LCTRL : !ctrlHeld)
 		{
 			ResetStampState();
 			state = SAVE;
 		}
+		if ((stk2 && (Engine::Ref().GetModifiers()&KMOD_RCTRL)) || (!stk2 && ctrl))
+			tab_save(tab_num);
 		break;
-	case 'k':
-	case 'l':
+	}
+	case SDL_SCANCODE_D:
+		if (globalSim->elementCount[PT_STKM2] > 0 && !ctrl)
+			break;
+	case SDL_SCANCODE_F3:
+		DEBUG_MODE = !DEBUG_MODE;
+		SetCurrentHud();
+		break;
+	case SDL_SCANCODE_F:
+	{
+		std::string logmessage = "";
+		if (debug_flags & DEBUG_PARTICLE_UPDATES)
+		{
+			SetPause(1);
+			if (alt)
+			{
+				logmessage = sim->ParticleDebug(0, 0, 0);
+			}
+			else if (shift)
+			{
+				logmessage = sim->ParticleDebug(1, mouse.X, mouse.Y);
+			}
+			else if (ctrl)
+			{
+				if (!(finding & 0x1))
+					finding |= 0x1;
+				else
+					finding &= ~0x1;
+			}
+			else
+			{
+				if  (sim->debug_currentParticle)
+					logmessage = sim->ParticleDebug(1, -1, -1);
+				else
+					framerender = 1;
+			}
+		}
+		else
+		{
+			if (ctrl)
+			{
+				if (!(finding & 0x1))
+					finding |= 0x1;
+				else
+					finding &= ~0x1;
+			}
+			else
+			{
+				SetPause(1);
+				if  (globalSim->debug_currentParticle)
+					logmessage = sim->ParticleDebug(1, -1, -1);
+				else
+					framerender = 1;
+			}
+		}
+#ifdef LUACONSOLE
+		if (logmessage.size())
+			luacon_log(logmessage);
+#endif
+		break;
+	}
+	case SDL_SCANCODE_G:
+		if (ctrl)
+		{
+			drawgrav_enable =! drawgrav_enable;
+		}
+		else
+		{
+			if (shift)
+				GRID_MODE = (GRID_MODE + 9) % 10;
+			else
+				GRID_MODE = (GRID_MODE + 1) % 10;
+		}
+		break;
+	case SDL_SCANCODE_H:
+		if (!ctrl)
+		{
+			hud_enable = !hud_enable;
+			break;
+		}
+	case SDL_SCANCODE_F1:
+		if (!GetToolTipAlpha(INTROTIP))
+			UpdateToolTip(introText, Point(16, 20), INTROTIP, 10235);
+		else
+			UpdateToolTip(introText, Point(16, 20), INTROTIP, 0);
+		break;
+	case SDL_SCANCODE_K:
+	case SDL_SCANCODE_L:
 		ResetStampState();
 		// open stamp interface
-		if (key == 'k')
+		if (scan == SDL_SCANCODE_K)
 		{
 			int reorder = 1;
 			int stampID = stamp_ui(vid_buf, &reorder);
@@ -2111,7 +2345,13 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			}
 		}
 		break;
-	case 'z':
+	case SDL_SCANCODE_SEMICOLON:
+		if (ctrl)
+			SPECIFIC_DELETE = !SPECIFIC_DELETE;
+		else
+			REPLACE_MODE = !REPLACE_MODE;
+		break;
+	case SDL_SCANCODE_Z:
 		// ctrl + z
 		if (ctrlHeld)
 		{
@@ -2130,21 +2370,21 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			UpdateZoomCoordinates(mouse);
 		}
 		break;
-	case 'x':
+	case SDL_SCANCODE_X:
 		if (ctrlHeld)
 		{
 			ResetStampState();
 			state = CUT;
 		}
 		break;
-	case 'c':
+	case SDL_SCANCODE_C:
 		if (ctrlHeld)
 		{
 			ResetStampState();
 			state = COPY;
 		}
 		break;
-	case 'v':
+	case SDL_SCANCODE_V:
 		if (ctrlHeld && clipboardData)
 		{
 			ResetStampState();
@@ -2166,7 +2406,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			}
 		}
 		break;
-	case 'b':
+	case SDL_SCANCODE_B:
 		if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 		{
 			decorations_enable = !decorations_enable;
@@ -2190,7 +2430,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			SwapToDecoToolset();
 		}
 		break;
-	case 'n':
+	case SDL_SCANCODE_N:
 		if (ctrlHeld)
 		{
 			if (num_tabs < 22-GetNumMenus())
@@ -2216,28 +2456,10 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			}
 		}
 		break;
-	case SDLK_SPACE:
+	case SDL_SCANCODE_SPACE:
 		TogglePause();
 		break;
-	case SDLK_LEFTBRACKET:
-		if (PlacingZoomWindow())
-		{
-			int temp = std::min(--zoomSize, 60);
-			zoomSize = std::max(2, temp);
-			zoomFactor = 256/zoomSize;
-			UpdateZoomCoordinates(zoomMousePosition);
-		}
-		break;
-	case SDLK_RIGHTBRACKET:
-		if (PlacingZoomWindow())
-		{
-			int temp = std::min(++zoomSize, 60);
-			zoomSize = std::max(2, temp);
-			zoomFactor = 256/zoomSize;
-			UpdateZoomCoordinates(zoomMousePosition);
-		}
-		break;
-	case SDLK_1:
+	case SDL_SCANCODE_1:
 		if (shiftHeld && DEBUG_MODE)
 		{
 			if (ctrlHeld)
@@ -2250,102 +2472,123 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		else
 			LoadRenderPreset(CM_VEL);
 		break;
-	case SDLK_2:
+	case SDL_SCANCODE_2:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleDisplayMode(DISPLAY_AIRP);
 		else
 			LoadRenderPreset(CM_PRESS);
 		break;
-	case SDLK_3:
+	case SDL_SCANCODE_3:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleDisplayMode(DISPLAY_PERS);
 		else
 			LoadRenderPreset(CM_PERS);
 		break;
-	case SDLK_4:
+	case SDL_SCANCODE_4:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleRenderMode(FIREMODE);
 		else
 			LoadRenderPreset(CM_FIRE);
 		break;
-	case SDLK_5:
+	case SDL_SCANCODE_5:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleRenderMode(PMODE_BLOB);
 		else
 			LoadRenderPreset(CM_BLOB);
 		break;
-	case SDLK_6:
+	case SDL_SCANCODE_6:
 		if (ctrlHeld)
 			Renderer::Ref().XORColorMode(COLOR_HEAT);
 		else
 			LoadRenderPreset(CM_HEAT);
 		break;
-	case SDLK_7:
+	case SDL_SCANCODE_7:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleDisplayMode(DISPLAY_WARP);
 		else
 			LoadRenderPreset(CM_FANCY);
 		break;
-	case SDLK_8:
+	case SDL_SCANCODE_8:
 		LoadRenderPreset(CM_NOTHING);
 		break;
-	case SDLK_9:
+	case SDL_SCANCODE_9:
 		if (ctrlHeld)
 			Renderer::Ref().XORColorMode(COLOR_GRAD);
 		else
 			LoadRenderPreset(CM_GRAD);
 		break;
-	case SDLK_0:
+	case SDL_SCANCODE_0:
 		if (ctrlHeld)
 			Renderer::Ref().ToggleDisplayMode(DISPLAY_AIRC);
 		else
 			LoadRenderPreset(CM_CRACK);
-		break;
-	case SDLK_F5:
-		if (state != LOAD)
-			ReloadSave();
 		break;
 	}
 
 	// STKM & STKM2
 	if (state != LOAD)
 	{
-		STKM_ElementDataContainer::StkmKeys pressedKey;
-		bool stk2 = false, moveStkm = false;
-		switch (key)
+		STKM_ElementDataContainer::StkmKeys pressedKey = STKM_ElementDataContainer::None;
+		bool stk2 = false;
+		if (key == SDLK_UP || scan == SDL_SCANCODE_W)
 		{
-		case 'w':
-			stk2 = true;
-		case SDLK_UP:
 			pressedKey = STKM_ElementDataContainer::Up;
-			moveStkm = true;
-			break;
-		case 'a':
-			stk2 = true;
-		case SDLK_LEFT:
-			pressedKey = STKM_ElementDataContainer::Left;
-			moveStkm = true;
-			break;
-		case 's':
-			stk2 = true;
-		case SDLK_DOWN:
-			pressedKey = STKM_ElementDataContainer::Down;
-			moveStkm = true;
-			break;
-		case 'd':
-			stk2 = true;
-		case SDLK_RIGHT:
-			pressedKey = STKM_ElementDataContainer::Right;
-			moveStkm = true;
-			break;
+			stk2 = scan == SDL_SCANCODE_W;
 		}
-		if (moveStkm)
+		else if (key == SDLK_LEFT || scan == SDL_SCANCODE_A)
+		{
+			pressedKey = STKM_ElementDataContainer::Left;
+			stk2 = scan == SDL_SCANCODE_A;
+		}
+		else if (key == SDLK_DOWN || scan == SDL_SCANCODE_S)
+		{
+			pressedKey = STKM_ElementDataContainer::Down;
+			stk2 = scan == SDL_SCANCODE_S;
+		}
+		else if (key == SDLK_RIGHT || scan == SDL_SCANCODE_D)
+		{
+			pressedKey = STKM_ElementDataContainer::Right;
+			stk2 = scan == SDL_SCANCODE_D;
+		}
+		if (stk2 && ctrl)
+			return;
+		if (pressedKey != STKM_ElementDataContainer::None)
 			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyPress(pressedKey, stk2);
+	}
+
+	if (!PlacingZoomWindow() && state == NONE)
+	{
+		if (key == SDLK_UP && ctrl && tab_num > 1)
+		{
+			tab_save(tab_num);
+			tab_num--;
+			tab_load(tab_num);
+		}
+		else if (key == SDLK_DOWN && ctrl && tab_num < num_tabs)
+		{
+			tab_save(tab_num);
+			tab_num++;
+			tab_load(tab_num);
+		}
 	}
 }
 
 bool PowderToy::BeforeKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
+	if (!ctrl && ctrlHeld)
+	{
+		ctrlHeld = false;
+		openBrowserButton->SetTooltipText("Find & open a simulation");
+		UpdateToolStrength();
+	}
+	if (!shift && shiftHeld)
+	{
+		shiftHeld = false;
+		UpdateToolStrength();
+	}
+	if (!alt && altHeld)
+		altHeld = false;
+
 	if (deco_disablestuff)
 		return true;
 
@@ -2360,35 +2603,13 @@ void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ct
 	{
 		ctrlHeld = shiftHeld = altHeld = 0;
 	}
-	if (repeat)
-		return;
-	switch (key)
-	{
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-	case SDLK_LGUI:
-	case SDLK_RGUI:
-		ctrlHeld = false;
-		openBrowserButton->SetTooltipText("Find & open a simulation");
-		UpdateToolStrength();
-		break;
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		shiftHeld = false;
-		UpdateToolStrength();
-		break;
-	case SDLK_LALT:
-	case SDLK_RALT:
-		altHeld = false;
-		break;
-	}
 
-	if (deco_disablestuff)
+	if (repeat || deco_disablestuff)
 		return;
 
-	switch (key)
+	switch (scan)
 	{
-	case 'z':
+	case SDL_SCANCODE_Z:
 		if (placingZoom)
 			HideZoomWindow();
 		break;
@@ -2397,36 +2618,29 @@ void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ct
 	// STKM & STKM2
 	if (state != LOAD)
 	{
-		STKM_ElementDataContainer::StkmKeys pressedKey;
-		bool stk2 = false, moveStkm = false;
-		switch (key)
+		STKM_ElementDataContainer::StkmKeys pressedKey = STKM_ElementDataContainer::None;
+		bool stk2 = false;
+		if (key == SDLK_UP || scan == SDL_SCANCODE_W)
 		{
-		case 'w':
-			stk2 = true;
-		case SDLK_UP:
 			pressedKey = STKM_ElementDataContainer::Up;
-			moveStkm = true;
-			break;
-		case 'a':
-			stk2 = true;
-		case SDLK_LEFT:
-			pressedKey = STKM_ElementDataContainer::Left;
-			moveStkm = true;
-			break;
-		case 's':
-			stk2 = true;
-		case SDLK_DOWN:
-			pressedKey = STKM_ElementDataContainer::Down;
-			moveStkm = true;
-			break;
-		case 'd':
-			stk2 = true;
-		case SDLK_RIGHT:
-			pressedKey = STKM_ElementDataContainer::Right;
-			moveStkm = true;
-			break;
+			stk2 = scan == SDL_SCANCODE_W;
 		}
-		if (moveStkm)
+		else if (key == SDLK_LEFT || scan == SDL_SCANCODE_A)
+		{
+			pressedKey = STKM_ElementDataContainer::Left;
+			stk2 = scan == SDL_SCANCODE_A;
+		}
+		else if (key == SDLK_DOWN || scan == SDL_SCANCODE_S)
+		{
+			pressedKey = STKM_ElementDataContainer::Down;
+			stk2 = scan == SDL_SCANCODE_S;
+		}
+		else if (key == SDLK_RIGHT || scan == SDL_SCANCODE_D)
+		{
+			pressedKey = STKM_ElementDataContainer::Right;
+			stk2 = scan == SDL_SCANCODE_D;
+		}
+		if (pressedKey != STKM_ElementDataContainer::None)
 			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyRelease(pressedKey, stk2);
 	}
 }
@@ -2441,7 +2655,7 @@ void PowderToy::OnDefocus()
 {
 	ctrlHeld = shiftHeld = altHeld = false;
 	openBrowserButton->SetTooltipText("Find & open a simulation");
-	lastMouseDown = heldKey = 0; // temporary
+	lastMouseDown = heldKey = heldScan = 0; // temporary
 	ResetStampState();
 	UpdateDrawMode();
 	UpdateToolStrength();

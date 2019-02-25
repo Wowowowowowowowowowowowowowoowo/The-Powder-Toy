@@ -176,7 +176,7 @@ lot more. To create a new tab, press ctrl+n or click the '+' icon in the tab
 menu. Your previous tab will be saved. When hovering over tabs it will 
 display a thumbnail preview and the name of the save so you can quickly 
 identify them. Right clicking on a tab will delete it.
-Two obscure features to note: If you on the main tpt screen and you open a 
+Two obscure features to note: If you are on the main tpt screen and you open a
 save from the tpt website, it will open it in a new tab instead of launching 
 a new instance of tpt. Also, if your game crashes for any reason, it will 
 save your current tab and restart TPT automatically with all of your previous 

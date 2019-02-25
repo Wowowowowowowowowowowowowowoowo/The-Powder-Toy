@@ -116,7 +116,7 @@ public:
 
 	enum StkmKeys
 	{
-		Up, Left, Down, Right
+		None, Up, Left, Down, Right
 	};
 	int Run(Stickman *playerp, UPDATE_FUNC_ARGS);
 	void Interact(Simulation *sim, Stickman *playerp, int i, int x, int y);

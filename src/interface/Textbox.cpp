@@ -108,25 +108,25 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 	Label::OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 	if (ctrl)
 	{
-		switch (key)
+		if (key == SDLK_LEFT || key == SDLK_RIGHT)
+			return;
+		switch (scan)
 		{
-		case 'a':
-		case 'c':
-		case SDLK_LEFT:
-		case SDLK_RIGHT:
+		case SDL_SCANCODE_A:
+		case SDL_SCANCODE_C:
 			//these are handled by Labels and should be ignored
-			break;
-		case 'v':
+			return;
+		case SDL_SCANCODE_V:
 		{
 			std::string clipboard = Engine::Ref().ClipboardPull();
 			if (clipboard.length())
 				InsertText(clipboard);
 			break;
 		}
-		case 'x':
+		case SDL_SCANCODE_X:
 			DeleteHighlight(true);
 			break;
-		case SDLK_BACKSPACE:
+		case SDL_SCANCODE_BACKSPACE:
 			if (!DeleteHighlight(true) && cursor > 0)
 			{
 				size_t stopChar;
@@ -143,7 +143,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 					callback();
 			}
 			break;
-		case SDLK_DELETE:
+		case SDL_SCANCODE_DELETE:
 			if (!DeleteHighlight(true) && text.length() && cursor < text.length())
 			{
 				size_t stopChar;
@@ -164,9 +164,9 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 		if (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN)
 			return;
 	}
-	switch (key) //all of these do different things if any text is highlighted
+	switch (scan) //all of these do different things if any text is highlighted
 	{
-	case SDLK_BACKSPACE:
+	case SDL_SCANCODE_BACKSPACE:
 		if (!DeleteHighlight(true) && cursor > 0)
 		{
 			// move cursor barkward 1 real character (accounts for formatting that also needs to be deleted)
@@ -189,7 +189,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 				callback();
 		}
 		break;
-	case SDLK_DELETE:
+	case SDL_SCANCODE_DELETE:
 		if (!DeleteHighlight(true) && text.length() && cursor < text.length())
 		{
 			// move cursor forward 1 real character (accounts for formatting that also needs to be deleted)
@@ -212,6 +212,9 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 				callback();
 		}
 		break;
+	}
+	switch (key)
+	{
 	case SDLK_LEFT:
 		if (cursor != cursorStart)
 		{
