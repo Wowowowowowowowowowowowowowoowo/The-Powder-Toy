@@ -1893,7 +1893,7 @@ bool PowderToy::BeforeMouseWheel(int x, int y, int d)
 
 void PowderToy::OnMouseWheel(int x, int y, int d)
 {
-	AdjustCursorSize(d, false);
+	AdjustCursorSize(d > 0 ? 1 : -1, false);
 }
 
 bool PowderToy::BeforeKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)

@@ -16,6 +16,7 @@
  */
 
 #include "common/tpt-minmax.h"
+#include <climits>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -275,8 +276,10 @@ void save_presets()
 		cJSON_AddTrueToObject(root, "FastQuit");
 	else
 		cJSON_AddFalseToObject(root, "FastQuit");
-	cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
-	cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
+	if (savedWindowX != INT_MAX)
+		cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
+	if (savedWindowY != INT_MAX)
+		cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
 
 	//additional settings from my mod
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);

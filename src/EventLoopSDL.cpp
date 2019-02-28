@@ -45,6 +45,11 @@ void LoadWindowPosition()
 	if (borderTop == 0)
 		borderTop = 5;
 
+	// People were reporting problems, but they only happen on Windows, making it hard for me to test
+	if (savedWindowX < 0 || savedWindowX > 10000)
+		savedWindowX = 0;
+	if (savedWindowY < 0 || savedWindowY > 10000)
+		savedWindowY = 0;
 	// SDL will check this for us
 	// This check won't work for multiple monitors
 	//if (savedWindowX + borderLeft > 0 && savedWindowX + borderLeft < screenWidth
@@ -215,11 +220,21 @@ unsigned int CalculateMousePosition(int *x, int *y)
 	unsigned int mouseState = SDL_GetGlobalMouseState(&globalMx, &globalMy);
 	int windowX, windowY;
 	SDL_GetWindowPosition(sdl_window, &windowX, &windowY);
+	int sizeX, sizeY;
+	SDL_GetWindowSize(sdl_window, &sizeX, &sizeY);
 
+	float scaleX = (float)sizeX / VIDXRES;
+	float scaleY = (float)sizeY / VIDYRES;
+	bool rescaleX = scaleX > scaleY;
+	// The size of the black borders SDL places on the edges
+	int diffX = rescaleX ? static_cast<int>((sizeX - VIDXRES * scaleY) / 2) : 0;
+	int diffY = !rescaleX ? static_cast<int>((sizeY - VIDYRES * scaleX) / 2) : 0;
+
+	// Take position relative to where the black border starts, then rescale it to be TPT coordinates
 	if (x)
-		*x = (globalMx - windowX) / Engine::Ref().GetScale();
+		*x = (float)(globalMx - windowX - diffX) / (sizeX - diffX * 2) * VIDXRES;
 	if (y)
-		*y = (globalMy - windowY) / Engine::Ref().GetScale();
+		*y = (float)(globalMy - windowY - diffY) / (sizeY - diffY * 2) * VIDYRES;
 
 	return mouseState;
 }
@@ -231,6 +246,7 @@ int SDLGetModifiers()
 
 bool calculatedInitialMouse = false;
 bool hasMouseMoved = false;
+bool doManualMouseCalculation = false;
 Point lastMousePosition;
 
 // When the mouse hasn't moved yet, sdl will always report (0, 0) as the position in events
@@ -307,9 +323,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
-#ifndef DEBUG
-		SDL_CaptureMouse(SDL_TRUE);
-#endif
+		doManualMouseCalculation = true;
 		break;
 	}
 	case SDL_MOUSEBUTTONUP:
@@ -319,9 +333,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (eventHandler)
 			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
 		lastMousePosition = Point(mx, my);
-#ifndef DEBUG
-		SDL_CaptureMouse(SDL_FALSE);
-#endif
+		doManualMouseCalculation = false;
 		break;
 	}
 	case SDL_MOUSEMOTION:
@@ -391,6 +403,16 @@ void MainLoop()
 			int ret = EventProcess(event, top);
 			if (ret)
 				engine.CloseTop();
+		}
+		if (doManualMouseCalculation && !fullscreen)
+		{
+			int outsideX, outsideY;
+			CalculateMousePosition(&outsideX, &outsideY);
+			if (outsideX < 0 || outsideX >= VIDXRES || outsideY < 0 || outsideY >= VIDYRES)
+			{
+				top->DoMouseMove(outsideX, outsideY, outsideX - lastMousePosition.X, outsideY - lastMousePosition.Y);
+				lastMousePosition = Point(outsideX, outsideY);
+			}
 		}
 
 		uint32_t currentTick = SDL_GetTicks();
