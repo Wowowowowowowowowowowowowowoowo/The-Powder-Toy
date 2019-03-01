@@ -1525,12 +1525,15 @@ int luatpt_set_property(lua_State* l)
 		if (format == 2 && (t<0 || t>=PT_NUM || !luaSim->elements[t].Enabled))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	}
-	else
+	else if (lua_isstring(l, 2))
 	{
 		name = luaL_checklstring(l, 2, NULL);
 		if (!console_parse_type(name, &t, NULL, luaSim))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
+	else
+		luaL_error(l, "Expected number or element name as argument 2");
+
 	if (!lua_isnumber(l, 3) || acount >= 6)
 	{
 		// Got a region
