@@ -1,4 +1,5 @@
 #include "common/tpt-minmax.h"
+#include <cmath>
 #include <cstring>
 #include <sstream>
 #include "SDLCompat.h" // for SDL_Start/StopTextInput

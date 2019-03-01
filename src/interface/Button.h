@@ -35,7 +35,7 @@ public:
 	virtual ~Button();
 
 	void SetText(std::string text_);
-	void SetColor(ARGBColour newColor);
+	void SetColor(ARGBColour newColor) override;
 	void SetTextColor(ARGBColour newColor);
 	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
