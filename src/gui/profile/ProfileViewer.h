@@ -9,7 +9,10 @@ class Download;
 class Label;
 class Button;
 class Textbox;
-class ScrollWindow;
+namespace ui
+{
+	class ScrollWindow;
+}
 class ProfileViewer : public Window_
 {
 	std::string name;
@@ -18,7 +21,7 @@ class ProfileViewer : public Window_
 	Download *profileSaveDownload;
 	pixel *avatar;
 
-	ScrollWindow *scrollArea;
+	ui::ScrollWindow *scrollArea;
 
 	Label *usernameLabel, *ageLabel, *locationLabel, *websiteLabel, *biographyLabel;
 	Label *saveCountLabel, *saveAverageLabel, *highestVoteLabel;

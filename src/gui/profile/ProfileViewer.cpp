@@ -14,6 +14,8 @@
 #include "interface.h"
 #include "misc.h"
 
+using namespace ui;
+
 ProfileViewer::ProfileViewer(std::string profileName):
 	Window_(Point(CENTERED, CENTERED), Point(260, 350)),
 	name(profileName),
