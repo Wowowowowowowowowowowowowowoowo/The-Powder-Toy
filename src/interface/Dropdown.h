@@ -34,7 +34,7 @@ public:
 	friend class DropdownOptions;
 };
 
-class DropdownOptions : public Window_
+class DropdownOptions : public ui::Window
 {
 	Dropdown * dropdown;
 	unsigned int hoveredOption = -1;

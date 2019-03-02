@@ -4,7 +4,7 @@
 #include "interface/Textbox.h"
 
 CreateSign::CreateSign(int signID, Point pos):
-	Window_(Point(CENTERED, CENTERED), Point(250, 100)),
+	ui::Window(Point(CENTERED, CENTERED), Point(250, 100)),
 	signID(signID)
 {
 	if (signID == -1)

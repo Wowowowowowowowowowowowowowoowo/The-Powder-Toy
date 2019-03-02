@@ -6,7 +6,7 @@
 
 class Download;
 class ProgressBar;
-class UpdateProgress : public Window_
+class UpdateProgress : public ui::Window
 {
 	Download *download;
 	bool completed = false;

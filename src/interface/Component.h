@@ -7,10 +7,13 @@
 #include "common/SDL_keysym.h"
 
 class VideoBuffer;
-class Window_;
+namespace ui
+{
+	class Window;
+}
 class Component
 {
-	Window_ *parent;
+	ui::Window *parent;
 
 protected:
 	Point position;
@@ -33,8 +36,8 @@ public:
 	bool IsClicked();
 	bool IsMouseDown();
 
-	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
-	Window_* GetParent() { return parent; }
+	void SetParent(ui::Window *parentWindow) { parent = parentWindow; }
+	ui::Window* GetParent() { return parent; }
 	Point GetPosition() { return position; }
 	void SetPosition(Point position) { this->position = position; }
 	Point GetSize() { return size; }

@@ -6,7 +6,7 @@
 
 class Checkbox;
 class Button;
-class RenderModesUI : public Window_
+class RenderModesUI : public ui::Window
 {
 	int line1Pos;
 	int line2Pos;

@@ -64,7 +64,7 @@ PowderToy::~PowderToy()
 }
 
 PowderToy::PowderToy():
-	Window_(Point(0, 0), Point(XRES+BARSIZE, YRES+MENUSIZE)),
+	ui::Window(Point(0, 0), Point(XRES+BARSIZE, YRES+MENUSIZE)),
 	mouse(Point(0, 0)),
 	cursor(Point(0, 0)),
 	lastMouseDown(0),

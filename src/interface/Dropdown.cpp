@@ -62,7 +62,7 @@ void Dropdown::OnDraw(VideoBuffer* vid)
 
 
 DropdownOptions::DropdownOptions(Point position, Point size, Dropdown * dropdown):
-	Window_(position, size),
+	ui::Window(position, size),
 	dropdown(dropdown)
 {
 	optionHeight = dropdown->size.Y - 1;

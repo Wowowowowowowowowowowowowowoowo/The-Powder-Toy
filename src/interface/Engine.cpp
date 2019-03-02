@@ -9,7 +9,7 @@
  */
 
 Engine::Engine():
-	windows(std::stack<Window_*>()),
+	windows(std::stack<ui::Window*>()),
 	top(nullptr),
 	nextTop(nullptr)
 {
@@ -34,7 +34,7 @@ void Engine::ProcessWindowUpdates()
 }
 
 // can only show one new window per frame
-void Engine::ShowWindow(Window_ *window)
+void Engine::ShowWindow(ui::Window *window)
 {
 	if (!window || nextTop)
 		return;
@@ -60,7 +60,7 @@ void Engine::ShowWindowDelayed()
 	top->DoMouseMove(mx, my, 0, 0);
 }
 
-void Engine::CloseWindow(Window_ *window)
+void Engine::CloseWindow(ui::Window *window)
 {
 	if (window == windows.top())
 	{
@@ -70,7 +70,7 @@ void Engine::CloseWindow(Window_ *window)
 
 void Engine::CloseTop()
 {
-	Window_ *temp = windows.top();
+	ui::Window *temp = windows.top();
 	temp->toDelete = true;
 }
 

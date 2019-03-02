@@ -21,9 +21,9 @@
 
 OptionsUI::OptionsUI(Simulation *sim):
 #ifndef TOUCHUI
-	Window_(Point(CENTERED, CENTERED), Point(300, 400)),
+	ui::Window(Point(CENTERED, CENTERED), Point(300, 400)),
 #else
-	Window_(Point(CENTERED, CENTERED), Point(300, 362)),
+	ui::Window(Point(CENTERED, CENTERED), Point(300, 362)),
 #endif
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())

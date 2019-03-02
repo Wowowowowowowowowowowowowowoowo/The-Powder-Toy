@@ -7,7 +7,7 @@
 class Label;
 class Button;
 class Textbox;
-class CreateSign : public Window_
+class CreateSign : public ui::Window
 {
 	Label *newSignLabel, *pointerLabel;
 	Button *okButton, *leftJuButton, *middleJuButton, *rightJuButton, *noneJuButton, *moveButton, *deleteButton;

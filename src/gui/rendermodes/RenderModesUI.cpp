@@ -13,7 +13,7 @@
 
 
 RenderModesUI::RenderModesUI():
-	Window_(Point(0, YRES), Point(XRES, MENUSIZE)),
+	ui::Window(Point(0, YRES), Point(XRES, MENUSIZE)),
 	last_render_mode(render_mode),
 	last_display_mode(display_mode),
 	last_color_mode(Renderer::Ref().GetColorMode()),

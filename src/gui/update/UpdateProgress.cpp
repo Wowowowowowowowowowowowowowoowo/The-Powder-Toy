@@ -8,7 +8,7 @@
 #include "interface/ProgressBar.h"
 
 UpdateProgress::UpdateProgress(std::string uri, std::string username, std::function<void(char*, int)> callback):
-	Window_(Point(CENTERED, CENTERED), Point(242, 62)),
+	ui::Window(Point(CENTERED, CENTERED), Point(242, 62)),
 	callback(callback)
 {
 	Label *titleLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Please wait");

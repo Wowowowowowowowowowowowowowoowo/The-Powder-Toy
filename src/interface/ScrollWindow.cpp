@@ -1,10 +1,10 @@
 #include "ScrollWindow.h"
 #include "common/tpt-minmax.h"
 
-using namespace ui;
-
+namespace ui
+{
 ScrollWindow::ScrollWindow(Point position, Point size):
-	Window_(position, size),
+	Window(position, size),
 	scrollable(false),
 	scrollSize(size.Y),
 	scrolled(0),
@@ -66,4 +66,5 @@ void ScrollWindow::SetScrollPosition(int pos)
 		else
 			temp->SetMouseInside(false);
 	}
+}
 }

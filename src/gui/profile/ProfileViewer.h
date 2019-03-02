@@ -13,7 +13,7 @@ namespace ui
 {
 	class ScrollWindow;
 }
-class ProfileViewer : public Window_
+class ProfileViewer : public ui::Window
 {
 	std::string name;
 	Download *profileInfoDownload;

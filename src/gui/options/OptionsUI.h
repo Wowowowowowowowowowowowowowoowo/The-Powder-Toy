@@ -7,7 +7,7 @@ class Checkbox;
 class Dropdown;
 class Label;
 class Simulation;
-class OptionsUI : public Window_
+class OptionsUI : public ui::Window
 {
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;

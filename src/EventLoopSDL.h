@@ -28,8 +28,11 @@ int SDLGetModifiers();
 
 
 union SDL_Event;
-class Window_;
-int EventProcess(SDL_Event event, Window_ * eventHandler);
+namespace ui
+{
+	class Window;
+}
+int EventProcess(SDL_Event event, ui::Window * eventHandler);
 int SDLPoll();
 void MainLoop();
 void limit_fps();

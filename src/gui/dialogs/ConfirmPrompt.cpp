@@ -4,7 +4,7 @@
 #include "interface/Button.h"
 
 ConfirmPrompt::ConfirmPrompt(std::function<void(bool)> confirmAction, std::string title, std::string message, std::string OK, std::string cancel):
-	Window_(Point(CENTERED, CENTERED), Point(250, 55)),
+	ui::Window(Point(CENTERED, CENTERED), Point(250, 55)),
 	confirmAction(confirmAction),
 	wasConfirmed(false)
 {

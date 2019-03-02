@@ -5,12 +5,15 @@
 #include "graphics.h"
 #include "graphics/VideoBuffer.h"
 
-Window_::Window_(Point position_, Point size_):
+namespace ui
+{
+
+Window::Window(Point position_, Point size_):
 	toDelete(false),
 	position(position_),
 	size(size_),
 	Components(std::vector<Component*>()),
-	Subwindows(std::vector<Window_*>()),
+	Subwindows(std::vector<Window*>()),
 	isMouseDown(false),
 	ignoreQuits(false),
 	hasBorder(true),
@@ -26,18 +29,18 @@ Window_::Window_(Point position_, Point size_):
 	videoBuffer = new VideoBuffer(size.X, size.Y);
 }
 
-Window_::~Window_()
+Window::~Window()
 {
 	delete videoBuffer;
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 		delete *iter;
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 		delete *iter;
 	Components.clear();
 	Subwindows.clear();
 }
 
-void Window_::Resize(Point position_, Point size_)
+void Window::Resize(Point position_, Point size_)
 {
 	delete videoBuffer;
 	position = position_;
@@ -49,7 +52,7 @@ void Window_::Resize(Point position_, Point size_)
 	videoBuffer = new VideoBuffer(size.X, size.Y);
 }
 
-void Window_::AddComponent(Component *other)
+void Window::AddComponent(Component *other)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -65,9 +68,9 @@ void Window_::AddComponent(Component *other)
 	other->toAdd = true;
 }
 
-void Window_::AddSubwindow(Window_ *other)
+void Window::AddSubwindow(Window *other)
 {
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		// this component is already part of the window
 		if ((*iter) == other)
@@ -80,7 +83,7 @@ void Window_::AddSubwindow(Window_ *other)
 	other->SetParent(this);
 }
 
-void Window_::RemoveComponent(Component *other)
+void Window::RemoveComponent(Component *other)
 {
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -95,9 +98,9 @@ void Window_::RemoveComponent(Component *other)
 		clicked = NULL;
 }
 
-void Window_::RemoveSubwindow(Window_ *other)
+void Window::RemoveSubwindow(Window *other)
 {
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		if ((*iter) == other)
 		{
@@ -106,7 +109,7 @@ void Window_::RemoveSubwindow(Window_ *other)
 	}
 }
 
-void Window_::FocusComponent(Component *toFocus)
+void Window::FocusComponent(Component *toFocus)
 {
 	if (focused != toFocus)
 	{
@@ -118,7 +121,7 @@ void Window_::FocusComponent(Component *toFocus)
 	}
 }
 
-void Window_::DefocusComponent(Component *toDefocus)
+void Window::DefocusComponent(Component *toDefocus)
 {
 	if (focused && focused == toDefocus)
 	{
@@ -127,7 +130,7 @@ void Window_::DefocusComponent(Component *toDefocus)
 	}
 }
 
-void Window_::UpdateComponents()
+void Window::UpdateComponents()
 {
 	for (int i = Components.size()-1; i >= 0; i--)
 	{
@@ -153,24 +156,24 @@ void Window_::UpdateComponents()
 	}
 }
 
-void Window_::DoExit()
+void Window::DoExit()
 {
 	OnExit();
 }
 
-void Window_::DoFocus()
+void Window::DoFocus()
 {
 	OnFocus();
 }
 
-void Window_::DoDefocus()
+void Window::DoDefocus()
 {
 	OnDefocus();
 }
 
-void Window_::DoTick(uint32_t ticks)
+void Window::DoTick(uint32_t ticks)
 {
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoTick(ticks);
 	}
@@ -183,7 +186,7 @@ void Window_::DoTick(uint32_t ticks)
 	OnTick(ticks);
 }
 
-void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
+void Window::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 {
 	// too lazy to create another variable which is temporary anyway
 	if (!ignoreQuits)
@@ -199,7 +202,7 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 
 	OnDraw(videoBuffer);
 
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoDraw(videoBuffer->GetVid(), size, (*iter)->GetPosition());
 	}
@@ -212,12 +215,12 @@ void Window_::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 		videoBuffer->CopyBufferInto(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
 }
 
-void Window_::DoMouseMove(int x, int y, int dx, int dy)
+void Window::DoMouseMove(int x, int y, int dx, int dy)
 {
 	if (!BeforeMouseMove(x, y, Point(dx, dy)))
 		return;
 	
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseMove(x-position.X, y-position.Y, dx, dy);
 	}
@@ -253,12 +256,12 @@ void Window_::DoMouseMove(int x, int y, int dx, int dy)
 	OnMouseMove(x, y, Point(dx, dy));
 }
 
-void Window_::DoMouseDown(int x, int y, unsigned char button)
+void Window::DoMouseDown(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseDown(x, y, button))
 		return;
 
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseDown(x - position.X, y - position.Y, button);
 	}
@@ -298,12 +301,12 @@ void Window_::DoMouseDown(int x, int y, unsigned char button)
 	OnMouseDown(x, y, button);
 }
 
-void Window_::DoMouseUp(int x, int y, unsigned char button)
+void Window::DoMouseUp(int x, int y, unsigned char button)
 {
 	if (!BeforeMouseUp(x, y, button))
 		return;
 
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseUp(x-position.X, y-position.Y, button);
 	}
@@ -339,12 +342,12 @@ void Window_::DoMouseUp(int x, int y, unsigned char button)
 	OnMouseUp(x, y, button);
 }
 
-void Window_::DoMouseWheel(int x, int y, int d)
+void Window::DoMouseWheel(int x, int y, int d)
 {
 	if (!BeforeMouseWheel(x, y, d))
 		return;
 	
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoMouseWheel(x-position.X, y-position.Y, d);
 	}
@@ -358,12 +361,12 @@ void Window_::DoMouseWheel(int x, int y, int d)
 	OnMouseWheel(x, y, d);
 }
 
-void Window_::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+void Window::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (!BeforeKeyPress(key, scan, repeat, shift, ctrl, alt))
 		return;
 
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
@@ -377,12 +380,12 @@ void Window_::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 	OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 }
 
-void Window_::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+void Window::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (!BeforeKeyRelease(key, scan, repeat, shift, ctrl, alt))
 		return;
 	
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
@@ -396,12 +399,12 @@ void Window_::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl
 	OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
 }
 
-void Window_::DoTextInput(const char *text)
+void Window::DoTextInput(const char *text)
 {
 	if (!BeforeTextInput(text))
 		return;
 
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoTextInput(text);
 	}
@@ -415,9 +418,9 @@ void Window_::DoTextInput(const char *text)
 	OnTextInput(text);
 }
 
-void Window_::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
+void Window::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
 {
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
 		(*iter)->DoJoystickMotion(joysticknum, axis, value);
 	}
@@ -425,20 +428,22 @@ void Window_::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
 	OnJoystickMotion(joysticknum, axis, value);
 }
 
-void Window_::VideoBufferHack()
+void Window::VideoBufferHack()
 {
 	std::copy(&vid_buf[0], &vid_buf[(XRES+BARSIZE)*(YRES+MENUSIZE)], &videoBuffer->GetVid()[0]);
 }
 
-bool Window_::InsideSubwindow(int x, int y)
+bool Window::InsideSubwindow(int x, int y)
 {
-	for (std::vector<Window_*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
+	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		Window_* wind = (*iter);
+		Window* wind = (*iter);
 		if (Point(x, y).IsInside(wind->GetPosition(), wind->GetPosition()+wind->GetSize()))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
 }

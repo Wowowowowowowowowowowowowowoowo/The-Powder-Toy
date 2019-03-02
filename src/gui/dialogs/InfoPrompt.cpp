@@ -4,7 +4,7 @@
 #include "interface/Button.h"
 
 InfoPrompt::InfoPrompt(std::string title, std::string message, std::string OK):
-	Window_(Point(CENTERED, CENTERED), Point(250, 55))
+	ui::Window(Point(CENTERED, CENTERED), Point(250, 55))
 {
 #ifndef TOUCHUI
 	int buttonHeight = 15;

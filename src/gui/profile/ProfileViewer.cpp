@@ -14,10 +14,8 @@
 #include "interface.h"
 #include "misc.h"
 
-using namespace ui;
-
 ProfileViewer::ProfileViewer(std::string profileName):
-	Window_(Point(CENTERED, CENTERED), Point(260, 350)),
+	ui::Window(Point(CENTERED, CENTERED), Point(260, 350)),
 	name(profileName),
 	avatar(NULL),
 	scrollArea(NULL),
@@ -36,7 +34,7 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	avatarDownload = new Download("http://" STATICSERVER "/avatars/" + name + ".pti");
 	avatarDownload->Start();
 	
-	scrollArea = new ScrollWindow(Point(0, 0), this->size - Point(0, 16));
+	scrollArea = new ui::ScrollWindow(Point(0, 0), this->size - Point(0, 16));
 	this->AddSubwindow(scrollArea);
 
 	usernameLabel = new Label(Point(7, 6), Point(Label::AUTOSIZE, Label::AUTOSIZE), name);

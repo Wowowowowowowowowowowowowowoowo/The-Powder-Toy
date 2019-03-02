@@ -9,17 +9,19 @@
 #include "Component.h"
 
 class VideoBuffer;
-class Window_
+namespace ui
+{
+class Window
 {
 public:
-	Window_(Point position, Point size);
-	virtual ~Window_();
+	Window(Point position, Point size);
+	virtual ~Window();
 	void Resize(Point position, Point size);
 
-	void SetParent(Window_ *parentWindow) { parent = parentWindow; }
-	Window_* GetParent() { return parent; }
-	void AddSubwindow(Window_ *other);
-	void RemoveSubwindow(Window_ *other);
+	void SetParent(Window *parentWindow) { parent = parentWindow; }
+	Window* GetParent() { return parent; }
+	void AddSubwindow(Window *other);
+	void RemoveSubwindow(Window *other);
 	void AddComponent(Component *other);
 	void RemoveComponent(Component *other);
 	void FocusComponent(Component *toFocus);
@@ -58,7 +60,7 @@ protected:
 	Point position;
 	Point size;
 	std::vector<Component*> Components;
-	std::vector<Window_*> Subwindows;
+	std::vector<Window*> Subwindows;
 	bool isMouseDown; // need to keep track of this for some things like buttons
 	bool ignoreQuits;
 	bool hasBorder;
@@ -92,11 +94,12 @@ protected:
 	bool InsideSubwindow(int x, int y);
 
 private:
-	Window_ *parent;
+	Window *parent;
 	bool mouseDownOutside;
 	VideoBuffer *videoBuffer;
 	Component *focused;
 	Component *clicked;
 };
+}
 
 #endif

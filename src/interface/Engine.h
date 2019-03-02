@@ -18,10 +18,10 @@ public:
 	void Shutdown() { isShutdown = true; }
 	bool IsShutdown() { return isShutdown; }
 
-	void ShowWindow(Window_ *window);
-	void CloseWindow(Window_ *window);
+	void ShowWindow(ui::Window *window);
+	void CloseWindow(ui::Window *window);
 	void CloseTop();
-	Window_ * GetTop() { return top; }
+	ui::Window * GetTop() { return top; }
 	void ProcessWindowUpdates();
 
 	unsigned int GetScale();
@@ -53,8 +53,8 @@ private:
 	void ShowWindowDelayed();
 	void CloseWindowDelayed();
 
-	std::stack<Window_*> windows;
-	Window_ *top, *nextTop;
+	std::stack<ui::Window*> windows;
+	ui::Window *top, *nextTop;
 	bool isShutdown = false;
 
 	unsigned int scale = 1;

@@ -13,7 +13,7 @@ class ToolTip;
 class Save;
 class Simulation;
 class VideoBuffer;
-class PowderToy : public Window_
+class PowderToy : public ui::Window
 {
 public:
 	enum StampState { NONE, LOAD, COPY, CUT, SAVE };

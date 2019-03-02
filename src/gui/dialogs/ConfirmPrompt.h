@@ -5,7 +5,7 @@
 #include <string>
 #include "interface/Window.h"
 
-class ConfirmPrompt : public Window_
+class ConfirmPrompt : public ui::Window
 {
 	std::function<void(bool)> confirmAction;
 public:

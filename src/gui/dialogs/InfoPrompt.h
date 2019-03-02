@@ -3,7 +3,7 @@
 #include <string>
 #include "interface/Window.h"
 
-class InfoPrompt : public Window_
+class InfoPrompt : public ui::Window
 {
 public:
 	InfoPrompt(std::string title, std::string message, std::string OK = "OK");
