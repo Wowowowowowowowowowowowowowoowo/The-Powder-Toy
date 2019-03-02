@@ -146,7 +146,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 			else if (event.button.button == SDL_BUTTON_WHEELDOWN)
 				eventHandler->DoMouseWheel(mx, my, -1);
 			else
-				eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
+				eventHandler->DoMouseDown(mx, my, event.button.button);
 		}
 		lastMousePosition = Point(mx, my);
 		break;
@@ -155,7 +155,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 	{
 		int mx = event.motion.x, my = event.motion.y;
 		if (eventHandler)
-			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
+			eventHandler->DoMouseUp(mx, my, event.button.button);
 		lastMousePosition = Point(mx, my);
 		break;
 	}

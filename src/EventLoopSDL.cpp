@@ -321,7 +321,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		if (mx < 0 || my < 0 || mx >= VIDXRES || my >= VIDYRES)
 			break;
 		if (eventHandler)
-			eventHandler->DoMouseDown(mx, my, SDL_BUTTON(event.button.button));
+			eventHandler->DoMouseDown(mx, my, event.button.button);
 		lastMousePosition = Point(mx, my);
 		doManualMouseCalculation = true;
 		break;
@@ -331,7 +331,7 @@ int EventProcess(SDL_Event event, Window_ * eventHandler)
 		int mx = event.motion.x, my = event.motion.y;
 		GetTempMousePosition(&mx, &my);
 		if (eventHandler)
-			eventHandler->DoMouseUp(mx, my, SDL_BUTTON(event.button.button));
+			eventHandler->DoMouseUp(mx, my, event.button.button);
 		lastMousePosition = Point(mx, my);
 		doManualMouseCalculation = false;
 		break;

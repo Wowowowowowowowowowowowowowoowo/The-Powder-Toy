@@ -80,7 +80,7 @@ void Button::OnMouseUp(int x, int y, unsigned char button)
 		if (callback)
 		{
 			if (state == HOLD)
-				callback(IsHeld() ? 4 : button);
+				callback(IsHeld() ? 3 : button);
 			else
 				callback(button);
 		}

@@ -1571,7 +1571,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	else if (state == SAVE || state == COPY || state == CUT)
 	{
 		// right click cancel
-		if (button == 4)
+		if (button == 3)
 		{
 			ResetStampState();
 		}
@@ -1593,7 +1593,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 	}
 	else if (sim->InBounds(mouse.X, mouse.Y))
 	{
-		toolIndex = ((button&1) || button == 2) ? 0 : 1;
+		toolIndex = (button == 1 || button == 2) ? 0 : 1;
 		UpdateDrawMode();
 		// this was in old drawing code, still needed?
 		//if (activeTools[0]->GetType() == DECO_TOOL && button == 4)
@@ -1653,7 +1653,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 	else if (state == LOAD)
 	{
 		UpdateDrawMode(); // LOAD branch always returns early, so run this here
-		if (button == 4 || y >= YRES+MENUSIZE-16)
+		if (button == 3 || y >= YRES+MENUSIZE-16)
 		{
 			ResetStampState();
 			return;
@@ -1849,7 +1849,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 		// link signs are clicked from here
 		else
 		{
-			toolIndex = ((button&1) || button == 2) ? 0 : 1;
+			toolIndex = (button == 1 || button == 2) ? 0 : 1;
 			bool signTool = ((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_SIGN;
 			int signID = InsideSign(sim, cursor.X, cursor.Y, false);
 			if (signID != -1)
