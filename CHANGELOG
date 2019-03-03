@@ -943,7 +943,7 @@ Fix mac data directory.
 Version 42.3 2019-02-17
 Change TPT version number to 94.0.
 
-Version 43.4 2019-03-02
+Version 42.4 2019-03-02
 Changes from TPT version 94.1, including: Add "Force Integer Scaling" option,
 this fixes lots of issues with fullscreen. Keyboard shortcuts are now based on
 en-US layout, no matter what layout you actually use. GoL is now affected by
