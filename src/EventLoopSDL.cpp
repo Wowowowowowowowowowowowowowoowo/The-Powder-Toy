@@ -247,6 +247,7 @@ int SDLGetModifiers()
 bool calculatedInitialMouse = false;
 bool hasMouseMoved = false;
 bool doManualMouseCalculation = false;
+bool capturingMouse = false;
 Point lastMousePosition;
 
 // When the mouse hasn't moved yet, sdl will always report (0, 0) as the position in events
@@ -254,7 +255,7 @@ Point lastMousePosition;
 // (should be accurate except for resizable windows / fullscreen)
 void GetTempMousePosition(int *x, int *y)
 {
-	if (!hasMouseMoved)
+	if (!hasMouseMoved || doManualMouseCalculation)
 		CalculateMousePosition(x, y);
 }
 
@@ -334,6 +335,11 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 			eventHandler->DoMouseUp(mx, my, event.button.button);
 		lastMousePosition = Point(mx, my);
 		doManualMouseCalculation = false;
+		if (capturingMouse)
+		{
+			SDL_CaptureMouse(SDL_FALSE);
+			capturingMouse = false;
+		}
 		break;
 	}
 	case SDL_MOUSEMOTION:
@@ -410,8 +416,21 @@ void MainLoop()
 			CalculateMousePosition(&outsideX, &outsideY);
 			if (outsideX < 0 || outsideX >= VIDXRES || outsideY < 0 || outsideY >= VIDYRES)
 			{
+#ifndef DEBUG
+				if (!capturingMouse)
+				{
+					SDL_CaptureMouse(SDL_TRUE);
+					capturingMouse = true;
+				}
+#else
 				top->DoMouseMove(outsideX, outsideY, outsideX - lastMousePosition.X, outsideY - lastMousePosition.Y);
 				lastMousePosition = Point(outsideX, outsideY);
+#endif
+			}
+			else if (capturingMouse)
+			{
+				SDL_CaptureMouse(SDL_FALSE);
+				capturingMouse = false;
 			}
 		}
 
