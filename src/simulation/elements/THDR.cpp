@@ -27,18 +27,18 @@ int THDR_update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				if ((sim->elements[rt].Properties & PROP_CONDUCTS) && parts[ID(r)].life==0 && !(rt==PT_WATR||rt==PT_SLTW) && parts[ID(r)].ctype!=PT_SPRK)
+				if ((sim->elements[rt].Properties & PROP_CONDUCTS) && parts[ID(r)].life == 0 && !(rt == PT_WATR || rt == PT_SLTW) && parts[ID(r)].ctype != PT_SPRK)
 				{
-					sim->spark_conductive(ID(r), x+rx, y+ry);
+					sim->spark_conductive(ID(r), x + rx, y + ry);
 					kill = true;
 				}
-				else if (rt!=PT_THDR && rt!=PT_SPRK && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt!=PT_FIRE && rt!=PT_NEUT && rt!=PT_PHOT)
+				else if (rt != PT_CLNE && rt != PT_THDR && rt != PT_SPRK && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) && rt != PT_FIRE)
 				{
 					sim->air->pv[y/CELL][x/CELL] += 100.0f;
 					if (legacy_enable && RNG::Ref().chance(1, 200))
 					{
 						parts[i].life = RNG::Ref().between(120, 169);
-						part_change_type(i,x,y,PT_FIRE);
+						part_change_type(i, x, y, PT_FIRE);
 					}
 					else
 					{
@@ -90,7 +90,7 @@ void THDR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 1;
 
-	elem->DefaultProperties.temp = 9000.0f		+273.15f;
+	elem->DefaultProperties.temp = 9000.0f + 273.15f;
 	elem->HeatConduct = 1;
 	elem->Latent = 0;
 	elem->Description = "Lightning! Very hot, inflicts damage upon most materials, and transfers current to metals.";
