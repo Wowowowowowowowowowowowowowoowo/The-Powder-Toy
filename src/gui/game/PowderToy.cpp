@@ -575,27 +575,11 @@ void PowderToy::ToggleSettingBtn(bool alt)
 		OpenOptionsBtn();
 	else
 	{
-		if (active_menu == SC_DECO || ngrav_completedisable)
-		{
-			decorations_enable = !decorations_enable;
-			if (decorations_enable)
-				SetInfoTip("Decorations enabled");
-			else
-				SetInfoTip("Decorations disabled");
-		}
+		decorations_enable = !decorations_enable;
+		if (decorations_enable)
+			SetInfoTip("Decorations enabled");
 		else
-		{
-			if (!ngrav_enable)
-			{
-				start_grav_async();
-				SetInfoTip("Newtonian Gravity enabled");
-			}
-			else
-			{
-				stop_grav_async();
-				SetInfoTip("Newtonian Gravity disabled");
-			}
-		}
+			SetInfoTip("Decorations disabled");
 	}
 }
 
