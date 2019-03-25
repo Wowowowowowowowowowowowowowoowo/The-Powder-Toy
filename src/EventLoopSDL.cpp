@@ -45,15 +45,21 @@ void LoadWindowPosition()
 	if (borderTop == 0)
 		borderTop = 5;
 
-	// People were reporting problems, but they only happen on Windows, making it hard for me to test
-	if (savedWindowX < 0 || savedWindowX > 10000)
-		savedWindowX = 0;
-	if (savedWindowY < 0 || savedWindowY > 10000)
-		savedWindowY = 0;
-	// SDL will check this for us
-	// This check won't work for multiple monitors
-	//if (savedWindowX + borderLeft > 0 && savedWindowX + borderLeft < screenWidth
-	//        && savedWindowY + borderTop > 0 && savedWindowY + borderTop < screenHeight)
+	int numDisplays = SDL_GetNumVideoDisplays();
+	SDL_Rect displayBounds;
+	bool ok = false;
+	for (int i = 0; i < numDisplays; i++)
+	{
+		SDL_GetDisplayBounds(i, &displayBounds);
+		if (savedWindowX + borderTop > displayBounds.x && savedWindowY + borderLeft > displayBounds.y &&
+				savedWindowX + borderTop < displayBounds.x + displayBounds.w &&
+				savedWindowY + borderLeft < displayBounds.y + displayBounds.h)
+		{
+			ok = true;
+			break;
+		}
+	}
+	if (ok)
 		SDL_SetWindowPosition(sdl_window, savedWindowX + borderLeft, savedWindowY + borderTop);
 }
 
