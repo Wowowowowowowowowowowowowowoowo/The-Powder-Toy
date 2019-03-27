@@ -952,3 +952,9 @@ because this can sometimes cause the computer to appear to freeze. It will now
 calculate mouse position outside the window manually. Mousewheel will now
 always scroll the mouse by one unit, instead of potentially more. Fix mouse Lua
 events reporting 4 for right click instead of 3.
+
+Version 42.5 2019-03-26
+Fix incorrect mouse coordinates when releasing the mouse outside of the window.
+Fix THDR generating pressure when touching CLNE. Properly fix issues saving /
+loading window position with 2nd monitor. Fix stasis wall identifier. Update
+script manager to 3.10. Update tptmp to 0.100.
