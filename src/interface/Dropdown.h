@@ -26,8 +26,8 @@ public:
 	void SetSelectedOption(unsigned int selectedOption);
 	bool IsSelectingOption() { return isSelectingOption; }
 
-	virtual void OnMouseUp(int x, int y, unsigned char button);
-	virtual void OnDraw(VideoBuffer* vid);
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnDraw(VideoBuffer* vid) override;
 
 	static const int AUTOSIZE = -1;
 
@@ -44,9 +44,9 @@ public:
 	DropdownOptions(Point position, Point size, Dropdown * dropdown);
 	~DropdownOptions();
 
-	virtual void OnMouseMove(int x, int y, Point difference);
-	virtual void OnMouseUp(int x, int y, unsigned char button);
-	virtual void OnDraw(VideoBuffer* vid);
+	void OnMouseMove(int x, int y, Point difference) override;
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnDraw(VideoBuffer* vid) override;
 };
 
 #endif

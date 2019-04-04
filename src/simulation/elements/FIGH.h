@@ -34,7 +34,7 @@ public:
 		memset(fighters, 0, sizeof(fighters));
 	}
 
-	virtual ElementDataContainer * Clone() { return new FIGH_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new FIGH_ElementDataContainer(*this); }
 
 	Stickman * Get(unsigned char i)
 	{
@@ -83,7 +83,7 @@ public:
 
 	void NewFighter(Simulation *sim, int fighterID, int i, int elem);
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		memset(fighters, 0, sizeof(fighters));
 		usedCount = 0;

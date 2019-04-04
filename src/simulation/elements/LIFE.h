@@ -22,16 +22,16 @@ public:
 		golGeneration = 0;
 	}
 
-	virtual ElementDataContainer * Clone() { return new LIFE_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new LIFE_ElementDataContainer(*this); }
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		std::fill_n(&gol2[0][0][0], YRES*XRES*9, 0);
 		golSpeedCounter = 0;
 		golGeneration = 0;
 	}
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		//golSpeed is frames per generation
 		if (sim->elementCount[PT_LIFE] <= 0 || ++golSpeedCounter < golSpeed)

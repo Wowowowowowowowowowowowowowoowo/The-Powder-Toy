@@ -15,15 +15,15 @@ public:
 		emp_trigger_count = 0;
 	}
 
-	virtual ElementDataContainer * Clone() { return new EMP_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new EMP_ElementDataContainer(*this); }
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		emp_decor = 0;
 		emp_trigger_count = 0;
 	}
 
-	virtual void Simulation_AfterUpdate(Simulation *sim);
+	void Simulation_AfterUpdate(Simulation *sim) override;
 
 	void Activate()
 	{

@@ -38,13 +38,13 @@ public:
 	std::string GetText();
 	bool IsMultiline() { return multiline; }
 
-	virtual void OnMouseDown(int x, int y, unsigned char button);
-	virtual void OnMouseUp(int x, int y, unsigned char button);
-	virtual void OnDefocus();
-	virtual void OnMouseMoved(int x, int y, Point difference);
-	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	virtual void OnDraw(VideoBuffer* vid);
-	virtual void OnTick(uint32_t ticks);
+	void OnMouseDown(int x, int y, unsigned char button) override;
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnDefocus() override;
+	void OnMouseMoved(int x, int y, Point difference) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnDraw(VideoBuffer* vid) override;
+	void OnTick(uint32_t ticks) override;
 
 	static const int AUTOSIZE = -1;
 };

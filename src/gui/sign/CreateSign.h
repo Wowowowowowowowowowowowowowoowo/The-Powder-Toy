@@ -18,7 +18,7 @@ class CreateSign : public ui::Window
 public:
 	CreateSign(int signID, Point pos);
 
-	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 	void SetJustification(Sign::Justification ju);
 	void MoveSign();

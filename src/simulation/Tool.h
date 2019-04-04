@@ -63,11 +63,11 @@ class PlopTool : public ElementTool
 public:
 	PlopTool(Simulation * sim, int elementID);
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
-	virtual void Click(Simulation *sim, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
+	void Click(Simulation *sim, Point position) override;
 };
 
 class GolTool : public Tool
@@ -76,10 +76,10 @@ public:
 	GolTool(int golID);
 	int GetID();
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
 };
 
 class WallTool : public Tool
@@ -88,10 +88,10 @@ public:
 	WallTool(int wallID);
 	int GetID() { if (type == WALL_TOOL) return toolID; else return -1; }
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
 };
 
 class StreamlineTool : public WallTool
@@ -99,9 +99,9 @@ class StreamlineTool : public WallTool
 public:
 	StreamlineTool();
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
 };
 
 class ToolTool : public Tool
@@ -110,11 +110,11 @@ public:
 	ToolTool(int toolID);
 	int GetID() { if (type == TOOL_TOOL) return toolID; else return -1; }
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
-	virtual void Click(Simulation *sim, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
+	void Click(Simulation *sim, Point position) override;
 };
 
 class PropTool : public ToolTool
@@ -123,10 +123,10 @@ public:
 	PropTool();
 	~PropTool() {}
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
 
 	PropertyType propType;
 	PropertyValue propValue;
@@ -139,11 +139,11 @@ public:
 	DecoTool(int decoID);
 	int GetID() { if (type == DECO_TOOL) return toolID; else return -1; }
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength);
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength);
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos);
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position);
-	virtual Tool* Sample(Simulation *sim, Point position);
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
+	Tool* Sample(Simulation *sim, Point position) override;
 };
 
 class InvalidTool : public Tool
@@ -153,11 +153,11 @@ protected:
 public:
 	int GetID() { return -1; }
 
-	virtual int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) final;
-	virtual void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) final;
-	virtual void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) final;
-	virtual int FloodFill(Simulation *sim, Brush *brush, Point position) final;
-	virtual Tool* Sample(Simulation *sim, Point position) final;
+	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override final;
+	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override final;
+	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override final;
+	int FloodFill(Simulation *sim, Brush *brush, Point position) override final;
+	Tool* Sample(Simulation *sim, Point position) override final;
 };
 
 class DecoPresetTool : public InvalidTool

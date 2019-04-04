@@ -59,7 +59,7 @@ public:
 			movingSolids[i].Simulation_Cleared();
 	}
 
-	virtual ElementDataContainer * Clone() { return new MOVS_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new MOVS_ElementDataContainer(*this); }
 
 	MovingSolid* GetMovingSolid(int bn)
 	{
@@ -78,7 +78,7 @@ public:
 		numBalls = num;
 	}
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		for (int i = 0; i < MAX_MOVING_SOLIDS; i++)
 			movingSolids[i].Simulation_Cleared();
@@ -125,12 +125,12 @@ public:
 		return creatingSolid != 0;
 	}
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		creatingSolid = 0;
 	}
 
-	virtual void Simulation_AfterUpdate(Simulation *sim)
+	void Simulation_AfterUpdate(Simulation *sim) override
 	{
 		if (numBalls == 0)
 			return;

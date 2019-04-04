@@ -35,9 +35,9 @@ public:
 		player2.elem = PT_DUST;
 	}
 
-	virtual ElementDataContainer * Clone() { return new STKM_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new STKM_ElementDataContainer(*this); }
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		InitLegs(&player, -1);
 		InitLegs(&player2, -1);
@@ -47,7 +47,7 @@ public:
 		player2.elem = PT_DUST;
 	}
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		//create stickmen if the current one has been deleted
 		if (sim->elementCount[PT_STKM] <= 0 && player.spawnID >= 0 && player.spawnID < NPART && sim->parts[player.spawnID].type == PT_SPAWN)
@@ -56,7 +56,7 @@ public:
 			sim->part_create(-1, (int)parts[player2.spawnID].x, (int)parts[player2.spawnID].y, PT_STKM2);
 	}
 
-	virtual void Simulation_AfterUpdate(Simulation *sim);
+	void Simulation_AfterUpdate(Simulation *sim) override;
 
 	Stickman * GetStickman1()
 	{

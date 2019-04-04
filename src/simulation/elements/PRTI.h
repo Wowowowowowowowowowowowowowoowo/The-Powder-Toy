@@ -95,7 +95,7 @@ public:
 			channels[i].Simulation_Cleared();
 	}
 
-	virtual ElementDataContainer * Clone() { return new PRTI_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new PRTI_ElementDataContainer(*this); }
 
 	PortalChannel* GetChannel(int i)
 	{
@@ -127,7 +127,7 @@ public:
 		return 1; // Dunno, put it in the top of the portal
 	}
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		for (int i=0; i<CHANNELS; i++)
 			channels[i].Simulation_Cleared();

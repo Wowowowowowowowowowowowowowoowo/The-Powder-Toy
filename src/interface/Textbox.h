@@ -16,10 +16,10 @@ public:
 	// Callback doesn't return the text. A reference to the textbox should be copied to get the text or display text
 	void SetCallback(std::function<void(void)> callback) { this->callback = callback; }
 
-	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
-	virtual void OnTextInput(const char *text);
-	virtual void OnDraw(VideoBuffer* vid);
-	virtual void OnFocus();
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnTextInput(const char *text) override;
+	void OnDraw(VideoBuffer* vid) override;
+	void OnFocus() override;
 
 	void SetAutoSize(bool X, bool Y, Point limit);
 	void SetCharacterLimit(int characterLimit_) { characterLimit = characterLimit_; }
@@ -40,7 +40,7 @@ private:
 	bool StringValid(const char *str);
 
 protected:
-	bool ShowCursor() { return true; }
+	bool ShowCursor() override { return true; }
 };
 
 #endif

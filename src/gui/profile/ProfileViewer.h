@@ -31,8 +31,8 @@ public:
 	ProfileViewer(std::string profileName);
 	~ProfileViewer();
 
-	void OnTick(uint32_t ticks);
-	void OnDrawAfterSubwindows(VideoBuffer *buf);
+	void OnTick(uint32_t ticks) override;
+	void OnDrawAfterSubwindows(VideoBuffer *buf) override;
 
 	// callback functions for all the buttons
 	void EnableEditing();

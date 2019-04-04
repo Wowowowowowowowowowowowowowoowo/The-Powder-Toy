@@ -14,7 +14,7 @@ public:
 	bool wasConfirmed;
 	void Action(bool isConfirmed);
 
-	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 };
 
 #endif

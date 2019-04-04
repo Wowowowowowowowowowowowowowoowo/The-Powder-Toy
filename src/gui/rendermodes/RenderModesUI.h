@@ -37,9 +37,9 @@ public:
 
 	void SwapInterface();
 
-	virtual void OnTick(uint32_t ticks);
-	virtual void OnDraw(VideoBuffer *buf);
-	virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void OnTick(uint32_t ticks) override;
+	void OnDraw(VideoBuffer *buf) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 };
 
 #endif

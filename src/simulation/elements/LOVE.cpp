@@ -38,9 +38,9 @@ public:
 		std::fill_n(&love[0][0], (XRES/9)*(YRES/9), false);
 	}
 
-	virtual ElementDataContainer * Clone() { return new LOVE_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new LOVE_ElementDataContainer(*this); }
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		if (sim->elementCount[PT_LOVE] <= 0)
 			return;

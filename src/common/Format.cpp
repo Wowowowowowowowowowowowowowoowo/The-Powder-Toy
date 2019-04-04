@@ -281,7 +281,7 @@ public:
 		std::cout << "Error creating png: " << message << std::endl;
 	}
 
-	const char * what() const throw()
+	const char * what() const throw() override
 	{
 		return message.c_str();
 	}

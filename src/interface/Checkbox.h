@@ -33,9 +33,9 @@ public:
 	void SetTooltipText(std::string newTooltip);
 	void SetCallback(std::function<void(bool)> callback) { this->callback = callback; }
 
-	virtual void OnMouseUp(int x, int y, unsigned char button);
-	virtual void OnDraw(VideoBuffer* vid);
-	virtual void OnTick(uint32_t ticks);
+	void OnMouseUp(int x, int y, unsigned char button) override;
+	void OnDraw(VideoBuffer* vid) override;
+	void OnTick(uint32_t ticks) override;
 
 	static const int AUTOSIZE = -1;
 	static const int TEXTINSIDE = -2;

@@ -28,7 +28,7 @@ public:
 				delete[] animations[i];
 	}
 
-	virtual ElementDataContainer * Clone()
+	ElementDataContainer * Clone() override
 	{
 		ANIM_ElementDataContainer *animContainer = new ANIM_ElementDataContainer();
 		animContainer->maxFrames = maxFrames;
@@ -44,7 +44,7 @@ public:
 		return animContainer;
 	}
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		for (int i = 0; i < NPART; i++)
 			if (animations[i] != nullptr)

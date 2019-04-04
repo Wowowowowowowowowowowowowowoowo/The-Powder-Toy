@@ -37,7 +37,7 @@ public:
 		initDeltaPos();
 	}
 
-	virtual ElementDataContainer * Clone() { return new ETRD_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new ETRD_ElementDataContainer(*this); }
 
 	void invalidate()
 	{
@@ -45,17 +45,17 @@ public:
 		countLife0 = 0;
 	}
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		invalidate();
 	}
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		invalidate();
 	}
 
-	virtual void Simulation_AfterUpdate(Simulation *sim)
+	void Simulation_AfterUpdate(Simulation *sim) override
 	{
 		invalidate();
 	}

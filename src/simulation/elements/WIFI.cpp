@@ -27,15 +27,15 @@ public:
 		wifi_lastframe = false;
 	}
 
-	virtual ElementDataContainer * Clone() { return new WIFI_ElementDataContainer(*this); }
+	ElementDataContainer * Clone() override { return new WIFI_ElementDataContainer(*this); }
 
-	virtual void Simulation_Cleared(Simulation *sim)
+	void Simulation_Cleared(Simulation *sim) override
 	{
 		std::fill_n(&wireless[0][0], CHANNELS*2, 0);
 		wifi_lastframe = false;
 	}
 
-	virtual void Simulation_BeforeUpdate(Simulation *sim)
+	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
 		if (!sim->elementCount[PT_WIFI] && !wifi_lastframe)
 		{
