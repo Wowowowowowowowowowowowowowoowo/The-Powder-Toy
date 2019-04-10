@@ -17,6 +17,10 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 #ifdef WIN
 #define PATH_SEP "\\"
 #else

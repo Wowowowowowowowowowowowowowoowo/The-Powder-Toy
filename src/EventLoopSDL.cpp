@@ -261,7 +261,7 @@ Point lastMousePosition;
 // (should be accurate except for resizable windows / fullscreen)
 void GetTempMousePosition(int *x, int *y)
 {
-	if (!hasMouseMoved || doManualMouseCalculation)
+	if (!hasMouseMoved)
 		CalculateMousePosition(x, y);
 }
 
