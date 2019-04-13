@@ -958,3 +958,7 @@ Fix incorrect mouse coordinates when releasing the mouse outside of the window.
 Fix THDR generating pressure when touching CLNE. Properly fix issues saving /
 loading window position with 2nd monitor. Fix stasis wall identifier. Update
 script manager to 3.10. Update tptmp to 0.100.
+
+Version 42.6 2019-04-12
+Fix incorrect mouse position when in fullscreen and "force integer scaling" is
+checked
