@@ -86,10 +86,10 @@ PowderToy::PowderToy():
 	placingZoom(false),
 	placingZoomTouch(false),
 	zoomEnabled(false),
-	zoomedOnPosition(Point(0, 0)),
+	zoomScopePosition(Point(0, 0)),
 	zoomWindowPosition(Point(0, 0)),
 	zoomMousePosition(Point(0, 0)),
-	zoomSize(32),
+	zoomScopeSize(32),
 	zoomFactor(8),
 	reloadSave(NULL),
 	state(NONE),
@@ -752,9 +752,9 @@ void PowderToy::AdjustCursorSize(int d, bool keyShortcut)
 	if (PlacingZoomWindow())
 	{
 		if (keyShortcut && !altHeld)
-			d = static_cast<int>(std::ceil(zoomSize / 5.0f + 0.5f));
-		zoomSize = std::max(2, std::min(zoomSize+d, 60));
-		zoomFactor = 256/zoomSize;
+			d = static_cast<int>(std::ceil(zoomScopeSize / 5.0f + 0.5f));
+		zoomScopeSize = std::max(2, std::min(zoomScopeSize+d, 60));
+		zoomFactor = 256/zoomScopeSize;
 		UpdateZoomCoordinates(zoomMousePosition);
 		return;
 	}
@@ -781,10 +781,10 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 	//Change mouse coords to take zoom window into account
 	if (ZoomWindowShown())
 	{
-		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomSize, zoomWindowPosition.Y+zoomFactor*zoomSize))
+		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomScopeSize, zoomWindowPosition.Y+zoomFactor*zoomScopeSize))
 		{
-			mouse.X = ((mouse.X-zoomWindowPosition.X)/zoomFactor) + zoomedOnPosition.X;
-			mouse.Y = ((mouse.Y-zoomWindowPosition.Y)/zoomFactor) + zoomedOnPosition.Y;
+			mouse.X = ((mouse.X-zoomWindowPosition.X)/zoomFactor) + zoomScopePosition.X;
+			mouse.Y = ((mouse.Y-zoomWindowPosition.Y)/zoomFactor) + zoomScopePosition.Y;
 		}
 	}
 	return mouse;
@@ -828,13 +828,13 @@ ToolTip * PowderToy::GetQTip(std::string qtip, int y)
 void PowderToy::UpdateZoomCoordinates(Point mouse)
 {
 	zoomMousePosition = mouse;
-	zoomedOnPosition = mouse-Point(zoomSize/2, zoomSize/2);
-	zoomedOnPosition.Clamp(Point(0, 0), Point(XRES-zoomSize, YRES-zoomSize));
+	zoomScopePosition = mouse-Point(zoomScopeSize/2, zoomScopeSize/2);
+	zoomScopePosition.Clamp(Point(0, 0), Point(XRES-zoomScopeSize, YRES-zoomScopeSize));
 
 	if (mouse.X < XRES/2)
-		zoomWindowPosition = Point(XRES-zoomSize*zoomFactor, 1);
+		zoomWindowPosition = Point(XRES-zoomScopeSize*zoomFactor, 0);
 	else
-		zoomWindowPosition = Point(1, 1);
+		zoomWindowPosition = Point(0, 0);
 }
 
 void PowderToy::ReloadSave()

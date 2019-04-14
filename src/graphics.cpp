@@ -3033,36 +3033,36 @@ void dim_copy_pers(pixel *dst, pixel *src) //for persistent view, reduces rgb sl
 
 void render_zoom(pixel *img)
 {
-	Point zoomedOnPosition = the_game->GetZoomedOnPosition();
+	Point zoomScopePosition = the_game->GetZoomScopePosition();
 	Point zoomWindowPosition = the_game->GetZoomWindowPosition();
-	int zoomSize = the_game->GetZoomWindowSize();
+	int zoomScopeSize = the_game->GetZoomScopeSize();
 	int zoomFactor = the_game->GetZoomWindowFactor();
 
 	// zoom window border
-	drawrect(img, zoomWindowPosition.X-2, zoomWindowPosition.Y-2, zoomSize*zoomFactor+2, zoomSize*zoomFactor+2, 192, 192, 192, 255);
-	drawrect(img, zoomWindowPosition.X-1, zoomWindowPosition.Y-1, zoomSize*zoomFactor, zoomSize*zoomFactor, 0, 0, 0, 255);
-	clearrect(img, zoomWindowPosition.X, zoomWindowPosition.Y, zoomSize*zoomFactor, zoomSize*zoomFactor);
+	drawrect(img, zoomWindowPosition.X-2, zoomWindowPosition.Y-2, zoomScopeSize*zoomFactor+2, zoomScopeSize*zoomFactor+2, 192, 192, 192, 255);
+	drawrect(img, zoomWindowPosition.X-1, zoomWindowPosition.Y-1, zoomScopeSize*zoomFactor, zoomScopeSize*zoomFactor, 0, 0, 0, 255);
+	clearrect(img, zoomWindowPosition.X, zoomWindowPosition.Y, zoomScopeSize*zoomFactor, zoomScopeSize*zoomFactor);
 
 	// zoomed pixels themselves
-	for (int j = 0; j < zoomSize; j++)
-		for (int i = 0; i < zoomSize; i++)
+	for (int j = 0; j < zoomScopeSize; j++)
+		for (int i = 0; i < zoomScopeSize; i++)
 		{
-			pixel pix = img[(j+zoomedOnPosition.Y)*(XRES+BARSIZE) + (i+zoomedOnPosition.X)];
+			pixel pix = img[(j+zoomScopePosition.Y)*(XRES+BARSIZE) + (i+zoomScopePosition.X)];
 			for (int y = 0; y < zoomFactor-1; y++)
 				for (int x = 0; x < zoomFactor-1; x++)
 					img[(j*zoomFactor+y+zoomWindowPosition.Y)*(XRES+BARSIZE) + (i*zoomFactor+x+zoomWindowPosition.X)] = pix;
 		}
 
 	// draw box showing where zoom window is
-	for (int j = -1; j <= zoomSize; j++)
+	for (int j = -1; j <= zoomScopeSize; j++)
 	{
-		xor_pixel(zoomedOnPosition.X+j, zoomedOnPosition.Y-1, img);
-		xor_pixel(zoomedOnPosition.X+j, zoomedOnPosition.Y+zoomSize, img);
+		xor_pixel(zoomScopePosition.X+j, zoomScopePosition.Y-1, img);
+		xor_pixel(zoomScopePosition.X+j, zoomScopePosition.Y+zoomScopeSize, img);
 	}
-	for (int j = 0; j < zoomSize; j++)
+	for (int j = 0; j < zoomScopeSize; j++)
 	{
-		xor_pixel(zoomedOnPosition.X-1, zoomedOnPosition.Y+j, img);
-		xor_pixel(zoomedOnPosition.X+zoomSize, zoomedOnPosition.Y+j, img);
+		xor_pixel(zoomScopePosition.X-1, zoomScopePosition.Y+j, img);
+		xor_pixel(zoomScopePosition.X+zoomScopeSize, zoomScopePosition.Y+j, img);
 	}
 }
 

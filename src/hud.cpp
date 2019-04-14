@@ -392,7 +392,7 @@ void DrawHud(int introTextAlpha, int qTipAlpha)
 			heatx = XRES-16-heatlength;
 		else
 			heatx = 16;
-		heaty = the_game->GetZoomWindowPosition().Y + the_game->GetZoomWindowSize()*the_game->GetZoomWindowFactor() + 7;
+		heaty = the_game->GetZoomWindowPosition().Y + the_game->GetZoomScopeSize()*the_game->GetZoomWindowFactor() + 7;
 		alpha = 127;
 	}
 	else

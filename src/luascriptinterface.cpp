@@ -1739,6 +1739,9 @@ void initRendererAPI(lua_State * l)
 		{"grid", renderer_grid},
 		{"debugHUD", renderer_debugHUD},
 		{"depth3d", renderer_depth3d},
+		{"zoomEnabled", renderer_zoomEnabled},
+		{"zoomWindow", renderer_zoomWindowInfo},
+		{"zoomScope", renderer_zoomScopeInfo},
 		{NULL, NULL}
 	};
 	luaL_register(l, "renderer", rendererAPIMethods);
@@ -1925,6 +1928,77 @@ int renderer_depth3d(lua_State * l)
 {
 	return luaL_error(l, "This feature is no longer supported");
 }
+
+int renderer_zoomEnabled(lua_State * l)
+{
+	if (lua_gettop(l) == 0)
+	{
+		lua_pushboolean(l, the_game->IsZoomEnabled());
+		return 1;
+	}
+	else
+	{
+		luaL_checktype(l, -1, LUA_TBOOLEAN);
+		the_game->SetZoomEnabled(lua_toboolean(l, -1));
+		return 0;
+	}
+}
+int renderer_zoomWindowInfo(lua_State * l)
+{
+	int zoomScopeSize = the_game->GetZoomScopeSize();
+	int zoomFactor = the_game->GetZoomWindowFactor();
+	if (lua_gettop(l) == 0)
+	{
+		Point location = the_game->GetZoomWindowPosition();
+		lua_pushnumber(l, location.X);
+		lua_pushnumber(l, location.Y);
+		lua_pushnumber(l, zoomFactor);
+		lua_pushnumber(l, zoomScopeSize * zoomFactor);
+		return 4;
+	}
+	int x = luaL_optint(l, 1, 0);
+	int y = luaL_optint(l, 2, 0);
+	int f = luaL_optint(l, 3, 0);
+	if (f <= 0)
+		return luaL_error(l, "Zoom factor must be greater than 0");
+
+	// To prevent crash when zoom window is outside screen
+	if (x < 0 || y < 0 || zoomScopeSize * f + x > XRES || zoomScopeSize * f + y > YRES)
+		return luaL_error(l, "Zoom window outside of bounds");
+
+	the_game->SetZoomWindowPosition(Point(x, y));
+	the_game->SetZoomWindowFactor(f);
+	return 0;
+}
+int renderer_zoomScopeInfo(lua_State * l)
+{
+	if (lua_gettop(l) == 0)
+	{
+		Point location = the_game->GetZoomScopePosition();
+		lua_pushnumber(l, location.X);
+		lua_pushnumber(l, location.Y);
+		lua_pushnumber(l, the_game->GetZoomScopeSize());
+		return 3;
+	}
+	int x = luaL_optint(l, 1, 0);
+	int y = luaL_optint(l, 2, 0);
+	int s = luaL_optint(l, 3, 0);
+	if (s <= 0)
+		return luaL_error(l, "Zoom scope size must be greater than 0");
+
+	// To prevent crash when zoom or scope window is outside screen
+	int windowEdgeRight = the_game->GetZoomWindowFactor() * s + the_game->GetZoomWindowPosition().X;
+	int windowEdgeBottom = the_game->GetZoomWindowFactor() * s + the_game->GetZoomWindowPosition().Y;
+	if (x < 0 || y < 0 || x + s > XRES || y + s > YRES)
+		return luaL_error(l, "Zoom scope outside of bounds");
+	if (windowEdgeRight > XRES || windowEdgeBottom > YRES)
+		return luaL_error(l, "Zoom window outside of bounds");
+
+	the_game->SetZoomScopePosition(Point(x, y));
+	the_game->SetZoomScopeSize(s);
+	return 0;
+}
+
 
 /*
 

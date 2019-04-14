@@ -57,10 +57,10 @@ private:
 	bool placingZoom;
 	bool placingZoomTouch; // clicked the zoom button, zoom window won't be drawn until user clicks
 	bool zoomEnabled;
-	Point zoomedOnPosition; // position the zoom window is zooming in on
+	Point zoomScopePosition; // position the zoom window is zooming in on
 	Point zoomWindowPosition; // position where zoom is drawn on screen (either on the left or the right)
 	Point zoomMousePosition; // position where the mouse was when placing the zoom window, needed so that we can resize it without glitching things
-	int zoomSize;
+	int zoomScopeSize;
 	int zoomFactor;
 	
 	// Simulation object
@@ -149,14 +149,20 @@ public:
 	void SwapToRegularToolset();
 
 	// zoom window stuff
-	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
+	bool IsZoomEnabled() { return zoomEnabled; }
+	void SetZoomEnabled(bool zoomEnabled) { this->zoomEnabled = zoomEnabled; }
 	bool PlacingZoomWindow() { return placingZoom; }
+	bool ZoomWindowShown() { return placingZoom || zoomEnabled; }
+	Point GetZoomScopePosition() { return zoomScopePosition; }
+	void SetZoomScopePosition(Point zoomScopePosition) { this->zoomScopePosition = zoomScopePosition; }
+	Point GetZoomWindowPosition() { return zoomWindowPosition; }
+	void SetZoomWindowPosition(Point zoomWindowPosition) { this->zoomWindowPosition = zoomWindowPosition; }
+	int GetZoomScopeSize() { return zoomScopeSize; }
+	void SetZoomScopeSize(int zoomScopeSize) { this->zoomScopeSize = zoomScopeSize; }
+	int GetZoomWindowFactor() { return zoomFactor; }
+	void SetZoomWindowFactor(int zoomFactor) { this->zoomFactor = zoomFactor; }
 	void UpdateZoomCoordinates(Point mouse);
 	void HideZoomWindow();
-	Point GetZoomedOnPosition() { return zoomedOnPosition; }
-	Point GetZoomWindowPosition() { return zoomWindowPosition; }
-	int GetZoomWindowSize() { return zoomSize; }
-	int GetZoomWindowFactor() { return zoomFactor; }
 
 	void ReloadSave();
 	void SetReloadPoint(Save * reloadSave);
