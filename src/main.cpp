@@ -66,7 +66,6 @@
 #include "gravity.h"
 #include "graphics.h"
 #include "powdergraphics.h"
-#include "http.h"
 #include "interface.h"
 #include "IntroText.h"
 #include "md5.h"
@@ -1036,7 +1035,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 	save_presets();
-	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
 	prepare_alpha(1.0f);
 	prepare_graphicscache();
@@ -1687,7 +1685,6 @@ void main_end_hack()
 	SaveWindowPosition();
 	save_presets();
 	DownloadManager::Ref().Shutdown();
-	http_done();
 	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();

@@ -233,7 +233,7 @@ void ui_richtext_draw(pixel *vid_buf, ui_richtext *ed);
 void ui_richtext_settext(char *text, ui_richtext *ed);
 void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed);
 
-void error_ui(pixel *vid_buf, int err, const char *txt);
+void error_ui(pixel *vid_buf, int err, std::string txt);
 
 void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
@@ -285,7 +285,7 @@ int execute_save(pixel *vid_buf, Save *save);
 int execute_delete(pixel *vid_buf, char *id);
 
 int execute_report(pixel *vid_buf, char *id, char *reason);
-int execute_bug(pixel *vid_buf, char *feedback);
+int execute_bug(pixel *vid_buf, std::string feedback);
 
 bool ParseServerReturn(char *result, int status, bool json);
 

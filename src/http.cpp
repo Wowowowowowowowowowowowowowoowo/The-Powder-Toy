@@ -1047,7 +1047,7 @@ std::string GetMultipartMessage(std::map<std::string, std::string> parts, std::s
 		if (colonP != name.npos)
 		{
 			// used to upload files (save data)
-			data << "content-disposition: form-data; name=\"" << name.substr(0, colonP) << "\"";
+			data << "content-disposition: form-data; name=\"" << name.substr(0, colonP) << "\"; ";
 			data << "filename=\"" << name.substr(colonP+1) << "\"";
 		}
 		else

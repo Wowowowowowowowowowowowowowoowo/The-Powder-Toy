@@ -3,8 +3,9 @@
 #include "Download.h"
 #include "DownloadManager.h"
 #include "http.h"
+#include "common/Platform.h"
 
-Download::Download(std::string uri_, bool keepAlive):
+Download::Download(std::string uri, bool keepAlive):
 	http(NULL),
 	keepAlive(keepAlive),
 	downloadData(NULL),
@@ -18,7 +19,7 @@ Download::Download(std::string uri_, bool keepAlive):
 	downloadCanceled(false),
 	downloadStarted(false)
 {
-	uri = std::string(uri_);
+	this->uri = std::string(uri);
 	DownloadManager::Ref().AddDownload(this);
 }
 
@@ -153,3 +154,29 @@ std::string Download::GetStatusCodeDesc(int code)
 {
 	return http_ret_text(code);
 }
+
+char* Download::Simple(std::string uri, int *length, int *status, std::map<std::string, std::string> post_data)
+{
+	Download *request = new Download(uri);
+	request->AddPostData(post_data);
+	request->Start();
+	while (!request->CheckDone())
+	{
+		Platform::Millisleep(1);
+	}
+	return request->Finish(length, status);
+}
+
+char* Download::SimpleAuth(std::string uri, int *length, int *status, const char* ID, const char* session, std::map<std::string, std::string> post_data)
+{
+	Download *request = new Download(uri);
+	request->AddPostData(post_data);
+	request->AuthHeaders(ID, session);
+	request->Start();
+	while (!request->CheckDone())
+	{
+		Platform::Millisleep(1);
+	}
+	return request->Finish(length, status);
+}
+

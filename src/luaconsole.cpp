@@ -34,21 +34,21 @@ extern "C"
 #include "socket/socket.lua.h"
 }
 
+#include "console.h"
 #include "defines.h"
-#include "powder.h"
 #include "graphics.h"
 #include "gravity.h"
-#include "http.h"
-#include "console.h"
 #include "interface.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
+#include "powder.h"
 #include "save_legacy.h"
 
 #include "common/Format.h"
 #include "common/Platform.h"
 #include "interface/Engine.h"
 #include "game/Brush.h"
+#include "game/Download.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
 #include "gui/game/PowderToy.h"
@@ -1174,9 +1174,8 @@ int luatpt_graphics_func(lua_State *l)
 
 int luatpt_error(lua_State* l)
 {
-	char *error = mystrdup((char*)luaL_optstring(l, 1, "Error text"));
+	std::string error = luaL_optstring(l, 1, "Error text");
 	error_ui(lua_vid_buf, 0, error);
-	free(error);
 	return 0;
 }
 
@@ -2099,7 +2098,7 @@ int luatpt_getscript(lua_State* l)
 		return 0;
 
 	int ret, len;
-	char *scriptData = http_simple_get(url.str().c_str(), &ret, &len);
+	char *scriptData = Download::Simple(url.str(), &len, &ret);
 	if (len <= 0 || !filename)
 	{
 		free(scriptData);
@@ -2108,7 +2107,7 @@ int luatpt_getscript(lua_State* l)
 	if (ret != 200)
 	{
 		free(scriptData);
-		return luaL_error(l, http_ret_text(ret));
+		return luaL_error(l, Download::GetStatusCodeDesc(ret).c_str());
 	}
 
 	if (!strcmp(scriptData, "Invalid script ID\r\n"))
@@ -2151,6 +2150,7 @@ int luatpt_getscript(lua_State* l)
 		luaCommand << "dofile('" << filename << "')";
 		luaL_dostring(l, luaCommand.str().c_str());
 	}
+	free(scriptData);
 
 	return 0;
 }

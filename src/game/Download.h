@@ -43,6 +43,9 @@ public:
 
 	static std::string GetStatusCodeDesc(int code);
 
+	static char* Simple(std::string uri, int *length, int *status, std::map<std::string, std::string> post_data = {});
+	static char* SimpleAuth(std::string uri, int *length, int *status, const char *ID, const char *session, std::map<std::string, std::string> post_data = {});
+
 	friend class DownloadManager;
 };
 

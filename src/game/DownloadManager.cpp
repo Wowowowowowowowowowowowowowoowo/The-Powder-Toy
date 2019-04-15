@@ -12,6 +12,8 @@ DownloadManager::DownloadManager():
 	downloads(std::vector<Download*>()),
 	downloadsAddQueue(std::vector<Download*>())
 {
+	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
+
 	pthread_mutex_init(&downloadLock, NULL);
 	pthread_mutex_init(&downloadAddLock, NULL);
 }
@@ -39,6 +41,8 @@ void DownloadManager::Shutdown()
 	pthread_mutex_unlock(&downloadAddLock);
 	pthread_mutex_unlock(&downloadLock);
 	pthread_join(downloadThread, NULL);
+
+	http_done();
 }
 
 //helper function for download

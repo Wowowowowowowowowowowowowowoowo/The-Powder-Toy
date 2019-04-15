@@ -49,7 +49,6 @@
 #include "graphics.h"
 #include "gravity.h"
 #include "interface.h"
-#include "http.h"
 #include "hud.h"
 #include "images.h"
 #include "luaconsole.h"
@@ -1062,16 +1061,16 @@ void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed)
 	}
 }
 
-void error_ui(pixel *vid_buf, int err, const char *txt)
+void error_ui(pixel *vid_buf, int err, std::string txt)
 {
 	int x0=(XRES-240)/2,y0=YRES/2,b=1,bq,mx,my,textheight;
 	char *msg;
 
-	msg = (char*)malloc(strlen(txt)+16);
+	msg = (char*)malloc(txt.length() + 16);
 	if (err)
-		sprintf(msg, "%03d %s", err, txt);
+		sprintf(msg, "%03d %s", err, txt.c_str());
 	else
-		sprintf(msg, "%s", txt);
+		sprintf(msg, "%s", txt.c_str());
 	textheight = textwrapheight(msg, 240);
 	y0 -= (52+textheight)/2;
 	if (y0<2)
@@ -2015,17 +2014,12 @@ bool login_ui(pixel *vid_buf)
 	totalHash[32] = 0;
 	// new scope because of goto warning
 	{
-		int dataStatus, dataLength;
-		const char *const postNames[] = { "Username", "Hash", NULL };
-		const char *const postDatas[] = { svf_user, totalHash };
-		size_t postLengths[] = { strlen(svf_user), 32 };
-		char * data;
-		data = http_multipart_post(
-				  "http://" SERVER "/Login.json",
-				  postNames, postDatas, postLengths,
-				  NULL, NULL, NULL,
-				  &dataStatus, &dataLength);
-		if(dataStatus == 200 && data)
+		int status;
+		char *data = Download::SimpleAuth("http://" SERVER "/Login.json", nullptr, &status, svf_user_id, svf_session_id, {
+			{ "Username", svf_user },
+			{ "Hash", totalHash },
+		});
+		if (status == 200 && data)
 		{
 			cJSON *root, *tmpobj;//, *notificationarray, *notificationobj;
 			if ((root = cJSON_Parse((const char*)data)))
@@ -2097,7 +2091,7 @@ bool login_ui(pixel *vid_buf)
 		}
 		else
 		{
-			error_ui(vid_buf, dataStatus, http_ret_text(dataStatus));
+			error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 			goto fail;
 		}
 		if (data)
@@ -5424,7 +5418,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					queue_open = 0;
 
 					clear_save_info();
-					error_ui(vid_buf, 0, (std::string("An error occurred when parsing the save: ") + e.what()).c_str());
+					error_ui(vid_buf, 0, std::string("An error occurred when parsing the save: ") + e.what());
 					if (instant_open)
 						break;
 				}
@@ -5924,25 +5918,14 @@ int search_results(char *str, int votes)
 int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 {
 	int status;
-	char *result;
+	char *result = Download::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), nullptr, &status, svf_user_id, svf_session_id, {
+		{ "ID", svf_id },
+		{ "Tag", tag }
+	});
 
-	const char *const names[] = {"ID", "Tag", NULL};
-	const char *const parts[] = {svf_id, tag, NULL};
-
-	char *uri = (char*)malloc(strlen(SERVER)+strlen(op)+36);
-	sprintf(uri, "http://" SERVER "/Tag.api?Op=%s", op);
-
-	result = http_multipart_post(
-	             uri,
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	free(uri);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 1;
@@ -5970,51 +5953,25 @@ int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 
 int execute_save(pixel *vid_buf, Save *save)
 {
-	// get saveData, may throw an exception
-	const unsigned char *saveData = save->GetSaveData();
-	unsigned int saveSize = save->GetSaveSize();
-
-	int status;
-	char *result;
-
-	const char *names[] = {"Name", "Description", "Data:save.bin", "Publish", "ID", NULL};
-	char *uploadparts[5];
-	size_t plens[5];
-
-	uploadparts[0] = svf_name;
-	plens[0] = strlen(svf_name);
-	uploadparts[1] = svf_description;
-	plens[1] = strlen(svf_description);
-
-	uploadparts[2] = (char*)saveData;
-	plens[2] = saveSize;
-	//uploadparts[3] = (char*)build_thumb(&len, 1);
-	//plens[3] = len;
-	uploadparts[3] = (char*)((svf_publish==1)?"Public":"Private");
-	plens[3] = strlen((svf_publish==1)?"Public":"Private");
-
+	std::map<std::string, std::string> postData = {
+		{ "Name", svf_name },
+		{ "Description", svf_description },
+		{ "Data:save.bin", std::string((char*)save->GetSaveData(), (int)save->GetSaveSize()) },
+		{ "Publish", (svf_publish == 1) ? "Public" : "Private" }
+	};
 	if (svf_id[0])
 	{
-		uploadparts[4] = svf_id;
-		plens[4] = strlen(svf_id);
+		postData.insert(std::pair<std::string, std::string>("ID", svf_id));
 	}
-	else
-		names[4] = NULL;
 
-	result = http_multipart_post(
-	             "http://" SERVER "/Save.api",
-	             names, uploadparts, plens,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
+	int status;
+	char *result = Download::SimpleAuth("http://" SERVER "/Save.api", nullptr, &status, svf_user_id, svf_session_id, postData);
 
 	the_game->SetReloadPoint(save);
 
-	//if (uploadparts[3])
-	//	free(uploadparts[3]);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 1;
@@ -6052,22 +6009,13 @@ int execute_save(pixel *vid_buf, Save *save)
 int execute_delete(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result;
+	char *result = Download::SimpleAuth("http://" SERVER "/Delete.api", nullptr, &status, svf_user_id, svf_session_id, {
+		{ "ID", id }
+	});
 
-	const char *const names[] = {"ID", NULL};
-	char *parts[1];
-
-	parts[0] = id;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Delete.api",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6101,7 +6049,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 		return true;
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		return true;
 	}
 
@@ -6122,7 +6070,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 			if (status != 1)
 			{
 				std::string err = root.get("Error", "Unspecified Error").asString();
-				error_ui(vid_buf, 0, err.c_str());
+				error_ui(vid_buf, 0, err);
 				return true;
 			}
 		}
@@ -6131,8 +6079,8 @@ bool ParseServerReturn(char *result, int status, bool json)
 			// sometimes the server returns a 200 with the text "Error: 401"
 			if (strstr(result, "Error: ") == result)
 			{
-				status = atoi(result+7);
-				error_ui(vid_buf, status, http_ret_text(status));
+				status = atoi(result + 7);
+				error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 				return true;
 			}
 			error_ui(vid_buf, 0, "Could not read response");
@@ -6172,23 +6120,14 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 int execute_report(pixel *vid_buf, char *id, char *reason)
 {
 	int status;
-	char *result;
+	char *result = Download::SimpleAuth("http://" SERVER "/Report.api", nullptr, &status, svf_user_id, svf_session_id, {
+		{ "ID", id },
+		{ "Reason", reason }
+	});
 
-	const char *const names[] = {"ID", "Reason", NULL};
-	const char *parts[2];
-
-	parts[0] = id;
-	parts[1] = reason;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Report.api",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6205,23 +6144,17 @@ int execute_report(pixel *vid_buf, char *id, char *reason)
 	return 1;
 }
 
-int execute_bug(pixel *vid_buf, char *feedback)
+int execute_bug(pixel *vid_buf, std::string feedback)
 {
+	// TODO: does not work because of bug on starcatcher.us
 	int status;
-	char *result;
-	std::string bug = "bug=";
-	bug.append(URLEncode(feedback));
+	char *result = Download::Simple("http://starcatcher.us/TPT/bagelreport.lua", nullptr, &status, {
+		{ "bug", feedback }
+	 });
 
-	void *http = http_async_req_start(NULL, "http://starcatcher.us/TPT/bagelreport.lua", bug.c_str(), bug.length(), 0);
-	if (svf_login)
+	if (status != 200)
 	{
-		http_auth_headers(http, svf_user, NULL, NULL);
-	}
-	result = http_async_req_stop(http, &status, NULL);
-
-	if (status!=200)
-	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6241,22 +6174,13 @@ int execute_bug(pixel *vid_buf, char *feedback)
 void execute_fav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result;
+	char *result = Download::SimpleAuth("http://" SERVER "/Favourite.api", nullptr, &status, svf_user_id, svf_session_id, {
+		{ "ID", id }
+	});
 
-	const char *const names[] = {"ID", NULL};
-	const char *parts[1];
-
-	parts[0] = id;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Favourite.api",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return;
@@ -6275,22 +6199,13 @@ void execute_fav(pixel *vid_buf, char *id)
 void execute_unfav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result;
+	char *result = Download::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", nullptr, &status, svf_user_id, svf_session_id, {
+		{ "ID", id }
+	});
 
-	const char *const names[] = {"ID", NULL};
-	const char *parts[1];
-
-	parts[0] = id;
-
-	result = http_multipart_post(
-	             "http://" SERVER "/Favourite.api?Action=Remove",
-	             names, parts, NULL,
-	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
-	             &status, NULL);
-
-	if (status!=200)
+	if (status != 200)
 	{
-		error_ui(vid_buf, status, http_ret_text(status));
+		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return;
@@ -7585,7 +7500,7 @@ void catalogue_ui(pixel * vid_buf)
 							}
 							catch (ParseException & e)
 							{
-								error_ui(vid_buf, 0, (std::string("Unable to load save: ") + e.what()).c_str());
+								error_ui(vid_buf, 0, std::string("Unable to load save: ") + e.what());
 							}
 							free(data);
 							delete localSave;
