@@ -5,7 +5,7 @@
 #include "interface/Window.h"
 #include "graphics/Pixel.h"
 
-class Download;
+class Request;
 class Label;
 class Button;
 class Textbox;
@@ -16,9 +16,9 @@ namespace ui
 class ProfileViewer : public ui::Window
 {
 	std::string name;
-	Download *profileInfoDownload;
-	Download *avatarDownload;
-	Download *profileSaveDownload;
+	Request *profileInfoDownload;
+	Request *avatarDownload;
+	Request *profileSaveDownload;
 	pixel *avatar;
 
 	ui::ScrollWindow *scrollArea;

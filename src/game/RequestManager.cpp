@@ -1,16 +1,16 @@
-#include "DownloadManager.h"
-#include "Download.h"
+#include "RequestManager.h"
+#include "Request.h"
 #include "http.h"
 #include "defines.h"
 #include "common/Platform.h"
 
-DownloadManager::DownloadManager():
+RequestManager::RequestManager():
 	threadStarted(false),
 	lastUsed(time(NULL)),
 	managerRunning(false),
 	managerShutdown(false),
-	downloads(std::vector<Download*>()),
-	downloadsAddQueue(std::vector<Download*>())
+	downloads(std::vector<Request*>()),
+	downloadsAddQueue(std::vector<Request*>())
 {
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
@@ -18,18 +18,18 @@ DownloadManager::DownloadManager():
 	pthread_mutex_init(&downloadAddLock, NULL);
 }
 
-DownloadManager::~DownloadManager()
+RequestManager::~RequestManager()
 {
 
 }
 
-void DownloadManager::Shutdown()
+void RequestManager::Shutdown()
 {
 	pthread_mutex_lock(&downloadLock);
 	pthread_mutex_lock(&downloadAddLock);
-	for (std::vector<Download*>::iterator iter = downloads.begin(); iter != downloads.end(); ++iter)
+	for (std::vector<Request*>::iterator iter = downloads.begin(); iter != downloads.end(); ++iter)
 	{
-		Download *download = (*iter);
+		Request *download = (*iter);
 		if (download->http)
 			http_force_close(download->http);
 		download->downloadCanceled = true;
@@ -48,19 +48,19 @@ void DownloadManager::Shutdown()
 //helper function for download
 TH_ENTRY_POINT void* DownloadManagerHelper(void* obj)
 {
-	DownloadManager *temp = (DownloadManager*)obj;
+	RequestManager *temp = (RequestManager*)obj;
 	temp->Update();
 	return NULL;
 }
 
-void DownloadManager::Start()
+void RequestManager::Start()
 {
 	managerRunning = true;
 	lastUsed = time(NULL);
 	pthread_create(&downloadThread, NULL, &DownloadManagerHelper, this);
 }
 
-void DownloadManager::Update()
+void RequestManager::Update()
 {
 	unsigned int numActiveDownloads;
 	while (!managerShutdown)
@@ -81,7 +81,7 @@ void DownloadManager::Update()
 			pthread_mutex_lock(&downloadLock);
 			for (size_t i = 0; i < downloads.size(); i++)
 			{
-				Download *download = downloads[i];
+				Request *download = downloads[i];
 				if (download->CheckCanceled())
 				{
 					if (download->http && download->CheckStarted())
@@ -116,7 +116,7 @@ void DownloadManager::Update()
 	}
 }
 
-void DownloadManager::EnsureRunning()
+void RequestManager::EnsureRunning()
 {
 	pthread_mutex_lock(&downloadLock);
 	if (!managerRunning)
@@ -130,7 +130,7 @@ void DownloadManager::EnsureRunning()
 	pthread_mutex_unlock(&downloadLock);
 }
 
-void DownloadManager::AddDownload(Download *download)
+void RequestManager::AddDownload(Request *download)
 {
 	pthread_mutex_lock(&downloadAddLock);
 	downloadsAddQueue.push_back(download);
@@ -138,12 +138,12 @@ void DownloadManager::AddDownload(Download *download)
 	EnsureRunning();
 }
 
-void DownloadManager::Lock()
+void RequestManager::Lock()
 {
 	pthread_mutex_lock(&downloadAddLock);
 }
 
-void DownloadManager::Unlock()
+void RequestManager::Unlock()
 {
 	pthread_mutex_unlock(&downloadAddLock);
 }

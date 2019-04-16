@@ -24,7 +24,7 @@
 #include "common/Platform.h"
 #include "game/Authors.h"
 #include "game/Brush.h"
-#include "game/Download.h"
+#include "game/Request.h"
 #include "game/Menus.h"
 #include "game/Save.h"
 #include "game/Sign.h"
@@ -139,7 +139,7 @@ PowderToy::PowderToy():
 
 	if (doUpdates)
 	{
-		versionCheck = new Download("http://" UPDATESERVER "/Startup.json");
+		versionCheck = new Request("http://" UPDATESERVER "/Startup.json");
 		if (svf_login)
 			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 	}
@@ -148,7 +148,7 @@ PowderToy::PowderToy():
 
 	if (svf_login)
 	{
-		sessionCheck = new Download("http://" SERVER "/Startup.json");
+		sessionCheck = new Request("http://" SERVER "/Startup.json");
 		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
 	}
 	else
@@ -439,7 +439,7 @@ void PowderToy::DoVoteBtn(bool up)
 		SetInfoTip("Error: could not vote");
 		return;
 	}
-	voteDownload = new Download("http://" SERVER "/Vote.api");
+	voteDownload = new Request("http://" SERVER "/Vote.api");
 	voteDownload->AuthHeaders(svf_user_id, svf_session_id);
 	std::map<std::string, std::string> postData;
 	postData.insert(std::pair<std::string, std::string>("ID", svf_id));

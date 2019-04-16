@@ -85,8 +85,8 @@
 #include "game/Save.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
-#include "game/Download.h"
-#include "game/DownloadManager.h"
+#include "game/Request.h"
+#include "game/RequestManager.h"
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
@@ -814,7 +814,7 @@ void SigHandler(int signal)
 	int afk = 0, afkstart = 0, lastx = 1, lasty = 0; // afk tracking for stats
 	bool mouseInZoom = false;
 	int username_flash = 0, username_flash_t = 1;
-	Download *sessionCheck = NULL;
+	Request *sessionCheck = NULL;
 #if !defined(DEBUG) && !defined(_DEBUG)
 	int signal_hooks = 0;
 #endif
@@ -1684,7 +1684,7 @@ void main_end_hack()
 {
 	SaveWindowPosition();
 	save_presets();
-	DownloadManager::Ref().Shutdown();
+	RequestManager::Ref().Shutdown();
 	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();

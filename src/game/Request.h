@@ -3,8 +3,8 @@
 #include <map>
 #include <string>
 
-class DownloadManager;
-class Download
+class RequestManager;
+class Request
 {
 	std::string uri;
 	void *http;
@@ -25,8 +25,8 @@ class Download
 	volatile bool downloadStarted;
 
 public:
-	Download(std::string uri, bool keepAlive = false);
-	~Download();
+	Request(std::string uri, bool keepAlive = false);
+	~Request();
 
 	void AddPostData(std::map<std::string, std::string> data);
 	void AddPostData(std::pair<std::string, std::string> data);
@@ -46,7 +46,7 @@ public:
 	static char* Simple(std::string uri, int *length, int *status, std::map<std::string, std::string> post_data = {});
 	static char* SimpleAuth(std::string uri, int *length, int *status, const char *ID, const char *session, std::map<std::string, std::string> post_data = {});
 
-	friend class DownloadManager;
+	friend class RequestManager;
 };
 
 #endif

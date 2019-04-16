@@ -1,7 +1,7 @@
 #include "UpdateProgress.h"
 #include "bzlib.h"
 #include "common/Format.h"
-#include "game/Download.h"
+#include "game/Request.h"
 #include "gui/dialogs/ErrorPrompt.h"
 #include "interface/Engine.h"
 #include "interface/Label.h"
@@ -22,7 +22,7 @@ UpdateProgress::UpdateProgress(std::string uri, std::string username, std::funct
 	progress->SetColor(COLRGB(140, 140, 255));
 	AddComponent(progress);
 
-	download = new Download(uri);
+	download = new Request(uri);
 	const char *usernameC = username.c_str();
 	download->AuthHeaders(usernameC, nullptr);
 	download->Start();
@@ -48,7 +48,7 @@ void UpdateProgress::OnTick(uint32_t ticks)
 		char *data = download->Finish(&length, &status);
 		if (status != 200)
 		{
-			ShowError(Download::GetStatusCodeDesc(status));
+			ShowError(Request::GetStatusCodeDesc(status));
 			return;
 		}
 		if (!data || length < 16)

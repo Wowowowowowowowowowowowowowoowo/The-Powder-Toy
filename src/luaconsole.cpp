@@ -48,7 +48,7 @@ extern "C"
 #include "common/Platform.h"
 #include "interface/Engine.h"
 #include "game/Brush.h"
-#include "game/Download.h"
+#include "game/Request.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
 #include "gui/game/PowderToy.h"
@@ -2098,7 +2098,7 @@ int luatpt_getscript(lua_State* l)
 		return 0;
 
 	int ret, len;
-	char *scriptData = Download::Simple(url.str(), &len, &ret);
+	char *scriptData = Request::Simple(url.str(), &len, &ret);
 	if (len <= 0 || !filename)
 	{
 		free(scriptData);
@@ -2107,7 +2107,7 @@ int luatpt_getscript(lua_State* l)
 	if (ret != 200)
 	{
 		free(scriptData);
-		return luaL_error(l, Download::GetStatusCodeDesc(ret).c_str());
+		return luaL_error(l, Request::GetStatusCodeDesc(ret).c_str());
 	}
 
 	if (!strcmp(scriptData, "Invalid script ID\r\n"))

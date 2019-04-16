@@ -4,11 +4,11 @@
 #include <functional>
 #include "interface/Window.h"
 
-class Download;
+class Request;
 class ProgressBar;
 class UpdateProgress : public ui::Window
 {
-	Download *download;
+	Request *download;
 	bool completed = false;
 	ProgressBar * progress;
 	std::function<void(char*, int)> callback;

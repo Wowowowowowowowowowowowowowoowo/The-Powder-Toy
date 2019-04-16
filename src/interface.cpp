@@ -62,7 +62,7 @@
 #include "common/Format.h"
 #include "common/Platform.h"
 #include "game/Authors.h"
-#include "game/Download.h"
+#include "game/Request.h"
 #include "game/Favorite.h"
 #include "game/Menus.h"
 #include "game/Save.h"
@@ -2015,7 +2015,7 @@ bool login_ui(pixel *vid_buf)
 	// new scope because of goto warning
 	{
 		int status;
-		char *data = Download::SimpleAuth("http://" SERVER "/Login.json", nullptr, &status, svf_user_id, svf_session_id, {
+		char *data = Request::SimpleAuth("http://" SERVER "/Login.json", nullptr, &status, svf_user_id, svf_session_id, {
 			{ "Username", svf_user },
 			{ "Hash", totalHash },
 		});
@@ -2091,7 +2091,7 @@ bool login_ui(pixel *vid_buf)
 		}
 		else
 		{
-			error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+			error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 			goto fail;
 		}
 		if (data)
@@ -3507,11 +3507,11 @@ int search_ui(pixel *vid_buf)
 	ui_richtext motd;
 
 
-	Download *saveListDownload = NULL;
+	Request *saveListDownload = NULL;
 	char *last = NULL;
 	int search = 0;
 
-	Download *thumbnailDownloads[IMGCONNS];
+	Request *thumbnailDownloads[IMGCONNS];
 	for (int i = 0; i < IMGCONNS; i++)
 		thumbnailDownloads[i] = NULL;
 	char *img_id[IMGCONNS];
@@ -4131,7 +4131,7 @@ int search_ui(pixel *vid_buf)
 
 			if (!saveListDownload)
 			{
-				saveListDownload = new Download(uri.str(), true);
+				saveListDownload = new Request(uri.str(), true);
 				if (svf_login)
 					saveListDownload->AuthHeaders(svf_user_id, svf_session_id);
 				saveListDownload->Start();
@@ -4280,7 +4280,7 @@ int search_ui(pixel *vid_buf)
 					{
 						if (thumbnailDownloads[i])
 							thumbnailDownloads[i]->Cancel();
-						thumbnailDownloads[i] = new Download(uri.str(), true);
+						thumbnailDownloads[i] = new Request(uri.str(), true);
 						thumbnailDownloads[i]->Start();
 					}
 				}
@@ -4638,24 +4638,24 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
 	}
 
-	Download *saveDataDownload, *saveInfoDownload, *thumbnailDownload = NULL, *commentsDownload = NULL;
+	Request *saveDataDownload, *saveInfoDownload, *thumbnailDownload = NULL, *commentsDownload = NULL;
 	//Begin Async loading of data
 	if (save_date)
 	{
 		// We're loading a historical save
 		std::stringstream uri;
 		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".cps";
-		saveDataDownload = new Download(uri.str());
+		saveDataDownload = new Request(uri.str());
 
 		uri.str("");
 		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".info";
-		saveInfoDownload = new Download(uri.str());
+		saveInfoDownload = new Request(uri.str());
 
 		if (!instant_open)
 		{
 			uri.str("");
 			uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << "_large.pti";
-			thumbnailDownload = new Download(uri.str());
+			thumbnailDownload = new Request(uri.str());
 		}
 	}
 	else
@@ -4663,17 +4663,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//We're loading a normal save
 		std::stringstream uri;
 		uri << "http://" << STATICSERVER << "/" << save_id << ".cps";
-		saveDataDownload = new Download(uri.str());
+		saveDataDownload = new Request(uri.str());
 
 		uri.str("");
 		uri << "http://" << STATICSERVER << "/" << save_id << ".info";
-		saveInfoDownload = new Download(uri.str());
+		saveInfoDownload = new Request(uri.str());
 
 		if (!instant_open)
 		{
 			uri.str("");
 			uri << "http://" << STATICSERVER << "/" << save_id << "_large.pti";
-			thumbnailDownload = new Download(uri.str());
+			thumbnailDownload = new Request(uri.str());
 		}
 	}
 	//authenticate requests
@@ -4688,7 +4688,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		std::stringstream uri;
 		uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-		commentsDownload = new Download(uri.str(), true);
+		commentsDownload = new Request(uri.str(), true);
 		commentsDownload->Start();
 
 		thumbnailDownload->Start();
@@ -4767,7 +4767,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							saveDataDownload->Cancel();
 						std::stringstream uri;
 						uri << "http://" << STATICSERVER << "/2157797.cps";
-						saveDataDownload = new Download(uri.str());
+						saveDataDownload = new Request(uri.str());
 						if (svf_login)
 							saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
 						saveDataDownload->Start();
@@ -4776,7 +4776,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						{
 							uri.str("");
 							uri << "http://" << STATICSERVER << "/2157797_large.pti";
-							thumbnailDownload = new Download(uri.str());
+							thumbnailDownload = new Request(uri.str());
 							thumbnailDownload->Start();
 						}
 
@@ -5918,14 +5918,14 @@ int search_results(char *str, int votes)
 int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 {
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), nullptr, &status, svf_user_id, svf_session_id, {
+	char *result = Request::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), nullptr, &status, svf_user_id, svf_session_id, {
 		{ "ID", svf_id },
 		{ "Tag", tag }
 	});
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 1;
@@ -5965,13 +5965,13 @@ int execute_save(pixel *vid_buf, Save *save)
 	}
 
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Save.api", nullptr, &status, svf_user_id, svf_session_id, postData);
+	char *result = Request::SimpleAuth("http://" SERVER "/Save.api", nullptr, &status, svf_user_id, svf_session_id, postData);
 
 	the_game->SetReloadPoint(save);
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 1;
@@ -6009,13 +6009,13 @@ int execute_save(pixel *vid_buf, Save *save)
 int execute_delete(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Delete.api", nullptr, &status, svf_user_id, svf_session_id, {
+	char *result = Request::SimpleAuth("http://" SERVER "/Delete.api", nullptr, &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6049,7 +6049,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 		return true;
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		return true;
 	}
 
@@ -6080,7 +6080,7 @@ bool ParseServerReturn(char *result, int status, bool json)
 			if (strstr(result, "Error: ") == result)
 			{
 				status = atoi(result + 7);
-				error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+				error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 				return true;
 			}
 			error_ui(vid_buf, 0, "Could not read response");
@@ -6105,7 +6105,7 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 
 	std::stringstream url;
 	url <<  "http://" << SERVER << "/Browse/Comments.json?ID=" << id;
-	Download *comment = new Download(url.str());
+	Request *comment = new Request(url.str());
 	comment->AuthHeaders(svf_user_id, svf_session_id);
 	comment->AddPostData(std::pair<std::string, std::string>("Comment", message));
 
@@ -6120,14 +6120,14 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 int execute_report(pixel *vid_buf, char *id, char *reason)
 {
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Report.api", nullptr, &status, svf_user_id, svf_session_id, {
+	char *result = Request::SimpleAuth("http://" SERVER "/Report.api", nullptr, &status, svf_user_id, svf_session_id, {
 		{ "ID", id },
 		{ "Reason", reason }
 	});
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6148,13 +6148,13 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 {
 	// TODO: does not work because of bug on starcatcher.us
 	int status;
-	char *result = Download::Simple("http://starcatcher.us/TPT/bagelreport.lua", nullptr, &status, {
+	char *result = Request::Simple("http://starcatcher.us/TPT/bagelreport.lua", nullptr, &status, {
 		{ "bug", feedback }
 	 });
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return 0;
@@ -6174,13 +6174,13 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 void execute_fav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Favourite.api", nullptr, &status, svf_user_id, svf_session_id, {
+	char *result = Request::SimpleAuth("http://" SERVER "/Favourite.api", nullptr, &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return;
@@ -6199,13 +6199,13 @@ void execute_fav(pixel *vid_buf, char *id)
 void execute_unfav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Download::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", nullptr, &status, svf_user_id, svf_session_id, {
+	char *result = Request::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", nullptr, &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
-		error_ui(vid_buf, status, Download::GetStatusCodeDesc(status));
+		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 		if (result)
 			free(result);
 		return;

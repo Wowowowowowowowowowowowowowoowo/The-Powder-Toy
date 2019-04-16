@@ -8,7 +8,7 @@
 #include "graphics/Pixel.h"
 
 class Button;
-class Download;
+class Request;
 class ToolTip;
 class Save;
 class Simulation;
@@ -30,9 +30,9 @@ private:
 	Button * AddNotification(std::string message, std::function<void(int)> callback);
 
 	// website stuff
-	Download *versionCheck;
-	Download *sessionCheck; // really a tpt++ version check but it does session too and has nice things
-	Download *voteDownload;
+	Request *versionCheck;
+	Request *sessionCheck; // really a tpt++ version check but it does session too and has nice things
+	Request *voteDownload;
 	bool delayedHttpChecks;
 	void DelayedHttpInitialization();
 
