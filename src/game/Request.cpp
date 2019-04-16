@@ -8,16 +8,16 @@
 Request::Request(std::string uri, bool keepAlive):
 	http(NULL),
 	keepAlive(keepAlive),
-	downloadData(NULL),
-	downloadSize(0),
-	downloadStatus(0),
+	requestData(NULL),
+	RequestSize(0),
+	requestStatus(0),
 	postData(""),
 	postDataBoundary(""),
 	userID(NULL),
 	userSession(NULL),
-	downloadFinished(false),
-	downloadCanceled(false),
-	downloadStarted(false)
+	requestFinished(false),
+	requestCanceled(false),
+	requestStarted(false)
 {
 	this->uri = std::string(uri);
 	RequestManager::Ref().AddDownload(this);
@@ -26,10 +26,10 @@ Request::Request(std::string uri, bool keepAlive):
 // called by download thread itself if download was canceled
 Request::~Request()
 {
-	if (http && (keepAlive || downloadCanceled))
+	if (http && (keepAlive || requestCanceled))
 		http_async_req_close(http);
-	if (downloadData)
-		free(downloadData);
+	if (requestData)
+		free(requestData);
 }
 
 // add post data to a request
@@ -64,7 +64,7 @@ void Request::Start()
 	if (postDataBoundary.length())
 		http_add_multipart_header(http, postDataBoundary);
 	RequestManager::Ref().Lock();
-	downloadStarted = true;
+	requestStarted = true;
 	RequestManager::Ref().Unlock();
 }
 
@@ -77,7 +77,7 @@ bool Request::Reuse(std::string newuri)
 	}
 	uri = std::string(newuri);
 	RequestManager::Ref().Lock();
-	downloadFinished = false;
+	requestFinished = false;
 	RequestManager::Ref().Unlock();
 	Start();
 	RequestManager::Ref().EnsureRunning();
@@ -91,15 +91,15 @@ char* Request::Finish(int *length, int *status)
 		return NULL; // shouldn't happen but just in case
 	while (!CheckDone()); // block
 	RequestManager::Ref().Lock();
-	downloadStarted = false;
+	requestStarted = false;
 	if (length)
-		*length = downloadSize;
+		*length = RequestSize;
 	if (status)
-		*status = downloadStatus;
-	char *ret = downloadData;
-	downloadData = NULL;
+		*status = requestStatus;
+	char *ret = requestData;
+	requestData = NULL;
 	if (!keepAlive)
-		downloadCanceled = true;
+		requestCanceled = true;
 	RequestManager::Ref().Unlock();
 	return ret;
 }
@@ -108,7 +108,7 @@ char* Request::Finish(int *length, int *status)
 void Request::CheckProgress(int *total, int *done)
 {
 	RequestManager::Ref().Lock();
-	if (!downloadFinished && http)
+	if (!requestFinished && http)
 		http_async_get_length(http, total, done);
 	else
 		*total = *done = 0;
@@ -119,7 +119,7 @@ void Request::CheckProgress(int *total, int *done)
 bool Request::CheckDone()
 {
 	RequestManager::Ref().Lock();
-	bool ret = downloadFinished;
+	bool ret = requestFinished;
 	RequestManager::Ref().Unlock();
 	return ret;
 }
@@ -128,7 +128,7 @@ bool Request::CheckDone()
 bool Request::CheckCanceled()
 {
 	RequestManager::Ref().Lock();
-	bool ret = downloadCanceled;
+	bool ret = requestCanceled;
 	RequestManager::Ref().Unlock();
 	return ret;
 }
@@ -137,7 +137,7 @@ bool Request::CheckCanceled()
 bool Request::CheckStarted()
 {
 	RequestManager::Ref().Lock();
-	bool ret = downloadStarted;
+	bool ret = requestStarted;
 	RequestManager::Ref().Unlock();
 	return ret;
 }
@@ -146,7 +146,7 @@ bool Request::CheckStarted()
 void Request::Cancel()
 {
 	RequestManager::Ref().Lock();
-	downloadCanceled = true;
+	requestCanceled = true;
 	RequestManager::Ref().Unlock();
 }
 

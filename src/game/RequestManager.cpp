@@ -9,13 +9,13 @@ RequestManager::RequestManager():
 	lastUsed(time(NULL)),
 	managerRunning(false),
 	managerShutdown(false),
-	downloads(std::vector<Request*>()),
+	requests(std::vector<Request*>()),
 	downloadsAddQueue(std::vector<Request*>())
 {
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
-	pthread_mutex_init(&downloadLock, NULL);
-	pthread_mutex_init(&downloadAddLock, NULL);
+	pthread_mutex_init(&requestLock, NULL);
+	pthread_mutex_init(&requestAddLock, NULL);
 }
 
 RequestManager::~RequestManager()
@@ -25,22 +25,22 @@ RequestManager::~RequestManager()
 
 void RequestManager::Shutdown()
 {
-	pthread_mutex_lock(&downloadLock);
-	pthread_mutex_lock(&downloadAddLock);
-	for (std::vector<Request*>::iterator iter = downloads.begin(); iter != downloads.end(); ++iter)
+	pthread_mutex_lock(&requestLock);
+	pthread_mutex_lock(&requestAddLock);
+	for (std::vector<Request*>::iterator iter = requests.begin(); iter != requests.end(); ++iter)
 	{
 		Request *download = (*iter);
 		if (download->http)
 			http_force_close(download->http);
-		download->downloadCanceled = true;
+		download->requestCanceled = true;
 		delete download;
 	}
-	downloads.clear();
+	requests.clear();
 	downloadsAddQueue.clear();
 	managerShutdown = true;
-	pthread_mutex_unlock(&downloadAddLock);
-	pthread_mutex_unlock(&downloadLock);
-	pthread_join(downloadThread, NULL);
+	pthread_mutex_unlock(&requestAddLock);
+	pthread_mutex_unlock(&requestLock);
+	pthread_join(requestThread, NULL);
 
 	http_done();
 }
@@ -57,7 +57,7 @@ void RequestManager::Start()
 {
 	managerRunning = true;
 	lastUsed = time(NULL);
-	pthread_create(&downloadThread, NULL, &DownloadManagerHelper, this);
+	pthread_create(&requestThread, NULL, &DownloadManagerHelper, this);
 }
 
 void RequestManager::Update()
@@ -65,37 +65,37 @@ void RequestManager::Update()
 	unsigned int numActiveDownloads;
 	while (!managerShutdown)
 	{
-		pthread_mutex_lock(&downloadAddLock);
+		pthread_mutex_lock(&requestAddLock);
 		if (downloadsAddQueue.size())
 		{
 			for (size_t i = 0; i < downloadsAddQueue.size(); i++)
 			{
-				downloads.push_back(downloadsAddQueue[i]);
+				requests.push_back(downloadsAddQueue[i]);
 			}
 			downloadsAddQueue.clear();
 		}
-		pthread_mutex_unlock(&downloadAddLock);
-		if (downloads.size())
+		pthread_mutex_unlock(&requestAddLock);
+		if (requests.size())
 		{
 			numActiveDownloads = 0;
-			pthread_mutex_lock(&downloadLock);
-			for (size_t i = 0; i < downloads.size(); i++)
+			pthread_mutex_lock(&requestLock);
+			for (size_t i = 0; i < requests.size(); i++)
 			{
-				Request *download = downloads[i];
+				Request *download = requests[i];
 				if (download->CheckCanceled())
 				{
 					if (download->http && download->CheckStarted())
 						http_force_close(download->http);
 					delete download;
-					downloads.erase(downloads.begin()+i);
+					requests.erase(requests.begin()+i);
 					i--;
 				}
 				else if (download->CheckStarted() && !download->CheckDone())
 				{
 					if (http_async_req_status(download->http) != 0)
 					{
-						download->downloadData = http_async_req_stop(download->http, &download->downloadStatus, &download->downloadSize);
-						download->downloadFinished = true;
+						download->requestData = http_async_req_stop(download->http, &download->requestStatus, &download->RequestSize);
+						download->requestFinished = true;
 						if (!download->keepAlive)
 							download->http = NULL;
 					}
@@ -103,13 +103,13 @@ void RequestManager::Update()
 					numActiveDownloads++;
 				}
 			}
-			pthread_mutex_unlock(&downloadLock);
+			pthread_mutex_unlock(&requestLock);
 		}
 		if (time(NULL) > lastUsed+HTTP_TIMEOUT*2 && !numActiveDownloads)
 		{
-			pthread_mutex_lock(&downloadLock);
+			pthread_mutex_lock(&requestLock);
 			managerRunning = false;
-			pthread_mutex_unlock(&downloadLock);
+			pthread_mutex_unlock(&requestLock);
 			return;
 		}
 		Platform::Millisleep(1);
@@ -118,32 +118,32 @@ void RequestManager::Update()
 
 void RequestManager::EnsureRunning()
 {
-	pthread_mutex_lock(&downloadLock);
+	pthread_mutex_lock(&requestLock);
 	if (!managerRunning)
 	{
 		if (threadStarted)
-			pthread_join(downloadThread, NULL);
+			pthread_join(requestThread, NULL);
 		else
 			threadStarted = true;
 		Start();
 	}
-	pthread_mutex_unlock(&downloadLock);
+	pthread_mutex_unlock(&requestLock);
 }
 
 void RequestManager::AddDownload(Request *download)
 {
-	pthread_mutex_lock(&downloadAddLock);
+	pthread_mutex_lock(&requestAddLock);
 	downloadsAddQueue.push_back(download);
-	pthread_mutex_unlock(&downloadAddLock);
+	pthread_mutex_unlock(&requestAddLock);
 	EnsureRunning();
 }
 
 void RequestManager::Lock()
 {
-	pthread_mutex_lock(&downloadAddLock);
+	pthread_mutex_lock(&requestAddLock);
 }
 
 void RequestManager::Unlock()
 {
-	pthread_mutex_unlock(&downloadAddLock);
+	pthread_mutex_unlock(&requestAddLock);
 }

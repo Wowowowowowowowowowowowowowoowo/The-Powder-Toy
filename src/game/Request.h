@@ -1,5 +1,5 @@
-#ifndef DOWNLOAD_H
-#define DOWNLOAD_H
+#ifndef REQUEST_H
+#define REQUEST_H
 #include <map>
 #include <string>
 
@@ -10,9 +10,9 @@ class Request
 	void *http;
 	bool keepAlive;
 
-	char *downloadData;
-	int downloadSize;
-	int downloadStatus;
+	char *requestData;
+	int RequestSize;
+	int requestStatus;
 
 	std::string postData;
 	std::string postDataBoundary;
@@ -20,9 +20,9 @@ class Request
 	const char *userID;
 	const char *userSession;
 
-	volatile bool downloadFinished;
-	volatile bool downloadCanceled;
-	volatile bool downloadStarted;
+	volatile bool requestFinished;
+	volatile bool requestCanceled;
+	volatile bool requestStarted;
 
 public:
 	Request(std::string uri, bool keepAlive = false);
