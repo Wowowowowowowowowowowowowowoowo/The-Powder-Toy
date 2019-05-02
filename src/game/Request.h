@@ -1,39 +1,43 @@
 #ifndef REQUEST_H
 #define REQUEST_H
+
 #include <map>
 #include <string>
+#include <curl/curl.h>
 
 class RequestManager;
 class Request
 {
 	std::string uri;
-	void *http;
-	bool keepAlive;
+	std::string response_body;
 
-	char *requestData;
-	int RequestSize;
-	int requestStatus;
+	CURL *easy;
 
-	std::string postData;
-	std::string postDataBoundary;
+	volatile curl_off_t rm_total;
+	volatile curl_off_t rm_done;
+	volatile bool rm_finished;
+	volatile bool rm_canceled;
+	volatile bool rm_started;
+	pthread_mutex_t rm_mutex;
 
-	const char *userID;
-	const char *userSession;
+	bool added_to_multi;
+	int status;
 
-	volatile bool requestFinished;
-	volatile bool requestCanceled;
-	volatile bool requestStarted;
+	struct curl_slist *headers;
+	curl_mime *post_fields;
+
+	pthread_cond_t done_cv;
 
 public:
-	Request(std::string uri, bool keepAlive = false);
-	~Request();
+	Request(std::string uri);
+	virtual ~Request();
 
+	void AddHeader(std::string name, std::string value);
 	void AddPostData(std::map<std::string, std::string> data);
-	void AddPostData(std::pair<std::string, std::string> data);
-	void AuthHeaders(const char *ID, const char *session);
+	void AuthHeaders(std::string ID, std::string session);
+
 	void Start();
-	bool Reuse(std::string newuri);
-	char* Finish(int *length, int *status);
+	std::string Finish(int *status);
 	void Cancel();
 
 	void CheckProgress(int *total, int *done);
@@ -41,12 +45,16 @@ public:
 	bool CheckCanceled();
 	bool CheckStarted();
 
-	static std::string GetStatusCodeDesc(int code);
-
-	static char* Simple(std::string uri, int *length, int *status, std::map<std::string, std::string> post_data = std::map<std::string, std::string>{});
-	static char* SimpleAuth(std::string uri, int *length, int *status, const char *ID, const char *session, std::map<std::string, std::string> post_data = std::map<std::string, std::string>{});
-
 	friend class RequestManager;
+
+	static std::string Simple(std::string uri, int *status, std::map<std::string, std::string> post_data = std::map<std::string, std::string>{});
+	static std::string SimpleAuth(std::string uri, int *status, std::string ID, std::string session, std::map<std::string, std::string> post_data = std::map<std::string, std::string>{});
+
+	static std::string GetStatusCodeDesc(int code);
 };
 
-#endif
+extern const long timeout;
+extern std::string proxy;
+extern std::string user_agent;
+
+#endif // REQUEST_H

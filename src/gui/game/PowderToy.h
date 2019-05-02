@@ -30,9 +30,9 @@ private:
 	Button * AddNotification(std::string message, std::function<void(int)> callback);
 
 	// website stuff
-	Request *versionCheck;
-	Request *sessionCheck; // really a tpt++ version check but it does session too and has nice things
-	Request *voteDownload;
+	Request *versionCheck = nullptr;
+	Request *sessionCheck = nullptr; // really a tpt++ version check but it does session too and has nice things
+	Request *voteDownload = nullptr;
 	bool delayedHttpChecks;
 	void DelayedHttpInitialization();
 

@@ -1,39 +1,45 @@
 #ifndef REQUESTMANAGER_H
 #define REQUESTMANAGER_H
+
 #include "common/tpt-thread.h"
-#include <time.h>
-#include <vector>
+#include <ctime>
+#include <set>
+#include <string>
+#include <curl/curl.h>
 #include "common/Singleton.h"
 
 class Request;
 class RequestManager : public Singleton<RequestManager>
 {
-private:
-	pthread_t requestThread;
-	pthread_mutex_t requestLock;
-	pthread_mutex_t requestAddLock;
-	bool threadStarted;
+	pthread_t worker_thread;
+	std::set<Request *> requests;
 
-	int lastUsed;
-	volatile bool managerRunning;
-	volatile bool managerShutdown;
-	std::vector<Request*> requests;
-	std::vector<Request*> downloadsAddQueue;
+	std::set<Request *> requests_to_add;
+	std::set<Request *> requests_to_remove;
+	bool rt_shutting_down;
+	pthread_mutex_t rt_mutex;
+	pthread_cond_t rt_cv;
+
+	CURLM *multi;
 
 	void Start();
+	void Worker();
+	void AddRequest(Request *request);
+
+	static TH_ENTRY_POINT void *RequestManagerHelper(void *obj);
+
 public:
 	RequestManager();
 	~RequestManager();
 
+	void Initialise(std::string proxy);
 	void Shutdown();
-	void Update();
-	void EnsureRunning();
 
-	void AddDownload(Request *download);
-	void RemoveDownload(int id);
-
-	void Lock();
-	void Unlock();
+	friend class Request;
 };
+
+extern const long timeout;
+extern std::string proxy;
+extern std::string user_agent;
 
 #endif // REQUESTMANAGER_H

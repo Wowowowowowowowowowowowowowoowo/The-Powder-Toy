@@ -76,10 +76,9 @@ void ProfileViewer::OnTick(uint32_t ticks)
 {
 	if (profileInfoDownload && profileInfoDownload->CheckDone())
 	{
-		int length, status;
-		char *data = profileInfoDownload->Finish(&length, &status);
+		std::string data = profileInfoDownload->Finish(nullptr);
 
-		if (data)
+		if (!data.empty())
 		{
 			std::istringstream datastream(data);
 			Json::Value root;
@@ -154,18 +153,16 @@ void ProfileViewer::OnTick(uint32_t ticks)
 			scrollArea->AddComponent(biographyLabel);
 		}
 
-		free(data);
 		profileInfoDownload = NULL;
 	}
 
 	if (avatarDownload && avatarDownload->CheckDone())
 	{
-		int length;
-		char *data = avatarDownload->Finish(&length, NULL);
-		if (data)
+		std::string data = avatarDownload->Finish(nullptr);
+		if (data.length())
 		{
 			int w, h;
-			avatar = ptif_unpack(data, length, &w, &h);
+			avatar = ptif_unpack((char*)data.c_str(), data.length(), &w, &h);
 			if (w != 40 || h != 40)
 			{
 				free(avatar);
@@ -173,7 +170,6 @@ void ProfileViewer::OnTick(uint32_t ticks)
 			}
 		}
 
-		free(data);
 		avatarDownload = NULL;
 	}
 }
@@ -218,8 +214,8 @@ void ProfileViewer::SaveProfile()
 
 	profileSaveDownload->Start();
 	int status;
-	char * ret = profileSaveDownload->Finish(NULL, &status);
-	ParseServerReturn(ret, status, true);
+	std::string ret = profileSaveDownload->Finish(&status);
+	ParseServerReturn((char*)ret.c_str(), status, true);
 }
 
 void ProfileViewer::OpenProfile()

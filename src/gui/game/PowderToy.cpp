@@ -137,23 +137,6 @@ PowderToy::PowderToy():
 
 	load_presets();
 
-	if (doUpdates)
-	{
-		versionCheck = new Request("http://" UPDATESERVER "/Startup.json");
-		if (svf_login)
-			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
-	}
-	else
-		versionCheck = NULL;
-
-	if (svf_login)
-	{
-		sessionCheck = new Request("http://" SERVER "/Startup.json");
-		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
-	}
-	else
-		sessionCheck = NULL;
-
 	// start placing the bottom row of buttons, starting from the left
 #ifdef TOUCHUI
 	const int ySize = 20;
@@ -299,10 +282,20 @@ PowderToy::PowderToy():
 
 void PowderToy::DelayedHttpInitialization()
 {
-	if (versionCheck)
+	if (doUpdates)
+	{
+		versionCheck = new Request("http://" UPDATESERVER "/Startup.json");
+		if (svf_login)
+			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		versionCheck->Start();
-	if (sessionCheck)
+	}
+
+	if (svf_login)
+	{
+		sessionCheck = new Request("http://" SERVER "/Startup.json");
+		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
 		sessionCheck->Start();
+	}
 }
 
 void PowderToy::OpenBrowserBtn(unsigned char b)
@@ -1025,8 +1018,8 @@ void PowderToy::OnTick(uint32_t ticks)
 	if (versionCheck && versionCheck->CheckDone())
 	{
 		int status = 200;
-		char *ret = versionCheck->Finish(NULL, &status);
-		if (status != 200 || ParseServerReturn(ret, status, true))
+		std::string ret = versionCheck->Finish(&status);
+		if (status != 200 || ParseServerReturn((char*)ret.c_str(), status, true))
 		{
 #ifndef ANDROID
 			if (status != 503)
@@ -1090,15 +1083,14 @@ void PowderToy::OnTick(uint32_t ticks)
 				UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 			}
 		}
-		free(ret);
 		versionCheck = NULL;
 	}
 	if (sessionCheck && sessionCheck->CheckDone())
 	{
 		int status = 200;
-		char *ret = sessionCheck->Finish(NULL, &status);
+		std::string ret = sessionCheck->Finish(&status);
 		// ignore timeout errors or others, since the user didn't actually click anything
-		if (status != 200 || ParseServerReturn(ret, status, true))
+		if (status != 200 || ParseServerReturn((char*)ret.c_str(), status, true))
 		{
 			// key icon changes to red
 			loginFinished = -1;
@@ -1147,7 +1139,6 @@ void PowderToy::OnTick(uint32_t ticks)
 				loginFinished = -1;
 			}
 		}
-		free(ret);
 		sessionCheck = NULL;
 	}
 	// delay these a frame, due to the way startup initializatin is ordered
@@ -1160,12 +1151,11 @@ void PowderToy::OnTick(uint32_t ticks)
 	if (voteDownload && voteDownload->CheckDone())
 	{
 		int status;
-		char *ret = voteDownload->Finish(NULL, &status);
-		if (ParseServerReturn(ret, status, false))
+		std::string ret = voteDownload->Finish(&status);
+		if (ParseServerReturn((char*)ret.c_str(), status, false))
 			svf_myvote = 0;
 		else
 			SetInfoTip("Voted Successfully");
-		free(ret);
 		voteDownload = NULL;
 	}
 

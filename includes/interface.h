@@ -237,7 +237,7 @@ void error_ui(pixel *vid_buf, int err, std::string txt);
 
 void element_search_ui(pixel *vid_buf, Tool** sl, Tool** sr);
 
-void info_ui(pixel *vid_buf, const char *top, const char *txt);
+void info_ui(pixel *vid_buf, std::string top, std::string txt);
 
 void copytext_ui(pixel *vid_buf, const char *top, const char *txt, const char *copytxt);
 

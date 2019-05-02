@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <list>
 #include <sstream>
 #include <set>
 #include <cmath>
@@ -1689,7 +1690,7 @@ exit:
 	}
 }
 
-void info_ui(pixel *vid_buf, const char *top, const char *txt)
+void info_ui(pixel *vid_buf, std::string top, std::string txt)
 {
 	int x0=(XRES-240)/2,y0=(YRES-MENUSIZE)/2,b=1,bq,mx,my;
 
@@ -1707,8 +1708,8 @@ void info_ui(pixel *vid_buf, const char *top, const char *txt)
 
 		clearrect(vid_buf, x0-1, y0-1, 243, 63);
 		drawrect(vid_buf, x0, y0, 240, 60, 192, 192, 192, 255);
-		drawtext(vid_buf, x0+8, y0+8, top, 160, 160, 255, 255);
-		drawtext(vid_buf, x0+8, y0+26, txt, 255, 255, 255, 255);
+		drawtext(vid_buf, x0+8, y0+8, top.c_str(), 160, 160, 255, 255);
+		drawtext(vid_buf, x0+8, y0+26, txt.c_str(), 255, 255, 255, 255);
 		drawtext(vid_buf, x0+5, y0+49, "OK", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+44, 240, 16, 192, 192, 192, 255);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
@@ -2015,14 +2016,14 @@ bool login_ui(pixel *vid_buf)
 	// new scope because of goto warning
 	{
 		int status;
-		char *data = Request::SimpleAuth("http://" SERVER "/Login.json", nullptr, &status, svf_user_id, svf_session_id, {
+		std::string data = Request::SimpleAuth("http://" SERVER "/Login.json", &status, svf_user_id, svf_session_id, {
 			{ "Username", svf_user },
 			{ "Hash", totalHash },
 		});
-		if (status == 200 && data)
+		if (status == 200 && !data.empty())
 		{
 			cJSON *root, *tmpobj;//, *notificationarray, *notificationobj;
-			if ((root = cJSON_Parse((const char*)data)))
+			if ((root = cJSON_Parse(data.c_str())))
 			{
 				tmpobj = cJSON_GetObjectItem(root, "Status");
 				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint == 1)
@@ -2078,8 +2079,6 @@ bool login_ui(pixel *vid_buf)
 					}
 					else
 						error_ui(vid_buf, 0, "Could not read Error response");
-					if (data)
-						free(data);
 					goto fail;
 				}
 			}
@@ -2094,8 +2093,6 @@ bool login_ui(pixel *vid_buf)
 			error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
 			goto fail;
 		}
-		if (data)
-			free(data);
 		return true;
 	}
 
@@ -3485,6 +3482,19 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 	}
 }
 
+struct thumbDownloadInfo
+{
+	Request *req;
+	char *imgId;
+	int pos;
+
+	thumbDownloadInfo(Request *req, char *imgId, int pos):
+		req(req),
+		imgId(imgId),
+		pos(pos)
+	{}
+};
+
 int search_ui(pixel *vid_buf)
 {
 	int uih=0,nyu,nyd,b=1,bq,mx=0,my=0,mxq=0,myq=0,mmt=0,gi,gj,gx,gy,pos,i,mp,dp,dap,own,last_own=search_own,last_fav=search_fav,page_count=0,last_page=0,last_date=0,j,w,h,st=0,lv;
@@ -3510,17 +3520,13 @@ int search_ui(pixel *vid_buf)
 	Request *saveListDownload = NULL;
 	char *last = NULL;
 	int search = 0;
-
-	Request *thumbnailDownloads[IMGCONNS];
-	for (int i = 0; i < IMGCONNS; i++)
-		thumbnailDownloads[i] = NULL;
-	char *img_id[IMGCONNS];
+	std::list<thumbDownloadInfo> thumbDownloads;
 
 	if (!v_buf)
 		return 0;
 	memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 
-	memset(img_id, 0, sizeof(img_id));
+	//memset(img_id, 0, sizeof(img_id));
 
 	memset(search_ids, 0, sizeof(search_ids));
 	memset(search_dates, 0, sizeof(search_dates));
@@ -4129,26 +4135,25 @@ int search_ui(pixel *vid_buf)
 			if (search_date)
 				uri << " sort:date";
 
-			if (!saveListDownload)
-			{
-				saveListDownload = new Request(uri.str(), true);
-				if (svf_login)
-					saveListDownload->AuthHeaders(svf_user_id, svf_session_id);
-				saveListDownload->Start();
-			}
-			else
-				saveListDownload->Reuse(uri.str());
+			if (saveListDownload)
+				saveListDownload->Cancel();
+			saveListDownload = new Request(uri.str());
+			if (svf_login)
+				saveListDownload->AuthHeaders(svf_user_id, svf_session_id);
+			saveListDownload->Start();
+			search = 0;
 		}
 
 		if (saveListDownload && saveListDownload->CheckStarted() && saveListDownload->CheckDone())
 		{
 			int status;
-			char *results = saveListDownload->Finish(NULL, &status);
+			std::string resultsStr = saveListDownload->Finish(&status);
+			const char *results = resultsStr.c_str();
 			is_p1 = (exp_res < GRID_X*GRID_Y);
 			touchOffset = 0;
 			if (status == 200)
 			{
-				page_count = search_results(results, true);
+				page_count = search_results((char*)results, true);
 				memset(thumb_drawn, 0, sizeof(thumb_drawn));
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 #ifndef TOUCHUI
@@ -4164,132 +4169,59 @@ int search_ui(pixel *vid_buf)
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
 			}
-			if (results)
-				free(results);
-			for (int i = 0; i < IMGCONNS; i++)
+			for (auto requestPair : thumbDownloads)
 			{
-				if (thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted())
+				free(requestPair.imgId);
+				requestPair.req->Cancel();
+			}
+			thumbDownloads.clear();
+			for (pos=0; pos<GRID_X*GRID_Y; pos++)
+			{
+				std::stringstream uri;
+				char *imgID;
+				if (search_dates[pos])
 				{
-					thumbnailDownloads[i]->Cancel();
-					thumbnailDownloads[i] = NULL;
-					if (img_id[i])
-					{
-						free(img_id[i]);
-						img_id[i] = NULL;
-					}
+					std::stringstream tempID;
+					tempID << search_ids[pos] << "_" << search_dates[pos];
+					imgID = mystrdup(tempID.str().c_str());
+					uri << "http://" << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
 				}
+				else
+				{
+					imgID = mystrdup(search_ids[pos]);
+					uri << "http://" STATICSERVER "/" << search_ids[pos] << "_small.pti";
+				}
+				if (imgID && !thumb_cache_find(imgID, search_thumbs + pos, search_thsizes + pos))
+				{
+					Request *req = new Request(uri.str());
+					req->Start();
+					thumbDownloads.push_back(thumbDownloadInfo(req, imgID, pos));
+				}
+				saveListDownload = nullptr;
 			}
 		}
 
-		for (i=0; i<IMGCONNS; i++)
+		for (auto iter = thumbDownloads.begin(), end = thumbDownloads.end(); iter != end;)
 		{
-			if (thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted() && thumbnailDownloads[i]->CheckDone())
+			if (iter->req->CheckDone())
 			{
-				int status, len;
-				char *thumb = thumbnailDownloads[i]->Finish(&len, &status);
-				if (status != 200 || !thumb)
+				int status;
+				std::string thumbStr = iter->req->Finish(&status);
+				char *thumb = (char*)malloc(thumbStr.size() + 1);// mystrdup(thumbStr.c_str());
+				memcpy(thumb, thumbStr.c_str(), thumbStr.size());
+				int len = thumbStr.size();
+				if (thumb && status == 200)
 				{
-					if (thumb)
-						free(thumb);
-					thumb = NULL;
+					thumb_cache_add(iter->imgId, thumb, len);
+					int pos = iter->pos;
+					search_thumbs[pos] = thumb;
+					search_thsizes[pos] = len;
 				}
-				else
-					thumb_cache_add(img_id[i], thumb, len);
-				for (pos=0; pos<GRID_X*GRID_Y; pos++) {
-					if (search_dates[pos]) {
-						char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
-						if (id_d_temp == 0)
-						{
-							break;
-						}
-						strcpy(id_d_temp, search_ids[pos]);
-						strappend(id_d_temp, "_");
-						strappend(id_d_temp, search_dates[pos]);
-						//img_id[i] = mystrdup(id_d_temp);
-						if (!strcmp(id_d_temp, img_id[i]) && !search_thumbs[pos]) {
-							break;
-						}
-						free(id_d_temp);
-					} else {
-						if (search_ids[pos] && !strcmp(search_ids[pos], img_id[i])) {
-							break;
-						}
-					}
-				}
-				if (thumb)
-				{
-					if (pos<GRID_X*GRID_Y)
-					{
-						search_thumbs[pos] = thumb;
-						search_thsizes[pos] = len;
-					}
-					else
-						free(thumb);
-				}
-				free(img_id[i]);
-				img_id[i] = NULL;
+				free(iter->imgId);
+				iter = thumbDownloads.erase(iter);
 			}
-			if (!img_id[i] && !(saveListDownload && saveListDownload->CheckStarted()))
-			{
-				for (pos=0; pos<GRID_X*GRID_Y; pos++)
-					if (search_ids[pos] && !search_thumbs[pos])
-					{
-						if (search_dates[pos])
-						{
-							char *id_d_temp = (char*)malloc(strlen(search_ids[pos])+strlen(search_dates[pos])+2);
-							strcpy(id_d_temp, search_ids[pos]);
-							strappend(id_d_temp, "_");
-							strappend(id_d_temp, search_dates[pos]);
-							
-							for (gi=0; gi<IMGCONNS; gi++)
-								if (img_id[gi] && !strcmp(id_d_temp, img_id[gi]))
-									break;
-									
-							free(id_d_temp);
-						}
-						else
-						{
-							for (gi=0; gi<IMGCONNS; gi++)
-								if (img_id[gi] && !strcmp(search_ids[pos], img_id[gi]))
-									break;
-						}
-						if (gi<IMGCONNS)
-							continue;
-						break;
-					}
-				if (pos<GRID_X*GRID_Y)
-				{
-					std::stringstream uri;
-					if (search_dates[pos])
-					{
-						std::stringstream tempID;
-						tempID << search_ids[pos] << "_" << search_dates[pos];
-						img_id[i] = mystrdup(tempID.str().c_str());
-						uri << "http://" << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
-					}
-					else
-					{
-						img_id[i] = mystrdup(search_ids[pos]);
-						uri << "http://" STATICSERVER "/" << search_ids[pos] << "_small.pti";
-					}
-					if (thumbnailDownloads[i] && !thumbnailDownloads[i]->CheckStarted())
-					{
-						thumbnailDownloads[i]->Reuse(uri.str());
-					}
-					else
-					{
-						if (thumbnailDownloads[i])
-							thumbnailDownloads[i]->Cancel();
-						thumbnailDownloads[i] = new Request(uri.str(), true);
-						thumbnailDownloads[i]->Start();
-					}
-				}
-			}
-			if (!img_id[i] && thumbnailDownloads[i] && thumbnailDownloads[i]->CheckStarted())
-			{
-				thumbnailDownloads[i]->Cancel();
-				thumbnailDownloads[i] = NULL;
-			}
+			else
+				++iter;
 		}
 	}
 
@@ -4299,15 +4231,10 @@ finish:
 		free(last);
 	if (saveListDownload)
 		saveListDownload->Cancel();
-	for (int i = 0; i < IMGCONNS; i++)
+	for (auto requestPair : thumbDownloads)
 	{
-		if (thumbnailDownloads[i])
-			thumbnailDownloads[i]->Cancel();
-		if (img_id[i])
-		{
-			free(img_id[i]);
-			img_id[i] = NULL;
-		}
+		free(requestPair.imgId);
+		requestPair.req->Cancel();
 	}
 			
 	if(bthumb_rsdata){
@@ -4535,8 +4462,9 @@ float scrollDeceleration = 0.95f;
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
-	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,full_thumb_data_size=0,retval=0,bc=255,openable=1;
+	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, disable_scrolling = 0;
+	Save *save = nullptr;
 #ifdef TOUCHUI
 	int lastY = 0;
 	bool scrolling = false;
@@ -4547,7 +4475,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	int nyd,nyu,lv;
 	float ryf, scroll_velocity = 0.0f;
 
-	char *data = NULL;
 	save_info *info = (save_info*)calloc(sizeof(save_info), 1);
 	int lasttime = TIMEOUT, saveTotal, saveDone, infoTotal, infoDone, downloadDone, downloadTotal;
 	int info_ready = 0, data_ready = 0, thumb_data_ready = 0;
@@ -4688,7 +4615,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		std::stringstream uri;
 		uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-		commentsDownload = new Request(uri.str(), true);
+		commentsDownload = new Request(uri.str());
 		commentsDownload->Start();
 
 		thumbnailDownload->Start();
@@ -4704,17 +4631,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (saveDataDownload->CheckDone())
 			{
 				int imgh, imgw, status;
-				data = saveDataDownload->Finish(&data_size, &status);
-				saveDone = saveTotal = data_size;
+				std::string data = saveDataDownload->Finish(&status);
+				saveDone = saveTotal = data.length();
 				if (status == 200)
 				{
 					pixel *full_save;
-					if (!data || !data_size)
+					if (data.empty())
 					{
 						error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
 						break;
 					}
-					full_save = prerender_save(data, data_size, &imgw, &imgh);
+					full_save = prerender_save((char*)data.c_str(), data.length(), &imgw, &imgh);
 					if (full_save)
 					{
 						//save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
@@ -4728,6 +4655,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 				}
 				saveDataDownload = NULL;
+				save = new Save(data.c_str(), data.length());
 			}
 			else
 				saveDataDownload->CheckProgress(&saveTotal, &saveDone);
@@ -4737,11 +4665,11 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (saveInfoDownload->CheckDone())
 			{
 				int status;
-				char *info_data = saveInfoDownload->Finish(&infoTotal, &status);
-				infoDone = infoTotal;
-				if (status == 200 || !info_data)
+				std::string info_data = saveInfoDownload->Finish(&status);
+				infoDone = info_data.length();
+				if (status == 200 || !infoDone)
 				{
-					info_ready = info_parse(info_data, info);
+					info_ready = info_parse(info_data.c_str(), info);
 					sprintf(viewcountbuffer, "%d", info->downloadcount);
 					if (info_ready <= 0)
 					{
@@ -4784,9 +4712,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						fake404save = true;
 					}
 				}
-				if (info_data)
-					free(info_data);
-				saveInfoDownload = NULL;
+				saveInfoDownload = nullptr;
 			}
 			else
 				saveInfoDownload->CheckProgress(&infoTotal, &infoDone);
@@ -4794,18 +4720,18 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		if (thumbnailDownload && thumbnailDownload->CheckDone())
 		{
 			int imgh, imgw, status;
-			char *thumb_data_full = thumbnailDownload->Finish(&full_thumb_data_size, &status);
+			std::string thumb_data_full = thumbnailDownload->Finish(&status);
 			if (status == 200)
 			{
 				pixel *full_thumb;
-				if (!thumb_data_full || !full_thumb_data_size)
+				if (thumb_data_full.empty())
 				{
 					//error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
 					//break;
 				}
 				else
 				{
-					full_thumb = ptif_unpack(thumb_data_full, full_thumb_data_size, &imgw, &imgh);//prerender_save(data, data_size, &imgw, &imgh);
+					full_thumb = ptif_unpack((char*)thumb_data_full.c_str(), thumb_data_full.length(), &imgw, &imgh);
 					if (full_thumb)
 					{
 						save_pic = resample_img(full_thumb, imgw, imgh, XRES/2, YRES/2);
@@ -4814,14 +4740,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 				}
 			}
-			if(thumb_data_full)
-				free(thumb_data_full);
-			thumbnailDownload = NULL;
+			thumbnailDownload = nullptr;
 		}
-		if (commentsDownload && commentsDownload->CheckStarted() && info_ready && commentsDownload && commentsDownload->CheckDone())
+		if (commentsDownload && commentsDownload->CheckStarted() && info_ready && commentsDownload->CheckDone())
 		{
 			int status;
-			char *comment_data = commentsDownload->Finish(NULL, &status);
+			std::string comment_data = commentsDownload->Finish(&status);
 			if (status == 200)
 			{
 				cJSON *root, *commentobj, *tmpobj;
@@ -4833,7 +4757,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (info->commentauthorIDs[i]) { free(info->commentauthorIDs[i]); info->commentauthorIDs[i] = NULL; }
 					if (info->commenttimestamps[i]) { free(info->commenttimestamps[i]); info->commenttimestamps[i] = NULL; }
 				}
-				if(comment_data && (root = cJSON_Parse((const char*)comment_data)))
+				if (!comment_data.empty() && (root = cJSON_Parse(comment_data.c_str())))
 				{
 					if (comment_page == 0)
 						info->comment_count = cJSON_GetArraySize(root);
@@ -4864,10 +4788,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					cJSON_Delete(root);
 				}
 			}
-			if (comment_data)
-				free(comment_data);
 			disable_scrolling = 0;
+			commentsDownload = nullptr;
 		}
+		bool commentsDownloadStarted = commentsDownload && commentsDownload->CheckStarted();
 		if (!instant_open)
 		{
 			if (save_pic_thumb!=NULL && !hasdrawncthumb) {
@@ -5027,12 +4951,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (cc < NUM_COMMENTS-1)
 								info->comments[cc+1].y = info->comments[cc].y + change + 22;
 
-							if (ccy+comment_scroll < 50 && cc == info->comment_count-1 && commentsDownload->CheckStarted()) // disable scrolling until more comments have loaded
+							if (ccy+comment_scroll < 50 && cc == info->comment_count-1 && commentsDownloadStarted) // disable scrolling until more comments have loaded
 							{
 								disable_scrolling = 1;
 								scroll_velocity = 0.0f;
 							}
-							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownload->CheckStarted()) // reset to top of comments
+							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownloadStarted) // reset to top of comments
 							{
 								comment_scroll = 0;
 								scroll_velocity = 0.0f;
@@ -5051,11 +4975,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							commentNum = cc;
 						break;
 					}
-					if (cc == info->comment_count-1 && !commentsDownload->CheckStarted() && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
+					if (cc == info->comment_count-1 && !commentsDownloadStarted && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
 					{
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << (comment_page+1)*20 << "&Count=20";
-						commentsDownload->Reuse(uri.str());
+						if (commentsDownload)
+							commentsDownload->Cancel();
+						commentsDownload = new Request(uri.str());
+						commentsDownload->Start();
 
 						comment_page++;
 					}
@@ -5259,7 +5186,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						std::stringstream uri;
 						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-						commentsDownload->Reuse(uri.str());
+						commentsDownload->Cancel();
+						commentsDownload = new Request(uri.str());
+						commentsDownload->Start();
 
 						for (int i = 0; i < NUM_COMMENTS; i++)
 						{
@@ -5364,11 +5293,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		//User opened the save, wait until we've got all the data first...
 		if (queue_open || instant_open)
 		{
-			if (info_ready && data_ready)
+			if (info_ready && data_ready && save)
 			{
 				Snapshot::TakeSnapshot(globalSim);
 				// Do Open!
-				Save *save = new Save(data, data_size);
 				try
 				{
 					globalSim->LoadSave(0, 0, save, 1);
@@ -5489,7 +5417,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	info_parse("", info);
 	free(info);
 	free(old_vid);
-	if (data) free(data);
 	if (thumb_data) free(thumb_data);
 	if (save_pic) free(save_pic);
 	if (save_pic_thumb) free(save_pic_thumb);
@@ -5918,7 +5845,7 @@ int search_results(char *str, int votes)
 int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 {
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), nullptr, &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), &status, svf_user_id, svf_session_id, {
 		{ "ID", svf_id },
 		{ "Tag", tag }
 	});
@@ -5926,27 +5853,24 @@ int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return 1;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.empty())
+	{
+		error_ui(vid_buf, 0, "Could not add tag");
+		return 1;
+	}
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return 1;
 	}
 
-	if (result && result[2])
+	if (result.length() > 2)
 	{
-		strncpy(svf_tags, result+3, 255);
+		strncpy(svf_tags, result.substr(3).c_str(), 255);
 		svf_id[15] = 0;
 	}
-
-	if (result)
-		free(result);
-	else
-		error_ui(vid_buf, 0, "Could not add tag");
 
 	return 0;
 }
@@ -5965,76 +5889,64 @@ int execute_save(pixel *vid_buf, Save *save)
 	}
 
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Save.api", nullptr, &status, svf_user_id, svf_session_id, postData);
+	std::string result = Request::SimpleAuth("http://" SERVER "/Save.api", &status, svf_user_id, svf_session_id, postData);
 
 	the_game->SetReloadPoint(save);
 
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return 1;
 	}
-	if (!result || strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
-		if (!result)
+		if (result.empty())
 			result = mystrdup("Could not save - no reply from server");
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return 1;
 	}
 
-	if (result && result[2])
+	if (result.length() > 2)
 	{
-		strncpy(svf_id, result+3, 15);
+		strncpy(svf_id, result.substr(3).c_str(), 15);
 		svf_id[15] = 0;
 	}
 
 	if (!svf_id[0])
 	{
 		error_ui(vid_buf, 0, "No ID supplied by server");
-		free(result);
 		return 1;
 	}
 
 	thumb_cache_inval(svf_id);
 
 	svf_own = 1;
-	if (result)
-		free(result);
 	return 0;
 }
 
 int execute_delete(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Delete.api", nullptr, &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth("http://" SERVER "/Delete.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return 0;
 	}
-	if (result && strncmp(result, "INFO: ", 6)==0)
+	if (result.find("INFO: ", 0, 6) != result.npos)
 	{
-		info_ui(vid_buf, "Info", result+6);
-		free(result);
+		info_ui(vid_buf, "Info", result.substr(6));
 		return 0;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return 0;
 	}
 
-	if (result)
-		free(result);
 	return 1;
 }
 
@@ -6101,26 +6013,26 @@ bool ParseServerReturn(char *result, int status, bool json)
 bool execute_submit(pixel *vid_buf, char *id, char *message)
 {
 	int status;
-	char *result;
 
 	std::stringstream url;
 	url <<  "http://" << SERVER << "/Browse/Comments.json?ID=" << id;
 	Request *comment = new Request(url.str());
 	comment->AuthHeaders(svf_user_id, svf_session_id);
-	comment->AddPostData(std::pair<std::string, std::string>("Comment", message));
-
+	comment->AddPostData({
+		 { "Comment", message }
+	 });
 	comment->Start();
-	result = comment->Finish(NULL, &status);
+	std::string result = comment->Finish(&status);
 
 
-	bool ret = ParseServerReturn(result, status, true);
+	bool ret = ParseServerReturn((char*)result.c_str(), status, true);
 	return ret;
 }
 
 int execute_report(pixel *vid_buf, char *id, char *reason)
 {
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Report.api", nullptr, &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth("http://" SERVER "/Report.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id },
 		{ "Reason", reason }
 	});
@@ -6128,19 +6040,14 @@ int execute_report(pixel *vid_buf, char *id, char *reason)
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return 0;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return 0;
 	}
 
-	if (result)
-		free(result);
 	return 1;
 }
 
@@ -6148,77 +6055,60 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 {
 	// TODO: does not work because of bug on starcatcher.us
 	int status;
-	char *result = Request::Simple("http://starcatcher.us/TPT/bagelreport.lua", nullptr, &status, {
+	std::string result = Request::Simple("http://starcatcher.us/TPT/bagelreport.lua", &status, {
 		{ "bug", feedback }
 	 });
 
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return 0;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return 0;
 	}
 
-	if (result)
-		free(result);
 	return 1;
 }
 
 void execute_fav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Favourite.api", nullptr, &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth("http://" SERVER "/Favourite.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return;
 	}
-
-	if (result)
-		free(result);
 }
 
 void execute_unfav(pixel *vid_buf, char *id)
 {
 	int status;
-	char *result = Request::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", nullptr, &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
 	if (status != 200)
 	{
 		error_ui(vid_buf, status, Request::GetStatusCodeDesc(status));
-		if (result)
-			free(result);
 		return;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (result.find("OK", 0, 2) == result.npos)
 	{
 		error_ui(vid_buf, 0, result);
-		free(result);
 		return;
 	}
-
-	if (result)
-		free(result);
 }
 
 struct command_match

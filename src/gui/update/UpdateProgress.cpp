@@ -44,14 +44,14 @@ void UpdateProgress::OnTick(uint32_t ticks)
 
 	if (completed)
 	{
-		int length, status;
-		char *data = download->Finish(&length, &status);
+		int status;
+		std::string data = download->Finish(&status);
 		if (status != 200)
 		{
 			ShowError(Request::GetStatusCodeDesc(status));
 			return;
 		}
-		if (!data || length < 16)
+		if (data.length() < 16)
 		{
 			ShowError("Server did not return data");
 			return;
@@ -70,7 +70,7 @@ void UpdateProgress::OnTick(uint32_t ticks)
 		ulen |= ((unsigned char)data[7])<<24;
 
 		char* updateBuf = new char[ulen];
-		int bzStatus = BZ2_bzBuffToBuffDecompress(updateBuf, (unsigned *)&ulen, (char *)(data+8), length-8, 0, 0);
+		int bzStatus = BZ2_bzBuffToBuffDecompress(updateBuf, (unsigned *)&ulen, (char*)data.substr(8).c_str(), data.length()-8, 0, 0);
 		if (bzStatus)
 		{
 			ShowError("Decompression failure: " + Format::NumberToString<int>(bzStatus));

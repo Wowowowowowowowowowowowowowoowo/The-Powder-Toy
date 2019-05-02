@@ -35,7 +35,7 @@
 using namespace Matrix;
 
 // Used for creating saves from save data. Loading stamps / online saves, for example
-Save::Save(char * saveData, unsigned int saveSize)
+Save::Save(const char * saveData, unsigned int saveSize)
 {
 	this->saveData = new unsigned char[saveSize];
 	std::copy(&saveData[0], &saveData[saveSize], &this->saveData[0]);

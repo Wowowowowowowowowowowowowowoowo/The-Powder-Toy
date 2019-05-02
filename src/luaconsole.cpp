@@ -2097,22 +2097,19 @@ int luatpt_getscript(lua_State* l)
 	if (confirmPrompt && !confirm_ui(lua_vid_buf, "Do you want to install script?", url.str().c_str(), "Install"))
 		return 0;
 
-	int ret, len;
-	char *scriptData = Request::Simple(url.str(), &len, &ret);
-	if (len <= 0 || !filename)
+	int ret;
+	std::string scriptData = Request::Simple(url.str(), &ret);
+	if (scriptData.empty() || !filename)
 	{
-		free(scriptData);
 		return luaL_error(l, "Server did not return data");
 	}
 	if (ret != 200)
 	{
-		free(scriptData);
 		return luaL_error(l, Request::GetStatusCodeDesc(ret).c_str());
 	}
 
-	if (!strcmp(scriptData, "Invalid script ID\r\n"))
+	if (scriptData.find("Invalid script ID") != scriptData.npos)
 	{
-		free(scriptData);
 		return luaL_error(l, "Invalid Script ID");
 	}
 
@@ -2127,7 +2124,6 @@ int luatpt_getscript(lua_State* l)
 		}
 		else
 		{
-			free(scriptData);
 			return 0;
 		}
 	}
@@ -2137,11 +2133,10 @@ int luatpt_getscript(lua_State* l)
 	}
 	if (!outputfile)
 	{
-		free(scriptData);
 		return luaL_error(l, "Unable to write to file");
 	}
 
-	fputs(scriptData, outputfile);
+	fputs(scriptData.c_str(), outputfile);
 	fclose(outputfile);
 	outputfile = NULL;
 	if (runScript)
@@ -2150,7 +2145,6 @@ int luatpt_getscript(lua_State* l)
 		luaCommand << "dofile('" << filename << "')";
 		luaL_dostring(l, luaCommand.str().c_str());
 	}
-	free(scriptData);
 
 	return 0;
 }

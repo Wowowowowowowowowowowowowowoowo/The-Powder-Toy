@@ -183,7 +183,7 @@ public:
 
 	int pmapbits;
 
-	Save(char * saveData, unsigned int saveSize);
+	Save(const char *saveData, unsigned int saveSize);
 	Save(int blockW, int blockH);
 	Save(const Save & save);
 	~Save();

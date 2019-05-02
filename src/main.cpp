@@ -581,7 +581,7 @@ void thumb_cache_add(char *id, void *thumb, int size)
 {
 	int i,m=-1,j=-1;
 	thumb_cache_inval(id);
-	if (thumb || size == 0)
+	if (!thumb || size == 0)
 		return;
 	for (i=0; i<THUMB_CACHE_SIZE; i++)
 	{
@@ -1020,6 +1020,8 @@ int main(int argc, char *argv[])
 
 	stamp_init();
 
+	RequestManager::Ref().Initialise(http_proxy_string);
+
 	if (!SDLOpen())
 	{
 		Engine::Ref().SetScale(1);
@@ -1108,6 +1110,8 @@ int main(int argc, char *argv[])
 	}
 
 	//delete engine;
+
+	RequestManager::Ref().Shutdown();
 
 	return 0;
 }

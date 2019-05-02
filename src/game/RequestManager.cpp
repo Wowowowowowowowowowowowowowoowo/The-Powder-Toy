@@ -1,149 +1,220 @@
+#include <sstream>
 #include "RequestManager.h"
-#include "Request.h"
-#include "http.h"
 #include "defines.h"
+#include "Request.h"
 #include "common/Platform.h"
 
-RequestManager::RequestManager():
-	threadStarted(false),
-	lastUsed(time(NULL)),
-	managerRunning(false),
-	managerShutdown(false),
-	requests(std::vector<Request*>()),
-	downloadsAddQueue(std::vector<Request*>())
-{
-	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
+const int curl_multi_wait_timeout_ms = 100;
+const long curl_max_host_connections = 6;
 
-	pthread_mutex_init(&requestLock, NULL);
-	pthread_mutex_init(&requestAddLock, NULL);
+const long timeout = 15;
+std::string proxy;
+std::string user_agent;
+
+RequestManager::RequestManager():
+	rt_shutting_down(false),
+	multi(NULL)
+{
+	pthread_cond_init(&rt_cv, NULL);
+	pthread_mutex_init(&rt_mutex, NULL);
 }
 
 RequestManager::~RequestManager()
 {
-
+	pthread_mutex_destroy(&rt_mutex);
+	pthread_cond_destroy(&rt_cv);
 }
 
 void RequestManager::Shutdown()
 {
-	pthread_mutex_lock(&requestLock);
-	pthread_mutex_lock(&requestAddLock);
-	for (std::vector<Request*>::iterator iter = requests.begin(); iter != requests.end(); ++iter)
-	{
-		Request *download = (*iter);
-		if (download->http)
-			http_force_close(download->http);
-		download->requestCanceled = true;
-		delete download;
-	}
-	requests.clear();
-	downloadsAddQueue.clear();
-	managerShutdown = true;
-	pthread_mutex_unlock(&requestAddLock);
-	pthread_mutex_unlock(&requestLock);
-	pthread_join(requestThread, NULL);
+	pthread_mutex_lock(&rt_mutex);
+	rt_shutting_down = true;
+	pthread_cond_signal(&rt_cv);
+	pthread_mutex_unlock(&rt_mutex);
 
-	http_done();
+	pthread_join(worker_thread, NULL);
+
+	curl_multi_cleanup(multi);
+	multi = NULL;
+	curl_global_cleanup();
 }
 
-//helper function for download
-TH_ENTRY_POINT void* DownloadManagerHelper(void* obj)
+TH_ENTRY_POINT void *RequestManager::RequestManagerHelper(void *obj)
 {
-	RequestManager *temp = (RequestManager*)obj;
-	temp->Update();
+	((RequestManager *)obj)->Worker();
 	return NULL;
 }
 
-void RequestManager::Start()
+void RequestManager::Initialise(std::string Proxy)
 {
-	managerRunning = true;
-	lastUsed = time(NULL);
-	pthread_create(&requestThread, NULL, &DownloadManagerHelper, this);
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	multi = curl_multi_init();
+	if (multi)
+	{
+		curl_multi_setopt(multi, CURLMOPT_MAX_HOST_CONNECTIONS, curl_max_host_connections);
+	}
+
+	proxy = Proxy;
+
+	std::stringstream userAgentBuilder;
+	userAgentBuilder << "PowderToy/" << SAVE_VERSION << "." << MINOR_VERSION << " ";
+	userAgentBuilder << "(" << IDENT_PLATFORM << "; " << IDENT_BUILD << "; M0) ";
+	userAgentBuilder << "TPTPP/" << SAVE_VERSION << "." << MINOR_VERSION << "." << BUILD_NUM << IDENT_RELTYPE << ".0";
+#ifndef NOMOD
+	userAgentBuilder << " JMOD/" << MOD_VERSION << "." << MOD_MINOR_VERSION << "." << MOD_BUILD_VERSION << "." << MOD_SAVE_VERSION;
+#endif
+#ifdef ANDROID
+	userAgentBuilder << " ANDROID/" << MOBILE_MAJOR << "." << MOBILE_MINOR << "." << MOBILE_BUILD;
+#endif
+	user_agent = userAgentBuilder.str();
+
+	pthread_create(&worker_thread, NULL, &RequestManager::RequestManagerHelper, this);
 }
 
-void RequestManager::Update()
+void RequestManager::Worker()
 {
-	unsigned int numActiveDownloads;
-	while (!managerShutdown)
+	bool shutting_down = false;
+	while (!shutting_down)
 	{
-		pthread_mutex_lock(&requestAddLock);
-		if (downloadsAddQueue.size())
+		for (Request *request : requests_to_remove)
 		{
-			for (size_t i = 0; i < downloadsAddQueue.size(); i++)
+			requests.erase(request);
+			if (multi && request->easy && request->added_to_multi)
 			{
-				requests.push_back(downloadsAddQueue[i]);
+				curl_multi_remove_handle(multi, request->easy);
+				request->added_to_multi = false;
 			}
-			downloadsAddQueue.clear();
+			delete request;
 		}
-		pthread_mutex_unlock(&requestAddLock);
-		if (requests.size())
+		requests_to_remove.clear();
+
+		pthread_mutex_lock(&rt_mutex);
+		shutting_down = rt_shutting_down;
+		for (Request *request : requests_to_add)
 		{
-			numActiveDownloads = 0;
-			pthread_mutex_lock(&requestLock);
-			for (size_t i = 0; i < requests.size(); i++)
+			request->status = 0;
+			requests.insert(request);
+		}
+		requests_to_add.clear();
+		if (requests.empty())
+		{
+			while (!rt_shutting_down && requests_to_add.empty())
 			{
-				Request *download = requests[i];
-				if (download->CheckCanceled())
+				pthread_cond_wait(&rt_cv, &rt_mutex);
+			}
+		}
+		pthread_mutex_unlock(&rt_mutex);
+
+		if (multi && !requests.empty())
+		{
+			int dontcare;
+			struct CURLMsg *msg;
+
+			curl_multi_wait(multi, nullptr, 0, curl_multi_wait_timeout_ms, &dontcare);
+			curl_multi_perform(multi, &dontcare);
+			while ((msg = curl_multi_info_read(multi, &dontcare)))
+			{
+				if (msg->msg == CURLMSG_DONE)
 				{
-					if (download->http && download->CheckStarted())
-						http_force_close(download->http);
-					delete download;
-					requests.erase(requests.begin()+i);
-					i--;
-				}
-				else if (download->CheckStarted() && !download->CheckDone())
-				{
-					if (http_async_req_status(download->http) != 0)
+					Request *request;
+					curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &request);
+
+					int finish_with = 600;
+
+					switch (msg->data.result)
 					{
-						download->requestData = http_async_req_stop(download->http, &download->requestStatus, &download->RequestSize);
-						download->requestFinished = true;
-						if (!download->keepAlive)
-							download->http = NULL;
+					case CURLE_OK:
+						long code;
+						curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &code);
+						finish_with = (int)code;
+						break;
+
+					case CURLE_UNSUPPORTED_PROTOCOL:  finish_with = 601; break;
+					case CURLE_COULDNT_RESOLVE_HOST:  finish_with = 602; break;
+					case CURLE_OPERATION_TIMEDOUT:    finish_with = 605; break;
+					case CURLE_URL_MALFORMAT:         finish_with = 606; break;
+					case CURLE_COULDNT_CONNECT:       finish_with = 607; break;
+					case CURLE_COULDNT_RESOLVE_PROXY: finish_with = 608; break;
+
+					case CURLE_SSL_CONNECT_ERROR:
+					case CURLE_SSL_ENGINE_NOTFOUND:
+					case CURLE_SSL_ENGINE_SETFAILED:
+					case CURLE_SSL_CERTPROBLEM:
+					case CURLE_SSL_CIPHER:
+					case CURLE_SSL_ENGINE_INITFAILED:
+					case CURLE_SSL_CACERT_BADFILE:
+					case CURLE_SSL_CRL_BADFILE:
+					case CURLE_SSL_ISSUER_ERROR:
+					case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+					case CURLE_SSL_INVALIDCERTSTATUS: finish_with = 609; break;
+
+					case CURLE_HTTP2:
+					case CURLE_HTTP2_STREAM:
+
+					case CURLE_FAILED_INIT:
+					case CURLE_NOT_BUILT_IN:
+					default:
+						break;
 					}
-					lastUsed = time(NULL);
-					numActiveDownloads++;
+
+					request->status = finish_with;
+				}
+			};
+		}
+
+		for (Request *request : requests)
+		{
+			pthread_mutex_lock(&request->rm_mutex);
+
+			if (shutting_down)
+			{
+				// In the weird case that a http::Request::Simple* call is
+				// waiting on this Request, we should fail the request
+				// instead of cancelling it ourselves.
+				request->status = 610;
+			}
+
+			if (request->rm_canceled)
+			{
+				requests_to_remove.insert(request);
+			}
+
+			if (!request->rm_canceled && request->rm_started && !request->added_to_multi)
+			{
+				if (multi && request->easy)
+				{
+					curl_multi_add_handle(multi, request->easy);
+					request->added_to_multi = true;
+				}
+				else
+				{
+					request->status = 604;
 				}
 			}
-			pthread_mutex_unlock(&requestLock);
+
+			if (!request->rm_canceled && request->rm_started && !request->rm_finished)
+			{
+				if (multi && request->easy)
+				{
+					curl_easy_getinfo(request->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &request->rm_total);
+					curl_easy_getinfo(request->easy, CURLINFO_SIZE_DOWNLOAD_T, &request->rm_done);
+				}
+				if (request->status)
+				{
+					request->rm_finished = true;
+					pthread_cond_signal(&request->done_cv);
+				}
+			}
+
+			pthread_mutex_unlock(&request->rm_mutex);
 		}
-		if (time(NULL) > lastUsed+HTTP_TIMEOUT*2 && !numActiveDownloads)
-		{
-			pthread_mutex_lock(&requestLock);
-			managerRunning = false;
-			pthread_mutex_unlock(&requestLock);
-			return;
-		}
-		Platform::Millisleep(1);
 	}
 }
 
-void RequestManager::EnsureRunning()
+void RequestManager::AddRequest(Request *request)
 {
-	pthread_mutex_lock(&requestLock);
-	if (!managerRunning)
-	{
-		if (threadStarted)
-			pthread_join(requestThread, NULL);
-		else
-			threadStarted = true;
-		Start();
-	}
-	pthread_mutex_unlock(&requestLock);
-}
-
-void RequestManager::AddDownload(Request *download)
-{
-	pthread_mutex_lock(&requestAddLock);
-	downloadsAddQueue.push_back(download);
-	pthread_mutex_unlock(&requestAddLock);
-	EnsureRunning();
-}
-
-void RequestManager::Lock()
-{
-	pthread_mutex_lock(&requestAddLock);
-}
-
-void RequestManager::Unlock()
-{
-	pthread_mutex_unlock(&requestAddLock);
+	pthread_mutex_lock(&rt_mutex);
+	requests_to_add.insert(request);
+	pthread_cond_signal(&rt_cv);
+	pthread_mutex_unlock(&rt_mutex);
 }
