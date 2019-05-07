@@ -174,12 +174,12 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-			if ((parts[i].type == PT_PIPE || parts[i].type == PT_PPIP) && invalid_element(save_as,TYP(parts[i].tmp)))
+			if ((parts[i].type == PT_PIPE || parts[i].type == PT_PPIP) && invalid_element(save_as,TYP(parts[i].ctype)))
 			{
 				if (give_warning)
 				{
 					char errortext[256] = "", elname[40] = "";
-					sprintf(elname, "%s", globalSim->elements[TYP(parts[i].tmp)].Name.c_str());
+					sprintf(elname, "%s", globalSim->elements[TYP(parts[i].ctype)].Name.c_str());
 					sprintf(errortext,"Found %s at X:%i Y:%i, cannot save",elname,(int)(parts[i].x+.5),(int)(parts[i].y+.5));
 					error_ui(vid_buf,0,errortext);
 				}
