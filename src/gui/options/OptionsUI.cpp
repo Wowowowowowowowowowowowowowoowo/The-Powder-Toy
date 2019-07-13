@@ -209,7 +209,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 	updatesCheckbox->SetCallback([&](bool checked) { this->UpdatesChecked(checked); });
 	this->AddComponent(updatesCheckbox);
 
-	descLabel = new Label(updatesCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Check for updates at http://starcatcher.us/TPT");
+	descLabel = new Label(updatesCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Check for updates at https://starcatcher.us/TPT");
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	this->AddComponent(descLabel);
 

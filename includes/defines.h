@@ -49,6 +49,10 @@
 #define MTOS_EXPAND(str) #str
 #define MTOS(str) MTOS_EXPAND(str)
 
+#define SCHEME "https://"
+#define STATICSCHEME "https://"
+#define UPDATESCHEME "https://"
+
 #ifndef SERVER
 #define SERVER "powdertoy.co.uk"
 #endif

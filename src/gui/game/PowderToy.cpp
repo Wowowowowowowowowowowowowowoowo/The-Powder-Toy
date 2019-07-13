@@ -284,7 +284,7 @@ void PowderToy::DelayedHttpInitialization()
 {
 	if (doUpdates)
 	{
-		versionCheck = new Request("http://" UPDATESERVER "/Startup.json");
+		versionCheck = new Request(UPDATESERVER UPDATESERVER "/Startup.json");
 		if (svf_login)
 			versionCheck->AuthHeaders(svf_user, NULL); //username instead of session
 		versionCheck->Start();
@@ -292,7 +292,7 @@ void PowderToy::DelayedHttpInitialization()
 
 	if (svf_login)
 	{
-		sessionCheck = new Request("http://" SERVER "/Startup.json");
+		sessionCheck = new Request(SCHEME SERVER "/Startup.json");
 		sessionCheck->AuthHeaders(svf_user_id, svf_session_id);
 		sessionCheck->Start();
 	}
@@ -432,7 +432,7 @@ void PowderToy::DoVoteBtn(bool up)
 		SetInfoTip("Error: could not vote");
 		return;
 	}
-	voteDownload = new Request("http://" SERVER "/Vote.api");
+	voteDownload = new Request(SCHEME SERVER "/Vote.api");
 	voteDownload->AuthHeaders(svf_user_id, svf_session_id);
 	std::map<std::string, std::string> postData;
 	postData.insert(std::pair<std::string, std::string>("ID", svf_id));

@@ -1,11 +1,11 @@
-The default way of compiling TPT is with SCons: http://scons.org/download.php
+The default way of compiling TPT is with SCons: https://scons.org/pages/download.html
 Python 2 is required to run SCons
 
 The command 'scons' with no arguments will attempt to automatically detect your 
 platform and all the necessary required libraries, then start compiling with 
 default settings. On Linux, cross compilers will also be automatically detected 
 when the --win or --mac flags are used For a list of more flags, see 
-http://powdertoy.co.uk/Wiki/W/Scons_command_line_flags.html
+https://powdertoy.co.uk/Wiki/W/Scons_command_line_flags.html
 SCons flags in the mod may vary slightly.
 
 
@@ -14,7 +14,7 @@ required libraries, up to date as of December 2015, can be downloaded here:
 https://dl.dropboxusercontent.com/u/43784416/Jacob1%27s%20Mod/vs%202013%20project.zip
 https://dl.dropboxusercontent.com/u/43784416/PowderToy/Required%20Libraries.zip
 These were created by following a similar process to the wiki guide for default 
-TPT: http://powdertoy.co.uk/Wiki/W/Compiling_tpt%2B%2B_with_Visual_studio.html
+TPT: https://powdertoy.co.uk/Wiki/W/Compiling_tpt%2B%2B_with_Visual_studio.html
 
 
 This mod can also be compiled for Android. The "guide" should help but may have 

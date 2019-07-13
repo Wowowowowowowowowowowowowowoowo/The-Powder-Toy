@@ -2016,7 +2016,7 @@ bool login_ui(pixel *vid_buf)
 	// new scope because of goto warning
 	{
 		int status;
-		std::string data = Request::SimpleAuth("http://" SERVER "/Login.json", &status, svf_user_id, svf_session_id, {
+		std::string data = Request::SimpleAuth(SCHEME SERVER "/Login.json", &status, svf_user_id, svf_session_id, {
 			{ "Username", svf_user },
 			{ "Hash", totalHash },
 		});
@@ -4124,7 +4124,7 @@ int search_ui(pixel *vid_buf)
 				count = GRID_X*GRID_Y;
 			}
 			exp_res = count; //-1 so that it can know if there is an extra save and show the next page button
-			uri << "http://" << SERVER << "/Search.api?Start=" << start << "&Count=" << count+1 << "&ShowVotes=true";
+			uri << SCHEME << SERVER << "/Search.api?Start=" << start << "&Count=" << count+1 << "&ShowVotes=true";
 			if (byvotes)
 				uri << "&t=" << ((GRID_Y-GRID_P)*YRES)/(GRID_Y*14)*GRID_X; //what does this even mean? ...
 			uri << "&Query=" << last;
@@ -4163,7 +4163,7 @@ int search_ui(pixel *vid_buf)
 				if (is_p1)
 				{
 					if (motdswap)
-						sprintf(server_motd,"Links: \bt{a:http://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:http://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/ThePowderToy/The-Powder-Toy|Official TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
+						sprintf(server_motd,"Links: \bt{a:https://powdertoy.co.uk|Powder Toy main page}\bg, \bt{a:https://powdertoy.co.uk/Discussions/Categories/Index.html|Forums}\bg, \bt{a:https://github.com/ThePowderToy/The-Powder-Toy|Official TPT github}\bg, \bt{a:https://github.com/jacob1/The-Powder-Toy/tree/c++|Jacob1's Mod github}");
 					motdswap = !motdswap;
 				}
 				ui_richtext_settext(server_motd, &motd);
@@ -4184,12 +4184,12 @@ int search_ui(pixel *vid_buf)
 					std::stringstream tempID;
 					tempID << search_ids[pos] << "_" << search_dates[pos];
 					imgID = mystrdup(tempID.str().c_str());
-					uri << "http://" << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
+					uri << STATICSCHEME << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
 				}
 				else
 				{
 					imgID = mystrdup(search_ids[pos]);
-					uri << "http://" STATICSERVER "/" << search_ids[pos] << "_small.pti";
+					uri << STATICSCHEME STATICSERVER "/" << search_ids[pos] << "_small.pti";
 				}
 				if (imgID && !thumb_cache_find(imgID, search_thumbs + pos, search_thsizes + pos))
 				{
@@ -4571,17 +4571,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		// We're loading a historical save
 		std::stringstream uri;
-		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".cps";
+		uri << STATICSCHEME << STATICSERVER << "/" << save_id << "_" << save_date << ".cps";
 		saveDataDownload = new Request(uri.str());
 
 		uri.str("");
-		uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << ".info";
+		uri << STATICSCHEME << STATICSERVER << "/" << save_id << "_" << save_date << ".info";
 		saveInfoDownload = new Request(uri.str());
 
 		if (!instant_open)
 		{
 			uri.str("");
-			uri << "http://" << STATICSERVER << "/" << save_id << "_" << save_date << "_large.pti";
+			uri << STATICSCHEME << STATICSERVER << "/" << save_id << "_" << save_date << "_large.pti";
 			thumbnailDownload = new Request(uri.str());
 		}
 	}
@@ -4589,17 +4589,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	{
 		//We're loading a normal save
 		std::stringstream uri;
-		uri << "http://" << STATICSERVER << "/" << save_id << ".cps";
+		uri << STATICSCHEME << STATICSERVER << "/" << save_id << ".cps";
 		saveDataDownload = new Request(uri.str());
 
 		uri.str("");
-		uri << "http://" << STATICSERVER << "/" << save_id << ".info";
+		uri << STATICSCHEME << STATICSERVER << "/" << save_id << ".info";
 		saveInfoDownload = new Request(uri.str());
 
 		if (!instant_open)
 		{
 			uri.str("");
-			uri << "http://" << STATICSERVER << "/" << save_id << "_large.pti";
+			uri << STATICSCHEME << STATICSERVER << "/" << save_id << "_large.pti";
 			thumbnailDownload = new Request(uri.str());
 		}
 	}
@@ -4614,7 +4614,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 	if (!instant_open)
 	{
 		std::stringstream uri;
-		uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
+		uri << SCHEME << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
 		commentsDownload = new Request(uri.str());
 		commentsDownload->Start();
 
@@ -4694,7 +4694,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						if (saveDataDownload)
 							saveDataDownload->Cancel();
 						std::stringstream uri;
-						uri << "http://" << STATICSERVER << "/2157797.cps";
+						uri << STATICSCHEME << STATICSERVER << "/2157797.cps";
 						saveDataDownload = new Request(uri.str());
 						if (svf_login)
 							saveDataDownload->AuthHeaders(svf_user_id, svf_session_id);
@@ -4703,7 +4703,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						if (!instant_open)
 						{
 							uri.str("");
-							uri << "http://" << STATICSERVER << "/2157797_large.pti";
+							uri << STATICSCHEME << STATICSERVER << "/2157797_large.pti";
 							thumbnailDownload = new Request(uri.str());
 							thumbnailDownload->Start();
 						}
@@ -4903,7 +4903,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								if (sdl_mod & (KMOD_CTRL|KMOD_GUI)) //open profile
 								{
 									/*char link[128];
-									strcpy(link, "http://" SERVER "/User.html?Name=");
+									strcpy(link, SCHEME SERVER "/User.html?Name=");
 									strcaturl(link, info->commentauthorsunformatted[cc]);
 									open_link(link);*/
 									profileToOpen = info->commentauthorsunformatted[cc];
@@ -4978,7 +4978,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (cc == info->comment_count-1 && !commentsDownloadStarted && comment_page < NUM_COMMENTS/20 && !(info->comment_count%20))
 					{
 						std::stringstream uri;
-						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << (comment_page+1)*20 << "&Count=20";
+						uri << SCHEME << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=" << (comment_page+1)*20 << "&Count=20";
 						if (commentsDownload)
 							commentsDownload->Cancel();
 						commentsDownload = new Request(uri.str());
@@ -5170,7 +5170,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				if (!b && bq)
 				{
 					std::stringstream browserLink;
-					browserLink << "http://" << SERVER << "/Browse/View.html?ID=" << save_id;
+					browserLink << SCHEME << SERVER << "/Browse/View.html?ID=" << save_id;
 					Platform::OpenLink(browserLink.str());
 				}
 			}
@@ -5185,7 +5185,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					if (!execute_submit(vid_buf, save_id, ed.str))
 					{
 						std::stringstream uri;
-						uri << "http://" << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
+						uri << SCHEME << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
 						commentsDownload->Cancel();
 						commentsDownload = new Request(uri.str());
 						commentsDownload->Start();
@@ -5845,7 +5845,7 @@ int search_results(char *str, int votes)
 int execute_tagop(pixel *vid_buf, const char *op, char *tag)
 {
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Tag.api?Op=" + std::string(op), &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Tag.api?Op=" + std::string(op), &status, svf_user_id, svf_session_id, {
 		{ "ID", svf_id },
 		{ "Tag", tag }
 	});
@@ -5889,7 +5889,7 @@ int execute_save(pixel *vid_buf, Save *save)
 	}
 
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Save.api", &status, svf_user_id, svf_session_id, postData);
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Save.api", &status, svf_user_id, svf_session_id, postData);
 
 	the_game->SetReloadPoint(save);
 
@@ -5927,7 +5927,7 @@ int execute_save(pixel *vid_buf, Save *save)
 int execute_delete(pixel *vid_buf, char *id)
 {
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Delete.api", &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Delete.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
@@ -6015,7 +6015,7 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 	int status;
 
 	std::stringstream url;
-	url <<  "http://" << SERVER << "/Browse/Comments.json?ID=" << id;
+	url <<  SCHEME << SERVER << "/Browse/Comments.json?ID=" << id;
 	Request *comment = new Request(url.str());
 	comment->AuthHeaders(svf_user_id, svf_session_id);
 	comment->AddPostData({
@@ -6032,7 +6032,7 @@ bool execute_submit(pixel *vid_buf, char *id, char *message)
 int execute_report(pixel *vid_buf, char *id, char *reason)
 {
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Report.api", &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Report.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id },
 		{ "Reason", reason }
 	});
@@ -6055,7 +6055,7 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 {
 	// TODO: does not work because of bug on starcatcher.us
 	int status;
-	std::string result = Request::Simple("http://starcatcher.us/TPT/bagelreport.lua", &status, {
+	std::string result = Request::Simple(UPDATESCHEME "starcatcher.us/TPT/bagelreport.lua", &status, {
 		{ "bug", feedback }
 	 });
 
@@ -6076,7 +6076,7 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 void execute_fav(pixel *vid_buf, char *id)
 {
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Favourite.api", &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Favourite.api", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 
@@ -6095,7 +6095,7 @@ void execute_fav(pixel *vid_buf, char *id)
 void execute_unfav(pixel *vid_buf, char *id)
 {
 	int status;
-	std::string result = Request::SimpleAuth("http://" SERVER "/Favourite.api?Action=Remove", &status, svf_user_id, svf_session_id, {
+	std::string result = Request::SimpleAuth(SCHEME SERVER "/Favourite.api?Action=Remove", &status, svf_user_id, svf_session_id, {
 		{ "ID", id }
 	});
 

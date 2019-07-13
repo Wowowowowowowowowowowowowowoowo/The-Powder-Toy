@@ -8,7 +8,7 @@ import SCons.Util
 
 
 # because of an implementation detail commandlines are limited to 10000 characters on windows using mingw. the following fix was copied from
-# http://scons.org/wiki/LongCmdLinesOnWin32 and circumvents this issue.
+# https://github.com/SCons/scons/wiki/LongCmdLinesOnWin32 and circumvents this issue.
 class ourSpawn:
 	def ourspawn(self, sh, escape, cmd, args, env):
 		newargs = ' '.join(args[1:])

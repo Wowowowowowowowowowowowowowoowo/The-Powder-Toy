@@ -27,11 +27,11 @@ ProfileViewer::ProfileViewer(std::string profileName):
 	saveAverageLabel(NULL),
 	highestVoteLabel(NULL)
 {
-	profileInfoDownload = new Request("http://" SERVER "/User.json?Name=" + name);
+	profileInfoDownload = new Request(SCHEME SERVER "/User.json?Name=" + name);
 	//profileInfoDownload->AuthHeaders();
 	profileInfoDownload->Start();
 
-	avatarDownload = new Request("http://" STATICSERVER "/avatars/" + name + ".pti");
+	avatarDownload = new Request(STATICSCHEME STATICSERVER "/avatars/" + name + ".pti");
 	avatarDownload->Start();
 	
 	scrollArea = new ui::ScrollWindow(Point(0, 0), this->size - Point(0, 16));
@@ -204,7 +204,7 @@ void ProfileViewer::EnableEditing()
 
 void ProfileViewer::SaveProfile()
 {
-	profileSaveDownload = new Request("http://" SERVER "/Profile.json");
+	profileSaveDownload = new Request(SCHEME SERVER "/Profile.json");
 	profileSaveDownload->AuthHeaders(svf_user_id, svf_session_id);
 	std::map<std::string, std::string> postData;
 	postData.insert(std::pair<std::string, std::string>("Location", locationLabel->GetText()));
