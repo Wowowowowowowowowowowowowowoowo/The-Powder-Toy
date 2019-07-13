@@ -28,6 +28,8 @@ class Request
 
 	pthread_cond_t done_cv;
 
+	static size_t WriteDataHandler(char * ptr, size_t size, size_t count, void * userdata);
+
 public:
 	Request(std::string uri);
 	virtual ~Request();
