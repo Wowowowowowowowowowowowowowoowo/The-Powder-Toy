@@ -13,9 +13,11 @@ class RequestManager : public Singleton<RequestManager>
 {
 	pthread_t worker_thread;
 	std::set<Request *> requests;
+	int requests_added_to_multi;
 
 	std::set<Request *> requests_to_add;
-	std::set<Request *> requests_to_remove;
+	bool requests_to_start;
+	bool requests_to_remove;
 	bool rt_shutting_down;
 	pthread_mutex_t rt_mutex;
 	pthread_cond_t rt_cv;
@@ -24,7 +26,11 @@ class RequestManager : public Singleton<RequestManager>
 
 	void Start();
 	void Worker();
+	void MultiAdd(Request *request);
+	void MultiRemove(Request *request);
 	void AddRequest(Request *request);
+	void StartRequest(Request *request);
+	void RemoveRequest(Request *request);
 
 	static TH_ENTRY_POINT void *RequestManagerHelper(void *obj);
 

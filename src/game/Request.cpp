@@ -128,6 +128,7 @@ void Request::Start()
 	pthread_mutex_lock(&rm_mutex);
 	rm_started = true;
 	pthread_mutex_unlock(&rm_mutex);
+	RequestManager::Ref().StartRequest(this);
 }
 
 
@@ -145,14 +146,15 @@ std::string Request::Finish(int *status_out)
 		pthread_cond_wait(&done_cv, &rm_mutex);
 	}
 	rm_started = false;
-	rm_canceled = true; // signals to RequestManager that the Request can be deleted
-	std::string response_out = std::move(response_body);
+	rm_canceled = true;
 	if (status_out)
 	{
 		*status_out = status;
 	}
+	std::string response_out = std::move(response_body);
 	pthread_mutex_unlock(&rm_mutex);
 
+	RequestManager::Ref().RemoveRequest(this);
 	return response_out;
 }
 
@@ -204,6 +206,7 @@ void Request::Cancel()
 	pthread_mutex_lock(&rm_mutex);
 	rm_canceled = true;
 	pthread_mutex_unlock(&rm_mutex);
+	RequestManager::Ref().RemoveRequest(this);
 }
 
 std::string Request::Simple(std::string uri, int *status, std::map<std::string, std::string> post_data)
