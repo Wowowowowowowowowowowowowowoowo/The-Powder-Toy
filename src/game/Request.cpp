@@ -100,8 +100,11 @@ void Request::Start()
 		}
 		else
 		{
-			curl_easy_setopt(easy, CURLOPT_HTTPGET, 1);
+			curl_easy_setopt(easy, CURLOPT_HTTPGET, 1L);
 		}
+
+		curl_easy_setopt(easy, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(easy, CURLOPT_MAXREDIRS, 10L);
 
 		curl_easy_setopt(easy, CURLOPT_TIMEOUT, timeout);
 		curl_easy_setopt(easy, CURLOPT_HTTPHEADER, headers);
@@ -112,11 +115,11 @@ void Request::Start()
 			curl_easy_setopt(easy, CURLOPT_PROXY, proxy.c_str());
 		}
 
-		curl_easy_setopt(easy, CURLOPT_PRIVATE, this);
+		curl_easy_setopt(easy, CURLOPT_PRIVATE, (void *) this);
 		curl_easy_setopt(easy, CURLOPT_USERAGENT, user_agent.c_str());
-		curl_easy_setopt(easy, CURLOPT_NOSIGNAL, 1);
+		curl_easy_setopt(easy, CURLOPT_NOSIGNAL, 1L);
 
-		curl_easy_setopt(easy, CURLOPT_WRITEDATA, this);
+		curl_easy_setopt(easy, CURLOPT_WRITEDATA, (void *) this);
 		curl_easy_setopt(easy, CURLOPT_WRITEFUNCTION, (size_t (*)(char *ptr, size_t size, size_t count, void *userdata))([](char *ptr, size_t size, size_t count, void *userdata) -> size_t {
 			Request *req = (Request *)userdata;
 			auto actual_size = size * count;
@@ -295,6 +298,7 @@ std::string Request::GetStatusCodeDesc(int ret)
 	case 608: return "Proxy Server Not Found";
 	case 609: return "SSL Failure";
 	case 610: return "Cancelled by Shutdown";
+	case 611: return "Too Many Redirects";
 	default:  return "Unknown Status Code";
 	}
 }
