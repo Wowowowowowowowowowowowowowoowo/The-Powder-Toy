@@ -5,6 +5,12 @@
 #include <string>
 #include <curl/curl.h>
 
+#ifdef CURL_AT_LEAST_VERSION
+# if CURL_AT_LEAST_VERSION(7, 56, 0)
+#  define REQUEST_USE_CURL_MIMEPOST
+# endif
+#endif
+
 class RequestManager;
 class Request
 {
@@ -24,7 +30,13 @@ class Request
 	int status;
 
 	struct curl_slist *headers;
-	curl_mime *post_fields;
+
+#ifdef REQUEST_USE_CURL_MIMEPOST
+		curl_mime *post_fields;
+#else
+		curl_httppost *post_fields_first, *post_fields_last;
+		std::map<ByteString, ByteString> post_fields_map;
+#endif
 
 	pthread_cond_t done_cv;
 
