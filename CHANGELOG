@@ -962,3 +962,12 @@ script manager to 3.10. Update tptmp to 0.100.
 Version 42.6 2019-04-12
 Fix incorrect mouse position when in fullscreen and "force integer scaling" is
 checked
+
+Version 43.0 2019-07-14
+Add libcurl, communications to the powder toy server and update server are now
+secured using SSL. This prevents others from stealing session information or
+passwords, and prevents ISPs or firewalls from modifying server responses. This
+update will also come to the official version later. Communications to the
+script server or tpt multiplayer are not secured. Update from tpt++: Lua
+functions for working with zoom (other updates from TPT Snapshots to be
+included later). Fix "uses mod elements" false positive with PIPE/PPIP.
