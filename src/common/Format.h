@@ -3,7 +3,10 @@
 #include <sstream>
 #include <vector>
 
+namespace gfx
+{
 class VideoBuffer;
+}
 
 namespace Format
 {
@@ -31,10 +34,10 @@ namespace Format
 	std::string UnixtimeToDateMini(time_t unixtime);
 	std::string CleanString(std::string dirtyString, bool ascii, bool color, bool newlines, bool numeric = false);
 	std::string CleanString(const char * dirtyData, bool ascii, bool color, bool newlines, bool numeric = false);
-	std::vector<char> VideoBufferToPNG(const VideoBuffer & vidBuf);
-	std::vector<char> VideoBufferToBMP(const VideoBuffer & vidBuf);
-	std::vector<char> VideoBufferToPPM(const VideoBuffer & vidBuf);
-	std::vector<char> VideoBufferToPTI(const VideoBuffer & vidBuf);
-	VideoBuffer * PTIToVideoBuffer(std::vector<char> & data);
+	std::vector<char> VideoBufferToPNG(const gfx::VideoBuffer & vidBuf);
+	std::vector<char> VideoBufferToBMP(const gfx::VideoBuffer & vidBuf);
+	std::vector<char> VideoBufferToPPM(const gfx::VideoBuffer & vidBuf);
+	std::vector<char> VideoBufferToPTI(const gfx::VideoBuffer & vidBuf);
+	gfx::VideoBuffer * PTIToVideoBuffer(std::vector<char> & data);
 	unsigned long CalculateCRC(unsigned char * data, int length);
 }

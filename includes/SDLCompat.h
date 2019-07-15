@@ -32,6 +32,5 @@
 
 #undef Above
 #undef Below
-#define DrawTextA DrawText
 
 #endif // SDLCOMPAT_H

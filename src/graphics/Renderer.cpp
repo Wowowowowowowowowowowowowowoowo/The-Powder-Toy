@@ -33,7 +33,7 @@ std::string Renderer::TakeScreenshot(bool includeUI, int format)
 {
 	int w = includeUI ? XRES+BARSIZE : XRES;
 	int h = includeUI ? YRES+MENUSIZE : YRES;
-	VideoBuffer *vid = new VideoBuffer(w, h);
+	gfx::VideoBuffer *vid = new gfx::VideoBuffer(w, h);
 	vid->CopyBufferFrom(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, w, h);
 
 	std::vector<char> screenshotData;
@@ -82,7 +82,7 @@ void Renderer::RecordingTick()
 	if (!recording)
 		return;
 
-	VideoBuffer *screenshot = new VideoBuffer(XRES, YRES);
+	gfx::VideoBuffer *screenshot = new gfx::VideoBuffer(XRES, YRES);
 	screenshot->CopyBufferFrom(vid_buf, XRES+BARSIZE, YRES+MENUSIZE, XRES, YRES);
 
 	std::vector<char> screenshotData = Format::VideoBufferToPPM(*screenshot);

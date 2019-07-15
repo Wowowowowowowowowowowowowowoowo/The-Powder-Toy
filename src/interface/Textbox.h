@@ -4,7 +4,10 @@
 #include <functional>
 #include "Label.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 class Textbox : public Label
 {
 public:
@@ -18,7 +21,7 @@ public:
 
 	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 	void OnTextInput(const char *text) override;
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 	void OnFocus() override;
 
 	void SetAutoSize(bool X, bool Y, Point limit);

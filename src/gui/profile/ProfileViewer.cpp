@@ -250,7 +250,7 @@ void ProfileViewer::ResizeArea(int biographyLabelHeight)
 		scrollArea->SetScrollable(false, 0);
 }
 
-void ProfileViewer::OnDrawAfterSubwindows(VideoBuffer *buf)
+void ProfileViewer::OnDrawAfterSubwindows(gfx::VideoBuffer *buf)
 {
 	if (avatar)
 		buf->DrawImage(avatar, 210, 10-scrollArea->GetScrollPosition(), 40, 40);

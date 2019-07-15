@@ -153,7 +153,7 @@ std::string Format::CleanString(const char * dirtyData, bool ascii, bool color, 
 	return Format::CleanString(std::string(dirtyData), ascii, color, newlines, numeric);
 }
 
-std::vector<char> Format::VideoBufferToBMP(const VideoBuffer & vidBuf)
+std::vector<char> Format::VideoBufferToBMP(const gfx::VideoBuffer & vidBuf)
 {
 	const int width = vidBuf.GetWidth();
 	const int height = vidBuf.GetHeight();
@@ -198,7 +198,7 @@ std::vector<char> Format::VideoBufferToBMP(const VideoBuffer & vidBuf)
 	return data;
 }
 
-std::vector<char> Format::VideoBufferToPPM(const VideoBuffer & vidBuf)
+std::vector<char> Format::VideoBufferToPPM(const gfx::VideoBuffer & vidBuf)
 {
 	int width = vidBuf.GetWidth();
 	int height = vidBuf.GetHeight();
@@ -288,7 +288,7 @@ public:
 	~PngException() throw() {}
 };
 
-std::vector<char> Format::VideoBufferToPNG(const VideoBuffer & vidBuf)
+std::vector<char> Format::VideoBufferToPNG(const gfx::VideoBuffer & vidBuf)
 {
 	int width = vidBuf.GetWidth();
 	int height = vidBuf.GetHeight();

@@ -4,6 +4,9 @@
 #include "font.h"
 #include "common/tpt-minmax.h"
 
+namespace gfx
+{
+
 VideoBuffer::VideoBuffer(int width, int height):
 	width(width),
 	height(height)
@@ -443,4 +446,6 @@ void VideoBuffer::DrawImage(pixel *img, int x, int y, int w, int h, int a)
 			}
 		}
 	}
+}
+
 }

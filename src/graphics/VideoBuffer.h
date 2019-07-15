@@ -5,6 +5,9 @@
 #include "Pixel.h"
 #include "common/Point.h"
 
+namespace gfx
+{
+
 class VideoBuffer
 {
 	//pixel video map, usually an unsigned int in 0x00RRGGBB format
@@ -38,5 +41,7 @@ public:
 	int GetHeight() const { return height; }
 	Point GetSize() const { return Point(width, height); }
 };
+
+}
 
 #endif

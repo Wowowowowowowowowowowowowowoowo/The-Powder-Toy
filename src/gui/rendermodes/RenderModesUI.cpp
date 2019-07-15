@@ -356,7 +356,7 @@ void RenderModesUI::OnTick(uint32_t ticks)
 	}
 }
 
-void RenderModesUI::OnDraw(VideoBuffer *buf)
+void RenderModesUI::OnDraw(gfx::VideoBuffer *buf)
 {
 #ifdef TOUCHUI
 	if (interfaceSwap)

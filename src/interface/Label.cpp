@@ -169,7 +169,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 				break;
 			default:
 				//normal character, add to the current width and check if it's too long
-				posX += VideoBuffer::CharSize(text[i]);
+				posX += gfx::VideoBuffer::CharSize(text[i]);
 				if (!autosizeX && posX+4 >= size.X)
 				{
 					if (multiline)
@@ -371,7 +371,7 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 	}
 }
 
-void Label::OnDraw(VideoBuffer* vid)
+void Label::OnDraw(gfx::VideoBuffer* vid)
 {
 	if (enabled)
 	{

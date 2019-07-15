@@ -32,7 +32,7 @@ public:
 	~ProfileViewer();
 
 	void OnTick(uint32_t ticks) override;
-	void OnDrawAfterSubwindows(VideoBuffer *buf) override;
+	void OnDrawAfterSubwindows(gfx::VideoBuffer *buf) override;
 
 	// callback functions for all the buttons
 	void EnableEditing();

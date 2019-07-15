@@ -371,7 +371,7 @@ void OptionsUI::DataFolderClicked()
 	delete[] workingDirectory;
 }
 
-void OptionsUI::OnDraw(VideoBuffer * buf)
+void OptionsUI::OnDraw(gfx::VideoBuffer * buf)
 {
 	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, size.X, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
 #ifndef TOUCHUI

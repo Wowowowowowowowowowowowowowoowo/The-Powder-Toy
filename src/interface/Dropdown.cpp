@@ -11,7 +11,7 @@ Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options)
 	{
 		int maxWidth = 25;
 		for (auto option : options)
-			maxWidth = tpt::max(maxWidth, VideoBuffer::TextSize(option).X);
+			maxWidth = tpt::max(maxWidth, gfx::VideoBuffer::TextSize(option).X);
 		this->size.X = maxWidth + 5;
 	}
 	if (size.Y == AUTOSIZE)
@@ -50,7 +50,7 @@ void Dropdown::OnMouseUp(int x, int y, unsigned char button)
 	}
 }
 
-void Dropdown::OnDraw(VideoBuffer* vid)
+void Dropdown::OnDraw(gfx::VideoBuffer* vid)
 {
 	ARGBColour col = color;
 	if (!enabled)
@@ -94,7 +94,7 @@ void DropdownOptions::OnMouseUp(int x, int y, unsigned char button)
 	this->toDelete  = true;
 }
 
-void DropdownOptions::OnDraw(VideoBuffer* vid)
+void DropdownOptions::OnDraw(gfx::VideoBuffer* vid)
 {
 	int optionHeight = dropdown->size.Y;
 	for (size_t i = 0; i < dropdown->options.size(); i++)

@@ -8,7 +8,10 @@
 #include "graphics/Pixel.h"
 #include "Component.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 namespace ui
 {
 class Window
@@ -47,7 +50,7 @@ public:
 
 	Point GetPosition() { return position; }
 	Point GetSize() { return size; }
-	VideoBuffer* GetVid() { return videoBuffer; }
+	gfx::VideoBuffer* GetVid() { return videoBuffer; }
 	bool IsMouseDown() { return isMouseDown; }
 	bool CanQuit() { return !ignoreQuits; }
 	void HasBorder(bool border) { hasBorder = border; }
@@ -67,8 +70,8 @@ protected:
 
 	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }
-	virtual void OnDraw(VideoBuffer *buf) { }
-	virtual void OnDrawAfterSubwindows(VideoBuffer *buf) { }
+	virtual void OnDraw(gfx::VideoBuffer *buf) { }
+	virtual void OnDrawAfterSubwindows(gfx::VideoBuffer *buf) { }
 	virtual void OnMouseMove(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }
@@ -96,7 +99,7 @@ protected:
 private:
 	Window *parent;
 	bool mouseDownOutside;
-	VideoBuffer *videoBuffer;
+	gfx::VideoBuffer *videoBuffer;
 	Component *focused;
 	Component *clicked;
 };

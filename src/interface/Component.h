@@ -6,7 +6,10 @@
 #include "common/Point.h"
 #include "common/SDL_keysym.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 namespace ui
 {
 	class Window;
@@ -57,7 +60,7 @@ public:
 	Point Below(Point diff) { return Point(position.X + diff.X, position.Y + size.Y + diff.Y); }
 
 	virtual void OnTick(uint32_t ticks) { }
-	virtual void OnDraw(VideoBuffer* vid) { }
+	virtual void OnDraw(gfx::VideoBuffer* vid) { }
 	virtual void OnMouseMoved(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
 	virtual void OnMouseUp(int x, int y, unsigned char button) { }

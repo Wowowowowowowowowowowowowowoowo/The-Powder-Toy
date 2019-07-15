@@ -181,7 +181,7 @@ public:
 	void TransformSave(int a, int b, int c, int d);
 
 	void OnTick(uint32_t ticks) override;
-	void OnDraw(VideoBuffer *buf) override;
+	void OnDraw(gfx::VideoBuffer *buf) override;
 	void OnMouseMove(int x, int y, Point difference) override;
 	void OnMouseDown(int x, int y, unsigned char button) override;
 	void OnMouseUp(int x, int y, unsigned char button) override;

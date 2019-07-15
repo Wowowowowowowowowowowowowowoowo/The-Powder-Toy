@@ -26,7 +26,7 @@ Window::Window(Point position_, Point size_):
 		position.X = (XRES+BARSIZE-size.X)/2;
 	if (position.Y == CENTERED)
 		position.Y = (YRES+MENUSIZE-size.Y)/2;
-	videoBuffer = new VideoBuffer(size.X, size.Y);
+	videoBuffer = new gfx::VideoBuffer(size.X, size.Y);
 }
 
 Window::~Window()
@@ -49,7 +49,7 @@ void Window::Resize(Point position_, Point size_)
 		position.X = (XRES+BARSIZE-size.X)/2;
 	if (position.Y == CENTERED)
 		position.Y = (YRES+MENUSIZE-size.Y)/2;
-	videoBuffer = new VideoBuffer(size.X, size.Y);
+	videoBuffer = new gfx::VideoBuffer(size.X, size.Y);
 }
 
 void Window::AddComponent(Component *other)

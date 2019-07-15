@@ -5,7 +5,10 @@
 #include "common/Point.h"
 #include "Component.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 class Label : public Component
 {
 private:
@@ -43,7 +46,7 @@ public:
 	void OnDefocus() override;
 	void OnMouseMoved(int x, int y, Point difference) override;
 	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 	void OnTick(uint32_t ticks) override;
 
 	static const int AUTOSIZE = -1;

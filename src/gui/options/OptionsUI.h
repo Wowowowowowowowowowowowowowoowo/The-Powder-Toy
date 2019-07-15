@@ -44,7 +44,7 @@ class OptionsUI : public ui::Window
 	void UpdatesChecked(bool checked);
 	void DataFolderClicked();
 
-	void OnDraw(VideoBuffer * buf) override;
+	void OnDraw(gfx::VideoBuffer * buf) override;
 	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 public:

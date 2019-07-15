@@ -4,7 +4,10 @@
 #include <string>
 #include "Component.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 class ProgressBar : public Component
 {
 	int progress = 0;
@@ -15,7 +18,7 @@ public:
 	int GetProgress();
 	void SetProgress(int progress);
 
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 };
 
 #endif // PROGRESSBAR_H

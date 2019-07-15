@@ -8,7 +8,10 @@
 #include "common/Point.h"
 #include "interface/Window.h"
 
+namespace
+{
 class VideoBuffer;
+}
 
 class Dropdown : public Component
 {
@@ -27,7 +30,7 @@ public:
 	bool IsSelectingOption() { return isSelectingOption; }
 
 	void OnMouseUp(int x, int y, unsigned char button) override;
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 
 	static const int AUTOSIZE = -1;
 
@@ -46,7 +49,7 @@ public:
 
 	void OnMouseMove(int x, int y, Point difference) override;
 	void OnMouseUp(int x, int y, unsigned char button) override;
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 };
 
 #endif

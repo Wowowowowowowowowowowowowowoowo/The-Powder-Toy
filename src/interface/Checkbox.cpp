@@ -12,7 +12,7 @@ Checkbox::Checkbox(Point position, Point size_, std::string text_):
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
 	{
-		Point checkboxSize = VideoBuffer::TextSize(text_);
+		Point checkboxSize = gfx::VideoBuffer::TextSize(text_);
 		if (size.Y == AUTOSIZE)
 			size.Y = 16;
 		if (size.X == AUTOSIZE)
@@ -35,10 +35,10 @@ void Checkbox::SetText(std::string text_)
 {
 	text = text_;
 	// ensure text isn't too big for button, maybe not too efficient
-	if (VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
+	if (gfx::VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
 	{
 		text += "...";
-		while (text.length() > 3 && VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
+		while (text.length() > 3 && gfx::VideoBuffer::TextSize(text).X + (textInside ? 2 : size.Y+2) >= size.X)
 		{
 			text.erase(text.length()-4, 1);
 		}
@@ -69,7 +69,7 @@ void Checkbox::OnMouseUp(int x, int y, unsigned char button)
 	}
 }
 
-void Checkbox::OnDraw(VideoBuffer* vid)
+void Checkbox::OnDraw(gfx::VideoBuffer* vid)
 {
 	// clear area
 	vid->FillRect(position.X, position.Y, size.X, size.Y, 0, 0, 0, 255);
@@ -131,7 +131,7 @@ void Checkbox::OnDraw(VideoBuffer* vid)
 			vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
 	}
 
-	Point textSize = VideoBuffer::TextSize(text);
+	Point textSize = gfx::VideoBuffer::TextSize(text);
 	vid->DrawText((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 }
 

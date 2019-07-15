@@ -7,7 +7,10 @@
 #include "graphics/ARGBColour.h"
 #include "Component.h"
 
+namespace gfx
+{
 class VideoBuffer;
+}
 class ToolTip;
 
 class Button : public Component
@@ -48,7 +51,7 @@ public:
 
 	void OnMouseDown(int x, int y, unsigned char button) override;
 	void OnMouseUp(int x, int y, unsigned char button) override;
-	void OnDraw(VideoBuffer* vid) override;
+	void OnDraw(gfx::VideoBuffer* vid) override;
 	void OnTick(uint32_t ticks) override;
 
 	static const int AUTOSIZE = -1;

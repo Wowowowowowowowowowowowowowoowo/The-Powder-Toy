@@ -17,7 +17,7 @@ Button::Button(Point position, Point size_, std::string text_):
 {
 	if (size.X == AUTOSIZE || size.Y == AUTOSIZE)
 	{
-		Point buttonSize = VideoBuffer::TextSize(text_);
+		Point buttonSize = gfx::VideoBuffer::TextSize(text_);
 		if (size.X == AUTOSIZE)
 			size.X = buttonSize.X + 7;
 		if (size.Y == AUTOSIZE)
@@ -35,10 +35,10 @@ void Button::SetText(std::string text_)
 {
 	text = text_;
 	// ensure text isn't too big for button, maybe not too efficient
-	if (VideoBuffer::TextSize(text).X+2 >= size.X)
+	if (gfx::VideoBuffer::TextSize(text).X+2 >= size.X)
 	{
 		text += "...";
-		while (text.length() > 3 && VideoBuffer::TextSize(text).X+2 >= size.X)
+		while (text.length() > 3 && gfx::VideoBuffer::TextSize(text).X+2 >= size.X)
 		{
 			text.erase(text.length()-4, 1);
 		}
@@ -89,7 +89,7 @@ void Button::OnMouseUp(int x, int y, unsigned char button)
 	}
 }
 
-void Button::OnDraw(VideoBuffer* vid)
+void Button::OnDraw(gfx::VideoBuffer* vid)
 {
 	// clear area
 	vid->FillRect(position.X, position.Y, size.X, size.Y, 0, 0, 0, 255);
@@ -184,12 +184,12 @@ void Button::OnDraw(VideoBuffer* vid)
 
 	if (alignment == LEFT)
 	{
-		Point textSize = VideoBuffer::TextSize(text);
+		Point textSize = gfx::VideoBuffer::TextSize(text);
 		vid->DrawText(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
 	}
 	else
 	{
-		Point textSize = VideoBuffer::TextSize(text);
+		Point textSize = gfx::VideoBuffer::TextSize(text);
 		vid->DrawText(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
 	}
 }

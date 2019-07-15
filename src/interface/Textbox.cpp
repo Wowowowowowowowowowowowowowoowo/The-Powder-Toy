@@ -310,7 +310,7 @@ void Textbox::OnTextInput(const char *text)
 		InsertText(text);
 }
 
-void Textbox::OnDraw(VideoBuffer* vid)
+void Textbox::OnDraw(gfx::VideoBuffer* vid)
 {
 	Label::OnDraw(vid);
 	if (IsFocused() && enabled)

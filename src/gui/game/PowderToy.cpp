@@ -810,12 +810,12 @@ bool PowderToy::IsMouseInZoom(Point mouse)
 
 void PowderToy::SetInfoTip(std::string infotip)
 {
-	UpdateToolTip(infotip, Point(XCNTR-VideoBuffer::TextSize(infotip).X/2, YCNTR-10), INFOTIP, 1000);
+	UpdateToolTip(infotip, Point(XCNTR-gfx::VideoBuffer::TextSize(infotip).X/2, YCNTR-10), INFOTIP, 1000);
 }
 
 ToolTip * PowderToy::GetQTip(std::string qtip, int y)
 {
-	return new ToolTip(qtip, Point(XRES-5-VideoBuffer::TextSize(qtip).X, y), QTIP, -2);
+	return new ToolTip(qtip, Point(XRES-5-gfx::VideoBuffer::TextSize(qtip).X, y), QTIP, -2);
 }
 
 void PowderToy::UpdateZoomCoordinates(Point mouse)
@@ -936,7 +936,7 @@ void PowderToy::HideZoomWindow()
 
 Button * PowderToy::AddNotification(std::string message, std::function<void(int)> callback)
 {
-	int messageSize = VideoBuffer::TextSize(message).X;
+	int messageSize = gfx::VideoBuffer::TextSize(message).X;
 	Button *notificationButton = new Button(Point(XRES - 26 - messageSize - 5, YRES - 22 - 20 * numNotifications),
 	        Point(messageSize + 5, 15), message);
 	notificationButton->SetColor(COLRGB(255, 216, 32));
@@ -964,7 +964,7 @@ void PowderToy::LoadRenderPreset(int preset)
 	if (Renderer::Ref().LoadRenderPreset(preset))
 	{
 		std::string tooltip = Renderer::Ref().GetRenderPresetToolTip(preset);
-		UpdateToolTip(tooltip, Point(XCNTR-VideoBuffer::TextSize(tooltip).X/2, YCNTR-10), INFOTIP, 255);
+		UpdateToolTip(tooltip, Point(XCNTR-gfx::VideoBuffer::TextSize(tooltip).X/2, YCNTR-10), INFOTIP, 255);
 		save_presets();
 	}
 }
@@ -1367,7 +1367,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	VideoBufferHack();
 }
 
-void PowderToy::OnDraw(VideoBuffer *buf)
+void PowderToy::OnDraw(gfx::VideoBuffer *buf)
 {
 #ifdef LUACONSOLE
 	luacon_step(mouse.X, mouse.Y);
@@ -2051,7 +2051,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 				toolTip = "Gravity: Radial";
 				break;
 			}
-			UpdateToolTip(toolTip, Point(XCNTR - VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
+			UpdateToolTip(toolTip, Point(XCNTR - gfx::VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
 		}
 		 break;
 	case SDL_SCANCODE_E:
@@ -2099,7 +2099,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 				toolTip = "Air: No Update";
 				break;
 			}
-			UpdateToolTip(toolTip, Point(XCNTR - VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
+			UpdateToolTip(toolTip, Point(XCNTR - gfx::VideoBuffer::TextSize(toolTip.c_str()).X / 2, YCNTR - 10), INFOTIP, 255);
 		}
 		break;
 	case SDL_SCANCODE_U:
@@ -2158,7 +2158,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			old_menu = !old_menu;
 			if (old_menu)
 				UpdateToolTip("Experimental old menu activated, press 'o' to turn off",
-						Point(XCNTR - VideoBuffer::TextSize("Experimental old menu activated, press 'o' to turn off").X / 2, YCNTR - 10), INFOTIP, 500);
+						Point(XCNTR - gfx::VideoBuffer::TextSize("Experimental old menu activated, press 'o' to turn off").X / 2, YCNTR - 10), INFOTIP, 500);
 		}
 #endif
 		break;

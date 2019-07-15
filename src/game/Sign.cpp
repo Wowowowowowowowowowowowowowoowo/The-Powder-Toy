@@ -154,7 +154,7 @@ std::string Sign::GetDisplayText(Simulation * sim) const
 
 void Sign::GetPos(Simulation * sim, int & x0, int & y0, int & w, int & h) const
 {
-	w = VideoBuffer::TextSize(GetDisplayText(sim)).X + 4;
+	w = gfx::VideoBuffer::TextSize(GetDisplayText(sim)).X + 4;
 	h = 14;
 	x0 = (ju == Right) ? x - w :
 		  (ju == Left) ? x : x - w/2;
