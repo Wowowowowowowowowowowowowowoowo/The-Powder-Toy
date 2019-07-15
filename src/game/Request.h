@@ -2,6 +2,7 @@
 #define REQUEST_H
 
 #include <map>
+#include "common/tpt-thread.h"
 #include <string>
 #include <curl/curl.h>
 
