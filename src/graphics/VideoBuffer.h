@@ -5,6 +5,11 @@
 #include "Pixel.h"
 #include "common/Point.h"
 
+// WinUser.h does #define DrawText DrawTextA, revert that change here
+#ifdef _MSC_VER
+#define DrawTextA DrawText
+#endif
+
 namespace gfx
 {
 

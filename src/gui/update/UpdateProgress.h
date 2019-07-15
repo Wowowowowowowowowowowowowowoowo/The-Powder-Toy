@@ -2,6 +2,7 @@
 #define UPDATEPROGRESS_H
 
 #include <functional>
+#include <string>
 #include "interface/Window.h"
 
 class Request;
