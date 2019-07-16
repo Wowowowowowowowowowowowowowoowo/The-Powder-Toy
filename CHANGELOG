@@ -971,3 +971,7 @@ update will also come to the official version later. Communications to the
 script server or tpt multiplayer are not secured. Update from tpt++: Lua
 functions for working with zoom (other updates from TPT Snapshots to be
 included later). Fix "uses mod elements" false positive with PIPE/PPIP.
+
+Version 43.0 (build 111)
+Fix crash on startup. Fix updater. Previous build was probably not released
+to anyone.
