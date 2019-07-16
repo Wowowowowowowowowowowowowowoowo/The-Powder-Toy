@@ -1045,7 +1045,7 @@ void PowderToy::OnTick(uint32_t ticks)
 				int major = stable["Major"].asInt();
 				int minor = stable["Minor"].asInt();
 				int buildnum = stable["Build"].asInt();
-				std::string file = UPDATESERVER + stable["File"].asString();
+				std::string file = UPDATESCHEME UPDATESERVER + stable["File"].asString();
 				std::string changelog = stable["Changelog"].asString();
 				if (buildnum > MOD_BUILD_VERSION)
 				{
