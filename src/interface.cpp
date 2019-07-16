@@ -4178,7 +4178,7 @@ int search_ui(pixel *vid_buf)
 			for (pos=0; pos<GRID_X*GRID_Y; pos++)
 			{
 				std::stringstream uri;
-				char *imgID;
+				char *imgID = nullptr;
 				if (search_dates[pos])
 				{
 					std::stringstream tempID;
@@ -4186,7 +4186,7 @@ int search_ui(pixel *vid_buf)
 					imgID = mystrdup(tempID.str().c_str());
 					uri << STATICSCHEME << STATICSERVER << "/" << search_ids[pos] << "_" << search_dates[pos] << "_small.pti";
 				}
-				else
+				else if (search_ids[pos])
 				{
 					imgID = mystrdup(search_ids[pos]);
 					uri << STATICSCHEME STATICSERVER "/" << search_ids[pos] << "_small.pti";

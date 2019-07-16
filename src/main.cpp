@@ -1100,6 +1100,7 @@ int main(int argc, char *argv[])
 	UpdateToolTip(introText, Point(16, 20), INTROTIP, 10235);
 
 	Engine::Ref().ShowWindow(the_game);
+#if !defined(DEBUG) && !defined(_DEBUG)
 	try
 	{
 		MainLoop();
@@ -1108,6 +1109,9 @@ int main(int argc, char *argv[])
 	{
 		BlueScreen(("Unhandled c++ exception: " + std::string(e.what())).c_str());
 	}
+#else
+	MainLoop();
+#endif
 
 	//delete engine;
 
