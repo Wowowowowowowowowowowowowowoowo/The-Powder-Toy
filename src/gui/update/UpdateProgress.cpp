@@ -24,7 +24,7 @@ UpdateProgress::UpdateProgress(std::string uri, std::string username, std::funct
 
 	download = new Request(uri);
 	const char *usernameC = username.c_str();
-	download->AuthHeaders(usernameC, nullptr);
+	download->AuthHeaders(usernameC, "");
 	download->Start();
 }
 
