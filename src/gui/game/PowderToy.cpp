@@ -284,7 +284,7 @@ void PowderToy::DelayedHttpInitialization()
 {
 	if (doUpdates)
 	{
-		versionCheck = new Request(UPDATESERVER UPDATESERVER "/Startup.json");
+		versionCheck = new Request(UPDATESCHEME UPDATESERVER "/Startup.json");
 		if (svf_login)
 			versionCheck->AuthHeaders(svf_user, ""); //username instead of session
 		versionCheck->Start();
