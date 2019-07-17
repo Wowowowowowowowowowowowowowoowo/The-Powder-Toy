@@ -5176,8 +5176,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			//Submit Button
 			if (mx > XRES+BARSIZE-100 && mx < XRES+BARSIZE-100+50 && my > YRES+MENUSIZE-68 && my < YRES+MENUSIZE-50 && svf_login && info_ready && !queue_open && !fake404save) {
-				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(!commentsDownload->CheckStarted() ? 0 : 1)*80);
-				if (!b && bq && !commentsDownload->CheckStarted())
+				bool commentsDownloadStarted = commentsDownload && commentsDownload->CheckStarted();
+				fillrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 40+(!commentsDownloadStarted ? 0 : 1)*80);
+				if (!b && bq && !commentsDownloadStarted)
 				{
 					//Button Clicked
 					fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 192);
@@ -5186,7 +5187,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					{
 						std::stringstream uri;
 						uri << SCHEME << SERVER << "/Browse/Comments.json?ID=" << save_id << "&Start=0&Count=20";
-						commentsDownload->Cancel();
+						if (commentsDownload)
+							commentsDownload->Cancel();
 						commentsDownload = new Request(uri.str());
 						commentsDownload->Start();
 
