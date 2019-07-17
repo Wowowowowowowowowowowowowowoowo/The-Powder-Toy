@@ -975,3 +975,6 @@ included later). Fix "uses mod elements" false positive with PIPE/PPIP.
 Version 43.0 (build 111) 2019-07-15
 Fix crash on startup. Fix updater. Previous build was probably not released
 to anyone.
+
+Version 43.1 (build 112) 2019-07-16
+Fix crash when trying to submit comments
