@@ -3180,7 +3180,7 @@ int platform_exeName(lua_State * l)
 int platform_restart(lua_State * l)
 {
 	int saveTab = luaL_optinteger(l, 1, 0);
-	Platform::DoRestart(saveTab ? true : false);
+	Platform::DoRestart(saveTab ? true : false, false);
 	return 0;
 }
 

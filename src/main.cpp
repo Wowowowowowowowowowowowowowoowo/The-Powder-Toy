@@ -818,6 +818,7 @@ void SigHandler(int signal)
 #if !defined(DEBUG) && !defined(_DEBUG)
 	int signal_hooks = 0;
 #endif
+	bool disableSignals = false;
 
 bool sendNewEvents = false;
 bool openConsole = false;
@@ -1015,6 +1016,10 @@ int main(int argc, char *argv[])
 				benchmark_file = argv[i+1];
 				i++;
 			}
+		}
+		else if (!strcmp(argv[i], "nobluescreen"))
+		{
+			disableSignals = true;
 		}
 	}
 
@@ -1675,7 +1680,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		//sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 #if !defined(DEBUG) && !defined(_DEBUG)
-		if (!signal_hooks)
+		if (!signal_hooks && !disableSignals)
 		{
 			signal(SIGSEGV, SigHandler);
 			signal(SIGFPE, SigHandler);

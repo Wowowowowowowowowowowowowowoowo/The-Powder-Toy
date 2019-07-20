@@ -7,7 +7,7 @@
 namespace Platform
 {
 	char *ExecutableName();
-	void DoRestart(bool saveTab);
+	void DoRestart(bool saveTab, bool disableSignals);
 	void OpenLink(std::string uri);
 	void Millisleep(long int t);
 	unsigned long GetTime();

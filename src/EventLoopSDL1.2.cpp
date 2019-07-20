@@ -283,7 +283,7 @@ void BlueScreen(const char * detailMessage)
 		{
 			if (event.type == SDL_QUIT)
 			{
-				Platform::DoRestart(true);
+				Platform::DoRestart(true, true);
 			}
 			else if (event.type == SDL_KEYDOWN)
 			{
@@ -307,7 +307,7 @@ void BlueScreen(const char * detailMessage)
 					break;
 				default:
 #ifdef ANDROID
-					Platform::DoRestart(true);
+					Platform::DoRestart(true, true);
 #endif
 					break;
 				}

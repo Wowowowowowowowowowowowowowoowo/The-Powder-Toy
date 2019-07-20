@@ -94,7 +94,7 @@ char *ExecutableName()
 #endif //ANDROID
 }
 
-void DoRestart(bool saveTab)
+void DoRestart(bool saveTab, bool disableSignals)
 {
 	if (saveTab)
 	{
@@ -109,9 +109,9 @@ void DoRestart(bool saveTab)
 	if (exename)
 	{
 #ifdef WIN
-		ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
+		ShellExecute(NULL, "open", exename, disableSignals ? "nobluescreen" : nullptr, nullptr, SW_SHOWNORMAL);
 #elif defined(LIN) || defined(MACOSX)
-		execl(exename, "powder", NULL);
+		execl(exename, "powder", disableSignals ? "nobluescreen" : nullptr);
 #endif
 		free(exename);
 	}
