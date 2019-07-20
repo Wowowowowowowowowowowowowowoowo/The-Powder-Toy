@@ -132,7 +132,7 @@ void Checkbox::OnDraw(gfx::VideoBuffer* vid)
 	}
 
 	Point textSize = gfx::VideoBuffer::TextSize(text);
-	vid->DrawText((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+	vid->DrawString((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
 }
 
 void Checkbox::OnTick(uint32_t ticks)

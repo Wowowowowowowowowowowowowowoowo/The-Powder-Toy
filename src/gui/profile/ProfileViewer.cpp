@@ -254,12 +254,12 @@ void ProfileViewer::OnDrawAfterSubwindows(gfx::VideoBuffer *buf)
 {
 	if (avatar)
 		buf->DrawImage(avatar, 210, 10-scrollArea->GetScrollPosition(), 40, 40);
-	buf->DrawText(10, 24-scrollArea->GetScrollPosition(), "Age:", 175, 175, 175, 255);
-	buf->DrawText(10, 38-scrollArea->GetScrollPosition(), "Location:", 175, 175, 175, 255);
-	buf->DrawText(10, 52-scrollArea->GetScrollPosition(), "Website:", 175, 175, 175, 255);
-	buf->DrawText(10, 66-scrollArea->GetScrollPosition(), "Saves:", 175, 175, 175, 255);
-	buf->DrawText(15, 80-scrollArea->GetScrollPosition(), "Count:", 175, 175, 175, 255);
-	buf->DrawText(15, 94-scrollArea->GetScrollPosition(), "Average Score:", 175, 175, 175, 255);
-	buf->DrawText(15, 108-scrollArea->GetScrollPosition(), "Highest Score:", 175, 175, 175, 255);
-	buf->DrawText(10, 122-scrollArea->GetScrollPosition(), "Biography:", 175, 175, 175, 255);
+	buf->DrawString(10, 24-scrollArea->GetScrollPosition(), "Age:", 175, 175, 175, 255);
+	buf->DrawString(10, 38-scrollArea->GetScrollPosition(), "Location:", 175, 175, 175, 255);
+	buf->DrawString(10, 52-scrollArea->GetScrollPosition(), "Website:", 175, 175, 175, 255);
+	buf->DrawString(10, 66-scrollArea->GetScrollPosition(), "Saves:", 175, 175, 175, 255);
+	buf->DrawString(15, 80-scrollArea->GetScrollPosition(), "Count:", 175, 175, 175, 255);
+	buf->DrawString(15, 94-scrollArea->GetScrollPosition(), "Average Score:", 175, 175, 175, 255);
+	buf->DrawString(15, 108-scrollArea->GetScrollPosition(), "Highest Score:", 175, 175, 175, 255);
+	buf->DrawString(10, 122-scrollArea->GetScrollPosition(), "Biography:", 175, 175, 175, 255);
 }

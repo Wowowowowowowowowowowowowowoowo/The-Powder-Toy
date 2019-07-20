@@ -41,7 +41,7 @@ void ProgressBar::OnDraw(gfx::VideoBuffer *vid)
 	progressStr += "%";
 	width = gfx::VideoBuffer::TextSize(progressStr).X;
 	if (progress < 53)
-		vid->DrawText(position.X + size.X/2 - width/2, position.Y + (size.Y-8)/2, progressStr, 192, 192, 192, 255);
+		vid->DrawString(position.X + size.X/2 - width/2, position.Y + (size.Y-8)/2, progressStr, 192, 192, 192, 255);
 	else
-		vid->DrawText(position.X + size.X/2 - width/2, position.Y + (size.Y-8)/2, progressStr, 63, 63, 63, 255);
+		vid->DrawString(position.X + size.X/2 - width/2, position.Y + (size.Y-8)/2, progressStr, 63, 63, 63, 255);
 }

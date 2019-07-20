@@ -1398,21 +1398,21 @@ void PowderToy::OnDraw(gfx::VideoBuffer *buf)
 		if (svf_admin)
 		{
 			Point iconPos = loginButton->Right(Point(-12, (saveButton->GetSize().Y-12)/2+2));
-			buf->DrawText(iconPos.X, iconPos.Y, "\xC9", 232, 127, 35, 255);
-			buf->DrawText(iconPos.X, iconPos.Y, "\xC7", 255, 255, 255, 255);
-			buf->DrawText(iconPos.X, iconPos.Y, "\xC8", 255, 255, 255, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\xC9", 232, 127, 35, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\xC7", 255, 255, 255, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\xC8", 255, 255, 255, 255);
 		}
 		else if (svf_mod)
 		{
 			Point iconPos = loginButton->Right(Point(-12, (saveButton->GetSize().Y-12)/2+2));
-			buf->DrawText(iconPos.X, iconPos.Y, "\xC9", 35, 127, 232, 255);
-			buf->DrawText(iconPos.X, iconPos.Y, "\xC7", 255, 255, 255, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\xC9", 35, 127, 232, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\xC7", 255, 255, 255, 255);
 		}
 		// amd logo
 		/*else if (true)
 		{
 			Point iconPos = loginButton->Right(Point(-12, (saveButton->GetSize().Y-10)/2));
-			buf->DrawText(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
+			buf->DrawString(iconPos.X, iconPos.Y, "\x97", 0, 230, 153, 255);
 		}*/
 	}
 	Renderer::Ref().RecordingTick();

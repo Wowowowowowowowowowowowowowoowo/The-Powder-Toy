@@ -57,7 +57,7 @@ void Dropdown::OnDraw(gfx::VideoBuffer* vid)
 		col = COLARGB(COLA(col), (int)(COLR(col) * .55f), (int)(COLG(col) * .55f), (int)(COLB(col) * .55f));
 	vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(col), COLG(col), COLB(col), COLA(col));
 	if (selectedOption < options.size())
-		vid->DrawText(position.X + 3, position.Y + (size.Y / 2) - 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
+		vid->DrawString(position.X + 3, position.Y + (size.Y / 2) - 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
 }
 
 
@@ -107,7 +107,7 @@ void DropdownOptions::OnDraw(gfx::VideoBuffer* vid)
 		else
 			vid->FillRect(0, yPos, size.X, optionHeight, 0, 0, 0, 255);
 		vid->DrawRect(0, yPos, size.X, optionHeight, 255, 255, 255, 255);
-		vid->DrawText(3, yPos + (optionHeight / 2) - 4, dropdown->options[i], 255, 255, 255, 255);
+		vid->DrawString(3, yPos + (optionHeight / 2) - 4, dropdown->options[i], 255, 255, 255, 255);
 
 	}
 }

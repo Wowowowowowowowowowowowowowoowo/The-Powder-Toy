@@ -386,10 +386,10 @@ void Label::OnDraw(gfx::VideoBuffer* vid)
 		{
 			mootext.insert(cursor+(cursor > cursorStart)*2, "\x02");
 		}
-		vid->DrawText(position.X+3, position.Y+4, mootext, COLR(color), COLG(color), COLB(color), COLA(color));
+		vid->DrawString(position.X+3, position.Y+4, mootext, COLR(color), COLG(color), COLB(color), COLA(color));
 	}
 	else
-		vid->DrawText(position.X+3, position.Y+4, text, (int)(COLR(color)*.5f), (int)(COLG(color)*.5f), (int)(COLB(color)*.5f), (int)(COLA(color)*.5f));
+		vid->DrawString(position.X+3, position.Y+4, text, (int)(COLR(color)*.5f), (int)(COLG(color)*.5f), (int)(COLB(color)*.5f), (int)(COLA(color)*.5f));
 }
 
 void Label::OnTick(uint32_t ticks)

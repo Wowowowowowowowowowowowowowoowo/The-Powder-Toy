@@ -240,7 +240,7 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 	return x + w;
 }
 
-int VideoBuffer::DrawText(int x, int y, std::string s, int r, int g, int b, int a)
+int VideoBuffer::DrawString(int x, int y, std::string s, int r, int g, int b, int a)
 {
 	if (a == 0)
 		return x;

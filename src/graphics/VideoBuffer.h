@@ -5,11 +5,6 @@
 #include "Pixel.h"
 #include "common/Point.h"
 
-// WinUser.h does #define DrawText DrawTextA, revert that change here
-#ifdef _MSC_VER
-#define DrawTextA DrawText
-#endif
-
 namespace gfx
 {
 
@@ -35,7 +30,7 @@ public:
 	void FillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a, bool modifiedColor = false);
-	int DrawText(int x, int y, std::string s, int r, int g, int b, int a);
+	int DrawString(int x, int y, std::string s, int r, int g, int b, int a);
 	static signed char CharSize(unsigned char c);
 	static Point TextSize(std::string s);
 
