@@ -2,6 +2,7 @@
 #define REQUEST_H
 
 #include <map>
+#include "curl/system.h"
 #include "common/tpt-thread.h"
 #include <string>
 
@@ -11,7 +12,6 @@ struct curl_slist;
 struct curl_mime_s;
 struct curl_httppost;
 typedef struct curl_mime_s curl_mime;
-typedef long curl_off_t;
 
 class RequestManager;
 class Request
