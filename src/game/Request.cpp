@@ -1,6 +1,16 @@
 #include "Request.h"
+#include <curl/curl.h>
 #include "RequestManager.h"
 #include "common/Platform.h"
+
+
+#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 55, 0)
+# define REQUEST_USE_CURL_OFFSET_T
+#endif
+
+#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 56, 0)
+# define REQUEST_USE_CURL_MIMEPOST
+#endif
 
 Request::Request(std::string uri_):
 	uri(uri_),
@@ -129,11 +139,12 @@ void Request::Start()
 		{
 			for (auto &field : post_fields_map)
 			{
-				if (auto split = field.first.SplitBy(':'))
+				size_t colonPos = field.first.find(':');
+				if (colonPos != field.first.npos)
 				{
 					curl_formadd(&post_fields_first, &post_fields_last,
-						CURLFORM_COPYNAME, split.Before().c_str(),
-						CURLFORM_BUFFER, split.After().c_str(),
+						CURLFORM_COPYNAME, field.first.substr(0, colonPos).c_str(),
+						CURLFORM_BUFFER, field.first.substr(colonPos + 1).c_str(),
 						CURLFORM_BUFFERPTR, &field.second[0],
 						CURLFORM_BUFFERLENGTH, field.second.size(),
 					CURLFORM_END);

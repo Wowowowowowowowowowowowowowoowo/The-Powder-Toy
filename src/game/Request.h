@@ -4,15 +4,14 @@
 #include <map>
 #include "common/tpt-thread.h"
 #include <string>
-#include <curl/curl.h>
 
-#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 55, 0)
-# define REQUEST_USE_CURL_OFFSET_T
-#endif
-
-#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 56, 0)
-# define REQUEST_USE_CURL_MIMEPOST
-#endif
+// minor hacks so I can avoid including curl in the header file. This causes problems with mingw
+typedef void CURL;
+struct curl_slist;
+struct curl_mime_s;
+struct curl_httppost;
+typedef struct curl_mime_s curl_mime;
+typedef long curl_off_t;
 
 class RequestManager;
 class Request
@@ -34,12 +33,9 @@ class Request
 
 	struct curl_slist *headers;
 
-#ifdef REQUEST_USE_CURL_MIMEPOST
-		curl_mime *post_fields;
-#else
-		curl_httppost *post_fields_first, *post_fields_last;
-		std::map<ByteString, ByteString> post_fields_map;
-#endif
+	curl_mime *post_fields;
+	curl_httppost *post_fields_first, *post_fields_last;
+	std::map<std::string, std::string> post_fields_map;
 
 	pthread_cond_t done_cv;
 

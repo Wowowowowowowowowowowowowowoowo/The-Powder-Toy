@@ -1,4 +1,5 @@
 #include <sstream>
+#include <curl/curl.h>
 #include "RequestManager.h"
 #include "defines.h"
 #include "Request.h"

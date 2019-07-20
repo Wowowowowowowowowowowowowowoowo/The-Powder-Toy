@@ -5,8 +5,10 @@
 #include <ctime>
 #include <set>
 #include <string>
-#include <curl/curl.h>
 #include "common/Singleton.h"
+
+// minor hack so I can avoid including curl in the header file. This causes problems with mingw
+typedef void CURLM;
 
 class Request;
 class RequestManager : public Singleton<RequestManager>
