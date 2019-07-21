@@ -978,3 +978,7 @@ to anyone.
 
 Version 43.1 (build 112) 2019-07-16
 Fix crash when trying to submit comments
+
+Version 43.2 (build 113) 2019-07-21
+Fix crash when exiting on Windows. Fix non-windows versions accidentally
+being compiled in debug mode.
