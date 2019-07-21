@@ -38,7 +38,9 @@ void RequestManager::Shutdown()
 
 	pthread_join(worker_thread, NULL);
 
+#ifndef WIN
 	curl_multi_cleanup(multi);
+#endif
 	multi = NULL;
 	curl_global_cleanup();
 }
