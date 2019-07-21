@@ -1118,10 +1118,6 @@ int main(int argc, char *argv[])
 	MainLoop();
 #endif
 
-	//delete engine;
-
-	RequestManager::Ref().Shutdown();
-
 	return 0;
 }
 

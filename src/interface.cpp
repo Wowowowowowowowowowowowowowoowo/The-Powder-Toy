@@ -33,6 +33,8 @@
 #ifdef _MSC_VER
 #undef rmdir
 #define rmdir _rmdir //deprecated in visual studio
+#else
+#include <windows.h>
 #endif
 #include <shellapi.h>
 #endif
