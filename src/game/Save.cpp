@@ -1982,18 +1982,21 @@ void Save::BuildSave()
 			if (blockMap[y][x])
 				hasWallData = true;
 
-			// save pressure and x/y velocity grids
-			float pres = std::max(-255.0f, std::min(255.0f, pressure[y][x])) + 256.0f;
-			float velX = std::max(-255.0f, std::min(255.0f, velocityX[y][x])) + 256.0f;
-			float velY = std::max(-255.0f, std::min(255.0f, velocityY[y][x])) + 256.0f;
-			pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
-			pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
+			if (hasPressure)
+			{
+				// save pressure and x/y velocity grids
+				float pres = std::max(-255.0f, std::min(255.0f, pressure[y][x])) + 256.0f;
+				float velX = std::max(-255.0f, std::min(255.0f, velocityX[y][x])) + 256.0f;
+				float velY = std::max(-255.0f, std::min(255.0f, velocityY[y][x])) + 256.0f;
+				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)&0xFF);
+				pressData[pressDataLen++] = (unsigned char)((int)(pres*128)>>8);
 
-			vxData[vxDataLen++] = (unsigned char)((int)(velX*128)&0xFF);
-			vxData[vxDataLen++] = (unsigned char)((int)(velX*128)>>8);
+				vxData[vxDataLen++] = (unsigned char)((int)(velX*128)&0xFF);
+				vxData[vxDataLen++] = (unsigned char)((int)(velX*128)>>8);
 
-			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)&0xFF);
-			vyData[vyDataLen++] = (unsigned char)((int)(velY*128)>>8);
+				vyData[vyDataLen++] = (unsigned char)((int)(velY*128)&0xFF);
+				vyData[vyDataLen++] = (unsigned char)((int)(velY*128)>>8);
+			}
 
 			if (hasAmbientHeat)
 			{
@@ -2496,7 +2499,7 @@ void Save::BuildSave()
 	// Display modes (Jacob1's mod)
 	if (displayModesPresent && displayModes.size())
 	{
-		unsigned int displayModeBits;
+		unsigned int displayModeBits = 0;
 		bson_append_start_array(&b, "display_modes");
 		for (unsigned int displayMode : displayModes)
 		{
