@@ -284,6 +284,7 @@ void initSimulationAPI(lua_State * l)
 	//Static values
 	SETCONST(l, XRES);
 	SETCONST(l, YRES);
+	SETCONST(l, CELL);
 	SETCONST(l, PT_NUM);
 	lua_pushinteger(l, 0); lua_setfield(l, -2, "NUM_PARTS");
 	SETCONST(l, R_TEMP);
