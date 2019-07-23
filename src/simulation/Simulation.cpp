@@ -317,7 +317,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			elementCount[tempPart.type]++;
 		}
 
-		if (parts[i].type == PT_STKM)
+		switch (parts[i].type)
+		{
+		case PT_STKM:
 		{
 			bool fan = false;
 			if ((save->createdVersion < 93 && parts[i].ctype == SPC_AIR)
@@ -333,8 +335,9 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->rocketBoots = true;
 			if (save->stkm.fan1)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->fan = true;
+			break;
 		}
-		else if (parts[i].type == PT_STKM2)
+		case PT_STKM2:
 		{
 			bool fan = false;
 			if ((save->createdVersion < 93 && parts[i].ctype == SPC_AIR)
@@ -351,15 +354,13 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			if (save->stkm.fan2)
 				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->fan = true;
 		}
-		else if (parts[i].type == PT_SPAWN)
-		{
+		case PT_SPAWN:
 			((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->spawnID = i;
-		}
-		else if (parts[i].type == PT_SPAWN2)
-		{
+			break;
+		case PT_SPAWN2:
 			((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->spawnID = i;
-		}
-		else if (parts[i].type == PT_FIGH)
+			break;
+		case PT_FIGH:
 		{
 			unsigned int oldTmp = parts[i].tmp;
 			parts[i].tmp = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Alloc();
@@ -389,15 +390,28 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			else
 				// should not be possible because we verify with CanAlloc above this
 				parts[i].type = PT_NONE;
+			break;
 		}
-		else if (parts[i].type == PT_SOAP)
-		{
+		case PT_SOAP:
 			soapList.insert(std::pair<unsigned int, unsigned int>(n, i));
-		}
+			break;
+
+		// List of elements that load pavg with a multiplicative bias of 2**6
+		// (or not at all if pressure is not loaded).
+		// If you change this list, change it in GameSave::serialiseOPS and GameSave::readOPS too!
+		case PT_QRTZ:
+		case PT_GLAS:
+		case PT_TUNG:
+			if (!includePressure)
+			{
+				parts[i].pavg[0] = 0;
+				parts[i].pavg[1] = 0;
+			}
+			break;
+
 #ifndef NOMOD
 		// special handling for MOVS: ensure it is valid, and fix issues with signed values in pavg
-		else if (parts[i].type == PT_MOVS)
-		{
+		case PT_MOVS:
 			if ((parts[i].flags&FLAG_DISAPPEAR) || parts[i].tmp2 < 0 || parts[i].tmp2 >= MAX_MOVING_SOLIDS)
 				parts[i].tmp2 = MAX_MOVING_SOLIDS;
 			else
@@ -418,9 +432,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				parts[i].pavg[0] -= 65536;
 			if (parts[i].pavg[1] > 32768)
 				parts[i].pavg[1] -= 65536;
-		}
-		else if (parts[i].type == PT_ANIM)
-		{
+			break;
+		case PT_ANIM:
 			if (animDataPos >= save->ANIMdata.size())
 			{
 				parts[i].type = PT_NONE;
@@ -429,6 +442,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 
 			Save::ANIMdataItem data =  save->ANIMdata[animDataPos++];
 			((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetAllColors(i, data.second, data.first + 1);
+			break;
 		}
 #endif
 	}

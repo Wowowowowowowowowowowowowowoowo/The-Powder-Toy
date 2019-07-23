@@ -1134,6 +1134,19 @@ void Save::ParseSaveOPS()
 						pavg = partsData[i++];
 						pavg |= (((unsigned)partsData[i++]) << 8);
 						particles[newIndex].pavg[1] = (float)pavg;
+
+						switch (particles[newIndex].type)
+						{
+						// List of elements that save pavg with a multiplicative bias of 2**6
+						// (or not at all if pressure is not saved).
+						// If you change this list, change it in Simulation::Load and GameSave::serialiseOPS too!
+						case PT_QRTZ:
+						case PT_GLAS:
+						case PT_TUNG:
+							particles[newIndex].pavg[0] /= 64;
+							particles[newIndex].pavg[1] /= 64;
+							break;
+						}
 					}
 
 					if (modCreatedVersion && modCreatedVersion <= 20)
@@ -2246,11 +2259,30 @@ void Save::BuildSave()
 
 				if (particles[i].pavg[0] || particles[i].pavg[1])
 				{
-					fieldDesc |= 1 << 13;
-					partsData[partsDataLen++] = (int)particles[i].pavg[0];
-					partsData[partsDataLen++] = ((int)particles[i].pavg[0])>>8;
-					partsData[partsDataLen++] = (int)particles[i].pavg[1];
-					partsData[partsDataLen++] = ((int)particles[i].pavg[1])>>8;
+					float pavg0 = particles[i].pavg[0];
+					float pavg1 = particles[i].pavg[1];
+					switch (particles[i].type)
+					{
+					// List of elements that save pavg with a multiplicative bias of 2**6
+					// (or not at all if pressure is not saved).
+					// If you change this list, change it in Simulation::Load too!
+					case PT_QRTZ:
+					case PT_GLAS:
+					case PT_TUNG:
+						if (!hasPressure)
+							break;
+						pavg0 *= 64;
+						pavg1 *= 64;
+						// fallthrough!
+
+					default:
+						fieldDesc |= 1 << 13;
+						partsData[partsDataLen++] = (int)pavg0;
+						partsData[partsDataLen++] = ((int)pavg0)>>8;
+						partsData[partsDataLen++] = (int)pavg1;
+						partsData[partsDataLen++] = ((int)pavg1)>>8;
+						break;
+					}
 				}
 				
 				// Write the field descriptor
