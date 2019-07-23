@@ -910,6 +910,7 @@ int main(int argc, char *argv[])
 	memset(parts, 0, sizeof(particle)*NPART);
 	clear_sim();
 
+	bool disableNetwork = false;
 	for (int i = 1; i < argc; i++)
 	{
 		if (!strncmp(argv[i], "scale:", 6))
@@ -1021,11 +1022,16 @@ int main(int argc, char *argv[])
 		{
 			disableSignals = true;
 		}
+		else if (!strcmp(argv[i], "disable-network"))
+		{
+			disableNetwork = true;
+		}
 	}
 
 	stamp_init();
 
-	RequestManager::Ref().Initialise(http_proxy_string);
+	if (!disableNetwork)
+		RequestManager::Ref().Initialise(http_proxy_string);
 
 	if (!SDLOpen())
 	{

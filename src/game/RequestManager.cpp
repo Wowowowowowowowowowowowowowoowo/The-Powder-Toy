@@ -12,12 +12,7 @@ const long timeout = 15;
 std::string proxy;
 std::string user_agent;
 
-RequestManager::RequestManager():
-	requests_added_to_multi(0),
-	requests_to_start(false),
-	requests_to_remove(false),
-	rt_shutting_down(false),
-	multi(NULL)
+RequestManager::RequestManager()
 {
 	pthread_cond_init(&rt_cv, NULL);
 	pthread_mutex_init(&rt_mutex, NULL);
@@ -36,13 +31,16 @@ void RequestManager::Shutdown()
 	pthread_cond_signal(&rt_cv);
 	pthread_mutex_unlock(&rt_mutex);
 
-	pthread_join(worker_thread, NULL);
+	if (initialized)
+	{
+		pthread_join(worker_thread, NULL);
 
 #ifndef WIN
-	curl_multi_cleanup(multi);
+		curl_multi_cleanup(multi);
 #endif
-	multi = NULL;
-	curl_global_cleanup();
+		multi = NULL;
+		curl_global_cleanup();
+	}
 }
 
 TH_ENTRY_POINT void *RequestManager::RequestManagerHelper(void *obj)
@@ -75,6 +73,7 @@ void RequestManager::Initialise(std::string Proxy)
 	user_agent = userAgentBuilder.str();
 
 	pthread_create(&worker_thread, NULL, &RequestManager::RequestManagerHelper, this);
+	initialized = true;
 }
 
 void RequestManager::Worker()
@@ -240,12 +239,15 @@ void RequestManager::MultiRemove(Request *request)
 	}
 }
 
-void RequestManager::AddRequest(Request *request)
+bool RequestManager::AddRequest(Request *request)
 {
+	if (!initialized)
+		return false;
 	pthread_mutex_lock(&rt_mutex);
 	requests_to_add.insert(request);
 	pthread_cond_signal(&rt_cv);
 	pthread_mutex_unlock(&rt_mutex);
+	return true;
 }
 
 void RequestManager::StartRequest(Request *request)

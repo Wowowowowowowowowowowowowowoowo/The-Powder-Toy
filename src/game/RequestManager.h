@@ -15,22 +15,23 @@ class RequestManager : public Singleton<RequestManager>
 {
 	pthread_t worker_thread;
 	std::set<Request *> requests;
-	int requests_added_to_multi;
+	int requests_added_to_multi = 0;
 
 	std::set<Request *> requests_to_add;
-	bool requests_to_start;
-	bool requests_to_remove;
-	bool rt_shutting_down;
+	bool requests_to_start = false;
+	bool requests_to_remove = false;
+	bool initialized = false;
+	bool rt_shutting_down = false;
 	pthread_mutex_t rt_mutex;
 	pthread_cond_t rt_cv;
 
-	CURLM *multi;
+	CURLM *multi = nullptr;
 
 	void Start();
 	void Worker();
 	void MultiAdd(Request *request);
 	void MultiRemove(Request *request);
-	void AddRequest(Request *request);
+	bool AddRequest(Request *request);
 	void StartRequest(Request *request);
 	void RemoveRequest(Request *request);
 

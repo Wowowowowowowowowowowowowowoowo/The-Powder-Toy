@@ -32,7 +32,11 @@ Request::Request(std::string uri_):
 	pthread_cond_init(&done_cv, NULL);
 	pthread_mutex_init(&rm_mutex, NULL);
 	easy = curl_easy_init();
-	RequestManager::Ref().AddRequest(this);
+	if (!RequestManager::Ref().AddRequest(this))
+	{
+		status = 604;
+		rm_finished = true;
+	}
 }
 
 Request::~Request()
