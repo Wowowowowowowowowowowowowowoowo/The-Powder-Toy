@@ -1986,9 +1986,11 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		break;
 	case SDL_SCANCODE_INSERT:
 		REPLACE_MODE = !REPLACE_MODE;
+		SPECIFIC_DELETE = false;
 		break;
 	case SDL_SCANCODE_DELETE:
 		SPECIFIC_DELETE = !SPECIFIC_DELETE;
+		REPLACE_MODE = false;
 		break;
 	case SDL_SCANCODE_GRAVE:
 		console_mode = !console_mode;
@@ -2325,9 +2327,15 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		break;
 	case SDL_SCANCODE_SEMICOLON:
 		if (ctrl)
+		{
 			SPECIFIC_DELETE = !SPECIFIC_DELETE;
+			REPLACE_MODE = false;
+		}
 		else
+		{
 			REPLACE_MODE = !REPLACE_MODE;
+			SPECIFIC_DELETE = false;
+		}
 		break;
 	case SDL_SCANCODE_Z:
 		// ctrl + z

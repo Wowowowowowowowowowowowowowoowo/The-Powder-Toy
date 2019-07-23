@@ -2525,32 +2525,39 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 
 int Simulation::CreatePartFlags(int x, int y, int c, int flags)
 {
-	//specific delete
-	if ((flags&BRUSH_SPECIFIC_DELETE) && !(flags&BRUSH_REPLACEMODE))
+	if (x < 0 || y < 0 || x >= XRES || y >= YRES)
 	{
-		if ((int)TYP(pmap[y][x]) == ((ElementTool*)activeTools[2])->GetID() || ((ElementTool*)activeTools[2])->GetID() <= 0)//specific deletion
+		return 0;
+	}
+
+	// Specific Delete
+	if ((flags & BRUSH_SPECIFIC_DELETE) && !(flags & BRUSH_REPLACEMODE))
+	{
+		int replaceModeSelected = ((ElementTool*)activeTools[2])->GetID();
+		if ((replaceModeSelected <= 0 && (pmap[y][x] || photons[y][x]))
+			|| (!photons[y][x] && pmap[y][x] && (int)TYP(pmap[y][x]) == replaceModeSelected)
+			|| (photons[y][x] && (int)TYP(photons[y][x]) == replaceModeSelected))
 			part_delete(x, y);
 	}
-	//delete
-	else if (c == 0 && !(flags&BRUSH_REPLACEMODE))
+	// Replace Mode
+	else if (flags & BRUSH_REPLACEMODE)
 	{
-		part_delete(x, y);
-	}
-	//replace mode
-	else if (flags&BRUSH_REPLACEMODE)
-	{
-		if (x<0 || y<0 || x>=XRES || y>=YRES)
-			return 0;
-		if (((ElementTool*)activeTools[2])->GetID() > 0 && (int)TYP(pmap[y][x]) != ((ElementTool*)activeTools[2])->GetID() && (int)ID(photons[y][x]) != ((ElementTool*)activeTools[2])->GetID())
-			return 0;
-		if (pmap[y][x])
+		int replaceModeSelected = ((ElementTool*)activeTools[2])->GetID();
+		if ((replaceModeSelected <= 0 && (pmap[y][x] || photons[y][x]))
+			|| (!photons[y][x] && pmap[y][x] && (int)TYP(pmap[y][x]) == replaceModeSelected)
+			|| (photons[y][x] && (int)TYP(photons[y][x]) == replaceModeSelected))
 		{
 			part_delete(x, y);
 			if (c != 0)
 				part_create(-2, x, y, TYP(c), ID(c));
 		}
 	}
-	//normal draw
+	// Delete
+	else if (c == 0)
+	{
+		part_delete(x, y);
+	}
+	// Normal draw
 	else
 		if (part_create(-2, x, y, TYP(c), ID(c)) == -1)
 			return 1;

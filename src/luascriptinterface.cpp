@@ -2866,8 +2866,12 @@ int elements_allocate(lua_State * l)
 	std::transform(group.begin(), group.end(), group.begin(), ::toupper);
 	std::transform(id.begin(), id.end(), id.begin(), ::toupper);
 
+	if (id.find('_') != id.npos)
+		return luaL_error(l, "The element name may not contain '_'.");
+	if (group.find('_') != id.npos)
+		return luaL_error(l, "The group name may not contain '_'.");
 	if (group == "DEFAULT")
-		return luaL_error(l, "You cannot create elements in the 'default' group.");
+		return luaL_error(l, "You cannot create elements in the 'DEFAULT' group.");
 
 	std::stringstream identifierStream;
 	identifierStream << group << "_PT_" << id;
