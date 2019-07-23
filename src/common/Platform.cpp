@@ -109,9 +109,9 @@ void DoRestart(bool saveTab, bool disableSignals)
 	if (exename)
 	{
 #ifdef WIN
-		ShellExecute(NULL, "open", exename, disableSignals ? "nobluescreen" : nullptr, nullptr, SW_SHOWNORMAL);
+		ShellExecute(NULL, "open", exename, disableSignals ? "disable-bluescreen" : nullptr, nullptr, SW_SHOWNORMAL);
 #elif defined(LIN) || defined(MACOSX)
-		execl(exename, "powder", disableSignals ? "nobluescreen" : nullptr);
+		execl(exename, "powder", disableSignals ? "disable-bluescreen" : nullptr);
 #endif
 		free(exename);
 	}
