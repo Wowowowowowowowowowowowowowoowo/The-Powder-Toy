@@ -148,6 +148,12 @@ const int menuIconWidth = 17;
 #endif
 
 enum PropertyType { ParticleType, Colour, Integer, UInteger, Float, String, Char, UChar };
+union PropertyValue
+{
+	int Integer;
+	unsigned int UInteger;
+	float Float;
+};
 
 #define SDEUT
 
