@@ -982,3 +982,11 @@ Fix crash when trying to submit comments
 Version 43.2 (build 113) 2019-07-21
 Fix crash when exiting on Windows. Fix non-windows versions accidentally
 being compiled in debug mode.
+
+Version 43.3 (build 114) 2019-07-26
+Fix random crashes when making network requests. Begin work on porting upcoming
+TPT 95.0 features to the mod: Add disable-network flag to turn off network
+requests. Rename nobluescreen command line option to disable-bluescreen. Tweak
+replace mode and specific delete mode to work on energy particles and be
+mutually exclusive. Fix issues saving/loading QRTZ/GLAS/TUNG without pressure
+in saves. Add sim.CELL constant.
