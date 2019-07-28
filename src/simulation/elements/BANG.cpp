@@ -14,6 +14,7 @@
  */
 
 #include "simulation/ElementsCommon.h"
+#include "simulation/StructProperty.h"
 
 int BANG_update(UPDATE_FUNC_ARGS)
 {
@@ -41,9 +42,7 @@ int BANG_update(UPDATE_FUNC_ARGS)
 	{
 		if (ID(pmap[y][x]) == (unsigned)i)
 		{
-			PropertyValue tempValue;
-			tempValue.Integer = 2;
-			sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
+			sim->FloodProp(x, y, particle::PropertyByName("tmp"), { 2 });
 		}
 		parts[i].tmp = 2;
 	}

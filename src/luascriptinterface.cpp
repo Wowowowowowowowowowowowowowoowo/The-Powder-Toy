@@ -206,8 +206,6 @@ int simulation_deletesign(lua_State *l)
 	return 1;
 }
 
-const int particlePropertiesCount = 12;
-
 void initSimulationAPI(lua_State * l)
 {
 	//Methods
@@ -316,11 +314,12 @@ void initSimulationAPI(lua_State * l)
 	SETCONST(l, PMAPBITS);
 	SETCONST(l, PMAPMASK);
 
-	const char* propertyList[] = {"FIELD_TYPE", "FIELD_LIFE", "FIELD_CTYPE", "FIELD_X", "FIELD_Y", "FIELD_VX", "FIELD_VY", "FIELD_TEMP", "FIELD_FLAGS", "FIELD_TMP", "FIELD_TMP2", "FIELD_DCOLOUR"};
-	for (int i = 0; i < particlePropertiesCount; i++)
+	//Declare FIELD_BLAH constants
+	int particlePropertiesCount = 0;
+	for (auto &prop : particle::GetProperties())
 	{
-		lua_pushinteger(l, i);
-		lua_setfield(l, -2, propertyList[i]);
+		lua_pushinteger(l, particlePropertiesCount++);
+		lua_setfield(l, -2, ("FIELD_" + Format::ToUpper(prop.Name)).c_str());
 	}
 
 	lua_newtable(l);
@@ -476,14 +475,12 @@ int simulation_partPosition(lua_State * l)
 
 int simulation_partProperty(lua_State * l)
 {
-	//TODO: this function needs StructProperty or something similar :|
 	int argCount = lua_gettop(l);
 	int particleID = luaL_checkinteger(l, 1);
-	int offset, format;
 
 	if (particleID < 0 || particleID >= NPART || !parts[particleID].type)
 	{
-		if(argCount == 3)
+		if (argCount == 3)
 		{
 			lua_pushnil(l);
 			return 1;
@@ -492,61 +489,45 @@ int simulation_partProperty(lua_State * l)
 			return 0;
 	}
 
+	auto &properties = particle::GetProperties();
+	auto prop = properties.end();
+
 	//Get field
 	if (lua_type(l, 2) == LUA_TNUMBER)
 	{
 		int fieldID = lua_tointeger(l, 2);
-		if (fieldID < 0 || fieldID >= particlePropertiesCount)
+		if (fieldID < 0 || fieldID >= (int)properties.size())
 			return luaL_error(l, "Invalid field ID (%d)", fieldID);
-
-		const char* propertyList[] = {"type", "life", "ctype", "x", "y", "vx", "vy", "temp", "flags", "tmp", "tmp2", "dcolour"};
-		offset = Particle_GetOffset(propertyList[fieldID], &format);
+		prop = properties.begin() + fieldID;
 	}
 	else if (lua_type(l, 2) == LUA_TSTRING)
 	{
 		const char* fieldName = lua_tostring(l, 2);
-		offset = Particle_GetOffset(fieldName, &format);
-		if (offset == -1)
+		prop = std::find_if(properties.begin(), properties.end(), [&fieldName](StructProperty const &p) {
+			return p.Name == fieldName;
+		});
+		if (prop == properties.end())
 			return luaL_error(l, "Unknown field (%s)", fieldName);
 	}
 	else
+	{
 		return luaL_error(l, "Field ID must be an name (string) or identifier (integer)");
+	}
+
+	//Calculate memory address of property
+	auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->parts[particleID])) + prop->Offset);
 
 	if (argCount == 3)
 	{
-		//Set
-		switch(format)
-		{
-		case 0:
-		case 3:
-			*((int*)(((unsigned char*)&parts[particleID])+offset)) = lua_tointeger(l, 3);
-			break;
-		case 1:
-			*((float*)(((unsigned char*)&parts[particleID])+offset)) = (float)lua_tonumber(l, 3);
-			break;
-		case 2:
-			luaSim->part_change_type_force(particleID, lua_tointeger(l, 3));
-			break;
-		}
+		if (prop == properties.begin() + 0) // i.e. it's .type
+			luaSim->part_change_type_force(particleID, luaL_checkinteger(l, 3));
+		else
+			LuaSetProperty(l, *prop, propertyAddress, 3);
 		return 0;
 	}
 	else
 	{
-		//Get
-		switch(format)
-		{
-		case 0:
-		case 2:
-		case 3:
-			lua_pushnumber(l, *((int*)(((unsigned char*)&parts[particleID])+offset)));
-			break;
-		case 1:
-			lua_pushnumber(l, *((float*)(((unsigned char*)&parts[particleID])+offset)));
-			break;
-		default:
-			lua_pushnil(l);
-			break;
-		}
+		LuaGetProperty(l, *prop, propertyAddress);
 		return 1;
 	}
 }
@@ -989,7 +970,7 @@ int simulation_decoBox(lua_State * l)
 	int a = luaL_optint(l,8,255);
 	int tool = luaL_optint(l,9,DECO_DRAW);
 	if (tool < 0 || tool >= DECOCOUNT)
-			return luaL_error(l, "Invalid tool id '%d'", tool);
+		return luaL_error(l, "Invalid tool id '%d'", tool);
 
 	unsigned int color = COLARGB(a, r, g, b);
 	luaSim->CreateDecoBox(x1, y1, x2, y2, tool, color);
@@ -1007,8 +988,7 @@ int simulation_floodDeco(lua_State * l)
 
 	PropertyValue color;
 	color.UInteger = COLARGB(a, r, g, b);
-	luaSim->FloodProp(x, y, UInteger, color, offsetof(particle, dcolour));
-	//luaSim->FloodDeco(x, y, -1, color);
+	luaSim->FloodProp(x, y, particle::PropertyByName("dcolour"), color);
 	return 0;
 }
 
@@ -2553,6 +2533,83 @@ void initElementsAPI(lua_State * l)
 	}
 }
 
+void LuaGetProperty(lua_State* l, StructProperty property, intptr_t propertyAddress)
+{
+	switch (property.Type)
+	{
+	case StructProperty::TransitionType:
+	case StructProperty::ParticleType:
+	case StructProperty::Integer:
+		lua_pushinteger(l, *((int*)propertyAddress));
+		break;
+	case StructProperty::UInteger:
+		lua_pushinteger(l, *((unsigned int*)propertyAddress));
+		break;
+	case StructProperty::Float:
+		lua_pushnumber(l, *((float*)propertyAddress));
+		break;
+	case StructProperty::Char:
+		lua_pushinteger(l, *((char*)propertyAddress));
+		break;
+	case StructProperty::UChar:
+		lua_pushinteger(l, *((unsigned char*)propertyAddress));
+		break;
+	case StructProperty::BString:
+	case StructProperty::String:
+	{
+		lua_pushstring(l, (*((std::string*)propertyAddress)).c_str());
+		break;
+	}
+	case StructProperty::Colour:
+#if PIXELSIZE == 4
+		lua_pushinteger(l, *((unsigned int*)propertyAddress));
+#else
+		lua_pushinteger(l, *((unsigned short*)propertyAddress));
+#endif
+		break;
+	case StructProperty::Removed:
+		lua_pushnil(l);
+	}
+}
+
+void LuaSetProperty(lua_State* l, StructProperty property, intptr_t propertyAddress, int stackPos)
+{
+	switch (property.Type)
+	{
+	case StructProperty::TransitionType:
+	case StructProperty::ParticleType:
+	case StructProperty::Integer:
+		*((int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+		break;
+	case StructProperty::UInteger:
+		*((unsigned int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+		break;
+	case StructProperty::Float:
+		*((float*)propertyAddress) = luaL_checknumber(l, stackPos);
+		break;
+	case StructProperty::Char:
+		*((char*)propertyAddress) = luaL_checkinteger(l, stackPos);
+		break;
+	case StructProperty::UChar:
+		*((unsigned char*)propertyAddress) = luaL_checkinteger(l, stackPos);
+		break;
+	case StructProperty::BString:
+	case StructProperty::String:
+		*((std::string*)((unsigned char*)propertyAddress)) = std::string(luaL_checkstring(l, 3));
+		break;
+	case StructProperty::Colour:
+#if PIXELSIZE == 4
+		*((unsigned int*)propertyAddress) = luaL_checkinteger(l, stackPos);
+#else
+		*((unsigned short*)propertyAddress) = luaL_checkinteger(l, stackPos);
+#endif
+		break;
+	case StructProperty::Removed:
+		break;
+	}
+}
+
+// deprecated
 int elements_getProperty(const char * key, int * format, unsigned int * modifiedStuff)
 {
 	int offset;
@@ -2739,6 +2796,7 @@ int elements_getProperty(const char * key, int * format, unsigned int * modified
 	return offset;
 }
 
+// deprecated
 void elements_setProperty(lua_State * l, int id, int format, int offset)
 {
 	switch(format)

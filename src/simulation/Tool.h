@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include "defines.h"
+#include "simulation/StructProperty.h"
 
 
 enum { ELEMENT_TOOL, WALL_TOOL, TOOL_TOOL, DECO_TOOL, GOL_TOOL, INVALID_TOOL, DECO_PRESET, FAV_MENU_BUTTON, HUD_MENU_BUTTON };
@@ -121,16 +122,16 @@ class PropTool : public ToolTool
 {
 public:
 	PropTool();
-	~PropTool() {}
+	~PropTool() override =default;
 
 	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;
 	void DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength) override;
 	void DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos) override;
 	int FloodFill(Simulation *sim, Brush *brush, Point position) override;
 
-	PropertyType propType;
+	StructProperty prop;
 	PropertyValue propValue;
-	size_t propOffset;
+	bool invalidState = false;
 };
 
 class DecoTool : public Tool

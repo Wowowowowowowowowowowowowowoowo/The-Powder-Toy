@@ -206,10 +206,6 @@ extern int currV;
 
 void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y);
 
-extern int propSelected;
-extern char propValue[255];
-void prop_edit_ui(pixel *vid_buf);
-
 void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
 
 void ui_edit_init(ui_edit *ed, int x, int y, int w, int h);

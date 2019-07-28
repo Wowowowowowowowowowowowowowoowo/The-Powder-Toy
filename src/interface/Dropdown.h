@@ -18,13 +18,12 @@ class Dropdown : public Component
 	std::vector<std::string> options;
 	unsigned int selectedOption = 0;
 	bool isSelectingOption = false;
-	//DropdownAction *callback = nullptr;
 	std::function<void(unsigned int)> callback = nullptr;
 
 public:
 	Dropdown(Point position, Point size, std::vector<std::string> options);
 
-	void SetCallback(std::function<void(unsigned int)> callback) { this->callback = callback; }
+	void SetCallback(std::function<void(unsigned int)> const & callback) { this->callback = callback; }
 	unsigned int GetSelectedOption() { return selectedOption; }
 	void SetSelectedOption(unsigned int selectedOption);
 	bool IsSelectingOption() { return isSelectingOption; }
@@ -45,7 +44,7 @@ class DropdownOptions : public ui::Window
 
 public:
 	DropdownOptions(Point position, Point size, Dropdown * dropdown);
-	~DropdownOptions();
+	~DropdownOptions() override;
 
 	void OnMouseMove(int x, int y, Point difference) override;
 	void OnMouseUp(int x, int y, unsigned char button) override;

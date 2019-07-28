@@ -54,6 +54,7 @@ private:
 	void CloseWindowDelayed();
 
 	std::stack<ui::Window*> windows;
+	std::stack<pixel*> buffers;
 	ui::Window *top, *nextTop;
 	bool isShutdown = false;
 

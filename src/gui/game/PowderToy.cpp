@@ -45,12 +45,13 @@
 #include "gui/dialogs/ErrorPrompt.h"
 #include "gui/options/OptionsUI.h"
 #include "gui/profile/ProfileViewer.h"
+#include "gui/prop/PropWindow.h"
 #include "gui/sign/CreateSign.h"
 #include "gui/rendermodes/RenderModesUI.h"
+#include "gui/update/UpdateProgress.h"
+
 #include "simulation/elements/LIFE.h"
 #include "simulation/elements/STKM.h"
-
-#include "gui/update/UpdateProgress.h"
 
 PowderToy::~PowderToy()
 {
@@ -774,10 +775,11 @@ Point PowderToy::AdjustCoordinates(Point mouse)
 	//Change mouse coords to take zoom window into account
 	if (ZoomWindowShown())
 	{
-		if (mouse >= zoomWindowPosition && mouse < Point(zoomWindowPosition.X+zoomFactor*zoomScopeSize, zoomWindowPosition.Y+zoomFactor*zoomScopeSize))
+		Point zoomWindowPosition2 = zoomWindowPosition + Point(zoomFactor * zoomScopeSize, zoomFactor * zoomScopeSize);
+		if (mouse.IsInside(zoomWindowPosition, zoomWindowPosition2))
 		{
-			mouse.X = ((mouse.X-zoomWindowPosition.X)/zoomFactor) + zoomScopePosition.X;
-			mouse.Y = ((mouse.Y-zoomWindowPosition.Y)/zoomFactor) + zoomScopePosition.Y;
+			mouse.X = ((mouse.X - zoomWindowPosition.X) / zoomFactor) + zoomScopePosition.X;
+			mouse.Y = ((mouse.Y - zoomWindowPosition.Y) / zoomFactor) + zoomScopePosition.Y;
 		}
 	}
 	return mouse;
@@ -1186,7 +1188,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	}
 	if (openProp)
 	{
-		prop_edit_ui(GetVid()->GetVid());
+		Engine::Ref().ShowWindow(new PropWindow());
 		openProp = false;
 	}
 	if (doubleScreenDialog)

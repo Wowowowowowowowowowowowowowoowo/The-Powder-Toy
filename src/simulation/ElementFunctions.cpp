@@ -184,19 +184,13 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 							{
 								if (parts[ID(r)].ctype==PT_PSCN && parts[i].tmp2 < 10)
 								{
-									PropertyValue tempValue;
-									tempValue.Integer = 10;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
-									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+									sim->FloodProp(x, y, particle::PropertyByName("tmp2"), { 10 });
+									sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
 								}
 								else if (parts[ID(r)].ctype==PT_NSCN && parts[i].tmp2 >= 10)
 								{
-									PropertyValue tempValue;
-									tempValue.Integer = 9;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
-									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+									sim->FloodProp(x, y, particle::PropertyByName("tmp2"), { 9 });
+									sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
 								}
 							}
 						}
@@ -206,59 +200,42 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 							{
 								if (parts[ID(r)].ctype==PT_PSCN && parts[i].life < 10)
 								{
-									PropertyValue tempValue;
-									tempValue.Integer = 10;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+									sim->FloodProp(x, y, particle::PropertyByName("life"), { 10 });
+									sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
 								}
 								else if (parts[ID(r)].ctype==PT_NSCN && (parts[i].life >= 10 || parts[i].tmp != (int)(parts[i].temp-273.15) || parts[i].tmp2 > 1))
 								{
-									PropertyValue tempValue;
-									tempValue.Integer = 9;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-									tempValue.Integer = parts[i].flags|FLAG_SKIPMOVE;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
-									tempValue.Integer = 0;
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp));
-									sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, tmp2));
+									sim->FloodProp(x, y, particle::PropertyByName("life"), { 9 });
+									sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
+									sim->FloodProp(x, y, particle::PropertyByName("tmp"), { 0 });
+									sim->FloodProp(x, y, particle::PropertyByName("tmp2"), { 0 });
 								}
 								else if (parts[ID(r)].ctype==PT_METL)
 								{
 									if (parts[i].life == 10)
 									{
-										PropertyValue tempValue;
-										tempValue.Integer = 9;
-										sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+										sim->FloodProp(x, y, particle::PropertyByName("life"), { 9 });
 									}
 									else if (parts[i].life == 0)
 									{
-										PropertyValue tempValue;
-										tempValue.Integer = 14;
-										sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
+										sim->FloodProp(x, y, particle::PropertyByName("life"), { 14 });
 										return 0;
 									}
 								}
 							}
 						}
 						//element is instantly activated (mod elements are always instantly activated)
-						else if (sim->instantActivation || parts[i].type == PT_BUTN || parts[i].type == PT_PINV || parts[i].type == PT_PWHT)
+						else if (sim->instantActivation || parts[i].type == PT_BUTN || parts[i].type == PT_PINV)
 						{
 							if (parts[ID(r)].ctype == PT_PSCN && parts[i].life < 10)
 							{
-								PropertyValue tempValue;
-								tempValue.Integer = 10;
-								sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-								tempValue.Integer = parts[i].flags | FLAG_SKIPMOVE;
-								sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+								sim->FloodProp(x, y, particle::PropertyByName("life"), { 10 });
+								sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
 							}
 							else if (parts[ID(r)].ctype == PT_NSCN && parts[i].life >= 10)
 							{
-								PropertyValue tempValue;
-								tempValue.Integer = 9;
-								sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, life));
-								tempValue.Integer = parts[i].flags | FLAG_SKIPMOVE;
-								sim->FloodProp(x, y, Integer, tempValue, offsetof(particle, flags));
+								sim->FloodProp(x, y, particle::PropertyByName("life"), { 9 });
+								sim->FloodProp(x, y, particle::PropertyByName("flags"), { parts[i].flags | FLAG_SKIPMOVE });
 							}
 							else if ((parts[i].type == PT_SWCH || parts[i].type == PT_BUTN) && parts[ID(r)].ctype != PT_PSCN && parts[ID(r)].ctype != PT_NSCN && !(parts[ID(r)].ctype == PT_INWR && parts[ID(r)].tmp == 1) && parts[i].life == 10)
 							{

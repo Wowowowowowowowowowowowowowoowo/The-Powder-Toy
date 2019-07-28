@@ -23,6 +23,7 @@
 #include "simulation/Air.h"
 #include "simulation/Element.h"
 #include "simulation/SimulationData.h"
+#include "simulation/StructProperty.h"
 #include "powder.h"
 
 
@@ -102,11 +103,11 @@ public:
 	void CreateToolLine(int x1, int y1, int x2, int y2, int tool, float strength, Brush* brush);
 	void CreateToolBox(int x1, int y1, int x2, int y2, int tool, float strength);
 
-	int CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
-	void CreatePropBrush(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
-	void CreatePropLine(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush);
-	void CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset);
-	int FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset);
+	int CreateProp(int x, int y, StructProperty prop, PropertyValue propValue);
+	void CreatePropBrush(int x, int y, StructProperty prop, PropertyValue propValue, Brush *brush);
+	void CreatePropLine(int x1, int y1, int x2, int y2, StructProperty prop, PropertyValue propValue, Brush *brush);
+	void CreatePropBox(int x1, int y1, int x2, int y2, StructProperty prop, PropertyValue propValue);
+	int FloodProp(int x, int y, StructProperty prop, PropertyValue propValue);
 
 	void CreateDeco(int x, int y, int tool, ARGBColour color);
 	void CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush* brush);

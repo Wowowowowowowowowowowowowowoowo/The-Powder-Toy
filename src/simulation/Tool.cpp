@@ -76,7 +76,6 @@ int Tool::FloodFill(Simulation *sim, Brush *brush, Point position)
 	{
 	case PT_LIGH:
 #ifndef NOMOD
-	case PT_PWHT:
 	case PT_MOVS:
 #endif
 		return 0;
@@ -300,28 +299,31 @@ void ToolTool::Click(Simulation *sim, Point position)
 }
 
 PropTool::PropTool():
-	ToolTool(TOOL_PROP),
-	propType(Integer),
-	propOffset(0)
+	ToolTool(TOOL_PROP)
 {
 	propValue.Integer = 0;
 }
 int PropTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	sim->CreatePropBrush(position.X, position.Y, propType, propValue, propOffset, brush);
+	if (!invalidState)
+		sim->CreatePropBrush(position.X, position.Y, prop, propValue, brush);
 	return 0;
 }
 void PropTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	sim->CreatePropLine(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset, brush);
+	if (!invalidState)
+		sim->CreatePropLine(startPos.X, startPos.Y, endPos.X, endPos.Y, prop, propValue, brush);
 }
 void PropTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	sim->CreatePropBox(startPos.X, startPos.Y, endPos.X, endPos.Y, propType, propValue, propOffset);
+	if (!invalidState)
+		sim->CreatePropBox(startPos.X, startPos.Y, endPos.X, endPos.Y, prop, propValue);
 }
 int PropTool::FloodFill(Simulation *sim, Brush *brush, Point position)
 {
-	return sim->FloodProp(position.X, position.Y, propType, propValue, propOffset);
+	if (!invalidState)
+		return sim->FloodProp(position.X, position.Y, prop, propValue);
+	return 0;
 }
 
 

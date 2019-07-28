@@ -102,7 +102,7 @@ void CreateSign::DeleteSign()
 
 void CreateSign::SaveSign()
 {
-	if (signTextbox->GetText() == "")
+	if (signTextbox->GetText().empty())
 	{
 		if (signID != -1)
 		{

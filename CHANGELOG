@@ -976,14 +976,14 @@ Version 43.0 (build 111) 2019-07-15
 Fix crash on startup. Fix updater. Previous build was probably not released
 to anyone.
 
-Version 43.1 (build 112) 2019-07-16
+Version 43.1 2019-07-16
 Fix crash when trying to submit comments
 
-Version 43.2 (build 113) 2019-07-21
+Version 43.2 2019-07-21
 Fix crash when exiting on Windows. Fix non-windows versions accidentally
 being compiled in debug mode.
 
-Version 43.3 (build 114) 2019-07-26
+Version 43.3 2019-07-26
 Fix random crashes when making network requests. Begin work on porting upcoming
 TPT 95.0 features to the mod: Add disable-network flag to turn off network
 requests. Rename nobluescreen command line option to disable-bluescreen. Tweak

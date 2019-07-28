@@ -1,6 +1,7 @@
 #include "Dropdown.h"
 #include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
+#include "interface/Engine.h"
 #include "interface/Window.h"
 
 Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options):
@@ -44,8 +45,23 @@ void Dropdown::OnMouseUp(int x, int y, unsigned char button)
 		windowPos.Y = windowPos.Y - ((numOptions - 1) * optionHeight) / 2 + 1;
 		windowSize.Y = numOptions * (optionHeight - 1) + 1;
 
-		DropdownOptions *dropdownOptions = new DropdownOptions(windowPos, windowSize, this);
-		this->GetParent()->AddSubwindow(dropdownOptions);
+		auto *dropdownOptions = new DropdownOptions(windowPos, windowSize, this);
+
+		// Detect if this dropdown box will fit inside the parent window
+		// If not, make it a standalone window instead of a subwindow
+		Point parentTopLeft = this->GetParent()->GetPosition();
+		Point parentBottomRight = parentTopLeft + this->GetParent()->GetSize();
+		if (!windowPos.IsInside(parentTopLeft, parentBottomRight)
+			&& !(windowPos + windowSize).IsInside(parentTopLeft, parentBottomRight))
+		{
+			dropdownOptions->SetPosition(windowPos + parentTopLeft);
+			Engine::Ref().ShowWindow(dropdownOptions);
+		}
+		else
+		{
+			this->GetParent()->AddSubwindow(dropdownOptions);
+		}
+
 		isSelectingOption = true;
 	}
 }

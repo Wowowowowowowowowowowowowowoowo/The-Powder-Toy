@@ -20,16 +20,13 @@
 //Note: OS X defines a struct Point, any file that includes both this and a common mac header will error
 struct Point
 {
-	int X;
-	int Y;
+	int X = 0;
+	int Y = 0;
+
+	Point() = default;
 	Point(int pointX, int pointY):
 		X(pointX),
 		Y(pointY)
-	{ }
-
-	Point():
-		X(0),
-		Y(0)
 	{ }
 
 	void Clamp(Point min, Point max)
@@ -59,32 +56,6 @@ struct Point
 	inline bool operator != (const Point& other) const
 	{
 		return (X != other.X || Y != other.Y);
-	}
-
-	inline bool operator > (const Point& other) const
-	{
-		return (X > other.X && Y > other.Y);
-	}
-
-	inline bool operator >= (const Point& other) const
-	{
-		return (X >= other.X && Y >= other.Y);
-	}
-
-	inline bool operator < (const Point& other) const
-	{
-		return (X < other.X && Y < other.Y);
-	}
-
-	inline bool operator <= (const Point& other) const
-	{
-		return (X <= other.X && Y <= other.Y);
-	}
-
-	inline void operator = (const Point& other)
-	{
-		X = other.X;
-		Y = other.Y;
 	}
 
 	inline Point operator + (const Point& other)
@@ -118,6 +89,7 @@ struct Point
 		X -= other.X;
 		Y -= other.Y;
 	}
-}; typedef struct Point Point;
+};
+using Point = struct Point;
 
 #endif

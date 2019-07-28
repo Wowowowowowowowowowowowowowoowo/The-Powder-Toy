@@ -443,8 +443,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			Save::ANIMdataItem data =  save->ANIMdata[animDataPos++];
 			((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetAllColors(i, data.second, data.first + 1);
 			break;
-		}
 #endif
+		}
 	}
 
 	// fix SOAP links using soapList, a map of old particle ID -> new particle ID
@@ -3185,7 +3185,7 @@ void Simulation::CreateToolBox(int x1, int y1, int x2, int y2, int tool, float s
 			CreateTool(i, j, brushX, brushY, tool, strength);
 }
 
-int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
+int Simulation::CreateProp(int x, int y, StructProperty prop, PropertyValue propValue)
 {
 	if (!InBounds(x, y))
 		return -2;
@@ -3196,24 +3196,26 @@ int Simulation::CreateProp(int x, int y, PropertyType propType, PropertyValue pr
 
 	if (TYP(i))
 	{
-		if (propType == Integer)
-			*((int*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.Integer;
-		else if (propType == UInteger)
-			*((unsigned int*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.UInteger;
-		else if (propType == Float)
-			*((float*)(((char*)&parts[ID(i)]) + propOffset)) = propValue.Float;
+		if (prop.Name == "Type")
+			part_change_type_force(i, propValue.Integer);
+		else if (prop.Type == StructProperty::Integer || prop.Type == StructProperty::ParticleType)
+			*(reinterpret_cast<int*>((reinterpret_cast<char*>(&parts[ID(i)])) + prop.Offset)) = propValue.Integer;
+		else if (prop.Type == StructProperty::UInteger)
+			*(reinterpret_cast<unsigned int*>((reinterpret_cast<char*>(&parts[ID(i)])) + prop.Offset)) = propValue.UInteger;
+		else if (prop.Type == StructProperty::Float)
+			*(reinterpret_cast<float*>((reinterpret_cast<char*>(&parts[ID(i)])) + prop.Offset)) = propValue.Float;
 		return ID(i);
 	}
 	return -1;
 }
 
-void Simulation::CreatePropBrush(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush)
+void Simulation::CreatePropBrush(int x, int y, StructProperty prop, PropertyValue propValue, Brush *brush)
 {
 	int rx = brush->GetRadius().X, ry = brush->GetRadius().Y;
 	if (rx <= 0) //workaround for rx == 0 crashing. todo: find a better fix later.
 	{
 		for (int j = y - ry; j <= y + ry; j++)
-			CreateProp(x, j, propType, propValue, propOffset);
+			CreateProp(x, j, prop, propValue);
 	}
 	else
 	{
@@ -3238,17 +3240,17 @@ void Simulation::CreatePropBrush(int x, int y, PropertyType propType, PropertyVa
 				jmax = 2 * y - tempy;
 			for (j = tempy; j <= jmax; j++)
 			{
-				CreateProp(i, j, propType, propValue, propOffset);
+				CreateProp(i, j, prop, propValue);
 				//don't create twice in the vertical center line
 				if (i != x)
-					CreateProp(2 * x - i, j, propType, propValue, propOffset);
+					CreateProp(2 * x - i, j, prop, propValue);
 			}
 			//TODO: should use fill argument like creating elements does (but all the repetitiveness here needs to be removed first)
 		}
 	}
 }
 
-void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset, Brush* brush)
+void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, StructProperty prop, PropertyValue propValue, Brush *brush)
 {
 	int x, y, dx, dy, sy;
 	bool reverseXY = abs(y2 - y1) > abs(x2 - x1);
@@ -3282,9 +3284,9 @@ void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, PropertyType pro
 	for (x = x1; x <= x2; x++)
 	{
 		if (reverseXY)
-			CreatePropBrush(y, x, propType, propValue, propOffset, brush);
+			CreatePropBrush(y, x, prop, propValue, brush);
 		else
-			CreatePropBrush(x, y, propType, propValue, propOffset, brush);
+			CreatePropBrush(x, y, prop, propValue, brush);
 		e += de;
 		if (e >= 0.5f)
 		{
@@ -3292,16 +3294,16 @@ void Simulation::CreatePropLine(int x1, int y1, int x2, int y2, PropertyType pro
 			if (!(brush->GetRadius().X +  brush->GetRadius().Y) && ((y1<y2) ? (y <= y2) : (y >= y2)))
 			{
 				if (reverseXY)
-					CreatePropBrush(y, x, propType, propValue, propOffset, brush);
+					CreatePropBrush(y, x, prop, propValue, brush);
 				else
-					CreatePropBrush(x, y, propType, propValue, propOffset, brush);
+					CreatePropBrush(x, y, prop, propValue, brush);
 			}
 			e -= 1.0f;
 		}
 	}
 }
 
-void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, PropertyType propType, PropertyValue propValue, size_t propOffset)
+void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, StructProperty prop, PropertyValue propValue)
 {
 	if (x1 > x2)
 	{
@@ -3317,12 +3319,12 @@ void Simulation::CreatePropBox(int x1, int y1, int x2, int y2, PropertyType prop
 	}
 	for (int j = y1; j <= y2; j++)
 		for (int i = x1; i <= x2; i++)
-			CreateProp(i, j, propType, propValue, propOffset);
+			CreateProp(i, j, prop, propValue);
 }
 
-int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue propValue, size_t propOffset)
+int Simulation::FloodProp(int x, int y, StructProperty prop, PropertyValue propValue)
 {
-	int i, x1, x2, dy = 1;
+	int x1, x2, dy = 1;
 	int did_something = 0;
 	int r = pmap[y][x];
 	if (!r)
@@ -3356,28 +3358,7 @@ int Simulation::FloodProp(int x, int y, PropertyType propType, PropertyValue pro
 			}
 			for (x=x1; x<=x2; x++)
 			{
-				i = pmap[y][x];
-				if (!i)
-					i = photons[y][x];
-				if (!i)
-					continue;
-				switch (propType) {
-					case Float:
-						*((float*)(((char*)&parts[ID(i)])+propOffset)) = propValue.Float;
-						break;
-
-					case ParticleType:
-					case Integer:
-						*((int*)(((char*)&parts[ID(i)])+propOffset)) = propValue.Integer;
-						break;
-
-					case UInteger:
-						*((unsigned int*)(((char*)&parts[ID(i)])+propOffset)) = propValue.UInteger;
-						break;
-
-					default:
-						break;
-				}
+				CreateProp(x, y, prop, propValue);
 				bitmap[(y*XRES)+x] = 1;
 				did_something = 1;
 			}

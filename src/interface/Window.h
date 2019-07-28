@@ -19,7 +19,6 @@ class Window
 public:
 	Window(Point position, Point size);
 	virtual ~Window();
-	void Resize(Point position, Point size);
 
 	void SetParent(Window *parentWindow) { parent = parentWindow; }
 	Window* GetParent() { return parent; }
@@ -49,7 +48,9 @@ public:
 	virtual void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
 
 	Point GetPosition() { return position; }
+	void SetPosition(Point position) { this->position = position; }
 	Point GetSize() { return size; }
+	void Resize(Point position, Point size);
 	gfx::VideoBuffer* GetVid() { return videoBuffer; }
 	bool IsMouseDown() { return isMouseDown; }
 	bool CanQuit() { return !ignoreQuits; }

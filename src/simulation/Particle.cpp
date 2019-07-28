@@ -1,6 +1,39 @@
+#include <algorithm>
 #include <cstring>
-#include <stddef.h>
+#include <cstddef>
 #include "Particle.h"
+
+std::vector<StructProperty> particle::properties = {
+	{ "type"   , StructProperty::ParticleType, offsetof(particle, type   ) },
+	{ "life"   , StructProperty::Integer     , offsetof(particle, life   ) },
+	{ "ctype"  , StructProperty::ParticleType, offsetof(particle, ctype  ) },
+	{ "x"      , StructProperty::Float       , offsetof(particle, x      ) },
+	{ "y"      , StructProperty::Float       , offsetof(particle, y      ) },
+	{ "vx"     , StructProperty::Float       , offsetof(particle, vx     ) },
+	{ "vy"     , StructProperty::Float       , offsetof(particle, vy     ) },
+	{ "temp"   , StructProperty::Float       , offsetof(particle, temp   ) },
+	{ "flags"  , StructProperty::UInteger    , offsetof(particle, flags  ) },
+	{ "tmp"    , StructProperty::Integer     , offsetof(particle, tmp    ) },
+	{ "tmp2"   , StructProperty::Integer     , offsetof(particle, tmp2   ) },
+	{ "dcolour", StructProperty::UInteger    , offsetof(particle, dcolour) },
+	{ "pavg0"  , StructProperty::Float       , offsetof(particle, pavg[0]) },
+	{ "pavg1"  , StructProperty::Float       , offsetof(particle, pavg[1]) },
+};
+
+std::vector<StructProperty> const &particle::GetProperties()
+{
+	return properties;
+}
+
+StructProperty particle::PropertyByName(const std::string& Name)
+{
+	auto prop = std::find_if(properties.begin(), properties.end(), [&](StructProperty prop) {
+		return prop.Name == Name;
+	});
+	if (prop == properties.end())
+		return properties[0];
+	return *prop;
+}
 
 int Particle_GetOffset(const char * key, int * format)
 {

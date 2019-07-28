@@ -24,3 +24,9 @@ ErrorPrompt::ErrorPrompt(std::string message, std::string dismiss):
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
 }
+
+void ErrorPrompt::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+{
+	if (key == SDLK_RETURN)
+		this->toDelete = true;
+}

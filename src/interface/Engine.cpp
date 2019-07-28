@@ -23,6 +23,11 @@ Engine::~Engine()
 		delete windows.top();
 		windows.pop();
 	}
+	while (!buffers.empty())
+	{
+		delete[] buffers.top();
+		buffers.pop();
+	}
 }
 
 void Engine::ProcessWindowUpdates()
@@ -48,6 +53,12 @@ void Engine::ShowWindowDelayed()
 {
 	if (top)
 		top->DoDefocus();
+
+	// Make a copy of the video buffer, for restoration when this window is closed
+	pixel *copy = new pixel[VIDXRES * VIDYRES * PIXELSIZE];
+	std::copy(&vid_buf[0], &vid_buf[VIDXRES * VIDYRES], &copy[0]);
+	buffers.push(copy);
+
 	fillrect(vid_buf, -1, -1, XRES+BARSIZE+1, YRES+MENUSIZE+1, 0, 0, 0, 100);
 	windows.push(nextTop);
 	top = nextTop;
@@ -80,6 +91,13 @@ void Engine::CloseWindowDelayed()
 	{
 		delete top;
 		windows.pop();
+
+		// Restore original copy of the video buffer from before this window was shown
+		pixel *copy = buffers.top();
+		buffers.pop();
+		std::copy(&copy[0], &copy[VIDXRES * VIDYRES], &vid_buf[0]);
+		delete[] copy;
+
 		if (windows.size())
 		{
 			top = windows.top();
@@ -91,7 +109,6 @@ void Engine::CloseWindowDelayed()
 		}
 		else
 			top = NULL;
-
 	}
 }
 

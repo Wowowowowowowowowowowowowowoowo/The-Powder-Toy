@@ -54,12 +54,6 @@ int console_parse_type(const char *txt, int *element, char *err, Simulation *sim
 			strcpy(err, "Particle type not recognized");
 		return 0;
 	}
-	if ((i > 0 && i < PT_NUM && sim->elements[i].Enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
-	{
-		if (element) *element = i;
-		if (err) strcpy(err,"");
-		return 1;
-	}
 	for (i=1; i<PT_NUM; i++)
 	{
 		if (!strcasecmp(txt, sim->elements[i].Name.c_str()) && (sim->elements[i].Enabled || secret_els))
@@ -68,6 +62,12 @@ int console_parse_type(const char *txt, int *element, char *err, Simulation *sim
 			if (err) strcpy(err,"");
 			return 1;
 		}
+	}
+	if ((i > 0 && i < PT_NUM && sim->elements[i].Enabled) || !strcasecmp(txt, "NONE") || !strcasecmp(txt, "0"))
+	{
+		if (element) *element = i;
+		if (err) strcpy(err,"");
+		return 1;
 	}
 	if (err) strcpy(err, "Particle type not recognized");
 	return 0;
