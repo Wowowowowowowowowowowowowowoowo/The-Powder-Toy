@@ -53,13 +53,55 @@ Element::Element():
 	LowTemperatureTransitionElement(NT),
 	HighTemperatureTransitionThreshold(ITH),
 	HighTemperatureTransitionElement(NT),
-	Update(NULL),
-	Graphics(NULL),
-	Func_Create(NULL),
-	Func_Create_Allowed(NULL),
-	Func_ChangeType(NULL),
-	Init(NULL)
+	Update(nullptr),
+	Graphics(nullptr),
+	Func_Create(nullptr),
+	Func_Create_Allowed(nullptr),
+	Func_ChangeType(nullptr),
+	Init(nullptr)
 {
 	memset(&DefaultProperties, 0, sizeof(particle));
 	DefaultProperties.temp = R_TEMP + 273.15f;
+}
+
+std::vector<StructProperty> Element::properties = {
+	{ "Name",                      StructProperty::String,          offsetof(Element, Name)                      },
+	{ "Colour",                    StructProperty::Colour,          offsetof(Element, Colour)                    },
+	{ "Color",                     StructProperty::Colour,          offsetof(Element, Colour)                    },
+	{ "MenuVisible",               StructProperty::Integer,         offsetof(Element, MenuVisible)               },
+	{ "MenuSection",               StructProperty::Integer,         offsetof(Element, MenuSection)               },
+	{ "Enabled",                   StructProperty::Integer,         offsetof(Element, Enabled)                   },
+	{ "Advection",                 StructProperty::Float,           offsetof(Element, Advection)                 },
+	{ "AirDrag",                   StructProperty::Float,           offsetof(Element, AirDrag)                   },
+	{ "AirLoss",                   StructProperty::Float,           offsetof(Element, AirLoss)                   },
+	{ "Loss",                      StructProperty::Float,           offsetof(Element, Loss)                      },
+	{ "Collision",                 StructProperty::Float,           offsetof(Element, Collision)                 },
+	{ "Gravity",                   StructProperty::Float,           offsetof(Element, Gravity)                   },
+	{ "Diffusion",                 StructProperty::Float,           offsetof(Element, Diffusion)                 },
+	{ "HotAir",                    StructProperty::Float,           offsetof(Element, HotAir)                    },
+	{ "Falldown",                  StructProperty::Integer,         offsetof(Element, Falldown)                  },
+	{ "Flammable",                 StructProperty::Integer,         offsetof(Element, Flammable)                 },
+	{ "Explosive",                 StructProperty::Integer,         offsetof(Element, Explosive)                 },
+	{ "Meltable",                  StructProperty::Integer,         offsetof(Element, Meltable)                  },
+	{ "Hardness",                  StructProperty::Integer,         offsetof(Element, Hardness)                  },
+	{ "PhotonReflectWavelengths",  StructProperty::UInteger,        offsetof(Element, PhotonReflectWavelengths)  },
+	{ "Weight",                    StructProperty::Integer,         offsetof(Element, Weight)                    },
+	{ "Temperature",               StructProperty::Float,           offsetof(Element, DefaultProperties.temp)    },
+	{ "HeatConduct",               StructProperty::UChar,           offsetof(Element, HeatConduct)               },
+	{ "Description",               StructProperty::String,          offsetof(Element, Description)               },
+	{ "State",                     StructProperty::Removed,         0                                            },
+	{ "Properties",                StructProperty::Integer,         offsetof(Element, Properties)                },
+	{ "LowPressure",               StructProperty::TransitionType,  offsetof(Element, LowPressureTransitionElement)        },
+	{ "LowPressureTransition",     StructProperty::Float,           offsetof(Element, LowPressureTransitionThreshold)      },
+	{ "HighPressure",              StructProperty::TransitionType,  offsetof(Element, HighPressureTransitionElement)       },
+	{ "HighPressureTransition",    StructProperty::Float,           offsetof(Element, HighPressureTransitionThreshold)     },
+	{ "LowTemperature",            StructProperty::TransitionType,  offsetof(Element, LowTemperatureTransitionElement)     },
+	{ "LowTemperatureTransition",  StructProperty::Float,           offsetof(Element, LowTemperatureTransitionThreshold)   },
+	{ "HighTemperature",           StructProperty::TransitionType,  offsetof(Element, HighTemperatureTransitionElement)    },
+	{ "HighTemperatureTransition", StructProperty::Float,           offsetof(Element, HighTemperatureTransitionThreshold)  }
+};
+
+std::vector<StructProperty> const &Element::GetProperties()
+{
+	return properties;
 }

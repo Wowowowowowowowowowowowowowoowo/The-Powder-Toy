@@ -109,7 +109,6 @@ int graphics_toolTip(lua_State * l);
 
 void LuaGetProperty(lua_State* l, StructProperty property, intptr_t propertyAddress);
 void LuaSetProperty(lua_State* l, StructProperty property, intptr_t propertyAddress, int stackPos);
-int elements_getProperty(const char * key, int * format, unsigned int * modifiedStuff);
 void elements_setProperty(lua_State * l, int id, int format, int offset);
 void elements_writeProperty(lua_State *l, int id, int format, int offset);
 

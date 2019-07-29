@@ -20,12 +20,6 @@
 #include "simulation/Particle.h"
 #include <string>
 
-// TODO: remove these undefs, once the defines have been removed from powder.h
-#undef UPDATE_FUNC_ARGS
-#undef UPDATE_FUNC_SUBCALL_ARGS
-#undef GRAPHICS_FUNC_ARGS
-#undef GRAPHICS_FUNC_SUBCALL_ARGS
-
 class Simulation;
 
 #define UPDATE_FUNC_ARGS Simulation *sim, int i, int x, int y, int surround_space, int nt
@@ -114,8 +108,12 @@ public:
 
 	void (*Init) (ELEMENT_INIT_FUNC_ARGS);
 	Element();
-	~Element() {}
 
+	/** Returns a list of properties, their type, and offset within the Element structure, for use in Lua **/
+	static std::vector<StructProperty> const &GetProperties();
+
+private:
+	static std::vector<StructProperty> properties;
 };
 
 //defined in ElementFunctions.cpp
