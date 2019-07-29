@@ -59,7 +59,7 @@ int POLO_update(UPDATE_FUNC_ARGS)
 		parts[i].temp = (parts[i].temp+600.0f)/2.0f;
 		return 1;
 	}
-	if (parts[ID(r)].type == PT_PROT)
+	if (TYP(r) == PT_PROT)
 	{
 		parts[i].tmp2++;
 		sim->part_kill(ID(r));
