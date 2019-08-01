@@ -1026,6 +1026,11 @@ int main(int argc, char *argv[])
 		{
 			disableNetwork = true;
 		}
+		else if (!strcmp(argv[i], "redirect"))
+		{
+			freopen("stdout.log", "w", stdout);
+			freopen("stderr.log", "w", stderr);
+		}
 	}
 
 	stamp_init();
