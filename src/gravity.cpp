@@ -40,6 +40,7 @@ float *gravy = NULL;
 float *gravx = NULL;
 unsigned *gravmask = NULL;
 int gravity_cleared = 0;//used to signal when gravx and gravy have been cleared in clear_sim, meaning that th_gravx/y and th_ogravmap need to be cleared to match them
+bool ignoreNextResult = false;
 
 float *th_ogravmap = NULL;// Maps to be processed by the gravity thread
 float *th_gravmap = NULL;
@@ -89,6 +90,22 @@ void bilinear_interpolation(float *src, float *dst, int sw, int sh, int rw, int 
 		}
 }
 
+void gravity_clear()
+{
+	if (gravy)
+		std::fill(gravy, gravy+((XRES/CELL)*(YRES/CELL)), 0.0f);
+	if (gravx)
+		std::fill(gravx, gravx+((XRES/CELL)*(YRES/CELL)), 0.0f);
+	if (gravp)
+		std::fill(gravp, gravp+((XRES/CELL)*(YRES/CELL)), 0.0f);
+	if (gravmap)
+		std::fill(gravmap, gravmap+((XRES/CELL)*(YRES/CELL)), 0.0f);
+	if (gravmask)
+		std::fill(gravmask, gravmask+((XRES/CELL)*(YRES/CELL)), 0xFFFFFFFF);
+
+	ignoreNextResult = true;
+}
+
 void gravity_init()
 {
 	//Allocate full size Gravmaps
@@ -115,55 +132,58 @@ void gravity_cleanup()
 void gravity_update_async()
 {
 	int result;
-	if(ngrav_enable)
+	if (ngrav_enable)
 	{
-		pthread_mutex_lock(&gravmutex);
-		result = grav_ready;
-		if(result) //Did the gravity thread finish?
+		if (!pthread_mutex_trylock(&gravmutex))
 		{
-			if (!sys_pause||framerender){ //Only update if not paused
-				//Switch the full size gravmaps, we don't really need the two above any more
-				float *tmpf;
+			result = grav_ready;
+			if (result) //Did the gravity thread finish?
+			{
+				//if (!sys_pause||framerender){ //Only update if not paused
+					//Switch the full size gravmaps, we don't really need the two above any more
+					float *tmpf;
 
-				if (gravity_cleared)
-				{
-					memset(th_gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					memset(th_gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					memset(th_gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					memset(th_ogravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					gravity_cleared = 0;
-				}
+					if (gravity_cleared)
+					{
+						memset(th_gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						memset(th_gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						memset(th_gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						memset(th_ogravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						gravity_cleared = 0;
+					}
 
-				if(th_gravchanged)
-				{
-				#if !defined(GRAVFFT) && defined(GRAV_DIFF)
-					memcpy(gravy, th_gravy, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					memcpy(gravx, th_gravx, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-					memcpy(gravp, th_gravp, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-				#else
-					tmpf = gravy;
-					gravy = th_gravy;
-					th_gravy = tmpf;
-	
-					tmpf = gravx;
-					gravx = th_gravx;
-					th_gravx = tmpf;
-	
-					tmpf = gravp;
-					gravp = th_gravp;
-					th_gravp = tmpf;
-				#endif
-				}
+					if (th_gravchanged && !ignoreNextResult)
+					{
+					#if !defined(GRAVFFT) && defined(GRAV_DIFF)
+						memcpy(gravy, th_gravy, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						memcpy(gravx, th_gravx, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+						memcpy(gravp, th_gravp, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+					#else
+						tmpf = gravy;
+						gravy = th_gravy;
+						th_gravy = tmpf;
 
-				tmpf = gravmap;
-				gravmap = th_gravmap;
-				th_gravmap = tmpf;
+						tmpf = gravx;
+						gravx = th_gravx;
+						th_gravx = tmpf;
 
-				grav_ready = 0; //Tell the other thread that we're ready for it to continue
-				pthread_cond_signal(&gravcv);
+						tmpf = gravp;
+						gravp = th_gravp;
+						th_gravp = tmpf;
+					#endif
+					}
+					ignoreNextResult = false;
+
+					tmpf = gravmap;
+					gravmap = th_gravmap;
+					th_gravmap = tmpf;
+
+					grav_ready = 0; //Tell the other thread that we're ready for it to continue
+					pthread_cond_signal(&gravcv);
+				//}
 			}
+			pthread_mutex_unlock(&gravmutex);
 		}
-		pthread_mutex_unlock(&gravmutex);
 		//Apply the gravity mask
 		membwand(gravy, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 		membwand(gravx, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
@@ -187,26 +207,26 @@ TH_ENTRY_POINT void* update_grav_async(void* unused)
 	if (!grav_fft_status)
 		grav_fft_init();
 #endif
-	while(!thread_done){
-		if(!done){
+	pthread_mutex_lock(&gravmutex);
+	while (!thread_done)
+	{
+		if (!done)
+		{
+			// run gravity update
 			update_grav();
 			done = 1;
-			pthread_mutex_lock(&gravmutex);
-			
-			grav_ready = done;
+			grav_ready = 1;
+
 			thread_done = gravthread_done;
-			
-			pthread_mutex_unlock(&gravmutex);
 		} else {
-			pthread_mutex_lock(&gravmutex);
+			// wait for main thread
 			pthread_cond_wait(&gravcv, &gravmutex);
 		    
 			done = grav_ready;
 			thread_done = gravthread_done;
-			
-			pthread_mutex_unlock(&gravmutex);
 		}
 	}
+	pthread_mutex_unlock(&gravmutex);
 	pthread_exit(NULL);
 	return 0;
 }
@@ -215,7 +235,7 @@ void start_grav_async()
 {
 	if (ngrav_completedisable)
 		return;
-	if(!ngrav_enable){
+	if (!ngrav_enable){
 		gravthread_done = 0;
 		grav_ready = 0;
 		pthread_mutex_init (&gravmutex, NULL);
@@ -232,7 +252,8 @@ void stop_grav_async()
 {
 	if (ngrav_completedisable)
 		return;
-	if(ngrav_enable){
+	if (ngrav_enable)
+	{
 		pthread_mutex_lock(&gravmutex);
 		gravthread_done = 1;
 		pthread_cond_signal(&gravcv);
@@ -593,5 +614,5 @@ void gravity_mask()
 		c_mask_el = c_mask_el->next;	
 	}
 	mask_free(t_mask_el);
-	gravity_cleared = 1;
+	ignoreNextResult = true;
 }

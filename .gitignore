@@ -42,6 +42,7 @@ config.log
 *.db
 *.opendb
 *.aps
+.vscode/ipch
 
 /stamps/
 /Saves/

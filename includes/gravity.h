@@ -29,6 +29,7 @@ extern float *gravy;
 extern float *gravx;
 extern unsigned *gravmask;
 extern int gravity_cleared;
+extern bool ignoreNextResult;
 
 extern float *th_ogravmap;// Maps to be processed by the gravity thread
 extern float *th_gravmap;
@@ -36,6 +37,7 @@ extern float *th_gravx;
 extern float *th_gravy;
 extern float *th_gravp;
 
+void gravity_clear();
 void gravity_init();
 void gravity_cleanup();
 void gravity_update_async();

@@ -210,15 +210,7 @@ void clear_sim()
 	memset(fire_b, 0, sizeof(fire_b));
 	memset(fire_alpha, 0, sizeof(fire_alpha));
 	prepare_alpha(1.0f);
-	if(gravmask)
-		memset(gravmask, 0xFFFFFFFF, (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
-	if(gravy)
-		memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	if(gravx)
-		memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	if(gravp)
-		memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	gravity_cleared = 1;
+	gravity_clear();
 	finding &= 0x8;
 #ifdef LUACONSOLE
 	if (LuaCode)
@@ -1274,9 +1266,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 			gravwl_timeout--;
 		}
 		
-		gravity_update_async(); //Check for updated velocity maps from gravity thread
-		if (!sys_pause||framerender) //Only update if not paused
+		if (!sys_pause||framerender)
+		{
+			gravity_update_async(); //Check for updated velocity maps from gravity thread
 			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
+		}
 
 		if (framerender)
 			framerender--;
