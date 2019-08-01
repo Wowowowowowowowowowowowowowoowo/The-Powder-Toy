@@ -53,6 +53,7 @@ void luacon_open();
 void luacon_openmultiplayer();
 void luacon_openscriptmanager();
 void luacon_openeventcompat();
+void initLegacyProps();
 void luaopen_multiplayer(lua_State *l);
 void luaopen_scriptmanager(lua_State *l);
 void luaopen_eventcompat(lua_State *l);
@@ -74,8 +75,6 @@ int luacon_transitionread(lua_State* l);
 int luacon_transitionwrite(lua_State* l);
 int luacon_tptIndex(lua_State *l);
 int luacon_tptNewIndex(lua_State *l);
-int luacon_transition_getproperty(const char * key, int * format);
-int luacon_element_getproperty(const char * key, int * format, unsigned int * modified_stuff);
 int process_command_lua(pixel *vid_buf, char *command, char **result);
 void lua_hook(lua_State *L, lua_Debug *ar);
 

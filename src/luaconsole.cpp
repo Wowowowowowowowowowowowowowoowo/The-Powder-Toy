@@ -280,7 +280,7 @@ tpt.partsdata = nil");
 		lua_newtable(l);
 		currentElementMeta = lua_gettop(l);
 		lua_pushinteger(l, i);
-		lua_setfield(l, currentElement, "value");
+		lua_setfield(l, currentElement, "id");
 		lua_pushcfunction(l, luacon_transitionwrite);
 		lua_setfield(l, currentElementMeta, "__newindex");
 		lua_pushcfunction(l, luacon_transitionread);
@@ -308,6 +308,8 @@ tpt.partsdata = nil");
 	lua_pushcfunction(l, luacon_tptNewIndex);
 	lua_setfield(l, -2, "__newindex");
 	lua_setmetatable(l, -2);
+
+	initLegacyProps();
 }
 
 void luacon_openmultiplayer()
@@ -327,6 +329,50 @@ void luacon_openscriptmanager()
 void luacon_openeventcompat()
 {
 	luaopen_eventcompat(l);
+}
+
+std::map<std::string, StructProperty> legacyPropNames;
+std::map<std::string, StructProperty> legacyTransitionNames;
+void initLegacyProps()
+{
+	std::vector<StructProperty> properties = Element::GetProperties();
+	for (auto prop : properties)
+	{
+		if (prop.Name == "MenuVisible")
+			legacyPropNames.insert(std::pair<std::string, StructProperty>("menu", prop));
+		else if (prop.Name == "PhotonReflectWavelengths")
+			continue;
+		else if (prop.Name == "Temperature")
+			legacyPropNames.insert(std::pair<std::string, StructProperty>("heat", prop));
+		else if (prop.Name == "HeatConduct")
+			legacyPropNames.insert(std::pair<std::string, StructProperty>("hconduct", prop));
+
+		// Put all transition stuff into separate map
+		else if (prop.Name == "LowPressure")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("presLowValue", prop));
+		else if (prop.Name == "LowPressureTransition")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("presLowType", prop));
+		else if (prop.Name == "HighPressure")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("presHighValue", prop));
+		else if (prop.Name == "HighPressureTransition")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("presHighType", prop));
+		else if (prop.Name == "LowTemperature")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("tempLowValue", prop));
+		else if (prop.Name == "LowTemperatureTransition")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("tempLowType", prop));
+		else if (prop.Name == "HighTemperature")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("tempHighValue", prop));
+		else if (prop.Name == "HighTemperatureTransition")
+			legacyTransitionNames.insert(std::pair<std::string, StructProperty>("tempHighType", prop));
+
+		else
+		{
+			std::string lower = prop.Name;
+			for (size_t i = 0; i < lower.size(); i++)
+				lower[i] = tolower(lower[i]);
+			legacyPropNames.insert(std::pair<std::string, StructProperty>(lower, prop));
+		}
+	}
 }
 
 #ifndef FFI
@@ -420,303 +466,96 @@ int luacon_partswrite(lua_State* l)
 }
 #endif
 
-int luacon_transition_getproperty(const char * key, int * format)
-{
-	int offset;
-	if (!strcmp(key, "presHighValue")) {
-		offset = offsetof(Element, HighPressureTransitionThreshold);
-		*format = 1;
-	} else if (!strcmp(key, "presHighType")) {
-		offset = offsetof(Element, HighPressureTransitionElement);
-		*format = 0;
-	} else if (!strcmp(key, "presLowValue")) {
-		offset = offsetof(Element, LowPressureTransitionThreshold);
-		*format = 1;
-	} else if (!strcmp(key, "presLowType")) {
-		offset = offsetof(Element, LowPressureTransitionElement);
-		*format = 0;
-	} else if (!strcmp(key, "tempHighValue")) {
-		offset = offsetof(Element, HighTemperatureTransitionThreshold);
-		*format = 1;
-	} else if (!strcmp(key, "tempHighType")) {
-		offset = offsetof(Element, HighTemperatureTransitionElement);
-		*format = 0;
-	} else if (!strcmp(key, "tempLowValue")) {
-		offset = offsetof(Element, LowTemperatureTransitionThreshold);
-		*format = 1;
-	} else if (!strcmp(key, "tempLowType")) {
-		offset = offsetof(Element, LowTemperatureTransitionElement);
-		*format = 0;
-	} else {
-		offset = -1;
-	}
-	return offset;
-}
-
 int luacon_transitionread(lua_State* l)
 {
-	int format, offset;
-	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_transition_getproperty(key, &format);
-	
-	//Get Raw Index value for element
-	lua_pushstring(l, "value");
-	lua_rawget(l, 1);
-	
-	int i = lua_tointeger(l, lua_gettop(l));
-	
-	lua_pop(l, 1);
-	
-	if (i < 0 || i >= PT_NUM || offset==-1)
-	{
+	std::string key = luaL_optstring(l, 2, "");
+	if (legacyTransitionNames.find(key) == legacyTransitionNames.end())
 		return luaL_error(l, "Invalid property");
-	}
-	elements_writeProperty(l, i, format, offset);
+	StructProperty prop = legacyTransitionNames[key];
+
+	// Get Raw Index value for element
+	lua_pushstring(l, "id");
+	lua_rawget(l, 1);
+	int i = lua_tointeger(l, lua_gettop(l));
+	lua_pop(l, 1);
+	if (!luaSim->IsElement(i))
+		return luaL_error(l, "Invalid index");
+
+	auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[i])) + prop.Offset);
+	LuaGetProperty(l, prop, propertyAddress);
+
 	return 1;
 }
 
 int luacon_transitionwrite(lua_State* l)
 {
-	int format, offset;
-	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_transition_getproperty(key, &format);
-	
+	std::string key = luaL_optstring(l, 2, "");
+	if (legacyTransitionNames.find(key) == legacyTransitionNames.end())
+		return luaL_error(l, "Invalid property");
+	StructProperty prop = legacyTransitionNames[key];
+
 	//Get Raw Index value for element
 	lua_pushstring(l, "value");
 	lua_rawget(l, 1);
-	
 	int i = lua_tointeger(l, lua_gettop(l));
-	
 	lua_pop(l, 1);
-	
-	if (i < 0 || i >= PT_NUM || offset==-1)
-	{
-		return luaL_error(l, "Invalid property");
-	}
-	elements_setProperty(l, i, format, offset);
-	return 0;
-}
+	if (!luaSim->IsElement(i))
+		return luaL_error(l, "Invalid index");
 
-int luacon_element_getproperty(const char * key, int * format, unsigned int * modified_stuff)
-{
-	int offset;
-	if (!strcmp(key, "name"))
-	{
-		offset = offsetof(Element, Name);
-		*format = 2;
-	}
-	else if (!strcmp(key, "color") || !strcmp(key, "colour"))
-	{
-		offset = offsetof(Element, Colour);
-		*format = 4;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS;
-	}
-	else if (!strcmp(key, "advection"))
-	{
-		offset = offsetof(Element, Advection);
-		*format = 1;
-	}
-	else if (!strcmp(key, "airdrag"))
-	{
-		offset = offsetof(Element, AirDrag);
-		*format = 1;
-	}
-	else if (!strcmp(key, "airloss"))
-	{
-		offset = offsetof(Element, AirLoss);
-		*format = 1;
-	}
-	else if (!strcmp(key, "loss"))
-	{
-		offset = offsetof(Element, Loss);
-		*format = 1;
-	}
-	else if (!strcmp(key, "collision"))
-	{
-		offset = offsetof(Element, Collision);
-		*format = 1;
-	}
-	else if (!strcmp(key, "gravity"))
-	{
-		offset = offsetof(Element, Gravity);
-		*format = 1;
-	}
-	else if (!strcmp(key, "diffusion"))
-	{
-		offset = offsetof(Element, Diffusion);
-		*format = 1;
-	}
-	else if (!strcmp(key, "hotair"))
-	{
-		offset = offsetof(Element, HotAir);
-		*format = 1;
-	}
-	else if (!strcmp(key, "falldown"))
-	{
-		offset = offsetof(Element, Falldown);
-		*format = 0;
-	}
-	else if (!strcmp(key, "flammable"))
-	{
-		offset = offsetof(Element, Flammable);
-		*format = 0;
-	}
-	else if (!strcmp(key, "explosive"))
-	{
-		offset = offsetof(Element, Explosive);
-		*format = 0;
-	}
-	else if (!strcmp(key, "meltable"))
-	{
-		offset = offsetof(Element, Meltable);
-		*format = 0;
-	}
-	else if (!strcmp(key, "hardness"))
-	{
-		offset = offsetof(Element, Hardness);
-		*format = 0;
-	}
-	else if (!strcmp(key, "photonwavelength"))
-	{
-		offset = offsetof(Element, PhotonReflectWavelengths);
-		*format = 5;
-	}
-	else if (!strcmp(key, "menu"))
-	{
-		offset = offsetof(Element, MenuVisible);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
-	}
-	else if (!strcmp(key, "menusection"))
-	{
-		offset = offsetof(Element, MenuSection);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
-	}
-	else if (!strcmp(key, "enabled"))
-	{
-		offset = offsetof(Element, Enabled);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_MENUS;
-	}
-	else if (!strcmp(key, "weight"))
-	{
-		offset = offsetof(Element, Weight);
-		*format = 0;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_CANMOVE;
-	}
-	else if (!strcmp(key, "heat"))
-	{
-		offset = offsetof(Element, DefaultProperties.temp);
-		*format = 1;
-	}
-	else if (!strcmp(key, "hconduct"))
-	{
-		offset = offsetof(Element, HeatConduct);
-		*format = 3;
-	}
-	else if (!strcmp(key, "latent"))
-	{
-		offset = offsetof(Element, Latent);
-		*format = 5;
-	}
-	else if (!strcmp(key, "state"))
-	{
-		offset = 0;
-		*format = 6;
-	}
-	else if (!strcmp(key, "properties"))
-	{
-		offset = offsetof(Element, Properties);
-		*format = 5;
-		if (modified_stuff)
-			*modified_stuff |= LUACON_EL_MODIFIED_GRAPHICS | LUACON_EL_MODIFIED_CANMOVE;
-	}
-	else if (!strcmp(key, "description"))
-	{
-		offset = offsetof(Element, Description);
-		*format = 2;
-	}
-	else
-	{
-		return -1;
-	}
-	return offset;
+	auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[i])) + prop.Offset);
+	LuaSetProperty(l, prop, propertyAddress, 3);
+
+	return 0;
 }
 
 int luacon_elementread(lua_State* l)
 {
-	int format, offset;
-	int i;
-	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_element_getproperty(key, &format, NULL);
-	
-	//Get Raw Index value for element
+	std::string key = luaL_optstring(l, 2, "");
+	if (legacyPropNames.find(key) == legacyPropNames.end())
+		return luaL_error(l, "Invalid property");
+	StructProperty prop = legacyPropNames[key];
+
+	// Get Raw Index value for element
 	lua_pushstring(l, "id");
 	lua_rawget(l, 1);
-	
-	i = lua_tointeger (l, lua_gettop(l));
-	
+	int i = lua_tointeger (l, lua_gettop(l));
 	lua_pop(l, 1);
-	
-	if (i < 0 || i >= PT_NUM || offset==-1)
-	{
+	if (!luaSim->IsElement(i))
 		return luaL_error(l, "Invalid property");
-	}
-	elements_writeProperty(l, i, format, offset);
+
+	auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[i])) + prop.Offset);
+	LuaGetProperty(l, prop, propertyAddress);
+
 	return 1;
 }
 
 int luacon_elementwrite(lua_State* l)
 {
-	int format, offset;
-	int i;
-	unsigned int modified_stuff = 0;
-	const char * key = luaL_optstring(l, 2, "");
-	offset = luacon_element_getproperty(key, &format, &modified_stuff);
-	
-	//Get Raw Index value for element
+	std::string key = luaL_optstring(l, 2, "");
+	if (legacyPropNames.find(key) == legacyPropNames.end())
+		return luaL_error(l, "Invalid property");
+	StructProperty prop = legacyPropNames[key];
+
+	// Get Raw Index value for element
 	lua_pushstring(l, "id");
 	lua_rawget(l, 1);
-	
-	i = lua_tointeger (l, lua_gettop(l));
-	
+	int i = lua_tointeger (l, lua_gettop(l));
 	lua_pop(l, 1);
-	
-	if (i < 0 || i >= PT_NUM || offset==-1)
-	{
+	if (!luaSim->IsElement(i))
 		return luaL_error(l, "Invalid property");
+
+	if (prop.Name == "type")
+		luaSim->part_change_type_force(i, luaL_checkinteger(l, 3));
+	else
+	{
+		auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[i])) + prop.Offset);
+		LuaSetProperty(l, prop, propertyAddress, 3);
 	}
 
-	char * tempstring = mystrdup(luaL_optstring(l, 3, ""));
-	if (!strcmp(key, "name"))
-	{
-		//Convert to upper case
-		for (unsigned int j = 0; j < strlen(tempstring); j++)
-			tempstring[j] = toupper(tempstring[j]);
-		if (console_parse_type(tempstring, NULL, NULL, luaSim))
-		{
-			free(tempstring);
-			return luaL_error(l, "Name in use");
-		}
-	}
-	else
-		free(tempstring);
-	elements_setProperty(l, i, format, offset);
-	if (modified_stuff)
-	{
-		if (modified_stuff & LUACON_EL_MODIFIED_MENUS)
-			FillMenus();
-		if (modified_stuff & LUACON_EL_MODIFIED_CANMOVE)
-			luaSim->InitCanMove();
-		if (modified_stuff & LUACON_EL_MODIFIED_GRAPHICS)
-			memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
-	}
+	FillMenus();
+	luaSim->InitCanMove();
+	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
+
 	return 0;
 }
 
