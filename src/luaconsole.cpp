@@ -495,7 +495,7 @@ int luacon_transitionwrite(lua_State* l)
 	StructProperty prop = legacyTransitionNames[key];
 
 	//Get Raw Index value for element
-	lua_pushstring(l, "value");
+	lua_pushstring(l, "id");
 	lua_rawget(l, 1);
 	int i = lua_tointeger(l, lua_gettop(l));
 	lua_pop(l, 1);
