@@ -20,6 +20,7 @@ class Request
 	std::string response_body;
 
 	CURL *easy;
+	char *error_buffer;
 
 	volatile curl_off_t rm_total;
 	volatile curl_off_t rm_done;

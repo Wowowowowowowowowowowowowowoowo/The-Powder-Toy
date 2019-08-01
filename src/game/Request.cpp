@@ -31,6 +31,7 @@ Request::Request(std::string uri_):
 {
 	pthread_cond_init(&done_cv, NULL);
 	pthread_mutex_init(&rm_mutex, NULL);
+	error_buffer = new char[CURL_ERROR_SIZE];
 	easy = curl_easy_init();
 	if (!RequestManager::Ref().AddRequest(this))
 	{
@@ -48,6 +49,7 @@ Request::~Request()
 	curl_formfree(post_fields_first);
 #endif
 	curl_slist_free_all(headers);
+	delete[] error_buffer;
 	pthread_mutex_destroy(&rm_mutex);
 	pthread_cond_destroy(&done_cv);
 }
@@ -172,6 +174,9 @@ void Request::Start()
 
 		curl_easy_setopt(easy, CURLOPT_FOLLOWLOCATION, 1L);
 		curl_easy_setopt(easy, CURLOPT_MAXREDIRS, 10L);
+
+		curl_easy_setopt(easy, CURLOPT_ERRORBUFFER, error_buffer);
+		error_buffer[0] = 0;
 
 		curl_easy_setopt(easy, CURLOPT_TIMEOUT, timeout);
 		curl_easy_setopt(easy, CURLOPT_HTTPHEADER, headers);

@@ -151,6 +151,11 @@ void RequestManager::Worker()
 						break;
 					}
 
+					if (finish_with >= 600)
+					{
+						std::cerr << "Http status code " << finish_with << ": " << request->error_buffer << std::endl;
+					}
+
 					request->status = finish_with;
 				}
 			};
