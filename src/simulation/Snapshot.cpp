@@ -1,6 +1,5 @@
 
 #include "Snapshot.h"
-#include "gravity.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/Simulation.h"
 #include "elements/STKM.h"
@@ -92,10 +91,10 @@ Snapshot * Snapshot::CreateSnapshot(Simulation * sim)
 	snap->AirVelocityY.insert(snap->AirVelocityY.begin(), &sim->air->vy[0][0], &sim->air->vy[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->AmbientHeat.insert(snap->AmbientHeat.begin(), &sim->air->hv[0][0], &sim->air->hv[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->Particles.insert(snap->Particles.begin(), parts, parts+sim->parts_lastActiveIndex+1);
-	snap->GravVelocityX.insert(snap->GravVelocityX.begin(), gravx, gravx+((XRES/CELL)*(YRES/CELL)));
-	snap->GravVelocityY.insert(snap->GravVelocityY.begin(), gravy, gravy+((XRES/CELL)*(YRES/CELL)));
-	snap->GravValue.insert(snap->GravValue.begin(), gravp, gravp+((XRES/CELL)*(YRES/CELL)));
-	snap->GravMap.insert(snap->GravMap.begin(), gravmap, gravmap+((XRES/CELL)*(YRES/CELL)));
+	snap->GravVelocityX.insert(snap->GravVelocityX.begin(), sim->grav->gravx, sim->grav->gravx+((XRES/CELL)*(YRES/CELL)));
+	snap->GravVelocityY.insert(snap->GravVelocityY.begin(), sim->grav->gravy, sim->grav->gravy+((XRES/CELL)*(YRES/CELL)));
+	snap->GravValue.insert(snap->GravValue.begin(), sim->grav->gravp, sim->grav->gravp+((XRES/CELL)*(YRES/CELL)));
+	snap->GravMap.insert(snap->GravMap.begin(), sim->grav->gravmap, sim->grav->gravmap+((XRES/CELL)*(YRES/CELL)));
 	snap->BlockMap.insert(snap->BlockMap.begin(), &bmap[0][0], &bmap[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->ElecMap.insert(snap->ElecMap.begin(), &emap[0][0], &emap[0][0]+((XRES/CELL)*(YRES/CELL)));
 	snap->FanVelocityX.insert(snap->FanVelocityX.begin(), &sim->air->fvx[0][0], &sim->air->fvx[0][0]+((XRES/CELL)*(YRES/CELL)));
@@ -126,12 +125,12 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 	std::copy(snap.Particles.begin(), snap.Particles.end(), parts);
 	sim->parts_lastActiveIndex = NPART-1;
 	sim->RecalcFreeParticles(false);
-	if (ngrav_enable)
+	if (sim->grav->IsEnabled())
 	{
-		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), gravx);
-		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), gravy);
-		std::copy(snap.GravValue.begin(), snap.GravValue.end(), gravp);
-		std::copy(snap.GravMap.begin(), snap.GravMap.end(), gravmap);
+		std::copy(snap.GravVelocityX.begin(), snap.GravVelocityX.end(), sim->grav->gravx);
+		std::copy(snap.GravVelocityY.begin(), snap.GravVelocityY.end(), sim->grav->gravy);
+		std::copy(snap.GravValue.begin(), snap.GravValue.end(), sim->grav->gravp);
+		std::copy(snap.GravMap.begin(), snap.GravMap.end(), sim->grav->gravmap);
 	}
 	std::copy(snap.BlockMap.begin(), snap.BlockMap.end(), &bmap[0][0]);
 	std::copy(snap.ElecMap.begin(), snap.ElecMap.end(), &emap[0][0]);
@@ -157,6 +156,6 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 
 	sim->parts_lastActiveIndex = NPART-1;
 	sim->forceStackingCheck = true;
-	gravwl_timeout = 1;
+	sim->grav->gravWallChanged = true;
 	sim->RecountElements();
 }

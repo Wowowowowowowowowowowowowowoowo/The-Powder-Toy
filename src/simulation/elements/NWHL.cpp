@@ -18,9 +18,9 @@
 int NWHL_update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].tmp)
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] -= restrict_flt(0.001f*parts[i].tmp, 0.1f, 51.2f);
+		sim->grav->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] -= restrict_flt(0.001f * parts[i].tmp, 0.1f, 51.2f);
 	else
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] -= 0.1f;
+		sim->grav->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] -= 0.1f;
 	return 0;
 }
 

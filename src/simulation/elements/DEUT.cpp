@@ -18,7 +18,7 @@
 int DEUT_update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, trade, np;
-	float gravtot = fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
+	float gravtot = fabs(sim->grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)]) + fabs(sim->grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
 	int maxlife = (int)((10000/(parts[i].temp + 1))-1);
 	// no idea what this line was intended to do, but kept for compatibility
 	if (RNG::Ref().chance(10000 % static_cast<int>(parts[i].temp + 1), static_cast<int>(parts[i].temp + 1)))

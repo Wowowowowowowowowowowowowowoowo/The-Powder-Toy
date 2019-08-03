@@ -18,16 +18,13 @@
 #define ELEMENT_H
 // This header should be included by all files in src/elements/
 
+#include <cmath>
 #include "powder.h"
-#include "gravity.h"
 #include "misc.h"
-#include "math.h"
 #include "powdergraphics.h"
+#include "Gravity.h"
 
 //#define BOUNDS_CHECK x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES
 #define BOUNDS_CHECK 1
-#define bool char
-#define true 1
-#define false 0
 
 #endif

@@ -63,7 +63,6 @@
 #include "misc.h"
 #include "font.h"
 #include "powder.h"
-#include "gravity.h"
 #include "graphics.h"
 #include "powdergraphics.h"
 #include "interface.h"
@@ -210,7 +209,6 @@ void clear_sim()
 	memset(fire_b, 0, sizeof(fire_b));
 	memset(fire_alpha, 0, sizeof(fire_alpha));
 	prepare_alpha(1.0f);
-	gravity_clear();
 	finding &= 0x8;
 #ifdef LUACONSOLE
 	if (LuaCode)
@@ -227,7 +225,7 @@ void NewSim()
 	clear_sim();
 	clear_save_info();
 	legacy_enable = 0;
-	gravityMode = 0;
+	globalSim->gravityMode = 0;
 	airMode = 0;
 }
 
@@ -880,8 +878,6 @@ int main(int argc, char *argv[])
 	part_vbuf_store = part_vbuf;
 	pers_bg = (pixel*)calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 
-	gravity_init();
-
 #ifdef MT
 	numCores = core_count();
 #endif
@@ -1138,7 +1134,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		if (x >= 0 && y >= 0 && x < XRES && y < YRES)
 			tmpMouseInZoom = (x != mx || y != my);
 
-		if(ngrav_enable && (display_mode & DISPLAY_WARP))
+		if (globalSim->grav->IsEnabled() && (display_mode & DISPLAY_WARP))
 		{
 			part_vbuf = part_vbuf_store;
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
@@ -1256,20 +1252,19 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		if (!sys_pause||framerender)
 		{
 			globalSim->air->UpdateAir();
-			globalSim->air->UpdateAirHeat();
+			globalSim->air->UpdateAirHeat(globalSim->gravityMode == 0);
 		}
 
-		if (gravwl_timeout)
+		if (globalSim->grav->gravWallChanged)
 		{
-			if (gravwl_timeout == 1)
-				gravity_mask();
-			gravwl_timeout--;
+			globalSim->grav->CalculateMask();
+			globalSim->grav->gravWallChanged = false;
 		}
 		
 		if (!sys_pause||framerender)
 		{
-			gravity_update_async(); //Check for updated velocity maps from gravity thread
-			memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
+			globalSim->grav->UpdateAsync(); //Check for updated velocity maps from gravity thread
+			memset(globalSim->grav->gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float)); //Clear the old gravmap
 		}
 
 		if (framerender)
@@ -1699,7 +1694,6 @@ void main_end_hack()
 	SaveWindowPosition();
 	save_presets();
 	RequestManager::Ref().Shutdown();
-	gravity_cleanup();
 #ifdef LUACONSOLE
 	luacon_close();
 #endif

@@ -7,7 +7,6 @@
 
 #include "defines.h"
 #include "EventLoopSDL.h" // for two mouse_get_state that should be removed ...
-#include "gravity.h"
 #include "hud.h"
 #include "interface.h"
 #include "IntroText.h"
@@ -60,6 +59,7 @@ PowderToy::~PowderToy()
 
 	Snapshot::ClearSnapshots();
 	main_end_hack();
+	delete sim;
 	delete clipboardData;
 	delete reloadSave;
 }
@@ -2038,13 +2038,13 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 	case SDL_SCANCODE_W:
 		if (sim->elementCount[PT_STKM2] <= 0 || ctrl)
 		{
-			++gravityMode; // cycle gravity mode
+			++sim->gravityMode; // cycle gravity mode
 
 			std::string toolTip;
-			switch (gravityMode)
+			switch (sim->gravityMode)
 			{
 			default:
-				gravityMode = 0;
+				sim->gravityMode = 0;
 			case 0:
 				toolTip = "Gravity: Vertical";
 				break;
@@ -2432,14 +2432,14 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		}
 		else
 		{
-			if (ngrav_enable)
+			if (sim->grav->IsEnabled())
 			{
-				stop_grav_async();
+				sim->grav->StopAsync();
 				SetInfoTip("Newtonian Gravity: Off");
 			}
 			else
 			{
-				start_grav_async();
+				sim->grav->StartAsync();
 				SetInfoTip("Newtonian Gravity: On");
 			}
 		}

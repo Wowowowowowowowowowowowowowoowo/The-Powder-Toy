@@ -17,11 +17,10 @@
 #define SIMULATION_ELEMENTS_MOVS_H
 #ifndef NOMOD
 
-#include <math.h>
+#include <cmath>
 #include "simulation/ElementDataContainer.h"
 #include "powder.h"
 #include "simulation/Simulation.h"
-#include "gravity.h"
 
 #define MAX_MOVING_SOLIDS 256
 
@@ -158,7 +157,7 @@ public:
 
 			movingSolid->vx = movingSolid->vx/movingSolid->particleCount;
 			movingSolid->vy = movingSolid->vy/movingSolid->particleCount;
-			switch (gravityMode)
+			switch (sim->gravityMode)
 			{
 			case 0:
 				movingSolid->vy = movingSolid->vy + .2f;

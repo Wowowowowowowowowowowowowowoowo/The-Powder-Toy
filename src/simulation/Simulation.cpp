@@ -18,7 +18,6 @@
 //Simulation stuff
 #include "Simulation.h"
 #include "CoordStack.h"
-#include "gravity.h"
 #include "interface.h" //for framenum, try to remove this later
 #include "luaconsole.h" //for lua_el_mode
 #include "misc.h"
@@ -74,6 +73,7 @@ Simulation::Simulation():
 	::parts = this->parts;
 
 	air = new Air();
+	grav = new Gravity();
 
 	Clear();
 	InitElements();
@@ -91,6 +91,7 @@ Simulation::~Simulation()
 		}
 	}
 	delete air;
+	delete grav;
 }
 
 void Simulation::InitElements()
@@ -103,6 +104,7 @@ void Simulation::InitElements()
 void Simulation::Clear()
 {
 	air->Clear();
+	grav->Clear();
 	for (int t = 0; t < PT_NUM; t++)
 	{
 		if (elementData[t])
@@ -511,8 +513,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 
 	// check for excessive stacking of particles next time update_particles is run
 	forceStackingCheck = 1;
+	grav->gravWallChanged = true;
 	((PPIP_ElementDataContainer*)elementData[PT_PPIP])->ppip_changed = 1;
-	gravity_mask();
 	air->RecalculateBlockAirMaps(this);
 	RecalcFreeParticles(false);
 
@@ -581,12 +583,12 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 
 #ifndef RENDERER
 		// Start / stop gravity thread
-		if (ngrav_enable != save->gravityEnable)
+		if (grav->IsEnabled() != save->gravityEnable)
 		{
 			if (save->gravityEnable)
-				start_grav_async();
+				grav->StartAsync();
 			else
-				stop_grav_async();
+				grav->StopAsync();
 		}
 #endif
 
@@ -814,7 +816,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	newSave->edgeMode = edgeMode;
 	newSave->legacyEnable = legacy_enable;
 	newSave->waterEEnabled = water_equal_test;
-	newSave->gravityEnable = ngrav_enable;
+	newSave->gravityEnable = grav->IsEnabled();
 	newSave->aheatEnable = aheat_enable;
 
 	// Mod settings
@@ -1577,13 +1579,13 @@ bool Simulation::UpdateParticle(int i)
 		//Get some gravity from the gravity map
 		if (t == PT_ANAR)
 		{
-			pGravX -= gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-			pGravY -= gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+			pGravX -= grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+			pGravY -= grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 		}
 		else if (t != PT_STKM && t != PT_STKM2 && t != PT_FIGH && !(elements[t].Properties & TYPE_SOLID))
 		{
-			pGravX += gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-			pGravY += gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+			pGravX += grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+			pGravY += grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
 		}
 	}
 	else
@@ -2175,7 +2177,7 @@ bool Simulation::UpdateParticle(int i)
 						return false;
 					}
 				}
-				if (elements[t].Falldown>1 && !ngrav_enable && gravityMode==0 && parts[i].vy>fabsf(parts[i].vx))
+				if (elements[t].Falldown>1 && !grav->IsEnabled() && gravityMode==0 && parts[i].vy>fabsf(parts[i].vx))
 				{
 					int rt;
 					s = 0;
@@ -2259,8 +2261,8 @@ bool Simulation::UpdateParticle(int i)
 								pGravX = ptGrav * ((float)(nx - XCNTR) / pGravD);
 								pGravY = ptGrav * ((float)(ny - YCNTR) / pGravD);
 						}
-						pGravX += gravx[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
-						pGravY += gravy[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
+						pGravX += grav->gravx[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
+						pGravY += grav->gravy[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
 						// Scale gravity vector so that the largest component is 1 pixel
 						if (fabsf(pGravY)>fabsf(pGravX))
 							mv = fabsf(pGravY);
@@ -2330,8 +2332,8 @@ bool Simulation::UpdateParticle(int i)
 									pGravX = ptGrav * ((float)(nx - XCNTR) / pGravD);
 									pGravY = ptGrav * ((float)(ny - YCNTR) / pGravD);
 							}
-							pGravX += gravx[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
-							pGravY += gravy[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
+							pGravX += grav->gravx[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
+							pGravY += grav->gravy[(ny/CELL)*(XRES/CELL)+(nx/CELL)];
 							// Scale gravity vector so that the largest component is 1 pixel
 							if (fabsf(pGravY)>fabsf(pGravX))
 								mv = fabsf(pGravY);
@@ -2801,7 +2803,7 @@ void Simulation::CreateWall(int x, int y, int wall)
 		wall = 0;
 	}
 	if (wall == WL_GRAV || bmap[y][x] == WL_GRAV)
-		gravwl_timeout = 60;
+		grav->gravWallChanged = true;
 	bmap[y][x] = (unsigned char)wall;
 }
 
@@ -2981,12 +2983,12 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 	}
 	else if (tool == TOOL_PGRV)
 	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*5.0f;
+		grav->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*5.0f;
 		return -1;
 	}
 	else if (tool == TOOL_NGRV)
 	{
-		gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*-5.0f;
+		grav->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = strength*-5.0f;
 		return -1;
 	}
 	else if (tool == TOOL_MIX)

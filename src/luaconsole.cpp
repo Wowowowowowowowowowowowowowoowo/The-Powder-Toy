@@ -37,7 +37,6 @@ extern "C"
 #include "console.h"
 #include "defines.h"
 #include "graphics.h"
-#include "gravity.h"
 #include "interface.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
@@ -1180,7 +1179,7 @@ void set_map(int x, int y, int width, int height, float value, int map)
 			else if (map == 4)
 				luaSim->air->vy[ny][nx] = value;
 			else if (map == 5)
-				gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
+				luaSim->grav->gravmap[ny*(XRES/CELL)+nx] = value; //TODO: setting gravity setting doesn't work anymore?
 
 		}
 }
@@ -1278,9 +1277,9 @@ int luatpt_reset_gravity_field(lua_State* l)
 	for (nx = x1; nx<x1+width; nx++)
 		for (ny = y1; ny<y1+height; ny++)
 		{
-			gravx[ny*(XRES/CELL)+nx] = 0;
-			gravy[ny*(XRES/CELL)+nx] = 0;
-			gravp[ny*(XRES/CELL)+nx] = 0;
+			luaSim->grav->gravx[ny*(XRES/CELL)+nx] = 0;
+			luaSim->grav->gravy[ny*(XRES/CELL)+nx] = 0;
+			luaSim->grav->gravp[ny*(XRES/CELL)+nx] = 0;
 		}
 	return 0;
 }
@@ -1768,15 +1767,14 @@ int luatpt_gravity(lua_State* l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, ngrav_enable);
+		lua_pushnumber(l, luaSim->grav->IsEnabled());
 		return 1;
 	}
 	int gravstate = luaL_checkint(l, 1);
-	if(gravstate)
-		start_grav_async();
+	if (gravstate)
+		luaSim->grav->StartAsync();
 	else
-		stop_grav_async();
-	ngrav_enable = (gravstate==0?0:1);
+		luaSim->grav->StopAsync();
 	return 0;
 }
 

@@ -8,7 +8,6 @@
 #endif
 
 #include "OptionsUI.h"
-#include "gravity.h"
 #include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
@@ -235,11 +234,11 @@ void OptionsUI::InitializeOptions()
 {
 	heatSimCheckbox->SetChecked(!legacy_enable);
 	ambientCheckbox->SetChecked(aheat_enable);
-	newtonianCheckbox->SetChecked(ngrav_enable);
+	newtonianCheckbox->SetChecked(sim->grav->IsEnabled());
 	waterEqalizationCheckbox->SetChecked(water_equal_test);
 
 	airSimDropdown->SetSelectedOption(airMode);
-	gravityDropdown->SetSelectedOption(gravityMode);
+	gravityDropdown->SetSelectedOption(sim->gravityMode);
 	edgeModeDropdown->SetSelectedOption(sim->edgeMode);
 
 #ifdef TOUCHUI
@@ -273,9 +272,9 @@ void OptionsUI::AmbientChecked(bool checked)
 void OptionsUI::NewtonianChecked(bool checked)
 {
 	if (checked)
-		start_grav_async();
+		sim->grav->StartAsync();
 	else
-		stop_grav_async();
+		sim->grav->StopAsync();
 }
 
 void OptionsUI::DecorationsChecked(bool checked)
@@ -295,7 +294,7 @@ void OptionsUI::AirSimSelected(unsigned int option)
 
 void OptionsUI::GravitySelected(unsigned int option)
 {
-	gravityMode = option;
+	sim->gravityMode = option;
 }
 
 void OptionsUI::EdgeModeSelected(unsigned int option)

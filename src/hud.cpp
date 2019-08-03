@@ -2,7 +2,6 @@
 #include <cstring>
 
 #include "defines.h"
-#include "gravity.h"
 #include "graphics.h"
 #include "hud.h"
 #include "interface.h"
@@ -223,7 +222,7 @@ void SetRightHudText(Simulation * sim, int x, int y)
 
 		if (currentHud[28] && cr)
 		{
-			if (currentHud[29] || (ngrav_enable && currentHud[30]))
+			if (currentHud[29] || (sim->grav->IsEnabled() && currentHud[30]))
 				sprintf(tempstring,"#%d, ",underID);
 			else
 				sprintf(tempstring,"#%d ",underID);
@@ -234,9 +233,9 @@ void SetRightHudText(Simulation * sim, int x, int y)
 			sprintf(tempstring,"X:%d Y:%d ",x,y);
 			strappend(coordtext,tempstring);
 		}
-		if (currentHud[30] && ngrav_enable && gravp[((y/CELL)*(XRES/CELL))+(x/CELL)])
+		if (currentHud[30] && sim->grav->IsEnabled() && sim->grav->gravp[((y/CELL)*(XRES/CELL))+(x/CELL)])
 		{
-			sprintf(tempstring,"GX: %0.*f GY: %0.*f ",currentHud[31],gravx[((y/CELL)*(XRES/CELL))+(x/CELL)],currentHud[31],gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
+			sprintf(tempstring,"GX: %0.*f GY: %0.*f ", currentHud[31], sim->grav->gravx[((y/CELL)*(XRES/CELL))+(x/CELL)], currentHud[31], sim->grav->gravy[((y/CELL)*(XRES/CELL))+(x/CELL)]);
 			strappend(coordtext,tempstring);
 		}
 		if (currentHud[34] && aheat_enable)
@@ -326,7 +325,7 @@ void SetLeftHudText(Simulation * sim, float FPSB2)
 	}
 	if (currentHud[6])
 	{
-		sprintf(tempstring,"Gravity:%d ",gravityMode);
+		sprintf(tempstring,"Gravity:%d ", sim->gravityMode);
 		strappend(uitext,tempstring);
 	}
 	if (currentHud[7])

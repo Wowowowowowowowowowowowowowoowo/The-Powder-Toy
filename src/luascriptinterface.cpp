@@ -12,7 +12,6 @@
 #include "defines.h"
 #include "EventLoopSDL.h"
 #include "graphics.h"
-#include "gravity.h"
 #include "interface.h"
 #include "luascriptinterface.h"
 #include "powder.h"
@@ -702,7 +701,7 @@ int simulation_gravMap(lua_State* l)
 
 	if (argCount == 2)
 	{
-		lua_pushnumber(l, gravp[y*XRES/CELL+x]);
+		lua_pushnumber(l, luaSim->grav->gravp[y*XRES/CELL+x]);
 		return 1;
 	}
 	luaL_checktype(l, 3, LUA_TNUMBER);
@@ -1300,10 +1299,10 @@ int simulation_gravityMode(lua_State * l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, gravityMode);
+		lua_pushnumber(l, luaSim->gravityMode);
 		return 1;
 	}
-	gravityMode = luaL_optint(l, 1, 0);
+	luaSim->gravityMode = luaL_optint(l, 1, 0);
 	return 0;
 }
 

@@ -50,7 +50,6 @@
 #include "EventLoopSDL.h"
 #include "font.h"
 #include "graphics.h"
-#include "gravity.h"
 #include "interface.h"
 #include "hud.h"
 #include "images.h"
@@ -3030,7 +3029,7 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 			if(quickmenu[i].type == QM_TOGGLE)
 			{
 				drawrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
-				if(*(quickmenu[i].variable) || clickedQuickoption == i)
+				if (((i == 3 && globalSim->grav->IsEnabled()) || (i !=3 && *(quickmenu[i].variable))) || clickedQuickoption == i)
 				{
 					fillrect(vid_buf, (XRES+BARSIZE)-16, (i*16)+1, 14, 14, 255, 255, 255, 255);
 					drawtext(vid_buf, (XRES+BARSIZE)-11, (i*16)+5, quickmenu[i].icon, 0, 0, 0, 255);
@@ -3156,10 +3155,10 @@ void QuickoptionsMenu(pixel *vid_buf, int b, int bq, int x, int y)
 			{
 				if (clickedQuickoption == 3)
 				{
-					if(!ngrav_enable)
-						start_grav_async();
+					if (!globalSim->grav->IsEnabled())
+						globalSim->grav->StartAsync();
 					else
-						stop_grav_async();
+						globalSim->grav->StopAsync();
 				}
 				else
 					*(quickmenu[clickedQuickoption].variable) = !(*(quickmenu[clickedQuickoption].variable));

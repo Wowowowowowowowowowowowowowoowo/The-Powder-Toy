@@ -154,8 +154,6 @@ const int menuIconWidth = 17;
 #define DEBUG_DRAWTOOL			0x0004
 #define DEBUG_PARTICLE_UPDATES	0x0008
 
-typedef unsigned char uint8;
-
 extern bool firstRun;
 extern bool doubleScreenDialog;
 extern int screenWidth;
@@ -174,8 +172,6 @@ extern int last_fav_menu;
 extern bool hud_enable;
 extern bool pretty_powder;
 extern bool drawgrav_enable;
-extern bool ngrav_enable;
-extern bool ngrav_completedisable;
 extern int limitFPS;
 extern bool water_equal_test;
 extern int finding;

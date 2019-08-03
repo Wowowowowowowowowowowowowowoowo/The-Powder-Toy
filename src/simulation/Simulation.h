@@ -22,10 +22,10 @@
 #include "graphics/Pixel.h"
 #include "simulation/Air.h"
 #include "simulation/Element.h"
+#include "simulation/Gravity.h"
 #include "simulation/SimulationData.h"
 #include "simulation/StructProperty.h"
 #include "powder.h"
-
 
 class ElementDataContainer;
 class Brush;
@@ -45,9 +45,11 @@ public:
 	int debug_currentParticle;
 	bool forceStackingCheck;
 	
-	Air * air;
+	Air *air;
+	Gravity *grav;
 
 	// settings
+	int gravityMode = 0;
 	signed char edgeMode;
 	signed char saveEdgeMode;
 	bool msRotation; //for moving solids

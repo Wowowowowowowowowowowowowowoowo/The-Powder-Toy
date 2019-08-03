@@ -15,15 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cmath>
 #ifdef _MSC_VER
 #include <intrin.h>
 #endif
 #include "defines.h"
 #include "powder.h"
 #include "misc.h"
-#include "gravity.h"
 
 #include "common/tpt-minmax.h"
 #include "common/tpt-rand.h"
@@ -48,9 +47,9 @@ int NUM_PARTS = 0;
 
 void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
 {
-	*pGravX = newtonGrav*gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-	*pGravY = newtonGrav*gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
-	switch (gravityMode)
+	*pGravX = newtonGrav * globalSim->grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	*pGravY = newtonGrav * globalSim->grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
+	switch (globalSim->gravityMode)
 	{
 		default:
 		case 0: //normal, vertical gravity

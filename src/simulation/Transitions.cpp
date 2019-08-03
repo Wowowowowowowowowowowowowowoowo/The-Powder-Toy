@@ -1,7 +1,6 @@
 
 #include "common/tpt-minmax.h"
 #include <cmath>
-#include "gravity.h"
 #include "Simulation.h"
 #include "common/tpt-rand.h"
 
@@ -431,7 +430,7 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 bool Simulation::CheckPressureTransitions(int i, int t)
 {
 	int x = (int)(parts[i].x+0.5f), y = (int)(parts[i].y+0.5f);
-	float gravtot = std::fabs(gravy[(y/CELL)*(XRES/CELL)+(x/CELL)])+std::fabs(gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
+	float gravtot = std::fabs(grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)]) + std::fabs(grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)]);
 
 	// particle type change due to high pressure
 	if (elements[t].HighPressureTransitionElement > -1 && air->pv[y/CELL][x/CELL] > elements[t].HighPressureTransitionThreshold)

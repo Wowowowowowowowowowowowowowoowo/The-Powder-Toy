@@ -50,8 +50,8 @@ int O2_update(UPDATE_FUNC_ARGS)
 	if (parts[i].temp > 9973.15 && sim->air->pv[y/CELL][x/CELL] > 250.0f)
 	{
 		int gravPos = ((y/CELL)*(XRES/CELL))+(x/CELL);
-		float o2_gravx = gravx[gravPos];
-		float o2_gravy = gravy[gravPos];
+		float o2_gravx = sim->grav->gravx[gravPos];
+		float o2_gravy = sim->grav->gravy[gravPos];
 		if (o2_gravx*o2_gravx + o2_gravy*o2_gravy > 400)
 		{
 			if (RNG::Ref().chance(1, 5))

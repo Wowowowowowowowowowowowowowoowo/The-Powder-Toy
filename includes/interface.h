@@ -41,11 +41,11 @@ const quick_option quickmenu[] =
 	{"T", "Show tabs \bg(t)", QM_TOGGLE, &show_tabs},
 	{"G", "Draw gravity grid \bg(ctrl+g)", QM_TOGGLE, &drawgrav_enable},
 	{"D", "Show decorations \bg(ctrl+b)", QM_TOGGLE, &decorations_enable},
-	{"N", "Newtonian gravity \bg(n)", QM_TOGGLE, &ngrav_enable},
+	{"N", "Newtonian gravity \bg(n)", QM_TOGGLE, nullptr},
 	{"A", "Ambient heat \bg(u)", QM_TOGGLE, &aheat_enable},
 	{"P", "Sand effect", QM_TOGGLE, &pretty_powder},
 	{"C", "Show Console \bg(~)", QM_TOGGLE, &console_mode},
-	{NULL}
+	{nullptr}
 };
 
 extern char tabNames[10][255];

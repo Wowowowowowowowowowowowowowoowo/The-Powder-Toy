@@ -87,7 +87,7 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 
 	// Follow gravity
 	float gvx = 0.0f, gvy = 0.0f;
-	switch (gravityMode)
+	switch (sim->gravityMode)
 	{
 		default:
 		case 0:
@@ -106,8 +106,8 @@ int STKM_ElementDataContainer::Run(Stickman *playerp, UPDATE_FUNC_ARGS)
 		break;
 	}
 
-	gvx += gravx[((int)parts[i].y/CELL)*(XRES/CELL)+((int)parts[i].x/CELL)];
-	gvy += gravy[((int)parts[i].y/CELL)*(XRES/CELL)+((int)parts[i].x/CELL)];
+	gvx += sim->grav->gravx[((int)parts[i].y/CELL)*(XRES/CELL) + ((int)parts[i].x/CELL)];
+	gvy += sim->grav->gravy[((int)parts[i].y/CELL)*(XRES/CELL) + ((int)parts[i].x/CELL)];
 
 	float rbx = gvx;
 	float rby = gvy;

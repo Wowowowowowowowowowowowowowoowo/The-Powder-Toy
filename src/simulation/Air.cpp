@@ -19,7 +19,6 @@
 #include <cstring> // memcpy
 #include "simulation/Air.h"
 #include "defines.h"
-#include "gravity.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 
@@ -65,7 +64,7 @@ void Air::Clear()
 	}
 }
 
-void Air::UpdateAirHeat()
+void Air::UpdateAirHeat(bool isVertical)
 {
 	if (!aheat_enable)
 		return;
@@ -141,10 +140,10 @@ void Air::UpdateAirHeat()
 			pv[y][x] += (dh - hv[y][x]) / 5000.0f;
 
 			// Vertical gravity only for the time being
-			if (!gravityMode)
+			if (isVertical)
 			{
 				float airdiff = hv[y-1][x] - hv[y][x];
-				if(airdiff > 0 && !(bmap_blockairh[y-1][x]&0x8))
+				if (airdiff > 0 && !(bmap_blockairh[y-1][x]&0x8))
 					vy[y][x] -= airdiff/5000.0f;
 			}
 			ohv[y][x] = dh;

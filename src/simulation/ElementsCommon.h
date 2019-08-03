@@ -30,7 +30,6 @@
 
 
 #include "powder.h"
-#include "gravity.h"
 #include "powdergraphics.h"
 #include "game/Menus.h"
 

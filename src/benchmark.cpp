@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include "EventLoopSDL.h"
 #include "powder.h"
-#include "gravity.h"
 #include "graphics.h"
 #include "powdergraphics.h"
 #include "benchmark.h"
@@ -98,7 +97,7 @@ void benchmark_run()
 					BENCHMARK_RUN()
 					{
 						sim->air->UpdateAir();
-						sim->air->UpdateAirHeat();
+						sim->air->UpdateAirHeat(sim->gravityMode == 0);
 						sim->Tick();
 					}
 				}
@@ -185,34 +184,33 @@ void benchmark_run()
 		printf("General speed test:\n");
 		clear_sim();
 
-		gravity_init();
-#ifdef GRAVFFT
-		if (!grav_fft_status)
-			grav_fft_init();
+		// Commenting out because rarely necessary to run benchmark, and this uses private methods
+/*#ifdef GRAVFFT
+		sim->grav->grav_fft_init();
 #endif
-		update_grav();
+		sim->grav->update_grav();
 		printf("Gravity - no gravmap changes: ");
 		BENCHMARK_START(benchmark_repeat_count, 100000)
 		{
-			update_grav();
+			sim->grav->update_grav();
 		}
 		BENCHMARK_END()
 
 		printf("Gravity - 1 gravmap cell changed: ");
 		BENCHMARK_START(benchmark_repeat_count, 1000)
 		{
-			th_gravmap[(YRES/CELL-1)*(XRES/CELL) + XRES/CELL - 1] = (bench_i%5)+1.0f; //bench_i defined in BENCHMARK_START macro
-			update_grav();
+			sim->grav->th_gravmap[(YRES/CELL-1)*(XRES/CELL) + XRES/CELL - 1] = (bench_i%5)+1.0f; //bench_i defined in BENCHMARK_START macro
+			sim->grav->update_grav();
 		}
 		BENCHMARK_END()
 
 		printf("Gravity - membwand: ");
 		BENCHMARK_START(benchmark_repeat_count, 10000)
 		{
-			membwand(gravy, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
-			membwand(gravx, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
+			membwand(sim->grav->gravy, sim->grav->gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
+			membwand(sim->grav->gravx, sim->grav->gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
 		}
-		BENCHMARK_END()
+		BENCHMARK_END()*/
 
 		printf("Air - no walls, no changes: ");
 		BENCHMARK_START(benchmark_repeat_count, 3000)
@@ -225,7 +223,7 @@ void benchmark_run()
 		BENCHMARK_START(benchmark_repeat_count, 1600)
 		{
 			sim->air->UpdateAir();
-			sim->air->UpdateAirHeat();
+			sim->air->UpdateAirHeat(sim->gravityMode == 0);
 		}
 		BENCHMARK_END()
 	}

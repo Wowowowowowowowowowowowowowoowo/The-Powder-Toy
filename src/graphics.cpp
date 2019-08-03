@@ -22,7 +22,6 @@
 #include <climits>
 
 #include "defines.h"
-#include "gravity.h"
 #include "interface.h"
 #include "powder.h"
 #define INCLUDE_SHADERS
@@ -1500,11 +1499,11 @@ void draw_grav_zones(pixel * vid)
 	{
 		for (x=0; x<XRES/CELL; x++)
 		{
-			if(gravmask[y*(XRES/CELL)+x])
+			if (globalSim->grav->gravmask[y*(XRES/CELL)+x])
 			{
 				for (j=0; j<CELL; j++)//draws the colors
 					for (i=0; i<CELL; i++)
-						if(i == j)
+						if (i == j)
 							drawpixel(vid, x*CELL+i, y*CELL+j, 255, 200, 0, 120);
 						else 
 							drawpixel(vid, x*CELL+i, y*CELL+j, 32, 32, 32, 120);
@@ -1523,15 +1522,15 @@ void draw_grav(pixel *vid)
 		for (x=0; x<XRES/CELL; x++)
 		{
 			ca = y*(XRES/CELL)+x;
-			if(fabsf(gravx[ca]) <= 0.001f && fabsf(gravy[ca]) <= 0.001f)
+			if (fabsf(globalSim->grav->gravx[ca]) <= 0.001f && fabsf(globalSim->grav->gravy[ca]) <= 0.001f)
 				continue;
 			nx = (float)x*CELL;
 			ny = (float)y*CELL;
-			dist = fabsf(gravy[ca])+fabsf(gravx[ca]);
-			for(i = 0; i < 4; i++)
+			dist = fabsf(globalSim->grav->gravy[ca])+fabsf(globalSim->grav->gravx[ca]);
+			for (i = 0; i < 4; i++)
 			{
-				nx -= gravx[ca]*0.5f;
-				ny -= gravy[ca]*0.5f;
+				nx -= globalSim->grav->gravx[ca] * 0.5f;
+				ny -= globalSim->grav->gravy[ca] * 0.5f;
 				addpixel(vid, (int)(nx+0.5f), (int)(ny+0.5f), 255, 255, 255, (int)(dist*20.0f));
 			}
 		}
@@ -2414,7 +2413,7 @@ void render_before(pixel *part_vbuf, Simulation * sim)
 		{
 			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		}
-		if(ngrav_enable && drawgrav_enable)
+		if (sim->grav->IsEnabled() && drawgrav_enable)
 			draw_grav(part_vbuf);
 		draw_walls(part_vbuf, sim);
 }
@@ -2442,14 +2441,14 @@ void render_after(pixel *part_vbuf, pixel *vid_buf, Simulation * sim, Point mous
 #endif
 	draw_other(part_vbuf, sim);
 #ifndef RENDERER
-	if (!ngrav_completedisable && ((WallTool*)activeTools[the_game->GetToolIndex()])->GetID() == WL_GRAV)
+	if (((WallTool*)activeTools[the_game->GetToolIndex()])->GetID() == WL_GRAV)
 		draw_grav_zones(part_vbuf);
 #endif
 
 	render_signs(part_vbuf, sim);
 
 #ifndef OGLR
-	if(vid_buf && ngrav_enable && (display_mode & DISPLAY_WARP))
+	if (vid_buf && sim->grav->IsEnabled() && (display_mode & DISPLAY_WARP))
 		render_gravlensing(part_vbuf, vid_buf);
 #endif
 
@@ -2810,12 +2809,12 @@ void render_gravlensing(pixel *src, pixel * dst)
 		for(ny = 0; ny < YRES; ny++)
 		{
 			co = (ny/CELL)*(XRES/CELL)+(nx/CELL);
-			rx = (int)(nx-gravx[co]*0.75f+0.5f);
-			ry = (int)(ny-gravy[co]*0.75f+0.5f);
-			gx = (int)(nx-gravx[co]*0.875f+0.5f);
-			gy = (int)(ny-gravy[co]*0.875f+0.5f);
-			bx = (int)(nx-gravx[co]+0.5f);
-			by = (int)(ny-gravy[co]+0.5f);
+			rx = (int)(nx - globalSim->grav->gravx[co] * 0.75f + 0.5f);
+			ry = (int)(ny - globalSim->grav->gravy[co] * 0.75f + 0.5f);
+			gx = (int)(nx - globalSim->grav->gravx[co] * 0.875f + 0.5f);
+			gy = (int)(ny - globalSim->grav->gravy[co] * 0.875f + 0.5f);
+			bx = (int)(nx - globalSim->grav->gravx[co] + 0.5f);
+			by = (int)(ny - globalSim->grav->gravy[co] + 0.5f);
 			if(rx >= 0 && rx < XRES && ry >= 0 && ry < YRES && gx >= 0 && gx < XRES && gy >= 0 && gy < YRES && bx >= 0 && bx < XRES && by >= 0 && by < YRES)
 			{
 				t = dst[ny*(XRES+BARSIZE)+nx];
