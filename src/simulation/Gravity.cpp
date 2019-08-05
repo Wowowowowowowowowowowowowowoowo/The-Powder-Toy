@@ -26,18 +26,6 @@
 #include "simulation/CoordStack.h"
 #include "simulation/WallNumbers.h"
 
-#ifdef GRAVFFT
-#include <fftw3.h>
-int grav_fft_status = 0;
-#ifdef STATIC_LIBS
-FILE _iob[3];
-#endif
-#endif
-
-int grav_ready = 0;
-int gravthread_done = 0;
-
-
 Gravity::Gravity()
 {
 	// Allocate full size Gravmaps
@@ -60,6 +48,17 @@ Gravity::~Gravity()
 #ifdef GRAVFFT
 	grav_fft_cleanup();
 #endif
+
+	delete[] th_ogravmap;
+	delete[] th_gravmap;
+	delete[] th_gravy;
+	delete[] th_gravx;
+	delete[] th_gravp;
+	delete[] gravmap;
+	delete[] gravy;
+	delete[] gravx;
+	delete[] gravp;
+	delete[] gravmask;
 }
 
 void Gravity::Clear()
@@ -113,9 +112,9 @@ void Gravity::grav_fft_init()
 		{
 			if (x == XRES / CELL && y == YRES / CELL)
 				continue;
-			distance = sqrtf(pow((float)x - (XRES / CELL), 2.0f) + pow((float)y - (YRES / CELL), 2.0f));
-			th_ptgravx[y*xblock2+x] = scaleFactor*(x-(XRES/CELL)) / pow(distance, 3);
-			th_ptgravy[y*xblock2+x] = scaleFactor*(y-(YRES/CELL)) / pow(distance, 3);
+			distance = sqrtf(pow(x - (XRES / CELL), 2.0f) + pow(y - (YRES / CELL), 2.0f));
+			th_ptgravx[y * xblock2 + x] = scaleFactor * (x - (XRES / CELL)) / pow(distance, 3);
+			th_ptgravy[y * xblock2 + x] = scaleFactor * (y - (YRES / CELL)) / pow(distance, 3);
 		}
 	}
 	th_ptgravx[yblock2 * xblock2 / 2 + xblock2 / 2] = 0.0f;
@@ -168,9 +167,6 @@ void Gravity::UpdateAsync()
 			// Did the gravity thread finish?
 			if (result)
 			{
-				// Switch the full size gravmaps, we don't really need the two above any more
-				float *tmpf;
-
 				if (th_gravchanged && !ignoreNextResult)
 				{
 #if !defined(GRAVFFT) && defined(GRAV_DIFF)
@@ -178,24 +174,15 @@ void Gravity::UpdateAsync()
 					memcpy(gravx, th_gravx, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 					memcpy(gravp, th_gravp, (XRES/CELL)*(YRES/CELL)*sizeof(float));
 #else
-					tmpf = gravy;
-					gravy = th_gravy;
-					th_gravy = tmpf;
-
-					tmpf = gravx;
-					gravx = th_gravx;
-					th_gravx = tmpf;
-
-					tmpf = gravp;
-					gravp = th_gravp;
-					th_gravp = tmpf;
+					// Copy thread gravity maps into this one
+					std::swap(gravy, th_gravy);
+					std::swap(gravx, th_gravx);
+					std::swap(gravp, th_gravp);
 #endif
 				}
 				ignoreNextResult = false;
 
-				tmpf = gravmap;
-				gravmap = th_gravmap;
-				th_gravmap = tmpf;
+				std::swap(gravmap, th_gravmap);
 
 				grav_ready = 0; // Tell the other thread that we're ready for it to continue
 				signal_grav = true;
@@ -208,20 +195,22 @@ void Gravity::UpdateAsync()
 	}
 
 	// Apply the gravity mask
-	membwand(gravy, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
-	membwand(gravx, gravmask, (XRES/CELL)*(YRES/CELL)*sizeof(float), (XRES/CELL)*(YRES/CELL)*sizeof(unsigned));
-	memset(gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	unsigned int size = (XRES / CELL) * (YRES / CELL);
+	membwand(gravy, gravmask, size * sizeof(float), size * sizeof(unsigned));
+	membwand(gravx, gravmask, size * sizeof(float), size * sizeof(unsigned));
+	std::fill(&gravmap[0], &gravmap[size], 0);
 }
 
 void Gravity::update_grav_async()
 {
 	int done = 0;
 	int thread_done = 0;
-	memset(th_ogravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(th_gravmap, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(th_gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(th_gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(th_gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	unsigned int size = (XRES / CELL) * (YRES / CELL);
+	std::fill(&th_ogravmap[0], &th_ogravmap[size], 0);
+	std::fill(&th_gravmap[0], &th_gravmap[size], 0);
+	std::fill(&th_gravy[0], &th_gravy[size], 0);
+	std::fill(&th_gravx[0], &th_gravx[size], 0);
+	std::fill(&th_gravp[0], &th_gravp[size], 0);
 
 #ifdef GRAVFFT
 	if (!grav_fft_status)
@@ -239,7 +228,9 @@ void Gravity::update_grav_async()
 			grav_ready = 1;
 
 			thread_done = gravthread_done;
-		} else {
+		}
+		else
+		{
 			// wait for main thread
 			gravcv.wait(l);
 
@@ -258,9 +249,10 @@ void Gravity::StartAsync()
 		gravthread = std::thread([this]() { update_grav_async(); }); //Start asynchronous gravity simulation
 		enabled = true;
 	}
-	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	unsigned int size = (XRES / CELL) * (YRES / CELL);
+	std::fill(&gravy[0], &gravy[size], 0);
+	std::fill(&gravx[0], &gravx[size], 0);
+	std::fill(&gravp[0], &gravp[size], 0);
 }
 
 void Gravity::StopAsync()
@@ -275,10 +267,11 @@ void Gravity::StopAsync()
 		gravthread.join();
 		enabled = false;
 	}
-	//Clear the grav velocities
-	memset(gravy, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravx, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
-	memset(gravp, 0, (XRES/CELL)*(YRES/CELL)*sizeof(float));
+	// Clear the grav velocities
+	unsigned int size = (XRES / CELL) * (YRES / CELL);
+	std::fill(&gravy[0], &gravy[size], 0);
+	std::fill(&gravx[0], &gravx[size], 0);
+	std::fill(&gravp[0], &gravp[size], 0);
 }
 
 #ifdef GRAVFFT
@@ -287,7 +280,6 @@ void Gravity::update_grav()
 	int xblock2 = XRES/CELL*2, yblock2 = YRES/CELL*2;
 	int fft_tsize = (xblock2/2+1)*yblock2;
 	float mr, mc, pr, pc, gr, gc;
-	float *tmp;
 	if (memcmp(th_ogravmap, th_gravmap, sizeof(float)*(XRES/CELL)*(YRES/CELL))!=0)
 	{
 		th_gravchanged = 1;
@@ -338,9 +330,9 @@ void Gravity::update_grav()
 	{
 		th_gravchanged = 0;
 	}
-	tmp = th_ogravmap;
-	th_ogravmap = th_gravmap;
-	th_gravmap = tmp;
+
+	// Copy th_ogravmap into th_gravmap (doesn't matter what th_ogravmap is afterwards)
+	std::swap(th_gravmap, th_ogravmap);
 }
 
 #else
@@ -447,16 +439,24 @@ bool Gravity::grav_mask_r(int x, int y, char checkmap[YRES/CELL][XRES/CELL], cha
 				shape[y][x] = 1;
 				checkmap[y][x] = 1;
 			}
-			if (y >= 1)
-				for (x=x1; x<=x2; x++)
+			if (y == 0)
+			{
+				for (x = x1; x <= x2; x++)
+					if (bmap[y][x] != WL_GRAV)
+						ret = true;
+			}
+			else if (y >= 1)
+			{
+				for (x = x1; x <= x2; x++)
 					if (!checkmap[y-1][x] && bmap[y-1][x] != WL_GRAV)
 					{
 						if (y-1 == 0)
 							ret = true;
 						cs.push(x, y-1);
 					}
+			}
 			if (y < YRES/CELL-1)
-				for (x=x1; x<=x2; x++)
+				for (x = x1; x <= x2; x++)
 					if (!checkmap[y+1][x] && bmap[y+1][x] != WL_GRAV)
 					{
 						if (y+1 == YRES/CELL-1)
@@ -497,7 +497,7 @@ void Gravity::CalculateMask()
 		{
 			if (bmap[y][x] != WL_GRAV && checkmap[y][x] == 0)
 			{
-				//Create a new shape
+				// Create a new shape
 				if (t_mask_el == nullptr)
 				{
 					t_mask_el = new mask_el[sizeof(mask_el)];
@@ -516,7 +516,7 @@ void Gravity::CalculateMask()
 					c_mask_el->shapeout = 0;
 					c_mask_el->next = nullptr;
 				}
-				//Fill the shape
+				// Fill the shape
 				if (grav_mask_r(x, y, checkmap, reinterpret_cast<char(*)[XRES/CELL]>(c_mask_el->shape)))
 					c_mask_el->shapeout = 1;
 			}
