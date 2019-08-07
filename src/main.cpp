@@ -818,11 +818,6 @@ int main(int argc, char *argv[])
 {
 	bool benchmark_enable = false;
 
-#ifdef PTW32_STATIC_LIB
-	pthread_win32_process_attach_np();
-	pthread_win32_thread_attach_np();
-#endif
-
 #ifdef X86_SSE
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 #endif
@@ -1702,10 +1697,6 @@ void main_end_hack()
 	for (int i = toolTips.size()-1; i >= 0; i--)
 		delete toolTips[i];
 	toolTips.clear();
-#ifdef PTW32_STATIC_LIB
-	pthread_win32_thread_detach_np();
-	pthread_win32_process_detach_np();
-#endif
 	if (part_vbuf_store)
 		free(part_vbuf_store);
 	for (int i = 1; i < 10; i++)
