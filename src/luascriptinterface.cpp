@@ -2983,6 +2983,7 @@ int elements_free(lua_State * l)
 		return luaL_error(l, "Cannot free default elements");
 
 	luaSim->elements[id].Enabled = 0;
+	FillMenus();
 
 	lua_getglobal(l, "elements");
 	lua_pushnil(l);

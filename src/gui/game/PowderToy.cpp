@@ -722,8 +722,12 @@ void PowderToy::SwapToDecoToolset()
 	regularTools[1] = activeTools[1]->GetIdentifier();
 	regularTools[2] = activeTools[2]->GetIdentifier();
 	activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
-	activeTools[1] = GetToolFromIdentifier(decoTools[1], "DEFAULT_DECOR_CLR");
-	activeTools[2] = GetToolFromIdentifier(decoTools[2], "DEFAULT_PT_NONE");
+	activeTools[1] = GetToolFromIdentifier(decoTools[1]);
+	activeTools[2] = GetToolFromIdentifier(decoTools[2]);
+	if (activeTools[1] == nullptr)
+		activeTools[1] = GetToolFromIdentifier("DEFAULT_DECOR_CLR");
+	if (activeTools[2] == nullptr)
+		activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 }
 
 void PowderToy::SwapToRegularToolset()
@@ -731,9 +735,16 @@ void PowderToy::SwapToRegularToolset()
 	decoTools[0] = activeTools[0]->GetIdentifier();
 	decoTools[1] = activeTools[1]->GetIdentifier();
 	decoTools[2] = activeTools[2]->GetIdentifier();
-	activeTools[0] = GetToolFromIdentifier(regularTools[0], "DEFAULT_PT_DUST");
-	activeTools[1] = GetToolFromIdentifier(regularTools[1], "DEFAULT_PT_NONE");
-	activeTools[2] = GetToolFromIdentifier(regularTools[2], "DEFAULT_PT_NONE");
+	activeTools[0] = GetToolFromIdentifier(regularTools[0]);
+	activeTools[1] = GetToolFromIdentifier(regularTools[1]);
+	activeTools[2] = GetToolFromIdentifier(regularTools[2]);
+
+	if (activeTools[0] == nullptr)
+		activeTools[0] = GetToolFromIdentifier("DEFAULT_PT_DUST");
+	if (activeTools[1] == nullptr)
+		activeTools[1] = GetToolFromIdentifier("DEFAULT_PT_NONE");
+	if (activeTools[2] == nullptr)
+		activeTools[2] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 }
 
 bool PowderToy::MouseClicksIgnored()

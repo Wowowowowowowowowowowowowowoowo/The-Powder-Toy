@@ -59,7 +59,7 @@ void RGB_to_HSV(int r,int g,int b,int *h,int *s,int *v);
 
 #ifdef __cplusplus
 class Tool;
-Tool* GetToolFromIdentifier(std::string identifier, std::string def="");
+Tool* GetToolFromIdentifier(std::string const &identifier);
 
 std::string URLEncode(std::string source);
 #endif

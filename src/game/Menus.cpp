@@ -200,7 +200,9 @@ void FillMenus()
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Tool* temp = GetToolFromIdentifier(tempActiveTools[i], "DEFAULT_PT_NONE");
+			Tool* temp = GetToolFromIdentifier(tempActiveTools[i]);
+			if (temp == nullptr)
+				temp = GetToolFromIdentifier("DEFAULT_PT_NONE");
 			activeTools[i] = temp;
 		}
 	}
