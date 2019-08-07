@@ -501,6 +501,15 @@ int luacon_transitionwrite(lua_State* l)
 	if (!luaSim->IsElement(i))
 		return luaL_error(l, "Invalid index");
 
+	if (prop.Type == StructProperty::TransitionType)
+	{
+		int type = luaL_checkinteger(l, 3);
+		if (!luaSim->IsElementOrNone(type) && type != NT && type != ST)
+		{
+			return luaL_error(l, "Invalid element");
+		}
+	}
+
 	auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[i])) + prop.Offset);
 	LuaSetProperty(l, prop, propertyAddress, 3);
 
@@ -914,7 +923,7 @@ int luatpt_getelement(lua_State *l)
 	if (lua_isnumber(l, 1))
 	{
 		t = luaL_optint(l, 1, 1);
-		if (t<0 || t>=PT_NUM)
+		if (!luaSim->IsElement(t))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = luaSim->elements[TYP(t)].Name.c_str();
 		lua_pushstring(l, name);
@@ -939,7 +948,7 @@ int luatpt_element_func(lua_State *l)
 		int function;
 		lua_pushvalue(l, 1);
 		function = luaL_ref(l, LUA_REGISTRYINDEX);
-		if (element > 0 && element < PT_NUM)
+		if (luaSim->IsElement(element))
 		{
 			lua_el_func[element] = function;
 			if (replace == 2)
@@ -958,7 +967,7 @@ int luatpt_element_func(lua_State *l)
 	else if (lua_isnil(l, 1))
 	{
 		int element = luaL_optint(l, 2, 0);
-		if (element > 0 && element < PT_NUM)
+		if (luaSim->IsElement(element))
 		{
 			lua_el_func[element] = 0;
 			lua_el_mode[element] = 0;
@@ -981,7 +990,7 @@ int luatpt_graphics_func(lua_State *l)
 		int function;
 		lua_pushvalue(l, 1);
 		function = luaL_ref(l, LUA_REGISTRYINDEX);
-		if (element > 0 && element < PT_NUM)
+		if (luaSim->IsElement(element))
 		{
 			lua_gr_func[element] = function;
 			graphicscache[element].isready = 0;
@@ -995,7 +1004,7 @@ int luatpt_graphics_func(lua_State *l)
 	else if (lua_isnil(l, 1))
 	{
 		int element = luaL_optint(l, 2, 0);
-		if (element > 0 && element < PT_NUM)
+		if (luaSim->IsElement(element))
 		{
 			lua_gr_func[element] = 0;
 			graphicscache[element].isready = 0;
@@ -1054,7 +1063,7 @@ int luatpt_create(lua_State* l)
 		if (lua_isnumber(l, 3))
 		{
 			t = luaL_optint(l, 3, 0);
-			if (t<0 || t >= PT_NUM || !luaSim->elements[t].Enabled)
+			if (!luaSim->IsElement(t))
 				return luaL_error(l, "Unrecognised element number '%d'", t);
 		}
 		else
@@ -1359,7 +1368,7 @@ int luatpt_set_property(lua_State* l)
 		else
 			t = luaL_optint(l, 2, 0);
 
-		if (format == 2 && (t<0 || t>=PT_NUM || !luaSim->elements[t].Enabled))
+		if (format == 2 && !luaSim->IsElement(t))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	}
 	else if (lua_isstring(l, 2))

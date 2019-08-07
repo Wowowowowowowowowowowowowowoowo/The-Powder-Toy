@@ -91,14 +91,14 @@ std::vector<StructProperty> Element::properties = {
 	{ "Description",               StructProperty::String,          offsetof(Element, Description)               },
 	{ "State",                     StructProperty::Removed,         0                                            },
 	{ "Properties",                StructProperty::Integer,         offsetof(Element, Properties)                },
-	{ "LowPressure",               StructProperty::TransitionType,  offsetof(Element, LowPressureTransitionElement)        },
-	{ "LowPressureTransition",     StructProperty::Float,           offsetof(Element, LowPressureTransitionThreshold)      },
-	{ "HighPressure",              StructProperty::TransitionType,  offsetof(Element, HighPressureTransitionElement)       },
-	{ "HighPressureTransition",    StructProperty::Float,           offsetof(Element, HighPressureTransitionThreshold)     },
-	{ "LowTemperature",            StructProperty::TransitionType,  offsetof(Element, LowTemperatureTransitionElement)     },
-	{ "LowTemperatureTransition",  StructProperty::Float,           offsetof(Element, LowTemperatureTransitionThreshold)   },
-	{ "HighTemperature",           StructProperty::TransitionType,  offsetof(Element, HighTemperatureTransitionElement)    },
-	{ "HighTemperatureTransition", StructProperty::Float,           offsetof(Element, HighTemperatureTransitionThreshold)  }
+	{ "LowPressure",               StructProperty::Float,           offsetof(Element, LowPressureTransitionThreshold)     },
+	{ "LowPressureTransition",     StructProperty::TransitionType,  offsetof(Element, LowPressureTransitionElement)       },
+	{ "HighPressure",              StructProperty::Float,           offsetof(Element, HighPressureTransitionThreshold)    },
+	{ "HighPressureTransition",    StructProperty::TransitionType,  offsetof(Element, HighPressureTransitionElement)      },
+	{ "LowTemperature",            StructProperty::Float,           offsetof(Element, LowTemperatureTransitionThreshold)  },
+	{ "LowTemperatureTransition",  StructProperty::TransitionType,  offsetof(Element, LowTemperatureTransitionElement)    },
+	{ "HighTemperature",           StructProperty::Float,           offsetof(Element, HighTemperatureTransitionThreshold) },
+	{ "HighTemperatureTransition", StructProperty::TransitionType,  offsetof(Element, HighTemperatureTransitionElement)   }
 };
 
 std::vector<StructProperty> const &Element::GetProperties()
