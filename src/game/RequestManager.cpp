@@ -12,38 +12,22 @@ const long timeout = 15;
 std::string proxy;
 std::string user_agent;
 
-RequestManager::RequestManager()
-{
-	pthread_cond_init(&rt_cv, NULL);
-	pthread_mutex_init(&rt_mutex, NULL);
-}
-
-RequestManager::~RequestManager()
-{
-	pthread_mutex_destroy(&rt_mutex);
-	pthread_cond_destroy(&rt_cv);
-}
-
 void RequestManager::Shutdown()
 {
-	pthread_mutex_lock(&rt_mutex);
-	rt_shutting_down = true;
-	pthread_cond_signal(&rt_cv);
-	pthread_mutex_unlock(&rt_mutex);
+	{
+		std::lock_guard<std::mutex> g(rt_mutex);
+		rt_shutting_down = true;
+	}
+	rt_cv.notify_one();
 
 	if (initialized)
 	{
-		pthread_join(worker_thread, NULL);
+		worker_thread.join();
+
 		curl_multi_cleanup(multi);
 		multi = NULL;
 		curl_global_cleanup();
 	}
-}
-
-TH_ENTRY_POINT void *RequestManager::RequestManagerHelper(void *obj)
-{
-	((RequestManager *)obj)->Worker();
-	return NULL;
 }
 
 void RequestManager::Initialise(std::string Proxy)
@@ -69,7 +53,7 @@ void RequestManager::Initialise(std::string Proxy)
 #endif
 	user_agent = userAgentBuilder.str();
 
-	pthread_create(&worker_thread, NULL, &RequestManager::RequestManagerHelper, this);
+	worker_thread = std::thread([this]() { Worker(); });
 	initialized = true;
 }
 
@@ -78,25 +62,26 @@ void RequestManager::Worker()
 	bool shutting_down = false;
 	while (!shutting_down)
 	{
-		pthread_mutex_lock(&rt_mutex);
-		if (!requests_added_to_multi)
 		{
-			while (!rt_shutting_down && requests_to_add.empty() && !requests_to_start && !requests_to_remove)
+			std::unique_lock<std::mutex> l(rt_mutex);
+			if (!requests_added_to_multi)
 			{
-				pthread_cond_wait(&rt_cv, &rt_mutex);
+				while (!rt_shutting_down && requests_to_add.empty() && !requests_to_start && !requests_to_remove)
+				{
+					rt_cv.wait(l);
+				}
 			}
-		}
 
-		shutting_down = rt_shutting_down;
-		requests_to_remove = false;
-		requests_to_start = false;
-		for (Request *request : requests_to_add)
-		{
-			request->status = 0;
-			requests.insert(request);
+			shutting_down = rt_shutting_down;
+			requests_to_remove = false;
+			requests_to_start = false;
+			for (Request *request : requests_to_add)
+			{
+				request->status = 0;
+				requests.insert(request);
+			}
+			requests_to_add.clear();
 		}
-		requests_to_add.clear();
-		pthread_mutex_unlock(&rt_mutex);
 
 		if (multi && requests_added_to_multi)
 		{
@@ -164,53 +149,61 @@ void RequestManager::Worker()
 		std::set<Request *> requests_to_remove;
 		for (Request *request : requests)
 		{
-			pthread_mutex_lock(&request->rm_mutex);
-			if (shutting_down)
+			bool signal_done = false;
+
 			{
-				// In the weird case that a http::Request::Simple* call is
-				// waiting on this Request, we should fail the request
-				// instead of cancelling it ourselves.
-				request->status = 610;
+				std::lock_guard<std::mutex> g(request->rm_mutex);
+				if (shutting_down)
+				{
+					// In the weird case that a http::Request::Simple* call is
+					// waiting on this Request, we should fail the request
+					// instead of cancelling it ourselves.
+					request->status = 610;
+				}
+
+				if (!request->rm_canceled && request->rm_started && !request->added_to_multi && !request->status)
+				{
+					if (multi && request->easy)
+					{
+						MultiAdd(request);
+					}
+					else
+					{
+						request->status = 604;
+					}
+				}
+				if (!request->rm_canceled && request->rm_started && !request->rm_finished)
+				{
+					if (multi && request->easy)
+					{
+#ifdef REQUEST_USE_CURL_OFFSET_T
+						curl_easy_getinfo(request->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &request->rm_total);
+						curl_easy_getinfo(request->easy, CURLINFO_SIZE_DOWNLOAD_T, &request->rm_done);
+#else
+						double total, done;
+						curl_easy_getinfo(request->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &total);
+						curl_easy_getinfo(request->easy, CURLINFO_SIZE_DOWNLOAD, &done);
+						request->rm_total = (curl_off_t)total;
+						request->rm_done = (curl_off_t)done;
+#endif
+					}
+					if (request->status)
+					{
+						request->rm_finished = true;
+						MultiRemove(request);
+						signal_done = true;
+					}
+				}
+				if (request->rm_canceled)
+				{
+					requests_to_remove.insert(request);
+				}
 			}
 
-			if (!request->rm_canceled && request->rm_started && !request->added_to_multi && !request->status)
+			if (signal_done)
 			{
-				if (multi && request->easy)
-				{
-					MultiAdd(request);
-				}
-				else
-				{
-					request->status = 604;
-				}
+				request->done_cv.notify_one();
 			}
-			if (!request->rm_canceled && request->rm_started && !request->rm_finished)
-			{
-				if (multi && request->easy)
-				{
-#ifdef REQUEST_USE_CURL_OFFSET_T
-					curl_easy_getinfo(request->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &request->rm_total);
-					curl_easy_getinfo(request->easy, CURLINFO_SIZE_DOWNLOAD_T, &request->rm_done);
-#else
-					double total, done;
-					curl_easy_getinfo(request->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &total);
-					curl_easy_getinfo(request->easy, CURLINFO_SIZE_DOWNLOAD, &done);
-					request->rm_total = (curl_off_t)total;
-					request->rm_done = (curl_off_t)done;
-#endif
-				}
-				if (request->status)
-				{
-					request->rm_finished = true;
-					MultiRemove(request);
-					pthread_cond_signal(&request->done_cv);
-				}
-			}
-			if (request->rm_canceled)
-			{
-				requests_to_remove.insert(request);
-			}
-			pthread_mutex_unlock(&request->rm_mutex);
 		}
 		for (Request *request : requests_to_remove)
 		{
@@ -245,25 +238,28 @@ bool RequestManager::AddRequest(Request *request)
 {
 	if (!initialized)
 		return false;
-	pthread_mutex_lock(&rt_mutex);
-	requests_to_add.insert(request);
-	pthread_cond_signal(&rt_cv);
-	pthread_mutex_unlock(&rt_mutex);
+	{
+		std::lock_guard<std::mutex> g(rt_mutex);
+		requests_to_add.insert(request);
+	}
+	rt_cv.notify_one();
 	return true;
 }
 
 void RequestManager::StartRequest(Request *request)
 {
-	pthread_mutex_lock(&rt_mutex);
-	requests_to_start = true;
-	pthread_cond_signal(&rt_cv);
-	pthread_mutex_unlock(&rt_mutex);
+	{
+		std::lock_guard<std::mutex> g(rt_mutex);
+		requests_to_start = true;
+	}
+	rt_cv.notify_one();
 }
 
 void RequestManager::RemoveRequest(Request *request)
 {
-	pthread_mutex_lock(&rt_mutex);
-	requests_to_remove = true;
-	pthread_cond_signal(&rt_cv);
-	pthread_mutex_unlock(&rt_mutex);
+	{
+		std::lock_guard<std::mutex> g(rt_mutex);
+		requests_to_remove = true;
+	}
+	rt_cv.notify_one();
 }

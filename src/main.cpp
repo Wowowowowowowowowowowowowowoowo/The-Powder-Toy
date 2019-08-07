@@ -31,7 +31,6 @@
 #include <math.h>
 #include "EventLoopSDL.h"
 #include "SDLCompat.h" // Required for windows versions to find SDL_Main
-#include "common/tpt-thread.h"
 #include <bzlib.h>
 #include <time.h>
 #include <signal.h>

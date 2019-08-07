@@ -1,10 +1,12 @@
 #ifndef REQUESTMANAGER_H
 #define REQUESTMANAGER_H
 
-#include "common/tpt-thread.h"
+#include <condition_variable>
 #include <ctime>
+#include <mutex>
 #include <set>
 #include <string>
+#include <thread>
 #include "common/Singleton.h"
 
 // minor hack so I can avoid including curl in the header file. This causes problems with mingw
@@ -13,7 +15,7 @@ typedef void CURLM;
 class Request;
 class RequestManager : public Singleton<RequestManager>
 {
-	pthread_t worker_thread;
+	std::thread worker_thread;
 	std::set<Request *> requests;
 	int requests_added_to_multi = 0;
 
@@ -22,8 +24,8 @@ class RequestManager : public Singleton<RequestManager>
 	bool requests_to_remove = false;
 	bool initialized = false;
 	bool rt_shutting_down = false;
-	pthread_mutex_t rt_mutex;
-	pthread_cond_t rt_cv;
+	std::mutex rt_mutex;
+	std::condition_variable rt_cv;
 
 	CURLM *multi = nullptr;
 
@@ -35,11 +37,9 @@ class RequestManager : public Singleton<RequestManager>
 	void StartRequest(Request *request);
 	void RemoveRequest(Request *request);
 
-	static TH_ENTRY_POINT void *RequestManagerHelper(void *obj);
-
 public:
-	RequestManager();
-	~RequestManager();
+	RequestManager() = default;
+	~RequestManager() = default;
 
 	void Initialise(std::string proxy);
 	void Shutdown();

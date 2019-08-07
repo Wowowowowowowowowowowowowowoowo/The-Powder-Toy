@@ -3,7 +3,8 @@
 
 #include <map>
 #include "curl/system.h"
-#include "common/tpt-thread.h"
+#include <mutex>
+#include <condition_variable>
 #include <string>
 
 // minor hacks so I can avoid including curl in the header file. This causes problems with mingw
@@ -27,7 +28,7 @@ class Request
 	volatile bool rm_finished;
 	volatile bool rm_canceled;
 	volatile bool rm_started;
-	pthread_mutex_t rm_mutex;
+	std::mutex rm_mutex;
 
 	bool added_to_multi;
 	int status;
@@ -38,7 +39,7 @@ class Request
 	curl_httppost *post_fields_first, *post_fields_last;
 	std::map<std::string, std::string> post_fields_map;
 
-	pthread_cond_t done_cv;
+	std::condition_variable done_cv;
 
 	static size_t WriteDataHandler(char * ptr, size_t size, size_t count, void * userdata);
 

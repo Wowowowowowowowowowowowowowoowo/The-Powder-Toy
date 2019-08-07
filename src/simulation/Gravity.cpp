@@ -19,7 +19,6 @@
 #include <cstring>
 #include <sys/types.h>
 #include <iostream>
-#include "common/tpt-thread.h"
 #include "defines.h"
 #include "Gravity.h"
 #include "powder.h"
