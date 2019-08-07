@@ -1139,6 +1139,17 @@ void Simulation::part_delete(int x, int y)
 		part_kill(ID(pmap[y][x]));
 }
 
+std::string Simulation::ElementResolve(int type, int ctype)
+{
+	if (type == PT_LIFE && ctype >= 0 && ctype < NGOL)
+		return golTypes[ctype].name;
+	else if (type > 0 && type < PT_NUM)
+		return elements[type].Name;
+	else if (type == 0)
+		return "NONE";
+	return "Empty";
+}
+
 void Simulation::ClearArea(int x, int y, int w, int h)
 {
 	float fx = x - .5f, fy = y - .5f;

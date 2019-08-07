@@ -1833,25 +1833,31 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				// this is a hack so we can edit clickable signs when sign tool is selected (normal signs are handled in activeTool->Click())
 				if (signTool)
 					openSign = true;
-				else if (signs[signID]->GetType() == Sign::Spark)
+				else
 				{
-					Point realPos = signs[signID]->GetRealPos();
-					if (pmap[realPos.Y][realPos.X])
-						sim->spark_all_attempt(ID(pmap[realPos.Y][realPos.X]), realPos.X, realPos.Y);
-				}
-				else if (signs[signID]->GetType() == Sign::SaveLink)
-				{
-					open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
-				}
-				else if (signs[signID]->GetType() == Sign::ThreadLink)
-				{
-					Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
-				}
-				else if (signs[signID]->GetType() == Sign::SearchLink)
-				{
-					strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
-					search_own = 0;
-					search_ui(vid_buf);
+					switch (signs[signID]->GetType())
+					{
+					case Sign::Spark:
+					{
+						Point realPos = signs[signID]->GetRealPos();
+						if (pmap[realPos.Y][realPos.X])
+							sim->spark_all_attempt(ID(pmap[realPos.Y][realPos.X]), realPos.X, realPos.Y);
+						break;
+					}
+					case Sign::SaveLink:
+						open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
+						break;
+					case Sign::ThreadLink:
+						Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+						break;
+					case Sign::SearchLink:
+						strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
+						search_own = 0;
+						search_ui(vid_buf);
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}

@@ -319,6 +319,11 @@ int VideoBuffer::DrawString(int x, int y, std::string s, int r, int g, int b, in
 				g = 170;
 				r = 32;
 				break;
+			case 'u':
+				r = 147;
+				g = 83;
+				b = 211;
+				break;
 			case 'p':
 				b = 100;
 				g = 10;

@@ -684,6 +684,11 @@ int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a
 				g = 170;
 				r = 32;
 				break;
+			case 'u':
+				r = 147;
+				g = 83;
+				b = 211;
+				break;
 			case 'p':
 				b = 100;
 				g = 10;
@@ -836,6 +841,11 @@ int drawtextwrap(pixel *vid, int x, int y, int w, int h, const char *s, int r, i
 					b = 255;
 					g = 170;
 					r = 32;
+					break;
+				case 'u':
+					r = 147;
+					g = 83;
+					b = 211;
 					break;
 				}
 				if(invert)
@@ -2776,11 +2786,26 @@ void render_signs(pixel *vid_buf, Simulation * sim)
 		drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
 
 		// spark signs and link signs have different colors
-		ARGBColour textCol = COLPACK(0xFFFFFF);
-		if (sign->GetType() == Sign::Spark)
-			textCol = COLPACK(0xD3D328);
-		else if (sign->GetType() != Sign::Normal)
+		ARGBColour textCol;// = COLPACK(0xFFFFFF);
+		switch (sign->GetType())
+		{
+		default:
+		case Sign::Normal:
+			textCol = COLPACK(0xFFFFFF);
+			break;
+		case Sign::SaveLink:
 			textCol = COLPACK(0x00BFFF);
+			break;
+		case Sign::ThreadLink:
+			textCol = COLPACK(0xFF4B4B);
+			break;
+		case Sign::Spark:
+			textCol = COLPACK(0xD3D328);
+			break;
+		case Sign::SearchLink:
+			textCol = COLPACK(0x9353D3);
+			break;
+		}
 		drawtext(vid_buf, x+3, y+3, sign->GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
 
 		// draw the little line on the buttom

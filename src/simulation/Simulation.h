@@ -16,7 +16,6 @@
 #ifndef Simulation_h
 #define Simulation_h
 
-#include <cstddef> // offsetof, for FloodProp
 #include <string>
 #include "graphics/ARGBColour.h"
 #include "graphics/Pixel.h"
@@ -142,6 +141,7 @@ public:
 	{
 		return (x>=0 && y>=0 && x<XRES && y<YRES);
 	}
+	std::string ElementResolve(int type, int ctype);
 
 	// Most of the time, part_alloc and part_free should not be used directly unless you really know what you're doing. 
 	// Use part_create and part_kill instead.

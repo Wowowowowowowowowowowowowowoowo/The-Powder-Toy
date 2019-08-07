@@ -116,38 +116,96 @@ void Sign::SetText(std::string newText)
 	}
 }
 
+const particle *GetParticleAt(Simulation *sim, int x, int y)
+{
+	if (photons[y][x])
+		return &sim->parts[ID(photons[y][x])];
+	else if (pmap[y][x])
+		return &sim->parts[ID(pmap[y][x])];
+	return nullptr;
+}
+
 std::string Sign::GetDisplayText(Simulation * sim) const
 {
-	if (type == Normal && text.length() && text[0] == '{')
+	if (type == Normal && text.length() && x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
 		std::stringstream displayTextStream;
-		bool set = true;
-		if (text == "{p}")
-		{
-			float pressure = 0.0f;
-			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-				pressure = sim->air->pv[y/CELL][x/CELL];
-			displayTextStream << std::fixed << std::setprecision(2) << "Pressure: " << pressure;
-		}
-		else if (text == "{aheat}")
-		{
-			float aheat = 0.0f;
-			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
-				aheat = sim->air->hv[y/CELL][x/CELL]-273.15f;
-			displayTextStream << std::fixed << std::setprecision(2) << aheat;
-		}
-		else if (text == "{t}")
-		{
-			if (x >= 0 && x < XRES && y >= 0 && y < YRES && pmap[y][x])
-				displayTextStream << std::fixed << std::setprecision(2) << "Temp: " << parts[ID(pmap[y][x])].temp-273.15f;
-			else
-				displayTextStream << "Temp: 0.00";
-		}
-		else
-			set = false;
 
-		if (set)
-			return displayTextStream.str();
+		size_t left_curly_pos, right_curly_pos = -1, last_appended_pos = 0;
+		while ((left_curly_pos = text.find('{', right_curly_pos + 1)) != text.npos)
+		{
+			displayTextStream << text.substr(right_curly_pos + 1, left_curly_pos - (right_curly_pos + 1));
+			last_appended_pos = left_curly_pos;
+
+			right_curly_pos = text.find('}', left_curly_pos + 1);
+			if (right_curly_pos != text.npos)
+			{
+				last_appended_pos = right_curly_pos + 1;
+
+				std::string between_curlies = text.substr(left_curly_pos + 1, right_curly_pos - (left_curly_pos + 1));
+				if (between_curlies == "t" || between_curlies == "temp")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					if (part)
+						displayTextStream << std::fixed << std::setprecision(2) << parts[ID(pmap[y][x])].temp-273.15f;
+					else
+						displayTextStream << "N/A";
+				}
+				else if (between_curlies == "p" || between_curlies == "pres")
+					displayTextStream << std::fixed << std::setprecision(2) << sim->air->pv[y/CELL][x/CELL];
+				else if (between_curlies == "a" || between_curlies == "aheat")
+					displayTextStream << std::fixed << std::setprecision(2) << sim->air->pv[y/CELL][x/CELL];
+				else if (between_curlies == "type")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					if (part)
+						displayTextStream << sim->ElementResolve(part->type, part->ctype);
+					else if (displayTextStream.str().empty())
+						displayTextStream << "Empty";
+					else
+						displayTextStream << "empty";
+				}
+				else if (between_curlies == "ctype")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					if (part)
+					{
+						int ctype = part->ctype;
+						if (sim->IsElementOrNone(ctype))
+							displayTextStream << sim->ElementResolve(ctype, 0);
+						else
+							displayTextStream << ctype;
+					}
+					else if (displayTextStream.str().empty())
+						displayTextStream << "Empty";
+					else
+						displayTextStream << "empty";
+				}
+				else if (between_curlies == "life")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					displayTextStream << (part ? part->life : 0);
+				}
+				else if (between_curlies == "tmp")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					displayTextStream << (part ? part->tmp : 0);
+				}
+				else if (between_curlies == "tmp2")
+				{
+					const particle *part = GetParticleAt(sim, x, y);
+					displayTextStream << (part ? part->tmp2 : 0);
+				}
+				else
+					displayTextStream << '{' << between_curlies << '}';
+			}
+		}
+		if (right_curly_pos == (size_t)-1)
+			return text;
+		else
+			displayTextStream << text.substr(last_appended_pos);
+
+		return displayTextStream.str();
 	}
 	return displayText;
 }
