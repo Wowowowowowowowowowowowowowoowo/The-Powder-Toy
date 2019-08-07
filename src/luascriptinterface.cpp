@@ -2762,12 +2762,6 @@ int elements_allocate(lua_State * l)
 		if (!luaSim->elements[i].Enabled)
 		{
 			newID = i;
-			luaSim->elements[i] = Element();
-			luaSim->elements[i].Enabled = 1;
-			luaSim->elements[i].Identifier = identifier;
-			luaSim->elements[i].MenuSection = SC_OTHER;
-			menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
-
 			break;
 		}
 	}
@@ -2779,12 +2773,6 @@ int elements_allocate(lua_State * l)
 			if (!luaSim->elements[i].Enabled)
 			{
 				newID = i;
-				luaSim->elements[i] = Element();
-				luaSim->elements[i].Enabled = true;
-				luaSim->elements[i].Identifier = identifier;
-				luaSim->elements[i].MenuSection = SC_OTHER;
-				menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
-
 				break;
 			}
 		}
@@ -2792,6 +2780,12 @@ int elements_allocate(lua_State * l)
 
 	if (newID != -1)
 	{
+		luaSim->elements[newID] = Element();
+		luaSim->elements[newID].Enabled = true;
+		luaSim->elements[newID].Identifier = identifier;
+		luaSim->elements[newID].MenuSection = SC_OTHER;
+		menuSections[SC_OTHER]->AddTool(new Tool(INVALID_TOOL, identifier, ""));
+
 		lua_getglobal(l, "elements");
 		lua_pushinteger(l, newID);
 		lua_setfield(l, -2, identifier.c_str());
