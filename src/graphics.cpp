@@ -2786,7 +2786,7 @@ void render_signs(pixel *vid_buf, Simulation * sim)
 		drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
 
 		// spark signs and link signs have different colors
-		ARGBColour textCol;// = COLPACK(0xFFFFFF);
+		ARGBColour textCol;
 		switch (sign->GetType())
 		{
 		default:

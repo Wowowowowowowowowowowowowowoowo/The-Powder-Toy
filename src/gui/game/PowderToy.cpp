@@ -1848,7 +1848,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 						open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
 						break;
 					case Sign::ThreadLink:
-						Platform::OpenLink("http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+						Platform::OpenLink(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
 						break;
 					case Sign::SearchLink:
 						strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
