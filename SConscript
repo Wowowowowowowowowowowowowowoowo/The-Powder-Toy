@@ -221,7 +221,7 @@ def findLibs(env, conf):
 				if not conf.CheckLib(i):
 					FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 		else:
-			if not conf.CheckLib('mingw32') or not conf.CheckLib('ws2_32'):
+			if not conf.CheckLib('ws2_32'):
 				FatalError("Error: some windows libraries not found or not installed, make sure your compiler is set up correctly")
 
 		if not conf.CheckLib('SDL2main'):

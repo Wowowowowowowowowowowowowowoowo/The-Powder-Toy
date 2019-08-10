@@ -42,7 +42,8 @@ config.log
 *.db
 *.opendb
 *.aps
-.vscode/ipch
+.vscode/
+.vs/
 
 /stamps/
 /Saves/
@@ -59,6 +60,7 @@ config.log
 /includes/lua5.1/*
 /includes/lua5.2/*
 /includes/luajit-2.0/*
+/includes/curl/*
 /includes/bzlib.h
 /includes/fftw3.h
 /includes/pthread.h
