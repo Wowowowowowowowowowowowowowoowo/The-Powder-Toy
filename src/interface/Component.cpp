@@ -1,15 +1,18 @@
-#include <cstddef> //needed for NULL apparently ...
 #include "Component.h"
+#include "Style.h"
 #include "Window.h"
 
+// TODO: Put component in ui namespace and remove this
+using namespace ui;
+
 Component::Component(Point position, Point size) :
-	parent(NULL),
+	parent(nullptr),
 	position(position),
 	size(size),
 	isMouseInside(false),
 	visible(true),
 	enabled(true),
-	color(COLRGB(255, 255, 255)),
+	color(Style::Border),
 	toDelete(false),
 	toAdd(false)
 {

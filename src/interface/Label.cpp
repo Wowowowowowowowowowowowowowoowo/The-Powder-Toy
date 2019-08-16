@@ -3,10 +3,14 @@
 #include <cstdlib>
 #include "EventLoopSDL.h"
 #include "Label.h"
+#include "Style.h"
 #include "common/Format.h"
 #include "common/tpt-math.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
+
+// TODO: Put label in ui namespace and remove this
+using namespace ui;
 
 Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	Component(position_, size_),
@@ -386,10 +390,10 @@ void Label::OnDraw(gfx::VideoBuffer* vid)
 		{
 			mootext.insert(cursor+(cursor > cursorStart)*2, "\x02");
 		}
-		vid->DrawString(position.X+3, position.Y+4, mootext, COLR(color), COLG(color), COLB(color), COLA(color));
+		vid->DrawString(position.X+3, position.Y+4, mootext, color);
 	}
 	else
-		vid->DrawString(position.X+3, position.Y+4, text, (int)(COLR(color)*.5f), (int)(COLG(color)*.5f), (int)(COLB(color)*.5f), (int)(COLA(color)*.5f));
+		vid->DrawString(position.X+3, position.Y+4, text, COLMULT(color, Style::DisabledMultiplier));
 }
 
 void Label::OnTick(uint32_t ticks)

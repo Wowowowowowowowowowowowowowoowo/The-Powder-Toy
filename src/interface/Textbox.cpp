@@ -1,12 +1,16 @@
+#include "Textbox.h"
 #include "common/tpt-minmax.h"
 #include <sstream>
 #include <cstring>
+#include "Style.h"
 #include "EventLoopSDL.h"
-#include "Textbox.h"
 #include "common/Format.h"
 #include "common/Platform.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
+
+// TODO: Put progressbar in ui namespace and remove this
+using namespace ui;
 
 Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
 	Label(position, size_, text, multiline),
@@ -313,10 +317,18 @@ void Textbox::OnTextInput(const char *text)
 void Textbox::OnDraw(gfx::VideoBuffer* vid)
 {
 	Label::OnDraw(vid);
-	if (IsFocused() && enabled)
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), COLA(color));
+
+	ARGBColour borderColor;
+	if (!enabled)
+		borderColor = COLMULT(color, Style::DisabledMultiplier);
+	else if (IsClicked())
+		borderColor = COLADD(color, Style::ClickedModifier);
+	else if (IsFocused())
+		borderColor = color;
 	else
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(COLR(color)*.6f), (int)(COLG(color)*.6f), (int)(COLB(color)*.6f), (int)(COLA(color)*.6f));
+		borderColor = COLMULT(color, Style::DeselectedMultiplier);
+
+	vid->DrawRect(position.X, position.Y, size.X, size.Y, borderColor);
 }
 
 void Textbox::OnFocus()

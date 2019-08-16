@@ -1,8 +1,12 @@
 #include "Checkbox.h"
+#include "Style.h"
 #include "Window.h"
 #include "common/tpt-minmax.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
+
+// TODO: Put checkbox in ui namespace and remove this
+using namespace ui;
 
 Checkbox::Checkbox(Point position, Point size_, std::string text_):
 	Component(position, size_),
@@ -75,16 +79,22 @@ void Checkbox::OnDraw(gfx::VideoBuffer* vid)
 	vid->FillRect(position.X, position.Y, size.X, size.Y, 0, 0, 0, 255);
 
 	// border
-	if (enabled)
-		vid->DrawRect(position.X, position.Y, size.Y, size.Y, COLR(color), COLG(color), COLB(color), 255);
-	else
-		vid->DrawRect(position.X, position.Y, size.Y, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
+	{
+		pixel borderColor;
+		if (IsClicked() && !checked)
+			borderColor = COLADD(color, Style::ClickedModifier);
+		else if (!enabled)
+			borderColor = COLMULT(color, Style::DisabledMultiplier);
+		else
+			borderColor = color;
+		vid->DrawRect(position.X, position.Y, size.Y, size.Y, borderColor);
+	}
 
 	ARGBColour textColor = color;
 	ARGBColour innerColor = 0;
 	if (!enabled)
 	{
-		textColor = COLRGB((int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f));
+		textColor = COLMULT(color, Style::DisabledMultiplier);
 	}
 #ifdef TOUCHUI
 	// Mouse not inside checkbox, Mouse not down, or over checkbox but click did not start on checkbox
@@ -114,11 +124,11 @@ void Checkbox::OnDraw(gfx::VideoBuffer* vid)
 		{
 			if (checked)
 			{
-				innerColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
+				innerColor = COLMODALPHA(color, Style::InvertAlphaHover);
 			}
 			else
 			{
-				innerColor = COLARGB(125, COLR(color), COLG(color), COLB(color));
+				innerColor = COLMODALPHA(color, Style::HoverAlpha);
 			}
 		}
 	}
@@ -126,13 +136,15 @@ void Checkbox::OnDraw(gfx::VideoBuffer* vid)
 	if (innerColor)
 	{
 		if (useCheckIcon)
-			vid->DrawChar(position.X + size.Y / 2 - 3, position.Y + size.Y / 2 - 3, '\xCF', COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
+			vid->DrawChar(position.X + size.Y / 2 - 3, position.Y + size.Y / 2 - 3, '\xCF', innerColor);
 		else
-			vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, COLR(innerColor), COLG(innerColor), COLB(innerColor), COLA(innerColor));
+			vid->FillRect(position.X+3, position.Y+3, size.Y-6, size.Y-6, innerColor);
 	}
 
 	Point textSize = gfx::VideoBuffer::TextSize(text);
-	vid->DrawString((textInside ? position.X+(size.X-textSize.X)/2: position.X+size.Y+2), position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(textColor), COLG(textColor), COLB(textColor), COLA(textColor));
+	int textPosX = textInside ? position.X + (size.X - textSize.X) / 2 : position.X + size.Y + 2;
+	int textPosY = position.Y + (size.Y - textSize.Y + 1) / 2 + 1;
+	vid->DrawString(textPosX, textPosY, text, textColor);
 }
 
 void Checkbox::OnTick(uint32_t ticks)

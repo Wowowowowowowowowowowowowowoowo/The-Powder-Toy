@@ -1,8 +1,12 @@
 #include "Dropdown.h"
+#include "Style.h"
 #include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
 #include "interface/Window.h"
+
+// TODO: Put dropdown in ui namespace and remove this
+using namespace ui;
 
 Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options):
 	Component(position, size),
@@ -11,7 +15,7 @@ Dropdown::Dropdown(Point position, Point size, std::vector<std::string> options)
 	if (size.X == AUTOSIZE)
 	{
 		int maxWidth = 25;
-		for (auto option : options)
+		for (const auto &option : options)
 			maxWidth = tpt::max(maxWidth, gfx::VideoBuffer::TextSize(option).X);
 		this->size.X = maxWidth + 5;
 	}
@@ -68,12 +72,19 @@ void Dropdown::OnMouseUp(int x, int y, unsigned char button)
 
 void Dropdown::OnDraw(gfx::VideoBuffer* vid)
 {
-	ARGBColour col = color;
+	ARGBColour col;
 	if (!enabled)
-		col = COLARGB(COLA(col), (int)(COLR(col) * .55f), (int)(COLG(col) * .55f), (int)(COLB(col) * .55f));
-	vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(col), COLG(col), COLB(col), COLA(col));
+		col = COLMULT(color, Style::DisabledMultiplier);
+	else if (!isMouseInside)
+		col = COLMULT(color, Style::DeselectedMultiplier);
+	else if (IsClicked())
+		col = COLADD(color, Style::ClickedModifier);
+	else
+		col = color;
+
+	vid->DrawRect(position.X, position.Y, size.X, size.Y, col);
 	if (selectedOption < options.size())
-		vid->DrawString(position.X + 3, position.Y + (size.Y / 2) - 4, options[selectedOption], COLR(col), COLG(col), COLB(col), COLA(col));
+		vid->DrawString(position.X + 3, position.Y + (size.Y / 2) - 4, options[selectedOption], color);
 }
 
 

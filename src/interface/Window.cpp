@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Engine.h"
 #include "Label.h"
+#include "Style.h"
 #include "Textbox.h"
 #include "graphics.h"
 #include "graphics/VideoBuffer.h"
@@ -210,7 +211,7 @@ void Window::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	OnDrawAfterSubwindows(videoBuffer);
 
 	if (hasBorder)
-		videoBuffer->DrawRect(0, 0, size.X, size.Y, 255, 255, 255, 255);
+		videoBuffer->DrawRect(0, 0, size.X, size.Y, Style::Border);
 	if (copyBuf)
 		videoBuffer->CopyBufferInto(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
 }

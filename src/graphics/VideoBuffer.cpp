@@ -89,6 +89,12 @@ void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
 	vid[y*width+x] = PIXRGB(r,g,b);
 }
 
+//This function does NO bounds checking
+void VideoBuffer::DrawPixel(int x, int y, ARGBColour color)
+{
+	DrawPixel(x, y, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
 void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a)
 {
 	int dx, dy, startX, startY, e, x, y;
@@ -130,6 +136,11 @@ void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, 
 	}
 }
 
+void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, ARGBColour color)
+{
+	DrawLine(x1, y1, x2, y2, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
 void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int a)
 {
 	if (x < 0)
@@ -168,7 +179,11 @@ void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int 
 	}
 }
 
-//draws a rectangle and fills it in as well.
+void VideoBuffer::DrawRect(int x, int y, int w, int h, ARGBColour color)
+{
+	DrawRect(x, y, w, h, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
 void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int a)
 {
 	if (x < 0)
@@ -199,6 +214,11 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 	for (int j = 0; j < h; j++)
 		for (int i = 0; i < w; i++)
 			DrawPixel(x+i, y+j, r, g, b, a);
+}
+
+void VideoBuffer::FillRect(int x, int y, int w, int h, ARGBColour color)
+{
+	FillRect(x, y, w, h, COLR(color), COLG(color), COLB(color), COLA(color));
 }
 
 int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a, bool modifiedColor)
@@ -240,7 +260,12 @@ int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, in
 	return x + w;
 }
 
-int VideoBuffer::DrawString(int x, int y, std::string s, int r, int g, int b, int a)
+int VideoBuffer::DrawChar(int x, int y, unsigned char c, ARGBColour color, bool modifiedColor)
+{
+	return DrawChar(x, y, c, COLR(color), COLG(color), COLB(color), COLA(color), modifiedColor);
+}
+
+int VideoBuffer::DrawString(int x, int y, const std::string &s, int r, int g, int b, int a)
 {
 	if (a == 0)
 		return x;
@@ -347,6 +372,11 @@ int VideoBuffer::DrawString(int x, int y, std::string s, int r, int g, int b, in
 		}
 	}
 	return x;
+}
+
+int VideoBuffer::DrawString(int x, int y, const std::string & s, ARGBColour color)
+{
+	return DrawString(x, y, s, COLR(color), COLG(color), COLB(color), COLA(color));
 }
 
 // static method that returns the width of a character

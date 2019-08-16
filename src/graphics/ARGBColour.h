@@ -26,7 +26,7 @@
 
 #include "common/tpt-stdint.h"
 
-typedef uint32_t ARGBColour;
+using ARGBColour = uint32_t;
 
 #define COLPACK(x) (0xFF000000|(x))
 #define COLARGB(a,r,g,b) (((a)<<24)|((r)<<16)|((g)<<8)|(b))
@@ -35,5 +35,23 @@ typedef uint32_t ARGBColour;
 #define COLR(x) (((x)>>16)&0xFF)
 #define COLG(x) (((x)>>8)&0xFF)
 #define COLB(x) ((x)&0xFF)
+
+/** Modifies the alpha of this color value */
+constexpr int COLMODALPHA(ARGBColour color, unsigned int alpha)
+{
+	return ((alpha) << 24 | (color & 0x00FFFFFF));
+}
+
+/** multiplies rgb components by a certain value */
+constexpr int COLMULT(ARGBColour color, float mult)
+{
+	return COLARGB(COLA(color), static_cast<int>(COLR(color) * (mult)), static_cast<int>(COLG(color) * (mult)), static_cast<int>(COLB(color) * (mult)));
+}
+
+/** adds a certain amount to each rgb component */
+constexpr int COLADD(ARGBColour color, unsigned int add)
+{
+	return COLARGB(COLA(color), COLR(color) + (add), COLG(color) + (add), COLB(color) + (add));
+}
 
 #endif

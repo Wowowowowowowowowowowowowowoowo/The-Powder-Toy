@@ -1,13 +1,17 @@
 #include "Button.h"
+#include "Style.h"
 #include "Window.h"
 #include "common/tpt-minmax.h"
 #include "common/Platform.h"
 #include "game/ToolTip.h"
 #include "graphics/VideoBuffer.h"
 
+// TODO: Put button in ui namespace and remove this
+using namespace ui;
+
 Button::Button(Point position, Point size_, std::string text_):
 	Component(position, size_),
-	textColor(COLRGB(255, 255, 255)),
+	textColor(Style::Border),
 	tooltip(NULL),
 	alignment(CENTER),
 	state(NORMAL),
@@ -96,9 +100,9 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 
 	// border
 	if (enabled)
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLR(color), COLG(color), COLB(color), 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, color);
 	else
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(COLR(color)*.55f), (int)(COLG(color)*.55f), (int)(COLB(color)*.55f), 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLMULT(color, Style::DisabledMultiplier));
 
 	ARGBColour realTextColor;
 	ARGBColour backgroundColor = 0;
@@ -107,8 +111,8 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 		if (state == INVERTED)
 			backgroundColor = color;
 		else if (state == HIGHLIGHTED)
-			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
-		realTextColor = COLRGB((int)(COLR(textColor)*.55f), (int)(COLG(textColor)*.55f), (int)(COLB(textColor)*.55f));
+			backgroundColor = COLMODALPHA(color, Style::HighlightAlpha);
+		realTextColor = COLMULT(textColor, Style::DisabledMultiplier);
 	}
 #ifdef TOUCHUI
 	// Mouse not inside button, Mouse not down, or over button but click did not start on button
@@ -120,12 +124,12 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 	{
 		if (state == INVERTED)
 		{
-			realTextColor = COLRGB(255-COLR(textColor), 255-COLG(textColor), 255-COLB(textColor));
+			realTextColor = COLRGB(255 - COLR(textColor), 255 - COLG(textColor), 255 - COLB(textColor));
 			backgroundColor = color;
 		}
 		else if (state == HIGHLIGHTED)
 		{
-			backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
+			backgroundColor = COLMODALPHA(color, Style::HighlightAlpha);
 			realTextColor = textColor;
 		}
 		else
@@ -143,13 +147,13 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 				if (IsHeld())
 				{
 					realTextColor = COLPACK(0x000000);
-					backgroundColor = COLARGB(255, COLR(color), COLG(color), COLB(color));
+					backgroundColor = COLMODALPHA(255, Style::HighlightAlpha);
 				}
 				else
 				{
-					unsigned int heldAmount = std::min((int)(timeHeldDown/20), 100);
+					unsigned int heldAmount = std::min((int)(timeHeldDown / 20), 100);
 					realTextColor = textColor;
-					backgroundColor = COLARGB(100+heldAmount, COLR(color), COLG(color), COLB(color));
+					backgroundColor = COLMODALPHA(color, 100 + heldAmount);
 				}
 			}
 			else
@@ -163,34 +167,34 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 		{
 			if (state == INVERTED)
 			{
-				backgroundColor = COLARGB(200, COLR(color), COLG(color), COLB(color));
-				realTextColor = COLRGB(255-COLR(textColor), 255-COLG(textColor), 255-COLB(textColor));
+				backgroundColor = COLMODALPHA(color, Style::InvertAlphaHover);
+				realTextColor = COLRGB(255 - COLR(textColor), 255 - COLG(textColor), 255 - COLB(textColor));
 			}
 			else if (state == HIGHLIGHTED)
 			{
-				backgroundColor = COLARGB(155, COLR(color), COLG(color), COLB(color));
+				backgroundColor = COLMODALPHA(color, Style::HighlightAlphaHover);
 				realTextColor = textColor;
 			}
 			else
 			{
-				backgroundColor = COLARGB(100, COLR(color), COLG(color), COLB(color));
+				backgroundColor = COLMODALPHA(color, Style::HoverAlpha);
 				realTextColor = textColor;
 			}
 		}
 	}
 	// background color (if required)
 	if (backgroundColor)
-		vid->FillRect(position.X+1, position.Y+1, size.X-2, size.Y-2, COLR(backgroundColor), COLG(backgroundColor), COLB(backgroundColor), COLA(backgroundColor));
+		vid->FillRect(position.X+1, position.Y+1, size.X-2, size.Y-2, backgroundColor);
 
 	if (alignment == LEFT)
 	{
 		Point textSize = gfx::VideoBuffer::TextSize(text);
-		vid->DrawString(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
+		vid->DrawString(position.X+2, position.Y+(size.Y-textSize.Y+1)/2+1, text, realTextColor);
 	}
 	else
 	{
 		Point textSize = gfx::VideoBuffer::TextSize(text);
-		vid->DrawString(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, COLR(realTextColor), COLG(realTextColor), COLB(realTextColor), COLA(realTextColor));
+		vid->DrawString(position.X+(size.X-textSize.X)/2+1, position.Y+(size.Y-textSize.Y+1)/2+1, text, realTextColor);
 	}
 }
 

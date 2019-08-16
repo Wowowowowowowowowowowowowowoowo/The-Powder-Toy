@@ -1,6 +1,10 @@
 #include "ProgressBar.h"
+#include "Style.h"
 #include "common/Format.h"
 #include "graphics/VideoBuffer.h"
+
+// TODO: Put progressbar in ui namespace and remove this
+using namespace ui;
 
 ProgressBar::ProgressBar(Point position, Point size):
 	Component(position, size)
@@ -28,14 +32,15 @@ void ProgressBar::OnDraw(gfx::VideoBuffer *vid)
 	// clear area
 	vid->FillRect(position.X, position.Y, size.X, size.Y, 0, 0, 0, 255);
 
+	pixel borderColor = Style::Border;
 	// border
 	if (enabled)
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, 255, 255, 255, 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, borderColor);
 	else
-		vid->DrawRect(position.X, position.Y, size.X, size.Y, (int)(255*.55f), (int)(255*.55f), (int)(255*.55f), 255);
+		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLMULT(borderColor, Style::DisabledMultiplier));
 
-	int width = (size.X-2)*progress/100.0f;
-	vid->FillRect(position.X+1, position.Y+1, width, size.Y-2, COLR(color), COLG(color), COLB(color), COLA(color));
+	int width = static_cast<int>((size.X - 2) * progress / 100.0f);
+	vid->FillRect(position.X+1, position.Y+1, width, size.Y-2, color);
 
 	std::string progressStr = Format::NumberToString<int>(progress);
 	progressStr += "%";
