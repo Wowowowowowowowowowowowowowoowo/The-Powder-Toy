@@ -118,7 +118,7 @@ int LSNS_update(UPDATE_FUNC_ARGS)
 				}
 			}
 
-	return 0;	
+	return 0;
 }
 
 void LSNS_init_element(ELEMENT_INIT_FUNC_ARGS)

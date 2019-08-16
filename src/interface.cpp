@@ -4393,6 +4393,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				int imgh, imgw, status;
 				std::string data = saveDataDownload->Finish(&status);
+				saveDataDownload = nullptr;
 				saveDone = saveTotal = data.length();
 				if (status == 200)
 				{
@@ -4415,7 +4416,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						break;
 					}
 				}
-				saveDataDownload = NULL;
 				save = new Save(data.c_str(), data.length());
 			}
 			else
@@ -4427,6 +4427,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			{
 				int status;
 				std::string info_data = saveInfoDownload->Finish(&status);
+				saveInfoDownload = nullptr;
 				infoDone = info_data.length();
 				if (status == 200 || !infoDone)
 				{
@@ -4473,7 +4474,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						fake404save = true;
 					}
 				}
-				saveInfoDownload = nullptr;
 			}
 			else
 				saveInfoDownload->CheckProgress(&infoTotal, &infoDone);
@@ -4482,6 +4482,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		{
 			int imgh, imgw, status;
 			std::string thumb_data_full = thumbnailDownload->Finish(&status);
+			thumbnailDownload = nullptr;
 			if (status == 200)
 			{
 				pixel *full_thumb;
@@ -4501,12 +4502,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 					}
 				}
 			}
-			thumbnailDownload = nullptr;
 		}
 		if (commentsDownload && commentsDownload->CheckStarted() && info_ready && commentsDownload->CheckDone())
 		{
 			int status;
 			std::string comment_data = commentsDownload->Finish(&status);
+			commentsDownload = nullptr;
 			if (status == 200)
 			{
 				cJSON *root, *commentobj, *tmpobj;
@@ -4550,7 +4551,6 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 				}
 			}
 			disable_scrolling = 0;
-			commentsDownload = nullptr;
 		}
 		bool commentsDownloadStarted = commentsDownload && commentsDownload->CheckStarted();
 		if (!instant_open)
