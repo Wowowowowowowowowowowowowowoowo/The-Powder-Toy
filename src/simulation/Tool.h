@@ -131,7 +131,7 @@ public:
 
 	StructProperty prop;
 	PropertyValue propValue;
-	bool invalidState = false;
+	bool invalidState = true;
 };
 
 class DecoTool : public Tool

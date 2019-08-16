@@ -52,6 +52,12 @@ std::string Label::GetText()
 	return fixed;
 }
 
+void Label::SelectAll()
+{
+	cursorStart = 0;
+	cursor = clickPosition = text.length();
+}
+
 void Label::FindWordPosition(unsigned int position, unsigned int *cursorStart, unsigned int *cursorEnd, const char* spaces)
 {
 	size_t foundPos = 0, currentPos = 0;
@@ -330,8 +336,7 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 			break;
 		}
 		case SDL_SCANCODE_A:
-			cursorStart = 0;
-			cursor = clickPosition = text.length();
+			SelectAll();
 			break;
 		}
 		switch (key)

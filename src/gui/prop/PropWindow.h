@@ -19,6 +19,7 @@ class PropWindow : public ui::Window
 	unsigned int selectedProperty = 0;
 
 	void UpdatePropTool();
+	void LoadFromPropTool();
 
 	template<typename T>
 	T ParseNumber(const std::string& num, bool isHex, bool &isParsed);
@@ -29,7 +30,7 @@ public:
 
 	void OnPropertyChanged(unsigned int option);
 
-	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 };
 
 #endif // PROPWINDOW_H

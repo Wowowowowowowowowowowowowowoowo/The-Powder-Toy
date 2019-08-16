@@ -1,9 +1,11 @@
 #include "PropWindow.h"
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
 #include "console.h" // For console_parse_type
 #include "misc.h" // For GetToolFromIdentifier
+#include "common/Format.h"
 #include "interface/Button.h"
 #include "interface/Dropdown.h"
 #include "interface/Engine.h"
@@ -50,6 +52,9 @@ PropWindow::PropWindow():
 		this->UpdatePropTool();
 	});
 	this->AddComponent(okButton);
+
+
+	LoadFromPropTool();
 }
 
 void PropWindow::OnPropertyChanged(unsigned int option)
@@ -57,7 +62,7 @@ void PropWindow::OnPropertyChanged(unsigned int option)
 	selectedProperty = option;
 }
 
-void PropWindow::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+void PropWindow::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (key == SDLK_UP)
 	{
@@ -79,6 +84,10 @@ void PropWindow::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctr
 	{
 		UpdatePropTool();
 	}
+	else
+	{
+		Window::DoKeyPress(key, scan, repeat, shift, ctrl, alt);
+	}
 }
 
 void PropWindow::UpdatePropTool()
@@ -92,6 +101,32 @@ void PropWindow::UpdatePropTool()
 		propTool->invalidState = !isParsed;
 	}
 	this->toDelete = true;
+}
+
+void PropWindow::LoadFromPropTool()
+{
+	// Parse the property name out of propTool->prop
+	std::string propName = propTool->prop.Name;
+	auto prop = std::find_if(properties.begin(), properties.end(), [&propName](StructProperty const &p) {
+		return p.Name == propName;
+	});
+	unsigned int selectedOption = prop == properties.end() ? 0 : prop - properties.begin();
+	propertyDropdown->SetSelectedOption(selectedOption);
+
+	// If invalid or never set before, don't parse the value
+	if (propTool->invalidState)
+		return;
+
+	// Parse the value out of propTool->propValue
+	std::string value;
+	if (prop->Type == StructProperty::Float)
+		value = Format::NumberToString<float>(propTool->propValue.Float);
+	else if (prop->Type == StructProperty::UInteger)
+		value = Format::NumberToString<unsigned int>(propTool->propValue.UInteger);
+	else
+		value = Format::NumberToString<int>(propTool->propValue.Integer);
+	valueTextbox->SetText(value);
+	valueTextbox->SelectAll();
 }
 
 template<typename T>

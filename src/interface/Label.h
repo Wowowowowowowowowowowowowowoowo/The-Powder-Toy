@@ -40,6 +40,7 @@ public:
 	void SetText(std::string text_);
 	std::string GetText();
 	bool IsMultiline() { return multiline; }
+	void SelectAll();
 
 	void OnMouseDown(int x, int y, unsigned char button) override;
 	void OnMouseUp(int x, int y, unsigned char button) override;
