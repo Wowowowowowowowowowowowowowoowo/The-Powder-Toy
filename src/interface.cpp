@@ -1312,9 +1312,9 @@ void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRig
 		
 		drawtext(vid_buf, x0+5, y0+windowHeight-12, "Dismiss", 255, 255, 255, 255);
 		drawrect(vid_buf, x0, y0+windowHeight-16, windowWidth, 16, 192, 192, 192, 255);
-		fillrect(vid_buf, 8, YRES+3, XRES+BARSIZE, 12, 0, 0, 0, 255);
+		fillrect(vid_buf, -1, YRES-11, XRES + 1, 12, 0, 0, 0, 255);
 		if (toolTipAlpha)
-			drawtext(vid_buf, 10, YRES+5, toolTip.c_str(), 255, 255, 255, toolTipAlpha > 51 ? 255 : toolTipAlpha*5);
+			drawtext(vid_buf, 10, YRES-9, toolTip.c_str(), 255, 255, 255, toolTipAlpha > 51 ? 255 : toolTipAlpha*5);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
 		if (b && !bq)
