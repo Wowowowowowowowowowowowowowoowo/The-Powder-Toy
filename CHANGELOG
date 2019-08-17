@@ -990,3 +990,15 @@ requests. Rename nobluescreen command line option to disable-bluescreen. Tweak
 replace mode and specific delete mode to work on energy particles and be
 mutually exclusive. Fix issues saving/loading QRTZ/GLAS/TUNG without pressure
 in saves. Add sim.CELL constant.
+
+Version 43.4 2019-08-17
+Redo prop tool ui. Refactor some code relating to prop tool and prop setting
+Lua functions. Refactor gravity.cpp. Fix crash when save info couldn't be
+downloaded. Redo colors in "new" interface slightly, the new interface is no
+longer pure white, instead it is slightly gray like the official version.
+Move the black bar that appears in the element search ui. Numerous updates
+from the upcoming official 95.0 release (still more to copy over): thread /
+search signs are now red and purple, respectively. Add new sign types, {type},
+{ctype}, {life}, {tmp}, {tmp2}. Other text can now be put alongside these
+custom sign types. Add .life serialization support to LSNS. Other tpt++ updates
+that aren't as noticeable.
