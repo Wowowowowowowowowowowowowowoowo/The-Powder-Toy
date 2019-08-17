@@ -543,10 +543,14 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						fprintf(stderr, "Out of range [%d]: %d %d, [%d, %d], [%d, %d]\n", i, x, y, (unsigned)partsData[i+1], (unsigned)partsData[i+2], (unsigned)partsData[i+3], (unsigned)partsData[i+4]);
 						goto fail;
 					}
-					type = fix_type(partsData[i],saved_version, modsave, hasPalette ? elementPalette : NULL);
+					int tempType = partsData[i];
+					if (fieldDescriptor & 0x4000)
+						tempType |= (((unsigned)partsData[++i]) << 8);
+
+					type = fix_type(tempType,saved_version, modsave, hasPalette ? elementPalette : NULL);
 					if (type < 0 || type >= PT_NUM || !globalSim->elements[type].Enabled)
 						type = PT_NONE; //invalid element
-					
+
 					//Draw type
 					if (type==PT_STKM || type==PT_STKM2 || type==PT_FIGH)
 					{
@@ -585,7 +589,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					else
 						vidBuf[(fullY+y)*fullW+(fullX+x)] = PIXPACK(globalSim->elements[type].Colour);
 					i+=3; //Skip Type and Descriptor
-					
+
 					//Skip temp
 					if(fieldDescriptor & 0x01)
 					{
