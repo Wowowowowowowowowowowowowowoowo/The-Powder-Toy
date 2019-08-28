@@ -1368,13 +1368,13 @@ int luatpt_set_property(lua_State* l)
 		else
 			t = luaL_optint(l, 2, 0);
 
-		if (format == 2 && !luaSim->IsElement(t))
+		if (format == 2 && !luaSim->IsElementOrNone(t))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 	}
 	else if (lua_isstring(l, 2))
 	{
-		name = luaL_checklstring(l, 2, NULL);
-		if (!console_parse_type(name, &t, NULL, luaSim))
+		name = luaL_checklstring(l, 2, nullptr);
+		if (!console_parse_type(name, &t, nullptr, luaSim))
 			return luaL_error(l, "Unrecognised element '%s'", name);
 	}
 	else
@@ -2111,7 +2111,7 @@ int luatpt_createwall(lua_State* l)
 		width = (XRES/CELL)-wx;
 	if (wy+height > (YRES/CELL))
 		height = (YRES/CELL)-wy;
-	if (wt < 0 || wt >= WALLCOUNT || (wallTypes[wt].drawstyle == -1 && !secret_els))
+	if (wt < 0 || wt >= WALLCOUNT || wallTypes[wt].drawstyle == -1)
 		return luaL_error(l, "Unrecognised wall number %d", wt);
 	for (nx = wx; nx < wx+width; nx++)
 		for (ny = wy; ny < wy+height; ny++)

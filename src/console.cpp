@@ -54,11 +54,11 @@ int console_parse_type(const char *txt, int *element, char *err, Simulation *sim
 			strcpy(err, "Particle type not recognized");
 		return 0;
 	}
-	for (i=1; i<PT_NUM; i++)
+	for (int j = 1; j < PT_NUM; j++)
 	{
-		if (!strcasecmp(txt, sim->elements[i].Name.c_str()) && (sim->elements[i].Enabled || secret_els))
+		if (!strcasecmp(txt, sim->elements[j].Name.c_str()) && sim->elements[j].Enabled)
 		{
-			if (element) *element = i;
+			if (element) *element = j;
 			if (err) strcpy(err,"");
 			return 1;
 		}
@@ -77,7 +77,7 @@ int console_parse_wall_type(const char *txt, int *wall)
 {
 	int i;
 	for (i = 0; i < WALLCOUNT; i++) {
-		if (strcasecmp(txt,wallTypes[i].name.c_str())==0 && (wallTypes[i].drawstyle != -1 || secret_els))
+		if (strcasecmp(txt,wallTypes[i].name.c_str())==0 && wallTypes[i].drawstyle != -1)
 		{
 			*wall = i;
 			return 1;
