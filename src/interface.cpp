@@ -5818,7 +5818,7 @@ int execute_bug(pixel *vid_buf, std::string feedback)
 {
 	// TODO: does not work because of bug on starcatcher.us
 	int status;
-	std::string result = Request::Simple(UPDATESCHEME "starcatcher.us/TPT/bagelreport.lua", &status, {
+	std::string result = Request::SimpleAuth("starcatcher.us/TPT/bagelreport.lua", &status, svf_user, "", {
 		{ "bug", feedback }
 	 });
 
