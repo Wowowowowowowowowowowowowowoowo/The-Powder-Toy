@@ -110,8 +110,8 @@ void PropWindow::LoadFromPropTool()
 	auto prop = std::find_if(properties.begin(), properties.end(), [&propName](StructProperty const &p) {
 		return p.Name == propName;
 	});
-	unsigned int selectedOption = prop == properties.end() ? 0 : prop - properties.begin();
-	propertyDropdown->SetSelectedOption(selectedOption);
+	selectedProperty = prop == properties.end() ? 0 : prop - properties.begin();
+	propertyDropdown->SetSelectedOption(selectedProperty);
 
 	// If invalid or never set before, don't parse the value
 	if (propTool->invalidState)
