@@ -49,7 +49,6 @@ int PWHT_flood(UPDATE_FUNC_ARGS)
 	else
 	{
 		parts[i].ctype = 0;
-		parts[i].tmp2 = 0;
 		return 0;
 	}
 

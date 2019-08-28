@@ -1002,3 +1002,11 @@ search signs are now red and purple, respectively. Add new sign types, {type},
 {ctype}, {life}, {tmp}, {tmp2}. Other text can now be put alongside these
 custom sign types. Add .life serialization support to LSNS. Other tpt++ updates
 that aren't as noticeable.
+
+Version 43.5 2019-08-27
+Fix rare issue that prevents loading certain saves with Lua elements. Fix
+setting type to none in !set and tpt.set_property. Fix prop window always
+resetting to .type, without indicating it was doing so. Add back PWHT
+because some people still use it. The feature where it can set any property
+(not just .temp) was adjusted slightly. .tmp2 no longer needs to be set, it can
+now set pavg0 and pavg1, and setting .type is now ctype 3 instead of 0.
