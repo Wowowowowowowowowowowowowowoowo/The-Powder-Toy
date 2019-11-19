@@ -110,10 +110,10 @@ void ProfileViewer::OnTick(uint32_t ticks)
 					websiteLabel->SetEnabled(false);
 				}
 				if (root["User"]["Biography"].isString())
-					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), root["User"]["Biography"].asString(), true);
+					biographyLabel = new Label(Point(7, 133), Point(scrollArea->GetUsableWidth() - 7, Label::AUTOSIZE), root["User"]["Biography"].asString(), true);
 				else
 				{
-					biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided", true);
+					biographyLabel = new Label(Point(7, 133), Point(scrollArea->GetUsableWidth() - 7, Label::AUTOSIZE), "\x0F\xC0\xC0\xC0Not Provided", true);
 					biographyLabel->SetEnabled(false);
 				}
 
@@ -142,14 +142,14 @@ void ProfileViewer::OnTick(uint32_t ticks)
 			catch (std::exception &e)
 			{
 				// TODO: make a new version of error_ui because this is bad
-				biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brError parsing data from server", true);
+				biographyLabel = new Label(Point(7, 133), Point(scrollArea->GetUsableWidth() - 7, Label::AUTOSIZE), "\brError parsing data from server", true);
 				scrollArea->AddComponent(biographyLabel);
 			}
 		}
 		else
 		{
 			// TODO: make a new version of error_ui because this is bad
-			biographyLabel = new Label(Point(7, 133), Point(246, Label::AUTOSIZE), "\brServer returned error", true);
+			biographyLabel = new Label(Point(7, 133), Point(scrollArea->GetUsableWidth() - 7, Label::AUTOSIZE), "\brServer returned error", true);
 			scrollArea->AddComponent(biographyLabel);
 		}
 
