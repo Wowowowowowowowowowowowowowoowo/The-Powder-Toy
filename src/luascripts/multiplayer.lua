@@ -1,7 +1,7 @@
 --Cracker64's Powder Toy Multiplayer
 --I highly recommend to use my Autorun Script Manager
 
-local versionstring = "0.100"
+local versionstring = "0.101"
 
 --TODO's
 --FIGH,STKM,STK2,LIGH need a few more creation adjustments
@@ -1488,6 +1488,7 @@ local function sendStuff()
 		local b1,b2,b3 = math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256)
 		conSend(67,string.char(math.floor(x/16),((x%16)*16)+math.floor(y/256),(y%256),math.floor((x+w)/16),(((x+w)%16)*16)+math.floor((y+h)/256),((y+h)%256)))
 		conSend(66,string.char(b1,b2,b3,math.floor(d/65536),math.floor(d/256)%256,d%256)..s)
+		conSend(49,string.char(tpt.set_pause()))
 	end
 
 	--Check if custom modes were changed
@@ -1591,7 +1592,6 @@ end
 local function sendMouseUpdate(mouseX, mouseY)
 	L.realMouseX, L.realMouseY = mouseX, mouseY
 	if inZoomWindow(mouseX, mouseY) then
-		print(mouseX, mouseY)
 		mouseX, mouseY = sim.adjustCoords(mouseX, mouseY)
 	else
 		if mouseX < 0 then mouseX = 0 end
@@ -1615,7 +1615,11 @@ local function mouseDown(mouseX, mouseY, button)
 		end
 	end
 	if L.stamp and button == 1 then
-		L.stampx, L.stampy = mousex, mousey
+		L.stampx, L.stampy = mouseX, mouseY
+		return true
+	end
+	if L.stamp or L.placeStamp then
+		return true
 	end
 	if L.skipClick then
 		L.skipClick = false
@@ -1680,7 +1684,7 @@ local function mouseUp(mouseX, mouseY, button, reason)
 		L.stamp=false
 		L.copying=false
 	end
-	if L.placeStamp then
+	if L.placeStamp and reason == 0 then
 		if L.skipClick then
 			L.skipClick=false
 			return true
