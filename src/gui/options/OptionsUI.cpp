@@ -218,7 +218,18 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Switch between menusections by clicking");
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	scrollArea->AddComponent(descLabel);
+#endif
 
+	prev = savePressureCheckbox = new Checkbox(prev->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Include Pressure");
+	savePressureCheckbox->UseCheckIcon(useCheckIcon);
+	savePressureCheckbox->SetCallback([&](bool checked) { this->SavePressureChecked(checked); });
+	scrollArea->AddComponent(savePressureCheckbox);
+
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Include pressure in saves and stamps");
+	descLabel->SetColor(COLRGB(150, 150, 150));
+	scrollArea->AddComponent(descLabel);
+
+#ifndef TOUCHUI
 	prev = dataFolderButton = new Button(prev->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
 	scrollArea->AddComponent(dataFolderButton);
@@ -267,6 +278,7 @@ void OptionsUI::InitializeOptions()
 	stickyCategoriesCheckbox->SetChecked(stickyCategories);
 #endif
 	updatesCheckbox->SetChecked(doUpdates);
+	savePressureCheckbox->SetChecked(sim->includePressure);
 }
 
 void OptionsUI::HeatSimChecked(bool checked)
@@ -368,6 +380,11 @@ void OptionsUI::StickyCatsChecked(bool checked)
 	stickyCategories = checked;
 }
 
+void OptionsUI::SavePressureChecked(bool checked)
+{
+	sim->includePressure = checked;
+}
+
 void OptionsUI::DataFolderClicked()
 {
 #ifdef WIN
@@ -390,6 +407,7 @@ void OptionsUI::OnDraw(gfx::VideoBuffer *buf)
 {
 	buf->DrawLine(0, scrollArea->GetPosition().Y - 1, size.X, scrollArea->GetPosition().Y - 1, 200, 200, 200, 255);
 
+#ifndef TOUCHUI
 	if (filteringDropdown->IsSelectingOption())
 	{
 		resizableLabel->SetText("These options make TPT appear extremely blurry");
@@ -400,6 +418,7 @@ void OptionsUI::OnDraw(gfx::VideoBuffer *buf)
 		resizableLabel->SetText("Allow resizing window");
 		resizableLabel->SetColor(COLRGB(150, 150, 150));
 	}
+#endif
 }
 
 void OptionsUI::OnSubwindowDraw(gfx::VideoBuffer *buf)

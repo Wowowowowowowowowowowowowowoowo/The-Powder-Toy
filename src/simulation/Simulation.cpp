@@ -641,6 +641,8 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	int blockH = blockY2 - blockY;
 
 	Save * newSave = new Save(blockW, blockH);
+
+	includePressure ^= !this->includePressure;
 	
 	int storedParts = 0;
 	int elementCount[PT_NUM];

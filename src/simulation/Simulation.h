@@ -53,6 +53,7 @@ public:
 	signed char saveEdgeMode;
 	bool msRotation; //for moving solids
 	bool instantActivation; //electronics are instantly activated
+	bool includePressure = true;
 
 	// misc Simulation variables
 	unsigned int lightningRecreate; //timer for when LIGH can be created again

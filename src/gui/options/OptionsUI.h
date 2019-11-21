@@ -23,7 +23,7 @@ class OptionsUI : public ui::Window
 	Checkbox *forceIntegerScalingCheckbox;
 	Dropdown *filteringDropdown;
 
-	Checkbox *fastQuitCheckbox, *updatesCheckbox, *stickyCategoriesCheckbox;
+	Checkbox *fastQuitCheckbox, *updatesCheckbox, *stickyCategoriesCheckbox, *savePressureCheckbox;
 	Button *dataFolderButton;
 
 	Simulation * sim;
@@ -48,6 +48,7 @@ class OptionsUI : public ui::Window
 	void ForceIntegerScalingChecked(bool checked);
 	void FastQuitChecked(bool checked);
 	void UpdatesChecked(bool checked);
+	void SavePressureChecked(bool checked);
 	void StickyCatsChecked(bool checked);
 	void DataFolderClicked();
 

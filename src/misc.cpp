@@ -198,6 +198,10 @@ void save_presets()
 	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
 	cJSON_AddNumberToObject(simulationobj, "UndoHistoryLimit", Snapshot::GetUndoHistoryLimit());
+	if (globalSim->includePressure)
+		cJSON_AddTrueToObject(simulationobj, "LoadPressure");
+	else
+		cJSON_AddFalseToObject(simulationobj, "LoadPressure");
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -529,6 +533,8 @@ void load_presets(void)
 				pretty_powder = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "UndoHistoryLimit")))
 				Snapshot::SetUndoHistoryLimit(tmpobj->valueint);
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "LoadPressure")))
+				globalSim->includePressure = tmpobj->valueint;
 		}
 
 		//read console history
