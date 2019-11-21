@@ -9,117 +9,119 @@
 
 #include "OptionsUI.h"
 #include "common/tpt-minmax.h"
+#include "game/Menus.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
 #include "interface/Checkbox.h"
 #include "interface/Dropdown.h"
 #include "interface/Engine.h"
 #include "interface/Label.h"
+#include "interface/ScrollWindow.h"
 #include "interface/Textbox.h"
 #include "simulation/Simulation.h"
 
 OptionsUI::OptionsUI(Simulation *sim):
-#ifndef TOUCHUI
-	ui::Window(Point(CENTERED, CENTERED), Point(300, 400)),
-#else
-	ui::Window(Point(CENTERED, CENTERED), Point(300, 362)),
-#endif
+	ui::Window(Point(CENTERED, CENTERED), Point(310, 350)),
 	sim(sim),
 	oldEdgeMode(sim->GetEdgeMode())
 {
 #ifndef TOUCHUI
 	int checkboxHeight = 13;
 	bool useCheckIcon = true;
+	int okButtonHeight = 15;
 #else
 	int checkboxHeight = 20;
 	bool useCheckIcon = false;
+	int okButtonHeight = 25;
 #endif
 
 	Label *headerLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Options");
 	headerLabel->SetColor(COLRGB(140, 140, 255));
 	this->AddComponent(headerLabel);
 
-	heatSimCheckbox = new Checkbox(Point(5, 20), Point(Checkbox::AUTOSIZE, checkboxHeight), "Heat simulation");
+	int headerHeight = headerLabel->GetPosition().Y + headerLabel->GetSize().Y;
+	scrollArea = new ui::ScrollWindow(Point(0, headerHeight), this->size - Point(0, headerHeight + okButtonHeight));
+	this->AddSubwindow(scrollArea);
+
+	Component *prev;
+
+	prev = heatSimCheckbox = new Checkbox(Point(5, 4), Point(Checkbox::AUTOSIZE, checkboxHeight), "Heat simulation");
 	heatSimCheckbox->UseCheckIcon(useCheckIcon);
 	heatSimCheckbox->SetCallback([&](bool checked) { this->HeatSimChecked(checked); });
-	this->AddComponent(heatSimCheckbox);
+	scrollArea->AddComponent(heatSimCheckbox);
 
-	Label *descLabel = new Label(heatSimCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Causes unexpected behavior when disabled");
+	Label *descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Causes unexpected behavior when disabled");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
-	ambientCheckbox = new Checkbox(heatSimCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Ambient heat simulation");
+	prev = ambientCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Ambient heat simulation");
 	ambientCheckbox->UseCheckIcon(useCheckIcon);
 	ambientCheckbox->SetCallback([&](bool checked) { this->AmbientChecked(checked); });
-	this->AddComponent(ambientCheckbox);
+	scrollArea->AddComponent(ambientCheckbox);
 
-	descLabel = new Label(ambientCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Heat transfers through empty space");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Heat transfers through empty space");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
-	newtonianCheckbox = new Checkbox(ambientCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Newtonian Gravity");
+	prev = newtonianCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Newtonian Gravity");
 	newtonianCheckbox->UseCheckIcon(useCheckIcon);
 	newtonianCheckbox->SetCallback([&](bool checked) { this->NewtonianChecked(checked); });
-	this->AddComponent(newtonianCheckbox);
+	scrollArea->AddComponent(newtonianCheckbox);
 
-	descLabel = new Label(newtonianCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Simulate local gravity fields");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Simulate local gravity fields");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
 #ifdef TOUCHUI
-	decorationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Decorations");
+	prev = decorationCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Decorations");
 	decorationCheckbox->UseCheckIcon(useCheckIcon);
 	decorationCheckbox->SetCallback([&](bool checked) { this->DecorationsChecked(checked); });
-	this->AddComponent(decorationCheckbox);
+	scrollArea->AddComponent(decorationCheckbox);
 
-	descLabel = new Label(decorationCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Show deco color on elements");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Show deco color on elements");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 #endif
 
-#ifdef TOUCHUI
-	waterEqalizationCheckbox = new Checkbox(decorationCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
-#else
-	waterEqalizationCheckbox = new Checkbox(newtonianCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
-#endif
+	prev = waterEqalizationCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Water Equalization");
 	waterEqalizationCheckbox->UseCheckIcon(useCheckIcon);
 	waterEqalizationCheckbox->SetCallback([&](bool checked) { this->WaterEqualizationChecked(checked); });
-	this->AddComponent(waterEqalizationCheckbox);
+	scrollArea->AddComponent(waterEqalizationCheckbox);
 
-	descLabel = new Label(waterEqalizationCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Water equalizes in a U-shaped pipe (lags game)");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Water equalizes in a U-shaped pipe (lags game)");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
 
-	airSimDropdown = new Dropdown(waterEqalizationCheckbox->Below(Point(0, 17)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"On", "Pressure Off", "Velocity Off", "Off", "No Update"});
-	airSimDropdown->SetPosition(Point(size.X - 5 - airSimDropdown->GetSize().X, airSimDropdown->GetPosition().Y));
+	prev = airSimDropdown = new Dropdown(prev->Below(Point(0, 17)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"On", "Pressure Off", "Velocity Off", "Off", "No Update"});
+	airSimDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - airSimDropdown->GetSize().X, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetCallback([&](unsigned int option) { this->AirSimSelected(option); });
-	this->AddComponent(airSimDropdown);
+	scrollArea->AddComponent(airSimDropdown);
 
-	descLabel = new Label(Point(17, airSimDropdown->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Air Simulation Mode:");
-	this->AddComponent(descLabel);
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Air Simulation Mode:");
+	scrollArea->AddComponent(descLabel);
 
-	gravityDropdown = new Dropdown(airSimDropdown->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Vertical", "Off", "Radial"});
-	gravityDropdown->SetPosition(Point(size.X - 5 - gravityDropdown->GetSize().X, gravityDropdown->GetPosition().Y));
+	prev = gravityDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Vertical", "Off", "Radial"});
+	gravityDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - gravityDropdown->GetSize().X, gravityDropdown->GetPosition().Y));
 	gravityDropdown->SetCallback([&](unsigned int option) { this->GravitySelected(option); });
-	this->AddComponent(gravityDropdown);
+	scrollArea->AddComponent(gravityDropdown);
 
-	descLabel = new Label(Point(17, gravityDropdown->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Gravity Simulation Mode:");
-	this->AddComponent(descLabel);
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Gravity Simulation Mode:");
+	scrollArea->AddComponent(descLabel);
 
-	edgeModeDropdown = new Dropdown(gravityDropdown->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Void", "Solid", "Loop"});
-	edgeModeDropdown->SetPosition(Point(size.X - 5 - edgeModeDropdown->GetSize().X, edgeModeDropdown->GetPosition().Y));
+	prev = edgeModeDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Void", "Solid", "Loop"});
+	edgeModeDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - edgeModeDropdown->GetSize().X, edgeModeDropdown->GetPosition().Y));
 	edgeModeDropdown->SetCallback([&](unsigned int option) { this->EdgeModeSelected(option); });
-	this->AddComponent(edgeModeDropdown);
+	scrollArea->AddComponent(edgeModeDropdown);
 
-	descLabel = new Label(Point(17, edgeModeDropdown->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Edge Mode:");
-	this->AddComponent(descLabel);
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Edge Mode:");
+	scrollArea->AddComponent(descLabel);
 
 	// set dropdown widths to width of largest one
 	int maxWidth = airSimDropdown->GetSize().X;
 	maxWidth = tpt::max(maxWidth, gravityDropdown->GetSize().X);
 	maxWidth = tpt::max(maxWidth, edgeModeDropdown->GetSize().X);
-	int xPos = size.X - 5 - maxWidth;
+	int xPos = scrollArea->GetUsableWidth() - 5 - maxWidth;
 	airSimDropdown->SetPosition(Point(xPos, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetSize(Point(maxWidth, airSimDropdown->GetSize().Y));
 	gravityDropdown->SetPosition(Point(xPos, gravityDropdown->GetPosition().Y));
@@ -127,102 +129,108 @@ OptionsUI::OptionsUI(Simulation *sim):
 	edgeModeDropdown->SetPosition(Point(xPos, edgeModeDropdown->GetPosition().Y));
 	edgeModeDropdown->SetSize(Point(maxWidth, edgeModeDropdown->GetSize().Y));
 
-	Point sectionBelowEdgeDropdown = Point(heatSimCheckbox->GetPosition().X, edgeModeDropdown->Below(Point(0, 12)).Y);
 #ifndef TOUCHUI
-	doubleSizeCheckbox  = new Checkbox(sectionBelowEdgeDropdown, Point(Checkbox::AUTOSIZE, checkboxHeight), "Large Window");
+	prev = doubleSizeCheckbox  = new Checkbox(Point(heatSimCheckbox->GetPosition().X, prev->Below(Point(0, 12)).Y), Point(Checkbox::AUTOSIZE, checkboxHeight), "Large Window");
 	doubleSizeCheckbox->UseCheckIcon(useCheckIcon);
 	doubleSizeCheckbox->SetCallback([&](bool checked) { this->DoubleSizeChecked(checked); });
-	this->AddComponent(doubleSizeCheckbox);
+	scrollArea->AddComponent(doubleSizeCheckbox);
 
-	descLabel = new Label(doubleSizeCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Double window size for larger screens");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Double window size for larger screens");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
-	resizableCheckbox = new Checkbox(doubleSizeCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Resizable Window");
+	prev = resizableCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Resizable Window");
 	resizableCheckbox->UseCheckIcon(useCheckIcon);
 	resizableCheckbox->SetCallback([&](bool checked) { this->ResizableChecked(checked); });
-	this->AddComponent(resizableCheckbox);
+	scrollArea->AddComponent(resizableCheckbox);
 
-	resizableLabel = new Label(resizableCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Allow resizing window");
+	resizableLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Allow resizing window");
 	resizableLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(resizableLabel);
+	scrollArea->AddComponent(resizableLabel);
 
 	forceIntegerScalingCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, checkboxHeight), "Force Integer Scaling");
-	forceIntegerScalingCheckbox->SetPosition(Point(this->size.X - 5 - forceIntegerScalingCheckbox->GetSize().X, resizableCheckbox->GetPosition().Y));
+	forceIntegerScalingCheckbox->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - forceIntegerScalingCheckbox->GetSize().X, resizableCheckbox->GetPosition().Y));
 	forceIntegerScalingCheckbox->UseCheckIcon(useCheckIcon);
 	forceIntegerScalingCheckbox->SetCallback([&](bool checked) { this->ForceIntegerScalingChecked(checked); });
-	this->AddComponent(forceIntegerScalingCheckbox);
+	scrollArea->AddComponent(forceIntegerScalingCheckbox);
 
 	forceIntegerScalingLabel = new Label(forceIntegerScalingCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Less Blurry");
 	forceIntegerScalingLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(forceIntegerScalingLabel);
+	scrollArea->AddComponent(forceIntegerScalingLabel);
 
 	filteringDropdown = new Dropdown(Point(0, 0), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Nearest", "Linear", "Best"});
-	filteringDropdown->SetPosition(Point(this->size.X - 5 - filteringDropdown->GetSize().X, resizableCheckbox->GetPosition().Y));
+	filteringDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - filteringDropdown->GetSize().X, resizableCheckbox->GetPosition().Y));
 	filteringDropdown->SetCallback([&](unsigned int option) { this->FilteringSelected(option); });
-	this->AddComponent(filteringDropdown);
+	scrollArea->AddComponent(filteringDropdown);
 	filteringDropdown->SetVisible(false);
 
 	filteringLabel = new Label(Point(0, 0), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Pixel sampling mode:");
 	filteringLabel->SetPosition(Point(filteringDropdown->Left(Point(filteringLabel->GetSize().X + 5, 0)).X, filteringDropdown->GetPosition().Y));
-	this->AddComponent(filteringLabel);
+	scrollArea->AddComponent(filteringLabel);
 	filteringLabel->SetVisible(false);
 
-	fullscreenCheckbox = new Checkbox(resizableCheckbox->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fullscreen");
+	prev = fullscreenCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fullscreen");
 	fullscreenCheckbox->UseCheckIcon(true);
 	fullscreenCheckbox->SetCallback([&](bool checked) { this->FullscreenChecked(checked); });
-	this->AddComponent(fullscreenCheckbox);
+	scrollArea->AddComponent(fullscreenCheckbox);
 
-	descLabel = new Label(fullscreenCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Fill the entire screen");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Fill the entire screen");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
 	altFullscreenCheckbox = new Checkbox(Point(0, 0), Point(Checkbox::AUTOSIZE, checkboxHeight), "Change Resolution");
-	altFullscreenCheckbox->SetPosition(Point(this->size.X - 5 - altFullscreenCheckbox->GetSize().X, fullscreenCheckbox->GetPosition().Y));
+	altFullscreenCheckbox->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - altFullscreenCheckbox->GetSize().X, fullscreenCheckbox->GetPosition().Y));
 	altFullscreenCheckbox->UseCheckIcon(useCheckIcon);
 	altFullscreenCheckbox->SetCallback([&](bool checked) { this->AltFullscreenChecked(checked); });
-	this->AddComponent(altFullscreenCheckbox);
+	scrollArea->AddComponent(altFullscreenCheckbox);
 
 	descLabel = new Label(altFullscreenCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Old fullscreen");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
-#endif
+	scrollArea->AddComponent(descLabel);
 
-#ifndef TOUCHUI
-	fastQuitCheckbox = new Checkbox(fullscreenCheckbox->Below(Point(0, 24)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fast Quit");
+
+	prev = fastQuitCheckbox = new Checkbox(prev->Below(Point(0, 24)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Fast Quit");
 	fastQuitCheckbox->UseCheckIcon(useCheckIcon);
 	fastQuitCheckbox->SetCallback([&](bool checked) { this->FastQuitChecked(checked); });
-	this->AddComponent(fastQuitCheckbox);
+	scrollArea->AddComponent(fastQuitCheckbox);
 
 	descLabel = new Label(fastQuitCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Always exit completely when clicking \"X\"");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 #endif
 
-#ifndef TOUCHUI
-	updatesCheckbox = new Checkbox(fastQuitCheckbox->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Update Check");
-#else
-	updatesCheckbox = new Checkbox(sectionBelowEdgeDropdown, Point(Checkbox::AUTOSIZE, checkboxHeight), "Update Check");
-#endif
+	prev = updatesCheckbox = new Checkbox(Point(heatSimCheckbox->GetPosition().X, prev->Below(Point(0, 15)).Y), Point(Checkbox::AUTOSIZE, checkboxHeight), "Update Check");
 	updatesCheckbox->UseCheckIcon(useCheckIcon);
 	updatesCheckbox->SetCallback([&](bool checked) { this->UpdatesChecked(checked); });
-	this->AddComponent(updatesCheckbox);
+	scrollArea->AddComponent(updatesCheckbox);
 
-	descLabel = new Label(updatesCheckbox->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Check for updates at https://starcatcher.us/TPT");
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Check for updates at https://starcatcher.us/TPT");
 	descLabel->SetColor(COLRGB(150, 150, 150));
-	this->AddComponent(descLabel);
+	scrollArea->AddComponent(descLabel);
 
 #ifndef TOUCHUI
-	dataFolderButton = new Button(updatesCheckbox->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
+	prev = stickyCategoriesCheckbox = new Checkbox(prev->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Sticky categories");
+	stickyCategoriesCheckbox->UseCheckIcon(useCheckIcon);
+	stickyCategoriesCheckbox->SetCallback([&](bool checked) { this->StickyCatsChecked(checked); });
+	scrollArea->AddComponent(stickyCategoriesCheckbox);
+
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Switch between menusections by clicking");
+	descLabel->SetColor(COLRGB(150, 150, 150));
+	scrollArea->AddComponent(descLabel);
+
+	prev = dataFolderButton = new Button(prev->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
-	this->AddComponent(dataFolderButton);
+	scrollArea->AddComponent(dataFolderButton);
+
+	scrollArea->SetScrollable(true, prev->Below(Point(0, 5)).Y - scrollArea->GetSize().Y);
+#else
+	scrollArea->SetScrollable(true, descLabel->Below(Point(0, 5)).Y - scrollArea->GetSize().Y);
 #endif
 
-
 #ifndef TOUCHUI
-	Button *okButton = new Button(Point(0, this->size.Y-15), Point(this->size.X+1, 15), "OK");
+	Button *okButton = new Button(Point(0, this->size.Y - okButtonHeight), Point(this->size.X+1, okButtonHeight), "OK");
 #else
-	Button *okButton = new Button(Point(0, this->size.Y-25), Point(this->size.X+1, 25), "OK");
+	Button *okButton = new Button(Point(0, this->size.Y - okButtonHeight), Point(this->size.X+1, okButtonHeight), "OK");
 #endif
 	okButton->SetCloseButton(true);
 	this->AddComponent(okButton);
@@ -255,6 +263,7 @@ void OptionsUI::InitializeOptions()
 
 #ifndef TOUCHUI
 	fastQuitCheckbox->SetChecked(Engine::Ref().IsFastQuit());
+	stickyCategoriesCheckbox->SetChecked(stickyCategories);
 #endif
 	updatesCheckbox->SetChecked(doUpdates);
 }
@@ -352,6 +361,12 @@ void OptionsUI::UpdatesChecked(bool checked)
 {
 	doUpdates = checked;
 }
+
+void OptionsUI::StickyCatsChecked(bool checked)
+{
+	stickyCategories = checked;
+}
+
 void OptionsUI::DataFolderClicked()
 {
 #ifdef WIN
@@ -370,11 +385,15 @@ void OptionsUI::DataFolderClicked()
 	delete[] workingDirectory;
 }
 
-void OptionsUI::OnDraw(gfx::VideoBuffer * buf)
+void OptionsUI::OnDrawAfterSubwindows(gfx::VideoBuffer *buf)
 {
-	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, size.X, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
+	buf->DrawLine(0, scrollArea->GetPosition().Y, size.X, scrollArea->GetPosition().Y, 200, 200, 200, 255);
+
+	int scrollPos = - scrollArea->GetPosition().Y;
+
+	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y - scrollPos, scrollArea->GetUsableWidth() - 1, edgeModeDropdown->Below(Point(0, 5)).Y - scrollPos, 200, 200, 200, 255);
 #ifndef TOUCHUI
-	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y, size.X, altFullscreenCheckbox->Below(Point(0, 17)).Y, 200, 200, 200, 255);
+	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y - scrollPos, scrollArea->GetUsableWidth() - 1, altFullscreenCheckbox->Below(Point(0, 17)).Y - scrollPos, 200, 200, 200, 255);
 
 	if (filteringDropdown->IsSelectingOption())
 	{

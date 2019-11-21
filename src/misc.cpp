@@ -275,6 +275,8 @@ void save_presets()
 		cJSON_AddNumberToObject(root, "WindowX", savedWindowX);
 	if (savedWindowY != INT_MAX)
 		cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
+	if (stickyCategories)
+		cJSON_AddTrueToObject(root, "MouseClickRequired");
 
 	//additional settings from my mod
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
@@ -603,6 +605,8 @@ void load_presets(void)
 			savedWindowX = tmpobj->valueint;
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowY")))
 			savedWindowY = tmpobj->valueint;
+		if ((tmpobj = cJSON_GetObjectItem(root, "MouseClickRequired")))
+			stickyCategories = tmpobj->valueint ? true : false;
 
 		//Read some extra mod settings
 		if ((tmpobj = cJSON_GetObjectItem(root, "heatmode")))

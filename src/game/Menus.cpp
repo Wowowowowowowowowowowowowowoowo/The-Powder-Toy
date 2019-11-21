@@ -17,6 +17,7 @@ void MenuSection::ClearTools()
 }
 
 MenuSection* menuSections[SC_TOTAL];
+bool stickyCategories = false;
 
 void InitMenusections()
 {

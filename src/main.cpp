@@ -1373,7 +1373,8 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 			if (hover >= 0 && x>=menuStartPosition && x<XRES+BARSIZE-1)
 			{
 				UpdateToolTip(menuSections[hover]->name, Point(menuStartPosition-5-textwidth(menuSections[hover]->name.c_str()), std::min(((y-8)/16)*16+12, YRES-9)), QTIP, -1);
-				if (((!menuSections[hover]->click && !b) || (menuSections[hover]->click && b && !bq)))
+				bool clickRequired = menuSections[hover]->click || stickyCategories;
+				if ((!clickRequired && !b) || (clickRequired && b && !bq))
 				{
 					if (menuSections[hover]->click && !menuSections[active_menu]->click)
 						last_active_menu = active_menu;

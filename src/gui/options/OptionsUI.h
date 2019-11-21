@@ -7,8 +7,14 @@ class Checkbox;
 class Dropdown;
 class Label;
 class Simulation;
+namespace ui
+{
+	class ScrollWindow;
+}
 class OptionsUI : public ui::Window
 {
+	ui::ScrollWindow *scrollArea;
+
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;
 
@@ -17,7 +23,7 @@ class OptionsUI : public ui::Window
 	Checkbox *forceIntegerScalingCheckbox;
 	Dropdown *filteringDropdown;
 
-	Checkbox *fastQuitCheckbox, *updatesCheckbox;
+	Checkbox *fastQuitCheckbox, *updatesCheckbox, *stickyCategoriesCheckbox;
 	Button *dataFolderButton;
 
 	Simulation * sim;
@@ -42,9 +48,10 @@ class OptionsUI : public ui::Window
 	void ForceIntegerScalingChecked(bool checked);
 	void FastQuitChecked(bool checked);
 	void UpdatesChecked(bool checked);
+	void StickyCatsChecked(bool checked);
 	void DataFolderClicked();
 
-	void OnDraw(gfx::VideoBuffer * buf) override;
+	void OnDrawAfterSubwindows(gfx::VideoBuffer *buf) override;
 	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 public:

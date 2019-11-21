@@ -70,6 +70,7 @@ public:
 };
 
 extern MenuSection* menuSections[SC_TOTAL];
+extern bool stickyCategories;
 
 void InitMenusections();
 void ClearMenusections();
