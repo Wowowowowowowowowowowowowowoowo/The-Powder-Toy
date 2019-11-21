@@ -192,6 +192,9 @@ void Window::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	// too lazy to create another variable which is temporary anyway
 	if (!ignoreQuits)
 		videoBuffer->Clear();
+
+	OnDrawBeforeComponents(videoBuffer);
+
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
 		if ((*iter)->IsVisible() && !IsFocused(*iter))

@@ -36,8 +36,8 @@ public:
 	void DoFocus();
 	void DoDefocus();
 	void DoTick(uint32_t ticks);
-	void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 
+	virtual void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 	virtual void DoMouseMove(int x, int y, int dx, int dy);
 	virtual void DoMouseDown(int x, int y, unsigned char button);
 	virtual void DoMouseUp(int x, int y, unsigned char button);
@@ -61,6 +61,7 @@ public:
 	static const int CENTERED = -1;
 
 protected:
+	gfx::VideoBuffer *videoBuffer;
 	Point position;
 	Point size;
 	std::vector<Component*> Components;
@@ -72,6 +73,7 @@ protected:
 	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(gfx::VideoBuffer *buf) { }
+	virtual void OnDrawBeforeComponents(gfx::VideoBuffer *buf) { }
 	virtual void OnDrawAfterSubwindows(gfx::VideoBuffer *buf) { }
 	virtual void OnMouseMove(int x, int y, Point difference) { }
 	virtual void OnMouseDown(int x, int y, unsigned char button) { }
@@ -100,7 +102,6 @@ protected:
 private:
 	Window *parent;
 	bool mouseDownOutside;
-	gfx::VideoBuffer *videoBuffer;
 	Component *focused;
 	Component *clicked;
 };

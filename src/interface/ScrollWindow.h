@@ -2,6 +2,7 @@
 #define SCROLLWINDOW_H
 
 #include "Window.h"
+#include <functional>
 
 namespace ui
 {
@@ -13,6 +14,8 @@ class ScrollWindow : public Window
 
 	bool isMouseInsideScrollbar = false, scrollbarHeld = false;
 	int initialClickX = 0, initialClickY = 0, initialOffset = 0;
+
+	std::function<void(gfx::VideoBuffer*)> onDraw = nullptr;
 
 #ifdef TOUCHUI
 	bool hasScrolled = false;
@@ -29,8 +32,10 @@ public:
 	int GetScrollPosition() { return scrolled; }
 	void SetScrollPosition(int pos);
 	int GetMaxScrollSize() { return scrollSize; }
+	void SetOnDraw(std::function<void(gfx::VideoBuffer*)> onDraw) { this->onDraw = onDraw; }
 
 protected:
+	void OnDrawBeforeComponents(gfx::VideoBuffer *buf) override;
 	void DoMouseDown(int x, int y, unsigned char button) override;
 #ifdef TOUCHUI
 	void DoMouseUp(int x, int y, unsigned char button) override;

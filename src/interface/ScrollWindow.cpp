@@ -34,6 +34,12 @@ void ScrollWindow::DoMouseWheel(int x, int y, int d)
 	OnMouseWheel(x, y, d);
 }
 
+void ScrollWindow::OnDrawBeforeComponents(gfx::VideoBuffer *buf)
+{
+	if (onDraw != nullptr)
+		onDraw(buf);
+}
+
 void ScrollWindow::OnDraw(gfx::VideoBuffer *buf)
 {
 	if (scrollable)

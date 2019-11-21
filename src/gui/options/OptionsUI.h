@@ -51,7 +51,8 @@ class OptionsUI : public ui::Window
 	void StickyCatsChecked(bool checked);
 	void DataFolderClicked();
 
-	void OnDrawAfterSubwindows(gfx::VideoBuffer *buf) override;
+	void OnDraw(gfx::VideoBuffer *buf) override;
+	void OnSubwindowDraw(gfx::VideoBuffer *buf);
 	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 public:

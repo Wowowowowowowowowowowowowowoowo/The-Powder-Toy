@@ -41,6 +41,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 
 	int headerHeight = headerLabel->GetPosition().Y + headerLabel->GetSize().Y;
 	scrollArea = new ui::ScrollWindow(Point(0, headerHeight), this->size - Point(0, headerHeight + okButtonHeight));
+	scrollArea->SetOnDraw([this](gfx::VideoBuffer *buf) { OnSubwindowDraw(buf); });
 	this->AddSubwindow(scrollArea);
 
 	Component *prev;
@@ -385,15 +386,9 @@ void OptionsUI::DataFolderClicked()
 	delete[] workingDirectory;
 }
 
-void OptionsUI::OnDrawAfterSubwindows(gfx::VideoBuffer *buf)
+void OptionsUI::OnDraw(gfx::VideoBuffer *buf)
 {
-	buf->DrawLine(0, scrollArea->GetPosition().Y, size.X, scrollArea->GetPosition().Y, 200, 200, 200, 255);
-
-	int scrollPos = - scrollArea->GetPosition().Y;
-
-	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y - scrollPos, scrollArea->GetUsableWidth() - 1, edgeModeDropdown->Below(Point(0, 5)).Y - scrollPos, 200, 200, 200, 255);
-#ifndef TOUCHUI
-	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y - scrollPos, scrollArea->GetUsableWidth() - 1, altFullscreenCheckbox->Below(Point(0, 17)).Y - scrollPos, 200, 200, 200, 255);
+	buf->DrawLine(0, scrollArea->GetPosition().Y - 1, size.X, scrollArea->GetPosition().Y - 1, 200, 200, 200, 255);
 
 	if (filteringDropdown->IsSelectingOption())
 	{
@@ -405,6 +400,13 @@ void OptionsUI::OnDrawAfterSubwindows(gfx::VideoBuffer *buf)
 		resizableLabel->SetText("Allow resizing window");
 		resizableLabel->SetColor(COLRGB(150, 150, 150));
 	}
+}
+
+void OptionsUI::OnSubwindowDraw(gfx::VideoBuffer *buf)
+{
+	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, scrollArea->GetUsableWidth() - 1, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
+#ifndef TOUCHUI
+	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y, scrollArea->GetUsableWidth() - 1, altFullscreenCheckbox->Below(Point(0, 17)).Y, 200, 200, 200, 255);
 #endif
 }
 
