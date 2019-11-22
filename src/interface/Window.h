@@ -46,6 +46,7 @@ public:
 	virtual void DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 	virtual void DoTextInput(const char *text);
 	virtual void DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value);
+	virtual void DoFileDrop(const char *filename);
 
 	Point GetPosition() { return position; }
 	void SetPosition(Point position) { this->position = position; }
@@ -83,6 +84,7 @@ protected:
 	virtual void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) { }
 	virtual void OnTextInput(const char *text) { }
 	virtual void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) { }
+	virtual void OnFileDrop(const char *filename) { }
 
 	virtual void OnFocus() { }
 	virtual void OnDefocus() { }

@@ -377,7 +377,12 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 			}
 			break;
 		}
+		break;
 	}
+	case SDL_DROPFILE:
+		eventHandler->DoFileDrop(event.drop.file);
+		SDL_free(event.drop.file);
+		break;
 	}
 	return 0;
 }

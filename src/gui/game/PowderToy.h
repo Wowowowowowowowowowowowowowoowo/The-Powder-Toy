@@ -190,6 +190,7 @@ public:
 	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 	void OnDefocus() override;
 	void OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value) override;
+	void OnFileDrop(const char *filename) override;
 
 	bool BeforeMouseMove(int x, int y, Point difference) override;
 	bool BeforeMouseDown(int x, int y, unsigned char button) override;

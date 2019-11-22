@@ -2676,3 +2676,32 @@ void PowderToy::OnJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t valu
 {
 	orientation[axis] = value;
 }
+
+
+void PowderToy::OnFileDrop(const char *filename)
+{
+	int len = strlen(filename);
+	if (len < 4 || (strcmp(filename + (len - 4), ".cps") && strcmp(filename + (len - 4), ".stm")))
+	{
+		Engine::Ref().ShowWindow(new ErrorPrompt("Dropped file is not a TPT save file. Must have a .cps or .stm extension"));
+		return;
+	}
+
+	int fileSize;
+	char *fileData = (char*)file_load(filename, &fileSize);
+	Save *save = new Save(fileData, fileSize);
+	free(fileData);
+
+	try
+	{
+		sim->LoadSave(0, 0, save, 1);
+	}
+	catch (ParseException &e)
+	{
+		Engine::Ref().ShowWindow(new ErrorPrompt("Error loading save: " + std::string(e.what())));
+	}
+
+	delete save;
+
+	UpdateToolTip(introText, Point(16, 20), INTROTIP, 255);
+}

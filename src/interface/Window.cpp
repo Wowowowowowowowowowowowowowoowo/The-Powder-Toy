@@ -432,6 +432,11 @@ void Window::DoJoystickMotion(uint8_t joysticknum, uint8_t axis, int16_t value)
 	OnJoystickMotion(joysticknum, axis, value);
 }
 
+void Window::DoFileDrop(const char *filename)
+{
+	OnFileDrop(filename);
+}
+
 void Window::VideoBufferHack()
 {
 	std::copy(&vid_buf[0], &vid_buf[(XRES+BARSIZE)*(YRES+MENUSIZE)], &videoBuffer->GetVid()[0]);
