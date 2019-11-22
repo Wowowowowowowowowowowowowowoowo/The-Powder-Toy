@@ -2033,13 +2033,14 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 			directory = opendir("stamps");
 			if (directory != NULL)
 			{
-				std::string stampList = "";
+				std::list<std::string> stampIDs;
 				while ((entry = readdir(directory)))
 				{
 					if (strstr(entry->d_name, ".stm") && strlen(entry->d_name) == 14)
-						stampList.insert(0, entry->d_name, 10);
+						stampIDs.push_back(std::string(entry->d_name).substr(0, 10));
 				}
 				closedir(directory);
+				stampIDs.sort(std::greater<std::string>());
 
 				FILE *f = fopen("stamps" PATH_SEP "stamps.def", "wb");
 				if (!f)
@@ -2048,7 +2049,8 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 				}
 				else
 				{
-					fwrite(stampList.c_str(), stampList.length(), 1, f);
+					for (auto & stampID : stampIDs)
+						fwrite(stampID.c_str(), stampID.length(), 1, f);
 					fclose(f);
 
 					for (int i = 0; i < STAMP_MAX; i++)
