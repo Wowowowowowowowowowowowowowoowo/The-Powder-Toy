@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NOMOD
 #include "simulation/ElementsCommon.h"
 
 int BUTN_graphics(GRAPHICS_FUNC_ARGS)
@@ -25,6 +26,13 @@ int BUTN_graphics(GRAPHICS_FUNC_ARGS)
 		*pixel_mode |= PMODE_GLOW;
 	}
 	return 0;
+}
+
+bool BUTN_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (parts[i].life == 10 && t != PT_BUTN)
+		sim->spark_conductive(i, parts[i].x, parts[i].y);
+	return true;
 }
 
 void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -58,7 +66,7 @@ void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Button. Can be sparked just by clicking on it, but only when turned on.";
 
-	elem->Properties = TYPE_SOLID|PROP_POWERED;
+	elem->Properties = TYPE_SOLID | PROP_POWERED;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -71,5 +79,8 @@ void BUTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &BUTN_graphics;
+	elem->CtypeDraw = &BUTN_ctypeDraw;
 	elem->Init = &BUTN_init_element;
 }
+
+#endif

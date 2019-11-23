@@ -863,13 +863,6 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 	}
 
 	// Spark Checks here
-#ifndef NOMOD
-	if (p == -2 && TYP(pmap[y][x]) == PT_BUTN && parts[ID(pmap[y][x])].life == 10)
-	{
-		spark_conductive(ID(pmap[y][x]), x, y);
-		return ID(pmap[y][x]);
-	}
-#endif
 	if (t == PT_SPRK && !(p == -2 && elements[TYP(pmap[y][x])].CtypeDraw))
 	{
 		int type = TYP(pmap[y][x]);
