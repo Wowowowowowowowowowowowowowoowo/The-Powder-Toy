@@ -2849,6 +2849,19 @@ int elements_element(lua_State * l)
 		}
 		lua_pop(l, 1);
 
+		lua_getfield(l, -1, "CtypeDraw");
+		if (lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			luaCtypeDrawHandlers[id].Assign(-1);
+			luaSim->elements[id].CtypeDraw = luaCtypeDrawWrapper;
+		}
+		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			luaCtypeDrawHandlers[id].Clear();
+			luaSim->elements[id].CtypeDraw = nullptr;
+		}
+		lua_pop(l, 1);
+
 		FillMenus();
 		luaSim->InitCanMove();
 		graphicscache[id].isready = 0;
@@ -2947,6 +2960,20 @@ int elements_property(lua_State * l)
 				luaSim->elements[id].Graphics = nullptr;
 			}
 			graphicscache[id].isready = 0;
+		}
+		else if (propertyName == "CtypeDraw")
+		{
+			if (lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				luaCtypeDrawHandlers[id].Assign(3);
+				luaSim->elements[id].CtypeDraw = luaCtypeDrawWrapper;
+			}
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+			{
+				luaCtypeDrawHandlers[id].Clear();
+				luaSim->elements[id].CtypeDraw = nullptr;
+			}
+			return 0;
 		}
 		else
 			return luaL_error(l, "Invalid element property");

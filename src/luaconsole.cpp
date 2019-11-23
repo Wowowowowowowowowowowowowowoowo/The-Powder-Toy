@@ -62,7 +62,7 @@ Simulation * luaSim;
 pixel *lua_vid_buf;
 int *lua_el_mode;
 LuaSmartRef *lua_el_func, *lua_gr_func;
-std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v;
+std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v, luaCtypeDrawHandlers;
 std::deque<std::pair<std::string, int>> logHistory;
 int getPartIndex_curIdx;
 lua_State *l;
@@ -303,6 +303,7 @@ tpt.partsdata = nil");
 	lua_el_func_v = std::vector<LuaSmartRef>(PT_NUM, l);
 	lua_el_func = &lua_el_func_v[0];
 	lua_el_mode = new int[PT_NUM];
+	luaCtypeDrawHandlers = std::vector<LuaSmartRef>(PT_NUM, l);
 	std::fill(lua_el_mode, lua_el_mode + PT_NUM, 0);
 
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
@@ -723,15 +724,16 @@ int luacon_eval(const char *command, char **result)
 	sprintf(tmp, "return %s", lastCode);
 	loop_time = Platform::GetTime();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
-	if(lua_type(l, -1) != LUA_TFUNCTION)
+	if (lua_type(l, -1) != LUA_TFUNCTION)
 	{
 		lua_pop(l, 1);
 		luaL_loadbuffer(l, lastCode, strlen(lastCode), "@console");
 	}
-	if(lua_type(l, -1) != LUA_TFUNCTION)
+	if (lua_type(l, -1) != LUA_TFUNCTION)
 	{
-		*result = mystrdup(luacon_geterror());
-		if (strstr(*result, "near '<eof>'"))
+		std::string err = luacon_geterror();
+		*result = mystrdup(err.c_str());
+		if (err.find("near '<eof>'") != err.npos)
 		{
 			free(*result);
 			*result = mystrdup("...");
@@ -823,10 +825,7 @@ int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, 
 		callret = lua_pcall(l, 5, 1, 0);
 		if (callret)
 		{
-			char *error = (char*)luacon_geterror();
-			std::stringstream tolog;
-			tolog << "In particle update: " << error;
-			luacon_log(tolog.str());
+			luacon_log("In particle update: " + luacon_geterror());
 		}
 		if(lua_isboolean(l, -1)){
 			retval = lua_toboolean(l, -1);
@@ -848,10 +847,7 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	callret = lua_pcall(l, 4, 10, 0);
 	if (callret)
 	{
-		char *error = (char*)luacon_geterror();
-		std::stringstream tolog;
-		tolog << "In graphics function: " << error;
-		luacon_log(tolog.str());
+		luacon_log("In graphics function: " + luacon_geterror());
 		lua_pop(l, 1);
 	}
 	else
@@ -871,7 +867,26 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	return cache;
 }
 
-const char *luacon_geterror()
+bool luaCtypeDrawWrapper(CTYPEDRAW_FUNC_ARGS)
+{
+	bool ret = false;
+	if (luaCtypeDrawHandlers[sim->parts[i].type])
+	{
+		lua_rawgeti(l, LUA_REGISTRYINDEX, luaCtypeDrawHandlers[sim->parts[i].type]);
+		lua_pushinteger(l, i);
+		lua_pushinteger(l, t);
+		lua_pushinteger(l, v);
+		if (lua_pcall(l, 3, 1, 0))
+		{
+			luacon_log("In ctype draw: " + luacon_geterror());
+		}
+		ret = luaL_optinteger(l, -1, 0);
+		lua_pop(l, 1);
+	}
+	return ret;
+}
+
+std::string luacon_geterror()
 {
 	luaL_tostring(l, -1);
 	const char* err = luaL_optstring(l, -1, "failed to execute");
@@ -885,6 +900,7 @@ void luacon_close()
 	delete[] lua_el_mode;
 	lua_el_func_v.clear();
 	lua_gr_func_v.clear();
+	luaCtypeDrawHandlers.clear();
 	lua_close(l);
 	if (lastCode)
 		free(lastCode);
@@ -909,9 +925,10 @@ int process_command_lua(pixel *vid_buf, char *command, char **result)
 			int commandret = luacon_eval(command, result);
 			if (commandret)
 			{
-				*result = mystrdup(luacon_geterror());
+				std::string err = luacon_geterror();
 				if (!console_mode)
-					luacon_log(*result);
+					luacon_log(err);
+				*result = mystrdup(err.c_str());
 			}
 		}
 	}

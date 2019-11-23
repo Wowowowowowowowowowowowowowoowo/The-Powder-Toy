@@ -27,6 +27,7 @@
 #include "defines.h"
 #include "graphics/Pixel.h"
 #include "lua/LuaEvents.h"
+#include "simulation/Element.h"
 
 #define LUACON_MDOWN 1
 #define LUACON_MUP 2
@@ -51,7 +52,7 @@ extern unsigned long loop_time;
 class LuaSmartRef;
 extern int *lua_el_mode;
 extern LuaSmartRef *lua_el_func, *lua_gr_func;
-extern std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v;
+extern std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v, luaCtypeDrawHandlers;
 extern LuaSmartRef *tptPart;
 
 void luacon_open();
@@ -68,7 +69,8 @@ void luacon_log(std::string log);
 int luacon_eval(const char *command, char **result);
 int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, int nt);
 int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, int *colg, int *colb, int *firea, int *firer, int *fireg, int *fireb);
-const char *luacon_geterror();
+bool luaCtypeDrawWrapper(CTYPEDRAW_FUNC_ARGS);
+std::string luacon_geterror();
 void luacon_close();
 int luacon_partsread(lua_State* l);
 int luacon_partswrite(lua_State* l);

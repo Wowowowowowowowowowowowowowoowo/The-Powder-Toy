@@ -208,7 +208,7 @@ bool LuaEvents::HandleEvent(lua_State *l, Event *event, std::string eventName)
 		int callret = lua_pcall(l, numArgs, 1, 0);
 		if (callret)
 		{
-			if (!strcmp(luacon_geterror(), "Error: Script not responding"))
+			if (luacon_geterror() == "Error: Script not responding")
 			{
 				loop_time = Platform::GetTime();
 				for (int j = i; j <= len - 1; j++)
