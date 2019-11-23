@@ -40,6 +40,7 @@
 #include "game/Sign.h"
 #include "graphics/Renderer.h"
 #include "interface/Engine.h"
+#include "lua/LuaSmartRef.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"

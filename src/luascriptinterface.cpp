@@ -31,6 +31,7 @@
 #include "graphics/ARGBColour.h"
 #include "graphics/Renderer.h"
 #include "interface/Engine.h"
+#include "lua/LuaSmartRef.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/Snapshot.h"
@@ -2826,13 +2827,12 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "Update");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			lua_pushvalue(l, -1);
-			lua_el_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+			lua_el_func[id].Assign(-1);
 			lua_el_mode[id] = 1;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 		{
-			lua_el_func[id] = 0;
+			lua_el_func[id].Clear();
 			lua_el_mode[id] = 0;
 		}
 		lua_pop(l, 1);
@@ -2840,12 +2840,11 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "Graphics");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			lua_pushvalue(l, -1);
-			lua_gr_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+			lua_gr_func[id].Assign(-1);
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 		{
-			lua_gr_func[id] = 0;
+			lua_gr_func[id].Clear();
 			luaSim->elements[id].Graphics = nullptr;
 		}
 		lua_pop(l, 1);
@@ -2927,12 +2926,11 @@ int elements_property(lua_State * l)
 					break;
 				}
 
-				lua_pushvalue(l, 3);
-				lua_el_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+				lua_el_func[id].Assign(3);
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
 			{
-				lua_el_func[id] = 0;
+				lua_el_func[id].Clear();
 				lua_el_mode[id] = 0;
 			}
 		}
@@ -2940,13 +2938,12 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				lua_pushvalue(l, 3);
-				lua_gr_func[id] = luaL_ref(l, LUA_REGISTRYINDEX);
+				lua_gr_func[id].Assign(3);
 				graphicscache[id].isready = 0;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 			{
-				lua_gr_func[id] = 0;
+				lua_gr_func[id].Clear();
 				luaSim->elements[id].Graphics = nullptr;
 			}
 			graphicscache[id].isready = 0;

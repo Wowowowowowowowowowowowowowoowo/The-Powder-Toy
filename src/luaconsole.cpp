@@ -51,6 +51,7 @@ extern "C"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
 #include "gui/game/PowderToy.h"
+#include "lua/LuaSmartRef.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
@@ -59,14 +60,17 @@ extern "C"
 
 Simulation * luaSim;
 pixel *lua_vid_buf;
-int *lua_el_func, *lua_el_mode, *lua_gr_func;
+int *lua_el_mode;
+LuaSmartRef *lua_el_func, *lua_gr_func;
+std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v;
 std::deque<std::pair<std::string, int>> logHistory;
 int getPartIndex_curIdx;
 lua_State *l;
 int tptProperties; //Table for some TPT properties
 int tptPropertiesVersion;
 int tptElements; //Table for TPT element names
-int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, tptPart, cIndex;
+int tptParts, tptPartsMeta, tptElementTransitions, tptPartsCData, tptPartMeta, cIndex;
+LuaSmartRef *tptPart = nullptr;
 
 unsigned long loop_time = 0;
 
@@ -235,16 +239,20 @@ tpt.partsdata = nil");
 	lua_setfield(l, tptProperties, "parts");
 	
 	lua_newtable(l);
-	tptPart = lua_gettop(l);
-	lua_newtable(l);
-	tptPartMeta = lua_gettop(l);
-	lua_pushcfunction(l, luacon_partwrite);
-	lua_setfield(l, tptPartMeta, "__newindex");
-	lua_pushcfunction(l, luacon_partread);
-	lua_setfield(l, tptPartMeta, "__index");
-	lua_setmetatable(l, tptPart);
+	{
+		int top = lua_gettop(l);
+		lua_newtable(l);
+		tptPartMeta = lua_gettop(l);
+		lua_pushcfunction(l, luacon_partwrite);
+		lua_setfield(l, tptPartMeta, "__newindex");
+		lua_pushcfunction(l, luacon_partread);
+		lua_setfield(l, tptPartMeta, "__index");
+		lua_setmetatable(l, top);
+	}
 	
-	tptPart = luaL_ref(l, LUA_REGISTRYINDEX);
+	tptPart = new LuaSmartRef(l);
+	tptPart->Assign(-1);
+	lua_pop(l, 1);
 #endif
 	
 	lua_newtable(l);
@@ -289,15 +297,14 @@ tpt.partsdata = nil");
 		lua_setfield(l, tptElementTransitions, name.c_str());
 	}
 	lua_setfield(l, tptProperties, "eltransition");
-	
-	lua_el_func = (int*)calloc(PT_NUM, sizeof(int));
-	lua_el_mode = (int*)calloc(PT_NUM, sizeof(int));
-	lua_gr_func = (int*)calloc(PT_NUM, sizeof(int));
-	for(i = 0; i < PT_NUM; i++)
-	{
-		lua_el_mode[i] = 0;
-		lua_gr_func[i] = 0;
-	}
+
+	lua_gr_func_v = std::vector<LuaSmartRef>(PT_NUM, l);
+	lua_gr_func = &lua_gr_func_v[0];
+	lua_el_func_v = std::vector<LuaSmartRef>(PT_NUM, l);
+	lua_el_func = &lua_el_func_v[0];
+	lua_el_mode = new int[PT_NUM];
+	std::fill(lua_el_mode, lua_el_mode + PT_NUM, 0);
+
 	lua_sethook(l, &lua_hook, LUA_MASKCOUNT, 4000000);
 
 	//make tpt.* a metatable
@@ -454,7 +461,7 @@ int luacon_partsread(lua_State* l)
 		return luaL_error(l, "array index out of bounds");
 	}
 	
-	lua_rawgeti(l, LUA_REGISTRYINDEX, tptPart);
+	lua_rawgeti(l, LUA_REGISTRYINDEX, *tptPart);
 	cIndex = i;
 	return 1;
 }
@@ -874,6 +881,10 @@ const char *luacon_geterror()
 
 void luacon_close()
 {
+	delete tptPart;
+	delete[] lua_el_mode;
+	lua_el_func_v.clear();
+	lua_gr_func_v.clear();
 	lua_close(l);
 	if (lastCode)
 		free(lastCode);
@@ -945,12 +956,9 @@ int luatpt_element_func(lua_State *l)
 	{
 		int element = luaL_optint(l, 2, 0);
 		int replace = luaL_optint(l, 3, 0);
-		int function;
-		lua_pushvalue(l, 1);
-		function = luaL_ref(l, LUA_REGISTRYINDEX);
 		if (luaSim->IsElement(element))
 		{
-			lua_el_func[element] = function;
+			lua_el_func[element].Assign(1);
 			if (replace == 2)
 				lua_el_mode[element] = 3; // update before
 			else if (replace)
@@ -969,7 +977,7 @@ int luatpt_element_func(lua_State *l)
 		int element = luaL_optint(l, 2, 0);
 		if (luaSim->IsElement(element))
 		{
-			lua_el_func[element] = 0;
+			lua_el_func[element].Clear();
 			lua_el_mode[element] = 0;
 		}
 		else
@@ -987,12 +995,9 @@ int luatpt_graphics_func(lua_State *l)
 	if (lua_isfunction(l, 1))
 	{
 		int element = luaL_optint(l, 2, 0);
-		int function;
-		lua_pushvalue(l, 1);
-		function = luaL_ref(l, LUA_REGISTRYINDEX);
 		if (luaSim->IsElement(element))
 		{
-			lua_gr_func[element] = function;
+			lua_gr_func[element].Assign(1);
 			graphicscache[element].isready = 0;
 			return 0;
 		}
@@ -1006,7 +1011,7 @@ int luatpt_graphics_func(lua_State *l)
 		int element = luaL_optint(l, 2, 0);
 		if (luaSim->IsElement(element))
 		{
-			lua_gr_func[element] = 0;
+			lua_gr_func[element].Clear();
 			graphicscache[element].isready = 0;
 		}
 		else

@@ -21,6 +21,7 @@
 
 #include <deque>
 #include <string>
+#include <vector>
 
 #include "LuaCompat.h"
 #include "defines.h"
@@ -44,10 +45,14 @@ class Simulation;
 extern Simulation * luaSim;
 
 extern pixel *lua_vid_buf;
-extern int *lua_el_func, *lua_el_mode, *lua_gr_func;
 extern std::deque<std::pair<std::string, int>> logHistory;
-
 extern unsigned long loop_time;
+
+class LuaSmartRef;
+extern int *lua_el_mode;
+extern LuaSmartRef *lua_el_func, *lua_gr_func;
+extern std::vector<LuaSmartRef> lua_el_func_v, lua_gr_func_v;
+extern LuaSmartRef *tptPart;
 
 void luacon_open();
 void luacon_openmultiplayer();
