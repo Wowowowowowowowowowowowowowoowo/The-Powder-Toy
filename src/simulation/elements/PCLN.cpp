@@ -93,6 +93,13 @@ int PCLN_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+bool PCLN_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (t == PT_PSCN || t == PT_NSCN)
+		return false;
+	return ctypeDrawVInTmp(CTYPEDRAW_FUNC_SUBCALL_ARGS);
+}
+
 void PCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PCLN";
@@ -124,7 +131,7 @@ void PCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Powered clone. When activated, duplicates any particles it touches.";
 
-	elem->Properties = TYPE_SOLID|PROP_CLONE|PROP_POWERED|PROP_NOCTYPEDRAW;
+	elem->Properties = TYPE_SOLID | PROP_CLONE | PROP_POWERED | PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -137,5 +144,6 @@ void PCLN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &PCLN_graphics;
+	elem->CtypeDraw = &PCLN_ctypeDraw;
 	elem->Init = &PCLN_init_element;
 }

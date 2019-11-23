@@ -136,6 +136,16 @@ int CRAY_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+bool CRAY_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (!ctypeDrawVInCtype(CTYPEDRAW_FUNC_SUBCALL_ARGS))
+		return false;
+	if (t == PT_LIGH)
+		sim->parts[i].ctype |= PMAPID(30);
+	sim->parts[i].temp = sim->elements[t].DefaultProperties.temp;
+	return true;
+}
+
 void CRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_CRAY";
@@ -180,5 +190,6 @@ void CRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CRAY_update;
 	elem->Graphics = NULL;
+	elem->CtypeDraw = &CRAY_ctypeDraw;
 	elem->Init = &CRAY_init_element;
 }

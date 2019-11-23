@@ -137,5 +137,6 @@ void DTEC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DTEC_update;
 	elem->Graphics = &DTEC_graphics;
+	elem->CtypeDraw = &ctypeDrawVInTmp;
 	elem->Init = &DTEC_init_element;
 }

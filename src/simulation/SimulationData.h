@@ -31,7 +31,6 @@
 #define PROP_POWERED		0x0100000 //2^20 Makes an element turn on/off with PSCN/NSCN
 #define PROP_SPARKSETTLE	0x0200000 //2^21 Allow Sparks/Embers to settle
 #define PROP_NOAMBHEAT      0x0400000 //2^23 Don't transfer or receive heat from ambient heat.
-#define PROP_DRAWONCTYPE	0x0800000 //2^24 Set its ctype to another element if the element is drawn upon it (like what CLNE does)
 #define PROP_NOCTYPEDRAW	0x1000000 //2^25 When this element is drawn upon with, do not set ctype (like BCLN for CLNE)
 
 #define FLAG_STAGNANT	0x1

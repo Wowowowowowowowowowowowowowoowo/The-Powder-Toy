@@ -346,6 +346,13 @@ int PSTN_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+bool PSTN_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (t == PT_FRME)
+		return false;
+	return basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS);
+}
+
 void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_PSTN";
@@ -390,5 +397,6 @@ void PSTN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &PSTN_update;
 	elem->Graphics = &PSTN_graphics;
+	elem->CtypeDraw = &PSTN_ctypeDraw;
 	elem->Init = &PSTN_init_element;
 }

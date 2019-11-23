@@ -92,7 +92,7 @@ void CONV_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Converter. Converts everything into whatever it first touches.";
 
-	elem->Properties = TYPE_SOLID|PROP_DRAWONCTYPE|PROP_NOCTYPEDRAW;
+	elem->Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -105,5 +105,6 @@ void CONV_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &CONV_update;
 	elem->Graphics = NULL;
+	elem->CtypeDraw = &ctypeDrawVInCtype;
 	elem->Init = &CONV_init_element;
 }

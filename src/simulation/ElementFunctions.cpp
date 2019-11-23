@@ -1,4 +1,5 @@
 #include "ElementsCommon.h"
+#include "GolNumbers.h"
 
 // Interactions which only occur when legacy_enable is on
 int update_legacy_all(UPDATE_FUNC_ARGS)
@@ -273,3 +274,28 @@ int update_POWERED(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+bool basicCtypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (sim->parts[i].type == t || sim->elements[t].Properties & PROP_NOCTYPEDRAW)
+		return false;
+	sim->parts[i].ctype = t;
+	return true;
+}
+
+bool ctypeDrawVInTmp(CTYPEDRAW_FUNC_ARGS)
+{
+	if (!basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS))
+		return false;
+	if (t == PT_LIFE && v >= 0 && v < NGOL)
+		sim->parts[i].tmp = v;
+	return true;
+}
+
+bool ctypeDrawVInCtype(CTYPEDRAW_FUNC_ARGS)
+{
+	if (!basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS))
+		return false;
+	if (t == PT_LIFE && v >= 0 && v < NGOL)
+		sim->parts[i].ctype |= PMAPID(v);
+	return true;
+}

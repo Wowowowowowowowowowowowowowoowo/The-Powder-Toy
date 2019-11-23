@@ -167,7 +167,7 @@ void DRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Duplicator ray. Replicates a line of particles in front of it.";
 
-	elem->Properties = TYPE_SOLID|PROP_LIFE_DEC;
+	elem->Properties = TYPE_SOLID | PROP_LIFE_DEC;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -180,6 +180,7 @@ void DRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &DRAY_update;
 	elem->Graphics = NULL;
+	elem->CtypeDraw = &ctypeDrawVInCtype;
 	elem->Init = &DRAY_init_element;
 }
 

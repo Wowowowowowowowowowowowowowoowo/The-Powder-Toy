@@ -165,7 +165,7 @@ void LDTC_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Linear detector. Scans in 8 directions for particles with its ctype and creates a spark on the opposite side.";
 
-	elem->Properties = TYPE_SOLID | PROP_DRAWONCTYPE | PROP_NOCTYPEDRAW;
+	elem->Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -178,5 +178,6 @@ void LDTC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &LDTC_update;
 	elem->Graphics = nullptr;
+	elem->CtypeDraw = &ctypeDrawVInTmp;
 	elem->Init = &LDTC_init_element;
 }

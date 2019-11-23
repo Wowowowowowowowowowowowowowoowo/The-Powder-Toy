@@ -52,13 +52,7 @@ Element::Element():
 	LowTemperatureTransitionThreshold(ITL),
 	LowTemperatureTransitionElement(NT),
 	HighTemperatureTransitionThreshold(ITH),
-	HighTemperatureTransitionElement(NT),
-	Update(nullptr),
-	Graphics(nullptr),
-	Func_Create(nullptr),
-	Func_Create_Allowed(nullptr),
-	Func_ChangeType(nullptr),
-	Init(nullptr)
+	HighTemperatureTransitionElement(NT)
 {
 	memset(&DefaultProperties, 0, sizeof(particle));
 	DefaultProperties.temp = R_TEMP + 273.15f;

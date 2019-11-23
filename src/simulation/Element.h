@@ -30,6 +30,8 @@ class Simulation;
 #define ELEMENT_CREATE_ALLOWED_FUNC_ARGS Simulation *sim, int i, int x, int y, int t
 #define ELEMENT_CHANGETYPE_FUNC_ARGS Simulation *sim, int i, int x, int y, int from, int to
 #define ELEMENT_INIT_FUNC_ARGS Simulation *sim, Element *elem, int t
+#define CTYPEDRAW_FUNC_ARGS Simulation *sim, int i, int t, int v
+#define CTYPEDRAW_FUNC_SUBCALL_ARGS sim, i, t, v
 
 
 class Element
@@ -84,29 +86,33 @@ public:
 	float HighTemperatureTransitionThreshold;
 	int HighTemperatureTransitionElement;
 
-	int (*Update) (UPDATE_FUNC_ARGS);
-	int (*Graphics) (GRAPHICS_FUNC_ARGS);
+	int (*Update) (UPDATE_FUNC_ARGS) = nullptr;
+	int (*Graphics) (GRAPHICS_FUNC_ARGS) = nullptr;
 
 	// Func_Create can be used to set initial properties that are not constant (e.g. a random life value)
 	// It cannot be used to block creation, to do that use Func_Create_Allowed
 	// Particle type should not be changed in this function
-	void (*Func_Create)(ELEMENT_CREATE_FUNC_ARGS);
+	void (*Func_Create)(ELEMENT_CREATE_FUNC_ARGS) = nullptr;
 
 	// Func_Create_Allowed is used to check whether a particle can be created, by both Simulation::part_create and Simulation::part_change_type
 	// Arguments are the same as Simulation::part_create or Simulation::part_change_type
 	// This function should not modify the particle
 	// Before calling this, coordinates and particle type are checked, but not eval_move()
-	bool (*Func_Create_Allowed)(ELEMENT_CREATE_ALLOWED_FUNC_ARGS);
+	bool (*Func_Create_Allowed)(ELEMENT_CREATE_ALLOWED_FUNC_ARGS) = nullptr;
 
 	// Func_ChangeType is called by Simulation::part_create, Simulation::part_change_type, and Simulation::part_kill
 	// It should be used for things such as setting STKM legs and allocating/freeing a fighters[] slot
 	// For part_create and part_change_type, it is called at the end of the function, after the pmap and all the properties and element counts are set
 	// For part_kill, it is called at the start of the function, before modifying particle properties or removing it from the pmap
-	void (*Func_ChangeType)(ELEMENT_CHANGETYPE_FUNC_ARGS);
+	void (*Func_ChangeType)(ELEMENT_CHANGETYPE_FUNC_ARGS) = nullptr;
+
+	// Ctype draw is called by Simulation::part_create, and handles putting the selected element into this element's ctype
+	// Default ctype draw functions are provided in ElementFunctions.cpp, this will ignore selected elements with PROP_NOCTYPEDRAW set
+	bool (*CtypeDraw)(CTYPEDRAW_FUNC_ARGS) = nullptr;
 
 	particle DefaultProperties;
 
-	void (*Init) (ELEMENT_INIT_FUNC_ARGS);
+	void (*Init) (ELEMENT_INIT_FUNC_ARGS) = nullptr;
 	Element();
 
 	/** Returns a list of properties, their type, and offset within the Element structure, for use in Lua **/
@@ -120,5 +126,9 @@ private:
 int update_legacy_all(UPDATE_FUNC_ARGS);
 int graphics_DEFAULT(GRAPHICS_FUNC_ARGS);
 int update_POWERED(UPDATE_FUNC_ARGS);
+
+bool basicCtypeDraw(CTYPEDRAW_FUNC_ARGS);
+bool ctypeDrawVInTmp(CTYPEDRAW_FUNC_ARGS);
+bool ctypeDrawVInCtype(CTYPEDRAW_FUNC_ARGS);
 
 #endif

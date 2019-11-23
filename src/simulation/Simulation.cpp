@@ -870,18 +870,13 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		return ID(pmap[y][x]);
 	}
 #endif
-	if (t == PT_SPRK)
+	if (t == PT_SPRK && !(p == -2 && elements[TYP(pmap[y][x])].CtypeDraw))
 	{
 		int type = TYP(pmap[y][x]);
 		int index = ID(pmap[y][x]);
 		if(type == PT_WIRE)
 		{
 			parts[index].ctype = PT_DUST;
-			return index;
-		}
-		if (p==-2 && ((elements[type].Properties & PROP_DRAWONCTYPE) || type==PT_CRAY))
-		{
-			parts[index].ctype = PT_SPRK;
 			return index;
 		}
 		if (!(type == PT_INST || (elements[type].Properties&PROP_CONDUCTS)))
@@ -908,44 +903,8 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		if (pmap[y][x])
 		{
 			int drawOn = TYP(pmap[y][x]);
-			if (drawOn == t)
-				return -1;
-			// If an element has the PROP_DRAWONCTYPE property, and the element being drawn to it does not have PROP_NOCTYPEDRAW (Also some special cases), set the element's ctype
-			if (((elements[drawOn].Properties & PROP_DRAWONCTYPE) ||
-				 (drawOn == PT_STOR && !(elements[t].Properties & TYPE_SOLID)) ||
-				 (drawOn == PT_PCLN && t != PT_PSCN && t != PT_NSCN) ||
-				 (drawOn == PT_PBCN && t != PT_PSCN && t != PT_NSCN))
-				&& (!(elements[t].Properties & PROP_NOCTYPEDRAW)))
-			{
-				parts[ID(pmap[y][x])].ctype = t;
-				if (t == PT_LIFE && v >= 0 && v < NGOL)
-				{
-					if (drawOn == PT_CONV)
-						parts[ID(pmap[y][x])].ctype |= PMAPID(v);
-					else if (drawOn != PT_STOR)
-						parts[ID(pmap[y][x])].tmp = v;
-				}
-			}
-			else if (drawOn == PT_DTEC || (drawOn == PT_PSTN && t != PT_FRME) || drawOn == PT_DRAY)
-			{
-				parts[ID(pmap[y][x])].ctype = t;
-				if (t == PT_LIFE && v >= 0 && v < NGOL)
-				{
-					if (drawOn == PT_DTEC)
-						parts[ID(pmap[y][x])].tmp = v;
-					else if (drawOn == PT_DRAY)
-						parts[ID(pmap[y][x])].ctype |= PMAPID(v);
-				}
-			}
-			else if (drawOn == PT_CRAY)
-			{
-				parts[ID(pmap[y][x])].ctype = t;
-				if (t == PT_LIFE && v >= 0 && v < NGOL)
-					parts[ID(pmap[y][x])].ctype |= PMAPID(v);
-				else if (t == PT_LIGH)
-					parts[ID(pmap[y][x])].ctype |= PMAPID(30);
-				parts[ID(pmap[y][x])].temp = elements[t].DefaultProperties.temp;
-			}
+			if (elements[drawOn].CtypeDraw)
+				elements[drawOn].CtypeDraw(this, ID(pmap[y][x]), t, v);
 			return -1;
 		}
 		else if (IsWallBlocking(x, y, t))

@@ -72,7 +72,7 @@ void RPEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Repels or attracts particles based on its temperature.";
 
-	elem->Properties = TYPE_SOLID | PROP_DRAWONCTYPE;
+	elem->Properties = TYPE_SOLID;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -85,5 +85,6 @@ void RPEL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &RPEL_update;
 	elem->Graphics = NULL;
+	elem->CtypeDraw = &basicCtypeDraw;
 	elem->Init = &RPEL_init_element;
 }

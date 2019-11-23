@@ -18,6 +18,8 @@
 
 #define ADVECTION 0.1f
 
+bool PCLN_ctypeDraw(CTYPEDRAW_FUNC_ARGS);
+
 int PBCN_update(UPDATE_FUNC_ARGS)
 {
 	if (!parts[i].tmp2 && sim->air->pv[y/CELL][x/CELL] > 4.0f)
@@ -138,7 +140,7 @@ void PBCN_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Powered breakable clone.";
 
-	elem->Properties = TYPE_SOLID|PROP_BREAKABLECLONE|PROP_POWERED|PROP_NOCTYPEDRAW;
+	elem->Properties = TYPE_SOLID | PROP_BREAKABLECLONE | PROP_POWERED | PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -151,5 +153,6 @@ void PBCN_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = NULL;
 	elem->Graphics = &PBCN_graphics;
+	elem->CtypeDraw = &PCLN_ctypeDraw;
 	elem->Init = &PBCN_init_element;
 }

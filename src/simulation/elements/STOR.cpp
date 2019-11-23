@@ -80,6 +80,13 @@ int STOR_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+bool STOR_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (sim->elements[t].Properties & TYPE_SOLID)
+		return false;
+	return basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS);
+}
+
 void STOR_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_STOR";
@@ -111,7 +118,7 @@ void STOR_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Storage. Captures and stores a single particle. Releases when charged with PSCN, also passes to PIPE.";
 
-	elem->Properties = TYPE_SOLID|PROP_NOCTYPEDRAW;
+	elem->Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
@@ -124,5 +131,6 @@ void STOR_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &STOR_update;
 	elem->Graphics = &STOR_graphics;
+	elem->CtypeDraw = &STOR_ctypeDraw;
 	elem->Init = &STOR_init_element;
 }
