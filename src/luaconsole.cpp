@@ -879,9 +879,13 @@ bool luaCtypeDrawWrapper(CTYPEDRAW_FUNC_ARGS)
 		if (lua_pcall(l, 3, 1, 0))
 		{
 			luacon_log("In ctype draw: " + luacon_geterror());
+			lua_pop(l, 1);
 		}
-		ret = luaL_optinteger(l, -1, 0);
-		lua_pop(l, 1);
+		else
+		{
+			ret = luaL_optinteger(l, -1, 0);
+			lua_pop(l, 1);
+		}
 	}
 	return ret;
 }
