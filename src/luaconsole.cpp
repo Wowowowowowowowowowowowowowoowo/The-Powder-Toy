@@ -860,7 +860,7 @@ int luacon_graphics_update(int t, int i, int *pixel_mode, int *cola, int *colr, 
 	{
 		bool valid = true;
 		for (int i = -10; i < 0; i++)
-			if (!lua_isnumber(l, i))
+			if (!lua_isnumber(l, i) && !lua_isnil(l, i))
 			{
 				valid = false;
 				break;
