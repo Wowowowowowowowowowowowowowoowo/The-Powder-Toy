@@ -2862,6 +2862,45 @@ int elements_element(lua_State * l)
 		}
 		lua_pop(l, 1);
 
+		lua_getfield(l, -1, "Create");
+		if (lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			luaCreateHandlers[id].Assign(-1);
+			luaSim->elements[id].Func_Create = luaCreateWrapper;
+		}
+		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			luaCreateHandlers[id].Clear();
+			luaSim->elements[id].Func_Create = nullptr;
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, -1, "CreateAllowed");
+		if (lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			luaCreateAllowedHandlers[id].Assign(-1);
+			luaSim->elements[id].Func_Create_Allowed = luaCreateAllowedWrapper;
+		}
+		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			luaCreateAllowedHandlers[id].Clear();
+			luaSim->elements[id].Func_Create_Allowed = nullptr;
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, -1, "ChangeType");
+		if (lua_type(l, -1) == LUA_TFUNCTION)
+		{
+			luaChangeTypeHandlers[id].Assign(-1);
+			luaSim->elements[id].Func_ChangeType = luaChangeTypeWrapper;
+		}
+		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+		{
+			luaChangeTypeHandlers[id].Clear();
+			luaSim->elements[id].Func_ChangeType = nullptr;
+		}
+		lua_pop(l, 1);
+
 		FillMenus();
 		luaSim->InitCanMove();
 		graphicscache[id].isready = 0;
@@ -2954,7 +2993,7 @@ int elements_property(lua_State * l)
 				lua_gr_func[id].Assign(3);
 				graphicscache[id].isready = 0;
 			}
-			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
 			{
 				lua_gr_func[id].Clear();
 				luaSim->elements[id].Graphics = nullptr;
@@ -2968,12 +3007,52 @@ int elements_property(lua_State * l)
 				luaCtypeDrawHandlers[id].Assign(3);
 				luaSim->elements[id].CtypeDraw = luaCtypeDrawWrapper;
 			}
-			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
 			{
 				luaCtypeDrawHandlers[id].Clear();
 				luaSim->elements[id].CtypeDraw = nullptr;
 			}
 			return 0;
+		}
+		else if (propertyName == "Create")
+		{
+			if (lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				luaCreateHandlers[id].Assign(3);
+				luaSim->elements[id].Func_Create = luaCreateWrapper;
+			}
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
+			{
+				luaCreateHandlers[id].Clear();
+				luaSim->elements[id].Func_Create = nullptr;
+			}
+			return 0;
+		}
+		else if (propertyName == "CreateAllowed")
+		{
+			if (lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				luaCreateAllowedHandlers[id].Assign(3);
+				luaSim->elements[id].Func_Create_Allowed = luaCreateAllowedWrapper;
+			}
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
+			{
+				luaCreateAllowedHandlers[id].Clear();
+				luaSim->elements[id].Func_Create_Allowed = nullptr;
+			}
+		}
+		else if (propertyName == "ChangeType")
+		{
+			if (lua_type(l, 3) == LUA_TFUNCTION)
+			{
+				luaChangeTypeHandlers[id].Assign(3);
+				luaSim->elements[id].Func_ChangeType = luaChangeTypeWrapper;
+			}
+			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
+			{
+				luaChangeTypeHandlers[id].Clear();
+				luaSim->elements[id].Func_ChangeType = nullptr;
+			}
 		}
 		else
 			return luaL_error(l, "Invalid element property");
