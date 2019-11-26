@@ -148,7 +148,6 @@ void PRTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Portal IN. Particles go in here. Also has temperature dependent channels. (same as WIFI)";

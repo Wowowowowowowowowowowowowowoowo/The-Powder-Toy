@@ -94,7 +94,7 @@ void DSTW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 30;
 
-	elem->DefaultProperties.temp = R_TEMP-2.0f+273.15f;
+	elem->DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
 	elem->HeatConduct = 23;
 	elem->Latent = 7500;
 	elem->Description = "Distilled water, does not conduct electricity.";

@@ -128,7 +128,6 @@ void TSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f  +273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Temperature sensor, creates a spark when there's a nearby particle with a greater temperature.";
@@ -144,7 +143,7 @@ void TSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->HighTemperatureTransitionThreshold = ITH;
 	elem->HighTemperatureTransitionElement = NT;
 
-	elem->DefaultProperties.tmp2 = 1;
+	elem->DefaultProperties.tmp2 = 2;
 
 	elem->Update = &TSNS_update;
 	elem->Graphics = NULL;

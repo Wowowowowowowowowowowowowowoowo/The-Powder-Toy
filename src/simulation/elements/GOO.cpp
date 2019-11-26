@@ -56,7 +56,6 @@ void GOO_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP+273.15f;
 	elem->HeatConduct = 75;
 	elem->Latent = 0;
 	elem->Description = "Deforms and disappears under pressure.";

@@ -43,7 +43,6 @@ void RFGL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 10;
 
-	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 3;
 	elem->Description = "Liquid refrigerant.";
 

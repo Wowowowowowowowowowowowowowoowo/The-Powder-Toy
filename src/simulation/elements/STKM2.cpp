@@ -74,7 +74,7 @@ void STKM2_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 50;
 
-	elem->DefaultProperties.temp = R_TEMP+14.6f+273.15f;
+	elem->DefaultProperties.temp = R_TEMP + 14.6f + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "second stickman. Don't kill him! Control with wasd.";

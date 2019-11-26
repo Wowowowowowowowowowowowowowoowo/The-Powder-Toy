@@ -173,7 +173,7 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 50;
 
-	elem->DefaultProperties.temp = R_TEMP+14.6f+273.15f;
+	elem->DefaultProperties.temp = R_TEMP + 14.6f + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Fighter. Tries to kill stickmen. You must first give it an element to kill him with.";

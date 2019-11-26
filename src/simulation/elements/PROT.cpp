@@ -206,7 +206,6 @@ void PROT_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = -1;
 
-	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 61;
 	elem->Latent = 0;
 	elem->Description = "Protons. Transfer heat to materials, and removes sparks.";

@@ -41,7 +41,6 @@ void OIL_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 20;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
 	elem->HeatConduct = 42;
 	elem->Latent = 0;
 	elem->Description = "Flammable, turns into GAS at low pressure or high temperature. Can be formed with NEUT and NITR.";

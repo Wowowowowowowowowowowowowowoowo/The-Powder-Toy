@@ -160,7 +160,6 @@ void LDTC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 100;
 
-	elem->DefaultProperties.temp = R_TEMP + 273.15f;
 	elem->HeatConduct = 0;
 	elem->Latent = 0;
 	elem->Description = "Linear detector. Scans in 8 directions for particles with its ctype and creates a spark on the opposite side.";

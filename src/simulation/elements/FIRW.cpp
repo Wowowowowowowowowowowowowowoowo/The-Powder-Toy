@@ -123,7 +123,6 @@ void FIRW_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Weight = 55;
 
-	elem->DefaultProperties.temp = R_TEMP+0.0f	+273.15f;
 	elem->HeatConduct = 70;
 	elem->Latent = 0;
 	elem->Description = "Fireworks! Colorful, set off by fire.";
