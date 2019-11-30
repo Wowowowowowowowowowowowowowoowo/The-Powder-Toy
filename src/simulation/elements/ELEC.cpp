@@ -112,8 +112,8 @@ void ELEC_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
 	sim->parts[i].life = 680;
-	sim->parts[i].vx = 2.0f*cosf(a);
-	sim->parts[i].vy = 2.0f*sinf(a);
+	sim->parts[i].vx = 2.0f * cosf(a);
+	sim->parts[i].vy = 2.0f * sinf(a);
 }
 
 void ELEC_init_element(ELEMENT_INIT_FUNC_ARGS)

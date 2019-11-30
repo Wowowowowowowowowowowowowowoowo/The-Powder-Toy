@@ -17,13 +17,13 @@
 
 int GRVT_update(UPDATE_FUNC_ARGS)
 {
-	//at higher tmps they just go completely insane
-	if (parts[i].tmp >= 100)
-		parts[i].tmp = 100;
-	if (parts[i].tmp <= -100)
-		parts[i].tmp = -100;
+	// At higher tmps they just go completely insane
+	if (sim->parts[i].tmp >= 100)
+		sim->parts[i].tmp = 100;
+	if (sim->parts[i].tmp <= -100)
+		sim->parts[i].tmp = -100;
 
-	sim->grav->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f * parts[i].tmp;
+	sim->grav->gravmap[(y / CELL) * (XRES / CELL) + (x / CELL)] = 0.2f * sim->parts[i].tmp;
 	return 0;
 }
 
@@ -42,8 +42,8 @@ void GRVT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
 	sim->parts[i].life = 250 + RNG::Ref().between(0, 199);
-	sim->parts[i].vx = 2.0f*cosf(a);
-	sim->parts[i].vy = 2.0f*sinf(a);
+	sim->parts[i].vx = 2.0f * cosf(a);
+	sim->parts[i].vy = 2.0f * sinf(a);
 }
 
 void GRVT_init_element(ELEMENT_INIT_FUNC_ARGS)

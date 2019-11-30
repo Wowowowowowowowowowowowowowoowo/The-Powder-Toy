@@ -19,7 +19,7 @@
 
 int LIFE_update(UPDATE_FUNC_ARGS)
 {
-	parts[i].temp = restrict_flt(parts[i].temp-50.0f, MIN_TEMP, MAX_TEMP);
+	sim->parts[i].temp = restrict_flt(sim->parts[i].temp - 50.0f, MIN_TEMP, MAX_TEMP);
 	return 0;
 }
 
@@ -86,8 +86,8 @@ void LIFE_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	if (v >= 0 && v < NGOL)
 	{
-		parts[i].tmp = grule[v+1][9] - 1;
-		parts[i].ctype = v;
+		sim->parts[i].tmp = grule[v+1][9] - 1;
+		sim->parts[i].ctype = v;
 	}
 }
 

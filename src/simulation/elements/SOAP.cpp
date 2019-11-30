@@ -245,7 +245,7 @@ int SOAP_update(UPDATE_FUNC_ARGS)
 
 void SOAP_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
-	if (from==PT_SOAP && to!=PT_SOAP)
+	if (from == PT_SOAP && to != PT_SOAP)
 	{
 		detach(i);
 	}

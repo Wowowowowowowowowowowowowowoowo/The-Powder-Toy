@@ -729,9 +729,7 @@ void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
 void STKM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to == PT_STKM)
-	{
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1(), i);
-	}
+		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->NewStickman1(i, -1);
 	else
 		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spwn = 0;
 }

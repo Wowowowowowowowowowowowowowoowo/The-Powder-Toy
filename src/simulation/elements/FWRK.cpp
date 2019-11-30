@@ -21,7 +21,7 @@ int FWRK_update(UPDATE_FUNC_ARGS)
 	{
 		float gx, gy, multiplier, gmax;
 		int randTmp;
-		get_gravity_field(x, y, sim->elements[PT_FWRK].Gravity, 1.0f, &gx, &gy);
+		sim->GetGravityField(x, y, sim->elements[PT_FWRK].Gravity, 1.0f, gx, gy);
 		if (gx*gx+gy*gy < 0.001f)
 		{
 			float angle = RNG::Ref().between(0, 6283) * 0.001f; //(in radians, between 0 and 2*pi)

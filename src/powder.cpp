@@ -45,28 +45,6 @@ int pmap_count[YRES][XRES];
 unsigned photons[YRES][XRES];
 int NUM_PARTS = 0;
 
-void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY)
-{
-	*pGravX = newtonGrav * globalSim->grav->gravx[(y/CELL)*(XRES/CELL)+(x/CELL)];
-	*pGravY = newtonGrav * globalSim->grav->gravy[(y/CELL)*(XRES/CELL)+(x/CELL)];
-	switch (globalSim->gravityMode)
-	{
-		default:
-		case 0: //normal, vertical gravity
-			*pGravY += particleGrav;
-			break;
-		case 1: //no gravity
-			break;
-		case 2: //radial gravity
-			if (x-XCNTR != 0 || y-YCNTR != 0)
-			{
-				float pGravMult = particleGrav/sqrtf((float)((x-XCNTR)*(x-XCNTR) + (y-YCNTR)*(y-YCNTR)));
-				*pGravX -= pGravMult * (float)(x - XCNTR);
-				*pGravY -= pGravMult * (float)(y - YCNTR);
-			}
-	}
-}
-
 void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
 {
 	globalSim->part_change_type(i, x, y, t);

@@ -126,7 +126,7 @@ int FILT_graphics(GRAPHICS_FUNC_ARGS)
 
 void FILT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	parts[i].tmp = v;
+	sim->parts[i].tmp = v;
 }
 
 void FILT_init_element(ELEMENT_INIT_FUNC_ARGS)

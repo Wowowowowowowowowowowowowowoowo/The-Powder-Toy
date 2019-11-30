@@ -351,16 +351,16 @@ void LIGH_create(ELEMENT_CREATE_FUNC_ARGS)
 	}
 	else
 		sim->parts[i].life = 30;
-	sim->parts[i].temp = sim->parts[i].life*150.0f; // temperature of the lightning shows the power of the lightning
-	get_gravity_field(x, y, 1.0f, 1.0f, &gx, &gy);
-	gsize = gx*gx+gy*gy;
-	if (gsize<0.0016f)
+	sim->parts[i].temp = sim->parts[i].life * 150.0f; // temperature of the lightning shows the power of the lightning
+	sim->GetGravityField(x, y, 1.0f, 1.0f, gx, gy);
+	gsize = gx *gx + gy * gy;
+	if (gsize < 0.0016f)
 	{
 		float angle = RNG::Ref().between(0, 6283) * 0.001f; //(in radians, between 0 and 2*pi)
 		gsize = sqrtf(gsize);
 		// randomness in weak gravity fields (more randomness with weaker fields)
-		gx += cosf(angle)*(0.04f-gsize);
-		gy += sinf(angle)*(0.04f-gsize);
+		gx += cosf(angle) * (0.04f - gsize);
+		gy += sinf(angle) * (0.04f - gsize);
 	}
 	sim->parts[i].tmp = (static_cast<int>(atan2f(-gy, gx) * (180.0f / M_PI)) + RNG::Ref().between(-20, 20) + 360) % 360;
 	sim->parts[i].tmp2 = 4;

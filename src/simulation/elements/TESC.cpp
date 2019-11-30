@@ -19,9 +19,9 @@ void TESC_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	if (v >= 0)
 	{
-		parts[i].tmp = v;
-		if (parts[i].tmp > 300)
-			parts[i].tmp = 300;
+		sim->parts[i].tmp = v;
+		if (sim->parts[i].tmp > 300)
+			sim->parts[i].tmp = 300;
 	}
 }
 

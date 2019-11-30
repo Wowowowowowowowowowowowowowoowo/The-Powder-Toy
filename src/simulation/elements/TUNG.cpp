@@ -95,6 +95,11 @@ int TUNG_graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+void TUNG_create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	sim->parts[i].pavg[1] = sim->air->pv[y/CELL][x/CELL];
+}
+
 void TUNG_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_TUNG";
@@ -138,5 +143,6 @@ void TUNG_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &TUNG_update;
 	elem->Graphics = &TUNG_graphics;
+	elem->Func_Create = &TUNG_create;
 	elem->Init = &TUNG_init_element;
 }

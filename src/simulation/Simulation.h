@@ -70,6 +70,7 @@ public:
 	bool part_change_type(int i, int x, int y, int t);
 	void part_change_type_force(int i, int t);
 	void ClearArea(int x, int y, int w, int h);
+	void GetGravityField(int x, int y, float particleGrav, float newtonGrav, float & pGravX, float & pGravY);
 
 	void RecalcFreeParticles(bool doLifeDec);
 	void UpdateBefore();

@@ -644,8 +644,6 @@ void Save::ParseSaveOPS()
 								stkm.fanFigh.push_back(bson_iterator_int(&fighiter));
 						}
 					}
-					else
-						fprintf(stderr, "Unknown stkm property %s\n", bson_iterator_key(&stkmiter));
 				}
 			}
 			else

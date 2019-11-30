@@ -54,8 +54,6 @@ int get_wavelength_bin(int *wm);
 
 void part_change_type(int i, int x, int y, int t);
 
-void get_gravity_field(int x, int y, float particleGrav, float newtonGrav, float *pGravX, float *pGravY);
-
 int get_brush_flags();
 
 int is_wire(int x, int y);

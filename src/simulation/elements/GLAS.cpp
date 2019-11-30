@@ -17,9 +17,9 @@
 
 int GLAS_update(UPDATE_FUNC_ARGS)
 {
-	parts[i].pavg[0] = parts[i].pavg[1];
+	parts[i].pavg[0] = sim->parts[i].pavg[1];
 	parts[i].pavg[1] = sim->air->pv[y/CELL][x/CELL];
-	float diff = parts[i].pavg[1] - parts[i].pavg[0];
+	float diff = sim->parts[i].pavg[1] - sim->parts[i].pavg[0];
 	if (diff > 0.25f || diff < -0.25f)
 	{
 		part_change_type(i,x,y,PT_BGLA);

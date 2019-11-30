@@ -125,10 +125,10 @@ int PHOT_graphics(GRAPHICS_FUNC_ARGS)
 void PHOT_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	float a = RNG::Ref().between(0, 7) * 0.78540f;
-	sim->parts[i].vx = 3.0f*cosf(a);
-	sim->parts[i].vy = 3.0f*sinf(a);
+	sim->parts[i].vx = 3.0f * cosf(a);
+	sim->parts[i].vy = 3.0f * sinf(a);
 	if (TYP(pmap[y][x]) == PT_FILT)
-		parts[i].ctype = interactWavelengths(&parts[ID(pmap[y][x])], parts[i].ctype);
+		sim->parts[i].ctype = interactWavelengths(&sim->parts[ID(pmap[y][x])], sim->parts[i].ctype);
 }
 
 void PHOT_init_element(ELEMENT_INIT_FUNC_ARGS)

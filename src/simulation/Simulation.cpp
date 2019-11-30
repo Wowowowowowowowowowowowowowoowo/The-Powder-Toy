@@ -240,7 +240,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			continue;
 		int type = tempPart.type;
 
-		// ensure we can spawn this element
+		// Ensure we can spawn this element
 		if ((type == PT_STKM || type == PT_STKM2 || type == PT_SPAWN || type == PT_SPAWN2) && elementCount[type] > 0)
 			continue;
 		if (type == PT_FIGH && !((FIGH_ElementDataContainer*)elementData[PT_FIGH])->CanAlloc())
@@ -390,7 +390,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				}
 			}
 			else
-				// should not be possible because we verify with CanAlloc above this
+				// Should not be possible because we verify with CanAlloc above this
 				parts[i].type = PT_NONE;
 			break;
 		}
@@ -921,7 +921,7 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		// If there isn't a particle but there is a wall, check whether the new particle is allowed to be in it
 		//   (not "!=2" for wall check because eval_move returns 1 for moving into empty space)
 		// If there's no particle and no wall, assume creation is allowed
-		if (pmap[y][x] ? (EvalMove(t, x, y)!=2) : (bmap[y/CELL][x/CELL] && EvalMove(t, x, y)==0))
+		if (pmap[y][x] ? (EvalMove(t, x, y) != 2) : (bmap[y/CELL][x/CELL] && EvalMove(t, x, y) == 0))
 		{
 			return -1;
 		}
@@ -1064,8 +1064,8 @@ void Simulation::part_change_type_force(int i, int t)
 // kills particle ID #i
 void Simulation::part_kill(int i)
 {
-	int x = (int)(parts[i].x+0.5f);
-	int y = (int)(parts[i].y+0.5f);
+	int x = (int)(parts[i].x + 0.5f);
+	int y = (int)(parts[i].y + 0.5f);
 
 	int t = parts[i].type;
 	if (t && elements[t].Func_ChangeType)
@@ -1073,7 +1073,7 @@ void Simulation::part_kill(int i)
 		(*(elements[t].Func_ChangeType))(this, i, x, y, t, PT_NONE);
 	}
 
-	if (x>=0 && y>=0 && x<XRES && y<YRES)
+	if (x >= 0 && y >= 0 && x < XRES && y < YRES)
 		pmap_remove(i, x, y);
 	if (t == PT_NONE) // TODO: remove this? (//This shouldn't happen anymore, but it's here just in case)
 		return;
@@ -1121,6 +1121,28 @@ void Simulation::ClearArea(int x, int y, int w, int h)
 		}
 	}
 	DeleteSignsInArea(Point(x, y), Point(x+w, y+h));
+}
+
+void Simulation::GetGravityField(int x, int y, float particleGrav, float newtonGrav, float & pGravX, float & pGravY)
+{
+	pGravX = newtonGrav * grav->gravx[(y / CELL) * (XRES / CELL) + (x / CELL)];
+	pGravY = newtonGrav * grav->gravy[(y / CELL) * (XRES / CELL) + (x / CELL)];
+	switch (gravityMode)
+	{
+		default:
+		case 0: //normal, vertical gravity
+			pGravY += particleGrav;
+			break;
+		case 1: //no gravity
+			break;
+		case 2: //radial gravity
+			if (x - XCNTR != 0 || y - YCNTR != 0)
+			{
+				float pGravMult = particleGrav / sqrtf((x - XCNTR) * (x - XCNTR) + (y - YCNTR) * (y - YCNTR));
+				pGravX -= pGravMult * (float)(x - XCNTR);
+				pGravY -= pGravMult * (float)(y - YCNTR);
+			}
+	}
 }
 
 /* Recalculates the pfree/parts[].life linked list for particles with ID <= parts_lastActiveIndex.

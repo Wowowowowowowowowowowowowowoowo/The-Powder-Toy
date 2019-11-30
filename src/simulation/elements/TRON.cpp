@@ -230,8 +230,10 @@ void TRON_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	int randhue = RNG::Ref().between(0, 359);
 	int randomdir = RNG::Ref().between(0, 3);
-	sim->parts[i].tmp = 1|(randomdir<<5)|(randhue<<7);//set as a head and a direction
-	sim->parts[i].tmp2 = 4;//tail
+	// Set as a head and a direction
+	sim->parts[i].tmp = 1 | (randomdir << 5) | (randhue << 7);
+	// Tail
+	sim->parts[i].tmp2 = 4;
 	sim->parts[i].life = 5;
 }
 
