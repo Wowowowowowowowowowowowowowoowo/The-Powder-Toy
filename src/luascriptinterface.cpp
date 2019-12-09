@@ -2901,6 +2901,22 @@ int elements_element(lua_State * l)
 		}
 		lua_pop(l, 1);
 
+		lua_getfield(l, -1, "DefaultProperties");
+		if (lua_type(l, -1) == LUA_TTABLE)
+		{
+			for (auto &prop : particle::GetProperties())
+			{
+				lua_getfield(l, -1, prop.Name.c_str());
+				if (lua_type(l, -1) != LUA_TNIL)
+				{
+					auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[id].DefaultProperties)) + prop.Offset);
+					LuaSetProperty(l, prop, propertyAddress, -1);
+				}
+				lua_pop(l, 1);
+			}
+		}
+		lua_pop(l, 1);
+
 		FillMenus();
 		luaSim->InitCanMove();
 		graphicscache[id].isready = 0;
@@ -2917,8 +2933,20 @@ int elements_element(lua_State * l)
 			LuaGetProperty(l, prop, propertyAddress);
 			lua_setfield(l, -2, prop.Name.c_str());
 		}
+
 		lua_pushstring(l, luaSim->elements[id].Identifier.c_str());
 		lua_setfield(l, -2, "Identifier");
+
+		lua_newtable(l);
+		int tableIdx = lua_gettop(l);
+		for (auto &prop : particle::GetProperties())
+		{
+			auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[id].DefaultProperties)) + prop.Offset);
+			LuaGetProperty(l, prop, propertyAddress);
+			lua_setfield(l, tableIdx, prop.Name.c_str());
+		}
+		lua_setfield(l, -2, "DefaultProperties");
+
 		return 1;
 	}
 }
