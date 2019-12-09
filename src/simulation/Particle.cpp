@@ -16,6 +16,7 @@ std::vector<StructProperty> particle::properties = {
 	{ "tmp"    , StructProperty::Integer     , offsetof(particle, tmp    ) },
 	{ "tmp2"   , StructProperty::Integer     , offsetof(particle, tmp2   ) },
 	{ "dcolour", StructProperty::UInteger    , offsetof(particle, dcolour) },
+	{ "dcolor" , StructProperty::UInteger    , offsetof(particle, dcolour) },
 	{ "pavg0"  , StructProperty::Float       , offsetof(particle, pavg[0]) },
 	{ "pavg1"  , StructProperty::Float       , offsetof(particle, pavg[1]) },
 };

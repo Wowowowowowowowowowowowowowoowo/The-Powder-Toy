@@ -3054,6 +3054,20 @@ int elements_property(lua_State * l)
 				luaSim->elements[id].Func_ChangeType = nullptr;
 			}
 		}
+		else if (propertyName == "DefaultProperties")
+		{
+			luaL_checktype(l, 3, LUA_TTABLE);
+			for (auto &prop : particle::GetProperties())
+			{
+				lua_getfield(l, -1, prop.Name.c_str());
+				if (lua_type(l, -1) != LUA_TNIL)
+				{
+					auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[id].DefaultProperties)) + prop.Offset);
+					LuaSetProperty(l, prop, propertyAddress, -1);
+				}
+				lua_pop(l, 1);
+			}
+		}
 		else
 			return luaL_error(l, "Invalid element property");
 	}
@@ -3068,6 +3082,18 @@ int elements_property(lua_State * l)
 		else if (propertyName == "Identifier")
 		{
 			lua_pushstring(l, luaSim->elements[id].Identifier.c_str());
+			return 1;
+		}
+		else if (propertyName == "DefaultProperties")
+		{
+			lua_newtable(l);
+			int tableIdx = lua_gettop(l);
+			for (auto &prop : particle::GetProperties())
+			{
+				auto propertyAddress = reinterpret_cast<intptr_t>((reinterpret_cast<unsigned char*>(&luaSim->elements[id].DefaultProperties)) + prop.Offset);
+				LuaGetProperty(l, prop, propertyAddress);
+				lua_setfield(l, tableIdx, prop.Name.c_str());
+			}
 			return 1;
 		}
 		else
