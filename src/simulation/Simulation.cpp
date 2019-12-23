@@ -2114,7 +2114,7 @@ bool Simulation::UpdateParticle(int i)
 		//checking stagnant is cool, but then it doesn't update when you change it later.
 		if (water_equal_test && elements[t].Falldown == 2 && RNG::Ref().chance(1, 400))
 		{
-			if (!flood_water(x, y, i, y, parts[i].flags&FLAG_WATEREQUAL))
+			if (!flood_water(x, y, i))
 				return false;
 		}
 		if (!DoMove(i, x, y, fin_xf, fin_yf))
@@ -2361,6 +2361,72 @@ bool Simulation::UpdateParticle(int i)
 				}
 			}
 		}
+	}
+	return false;
+}
+
+bool Simulation::flood_water(int x, int y, int i)
+{
+	int x1, x2, originalY = y;
+	int r = pmap[y][x];
+	if (!r)
+		return false;
+
+	// Bitmap for checking where we've already looked
+	auto bitmapPtr = std::unique_ptr<char[]>(new char[XRES * YRES]);
+	char *bitmap = bitmapPtr.get();
+	std::fill(&bitmap[0], &bitmap[XRES * YRES], 0);
+
+	try
+	{
+		CoordStack cs;
+		cs.push(x, y);
+		do
+		{
+			cs.pop(x, y);
+			x1 = x2 = x;
+			while (x1 >= CELL)
+			{
+				if (elements[TYP(pmap[y][x1 - 1])].Falldown != 2 || bitmap[(y * XRES) + x1 - 1])
+					break;
+				x1--;
+			}
+			while (x2 < XRES-CELL)
+			{
+				if (elements[TYP(pmap[y][x2 + 1])].Falldown != 2 || bitmap[(y * XRES) + x1 - 1])
+					break;
+				x2++;
+			}
+			for (int x = x1; x <= x2; x++)
+			{
+				// Check above, maybe around other sides too?
+				if (((y - 1) > originalY) && !pmap[y - 1][x] && EvalMove(parts[i].type, x, y - 1, nullptr))
+				{
+					int oldx = (int)(parts[i].x + 0.5f);
+					int oldy = (int)(parts[i].y + 0.5f);
+					pmap[y - 1][x] = pmap[oldy][oldx];
+					pmap[oldy][oldx] = 0;
+					parts[i].x = x;
+					parts[i].y = y - 1;
+					return true;
+				}
+
+				bitmap[(y * XRES) + x] = 1;
+			}
+			if (y >= CELL + 1)
+				for (int x = x1; x <= x2; x++)
+					if (elements[TYP(pmap[y - 1][x])].Falldown == 2 && !bitmap[((y - 1) * XRES) + x])
+						cs.push(x, y - 1);
+			if (y < YRES - CELL - 1)
+				for (int x = x1; x <= x2; x++)
+					if (elements[TYP(pmap[y + 1][x])].Falldown == 2 && !bitmap[((y + 1) * XRES) + x])
+						cs.push(x, y + 1);
+		} while (cs.getSize() > 0);
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		return false;
 	}
 	return false;
 }

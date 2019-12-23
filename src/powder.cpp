@@ -229,65 +229,6 @@ int nearest_part(int ci, int t, int max_d)
 	return id;
 }
 
-int flood_water(int x, int y, int i, int originaly, int check)
-{
-	int x1 = 0,x2 = 0;
-	// go left as far as possible
-	x1 = x2 = x;
-	if (!pmap[y][x])
-		return 1;
-
-	while (x1>=CELL)
-	{
-		if ((globalSim->elements[TYP(pmap[y][x1-1])].Falldown)!=2)
-		{
-			break;
-		}
-		x1--;
-	}
-	while (x2<XRES-CELL)
-	{
-		if ((globalSim->elements[TYP(pmap[y][x2+1])].Falldown)!=2)
-		{
-			break;
-		}
-		x2++;
-	}
-
-	// fill span
-	for (x=x1; x<=x2; x++)
-	{
-		if (check)
-			parts[ID(pmap[y][x])].flags &= ~FLAG_WATEREQUAL;//flag it as checked (different from the original particle's checked flag)
-		else
-			parts[ID(pmap[y][x])].flags |= FLAG_WATEREQUAL;
-		//check above, maybe around other sides too?
-		if ( ((y-1) > originaly) && !pmap[y-1][x] && globalSim->EvalMove(parts[i].type, x, y-1))
-		{
-			int oldx = (int)(parts[i].x + 0.5f);
-			int oldy = (int)(parts[i].y + 0.5f);
-			pmap[y-1][x] = pmap[oldy][oldx];
-			pmap[oldy][oldx] = 0;
-			parts[i].x = (float)x;
-			parts[i].y = y-1.0f;
-			return 0;
-		}
-	}
-	// fill children
-	
-	if (y>=CELL+1)
-		for (x=x1; x<=x2; x++)
-			if ((globalSim->elements[TYP(pmap[y-1][x])].Falldown)==2 && (parts[ID(pmap[y-1][x])].flags & FLAG_WATEREQUAL) == check)
-				if (!flood_water(x, y-1, i, originaly, check))
-					return 0;
-	if (y<YRES-CELL-1)
-		for (x=x1; x<=x2; x++)
-			if ((globalSim->elements[TYP(pmap[y+1][x])].Falldown)==2 && (parts[ID(pmap[y+1][x])].flags & FLAG_WATEREQUAL) == check)
-				if (!flood_water(x, y+1, i, originaly, check))
-					return 0;
-	return 1;
-}
-
 int get_brush_flags()
 {
 	int flags = 0;

@@ -35,7 +35,7 @@
 
 #define FLAG_STAGNANT	0x1
 #define FLAG_SKIPMOVE	0x2  // Skip movement for one frame
-#define FLAG_WATEREQUAL 0x4  // If a liquid was already checked during equalization
+//#define FLAG_WATEREQUAL 0x4  // If a liquid was already checked during equalization
 #define FLAG_PHOTDECO	0x8  // compatibility with old saves (decorated photons), only applies to PHOT.
 #define FLAG_EXPLODE	0x10 // EXPL explosion
 #define FLAG_DISAPPEAR	0x20 // Will disappear on next frame no matter what

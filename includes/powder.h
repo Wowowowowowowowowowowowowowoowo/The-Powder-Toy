@@ -68,8 +68,6 @@ int nearest_part(int ci, int t, int max_d);
 
 int INST_flood_spark(Simulation *sim, int x, int y);
 
-int flood_water(int x, int y, int i, int originaly, int check);
-
 void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
 void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);
 

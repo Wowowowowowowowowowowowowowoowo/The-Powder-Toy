@@ -83,6 +83,7 @@ public:
 	bool LoadSave(int loadX, int loadY, Save *save, int replace, bool includePressure=true);
 	Save * CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool includePressure=true);
 
+	bool flood_water(int x, int y, int i);
 	void spark_all(int i, int x, int y);
 	bool spark_all_attempt(int i, int x, int y);
 	void spark_conductive(int i, int x, int y);
