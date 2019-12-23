@@ -305,7 +305,7 @@ def findLibs(env, conf):
 			FatalError("libdl not found")
 
 	#Look for fftw
-	if not GetOption('nofft') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3', 'libfftw3f']):
+	if not GetOption('nofft') and not GetOption('renderer') and not conf.CheckLib(['fftw3f', 'fftw3f-3', 'libfftw3f-3', 'libfftw3f']):
 			FatalError("fftw3f development library not found or not installed")
 
 	#Look for bz2
@@ -321,14 +321,14 @@ def findLibs(env, conf):
 		FatalError("libz not found or not installed")
 
 	#Look for libcurl
-	if not GetOption('nohttp') and not conf.CheckLib(['curl', 'libcurl']):
+	if not GetOption('nohttp') and not GetOption('renderer') and not conf.CheckLib(['curl', 'libcurl']):
 		FatalError("libcurl not found or not installed")
 
-	if platform == "Linux" or compilePlatform == "Linux" or platform == "FreeBSD":
-		if GetOption('static'):
-			env.ParseConfig("curl-config --static-libs")
-		else:
-			env.ParseConfig("curl-config --libs")
+		if platform == "Linux" or compilePlatform == "Linux" or platform == "FreeBSD":
+			if GetOption('static'):
+				env.ParseConfig("curl-config --static-libs")
+			else:
+				env.ParseConfig("curl-config --libs")
 
 	#Look for pthreads
 	if not conf.CheckLib(['pthread', 'pthreadVC2']):
