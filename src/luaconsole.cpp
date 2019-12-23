@@ -2433,13 +2433,13 @@ void ExecuteEmbededLuaCode()
 *
 * @param eventType Value from the EventTypes enum
 * @param event The event object
-* @return true if event canceled
+* @return false if event canceled
 */
 bool HandleEvent(LuaEvents::EventTypes eventType, Event * event)
 {
 #ifdef LUACONSOLE
 	return LuaEvents::HandleEvent(l, event, "tptevents-" + Format::NumberToString<int>(eventType));
 #else
-	return false;
+	return true;
 #endif
 }
