@@ -592,11 +592,13 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		}
 #endif
 
+#ifdef LUACONSOLE
 		if (save->luaCode.length())
 		{
 			LuaCode = mystrdup(save->luaCode.c_str());
 			ranLuaCode = false;
 		}
+#endif
 	}
 
 #ifdef LUACONSOLE
@@ -839,8 +841,10 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	newSave->saveInfo.SetMyVote(svf_myvote);
 	newSave->saveInfoPresent = true;
 
+#ifdef LUACONSOLE
 	if (LuaCode)
 		newSave->luaCode = LuaCode;
+#endif
 
 	newSave->expanded = true;
 	newSave->pmapbits = PMAPBITS;

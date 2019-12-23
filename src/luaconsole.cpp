@@ -2424,6 +2424,8 @@ void ExecuteEmbededLuaCode()
 	}
 }
 
+#else
+#include "lua/LuaEvents.h"
 #endif
 
 /**
@@ -2437,5 +2439,7 @@ bool HandleEvent(LuaEvents::EventTypes eventType, Event * event)
 {
 #ifdef LUACONSOLE
 	return LuaEvents::HandleEvent(l, event, "tptevents-" + Format::NumberToString<int>(eventType));
+#else
+	return false;
 #endif
 }

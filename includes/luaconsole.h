@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef LUACONSOLE
 #ifndef LUACONSOLEH
 #define LUACONSOLEH
+#ifdef LUACONSOLE
 
 #include <deque>
 #include <string>
@@ -163,6 +163,8 @@ extern int LuaCodeLen;
 extern bool ranLuaCode;
 void ReadLuaCode();
 void ExecuteEmbededLuaCode();
+#else
+#include "lua/LuaEvents.h"
 #endif
 
 bool HandleEvent(LuaEvents::EventTypes eventType, Event * event);
