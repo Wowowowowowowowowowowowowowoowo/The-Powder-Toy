@@ -52,6 +52,7 @@
 #define SCHEME "https://"
 #define STATICSCHEME "https://"
 #define UPDATESCHEME "https://"
+#define ENFORCE_HTTPS
 
 #ifndef SERVER
 #define SERVER "powdertoy.co.uk"
