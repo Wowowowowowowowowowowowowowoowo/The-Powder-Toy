@@ -1017,8 +1017,10 @@ int main(int argc, char *argv[])
 
 	stamp_init();
 
+#ifndef NOHTTP
 	if (!disableNetwork)
 		RequestManager::Ref().Initialise(http_proxy_string);
+#endif
 
 	if (!SDLOpen())
 	{
@@ -1688,7 +1690,9 @@ void main_end_hack()
 {
 	SaveWindowPosition();
 	save_presets();
+#ifndef NOHTTP
 	RequestManager::Ref().Shutdown();
+#endif
 #ifdef LUACONSOLE
 	luacon_close();
 #endif

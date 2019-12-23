@@ -1,4 +1,5 @@
 #include "Request.h"
+#ifndef NOHTTP
 #include <curl/curl.h>
 #include "RequestManager.h"
 #include "common/Platform.h"
@@ -41,9 +42,13 @@ Request::Request(std::string uri_):
 		rm_finished = true;
 	}
 }
+#else
+Request::Request(std::string uri_) {}
+#endif
 
 Request::~Request()
 {
+#ifndef NOHTTP
 	curl_easy_cleanup(easy);
 #ifdef REQUEST_USE_CURL_MIMEPOST
 	curl_mime_free(post_fields);
@@ -52,16 +57,20 @@ Request::~Request()
 #endif
 	curl_slist_free_all(headers);
 	delete[] error_buffer;
+#endif
 }
 
 void Request::AddHeader(std::string name, std::string value)
 {
+#ifndef NOHTTP
 	headers = curl_slist_append(headers, (name + ": " + value).c_str());
+#endif
 }
 
 // add post data to a request
 void Request::AddPostData(std::map<std::string, std::string> data)
 {
+#ifndef NOHTTP
 	if (!data.size())
 	{
 		return;
@@ -94,6 +103,7 @@ void Request::AddPostData(std::map<std::string, std::string> data)
 		post_fields_map.insert(data.begin(), data.end());
 #endif
 	}
+#endif
 }
 
 // add userID and sessionID headers to the request
@@ -124,6 +134,7 @@ size_t Request::WriteDataHandler(char *ptr, size_t size, size_t count, void *use
 // start the request thread
 void Request::Start()
 {
+#ifndef NOHTTP
 	if (CheckStarted() || CheckDone())
 	{
 		return;
@@ -225,12 +236,14 @@ void Request::Start()
 		rm_started = true;
 	}
 	RequestManager::Ref().StartRequest(this);
+#endif
 }
 
 
 // finish the request (if called before the request is done, this will block)
 std::string Request::Finish(int *status_out)
 {
+#ifndef NOHTTP
 	if (CheckCanceled())
 	{
 		return ""; // shouldn't happen but just in case
@@ -252,10 +265,16 @@ std::string Request::Finish(int *status_out)
 
 	RequestManager::Ref().RemoveRequest(this);
 	return response_out;
+#else
+	if (status_out)
+		*status_out = 604;
+	return "";
+#endif
 }
 
 void Request::CheckProgress(int *total, int *done)
 {
+#ifndef NOHTTP
 	std::lock_guard<std::mutex> g(rm_mutex);
 	if (total)
 	{
@@ -265,37 +284,52 @@ void Request::CheckProgress(int *total, int *done)
 	{
 		*done = rm_done;
 	}
+#endif
 }
 
 // returns true if the request has finished
 bool Request::CheckDone()
 {
+#ifndef NOHTTP
 	std::lock_guard<std::mutex> g(rm_mutex);
 	return rm_finished;
+#else
+	return true;
+#endif
 }
 
 // returns true if the request was canceled
 bool Request::CheckCanceled()
 {
+#ifndef NOHTTP
 	std::lock_guard<std::mutex> g(rm_mutex);
 	return rm_canceled;
+#else
+	return false;
+#endif
 }
 
 // returns true if the request is running
 bool Request::CheckStarted()
 {
+#ifndef NOHTTP
 	std::lock_guard<std::mutex> g(rm_mutex);
 	return rm_started;
+#else
+	return true;
+#endif
 }
 
 // cancels the request, the request thread will delete the Request* when it finishes (do not use Request in any way after canceling)
 void Request::Cancel()
 {
+#ifndef NOHTTP
 	{
 		std::lock_guard<std::mutex> g(rm_mutex);
 		rm_canceled = true;
 	}
 	RequestManager::Ref().RemoveRequest(this);
+#endif
 }
 
 std::string Request::Simple(std::string uri, int *status, std::map<std::string, std::string> post_data)

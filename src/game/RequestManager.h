@@ -1,5 +1,6 @@
 #ifndef REQUESTMANAGER_H
 #define REQUESTMANAGER_H
+#ifndef NOHTTP
 
 #include <condition_variable>
 #include <ctime>
@@ -51,4 +52,5 @@ extern const long timeout;
 extern std::string proxy;
 extern std::string user_agent;
 
+#endif // NOHTTP
 #endif // REQUESTMANAGER_H

@@ -1,3 +1,4 @@
+#ifndef NOHTTP
 #include "RequestManager.h"
 #include <iostream>
 #include <sstream>
@@ -264,3 +265,5 @@ void RequestManager::RemoveRequest(Request *request)
 	}
 	rt_cv.notify_one();
 }
+
+#endif
