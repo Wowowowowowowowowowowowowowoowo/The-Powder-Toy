@@ -27,11 +27,12 @@ class ScrollWindow : public Window
 public:
 	ScrollWindow(Point position, Point size);
 
+	bool IsScrollable() { return scrollable; }
 	int GetUsableWidth() { return size.X - scrollbarWidth; }
-	void SetScrollable(bool scrollable, int maxScroll);
+	void SetScrollSize(int maxScroll);
+	int GetScrollSize() { return scrollSize; }
 	int GetScrollPosition() { return scrolled; }
 	void SetScrollPosition(int pos);
-	int GetMaxScrollSize() { return scrollSize; }
 	void SetOnDraw(std::function<void(gfx::VideoBuffer*)> onDraw) { this->onDraw = onDraw; }
 
 protected:

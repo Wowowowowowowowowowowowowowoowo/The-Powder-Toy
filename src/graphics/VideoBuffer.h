@@ -23,6 +23,7 @@ public:
 	void Clear();
 	void ClearRect(int x, int y, int w, int h);
 	void CopyBufferInto(pixel* vidPaste, int vidWidth, int vidHeight, int x, int y);
+	void CopyBufferIntoWithPartialAlpha(pixel* vidPaste, int vidWidth, int vidHeight, int x, int y, int alpha);
 	void CopyBufferFrom(pixel* vidFrom, int vidWidth, int vidHeight, int w, int h);
 
 	void DrawPixel(int x, int y, int r, int g, int b, int a);

@@ -194,7 +194,7 @@ bool console_parse_hex(char *txt, int *val, char *err)
 	return true;
 }
 
-int process_command_old(Simulation * sim, pixel *vid_buf, char *command, char **result)
+int process_command_old(Simulation * sim, pixel *vid_buf, const char *command, char **result)
 {
 	int y,x,nx,ny,i,j,k,m;
 	float f;

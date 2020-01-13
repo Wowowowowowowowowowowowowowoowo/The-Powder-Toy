@@ -39,6 +39,7 @@
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 
+#include "gui/console/Console.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/dialogs/InfoPrompt.h"
 #include "gui/dialogs/ErrorPrompt.h"
@@ -526,6 +527,12 @@ void PowderToy::SetPause(bool pause)
 {
 	if (pause != sys_pause)
 		TogglePause();
+}
+
+void PowderToy::OpenConsole()
+{
+	Console *console = new Console();
+	Engine::Ref().ShowWindow(console);
 }
 
 // functions called by touch interface buttons are here
@@ -1174,11 +1181,12 @@ void PowderToy::OnTick(uint32_t ticks)
 
 	if (openConsole)
 	{
-		if (console_ui(GetVid()->GetVid()) == -1)
+		/*if (console_ui(GetVid()->GetVid()) == -1)
 		{
 			this->ignoreQuits = false;
 			this->toDelete = true;
-		}
+		}*/
+		OpenConsole();
 		openConsole = false;
 	}
 	if (openSign)
@@ -2012,9 +2020,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		REPLACE_MODE = false;
 		break;
 	case SDL_SCANCODE_GRAVE:
-		console_mode = !console_mode;
-		SDL_StopTextInput();
-		SDL_StartTextInput();
+		OpenConsole();
 		break;
 	case SDL_SCANCODE_EQUALS:
 		if (ctrl)

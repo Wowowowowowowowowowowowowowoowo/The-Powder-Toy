@@ -234,9 +234,9 @@ OptionsUI::OptionsUI(Simulation *sim):
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
 	scrollArea->AddComponent(dataFolderButton);
 
-	scrollArea->SetScrollable(true, prev->Below(Point(0, 5)).Y - scrollArea->GetSize().Y);
+	scrollArea->SetScrollSize(prev->Below(Point(0, 5)).Y);
 #else
-	scrollArea->SetScrollable(true, descLabel->Below(Point(0, 5)).Y - scrollArea->GetSize().Y);
+	scrollArea->SetScrollSize(descLabel->Below(Point(0, 5)).Y);
 #endif
 
 #ifndef TOUCHUI

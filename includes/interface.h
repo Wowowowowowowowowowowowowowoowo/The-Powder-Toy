@@ -293,9 +293,6 @@ void execute_unfav(pixel *vid_buf, char *id);
 
 int report_ui(pixel *vid_buf, char *save_id, bool bug);
 
-void console_limit_history(int limit, command_history *commandList);
-int console_ui(pixel *vid_buf);
-
 void init_color_boxes();
 
 void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my);

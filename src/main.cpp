@@ -1665,11 +1665,6 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 			DrawLuaLogs();
 		}
 
-		if (console_mode)
-		{
-			openConsole = true;
-		}
-
 		//sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 #if !defined(DEBUG) && !defined(_DEBUG)

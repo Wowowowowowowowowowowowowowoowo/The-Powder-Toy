@@ -1207,7 +1207,10 @@ int simulation_loadSave(lua_State * l)
 	sprintf(save_date, "%i", history);
 	
 	if (open_ui(lua_vid_buf, save_id, save_date, instant))
-		console_mode = 0;
+	{
+		if (console_mode)
+			Engine::Ref().CloseTop();
+	}
 	return 0;
 }
 

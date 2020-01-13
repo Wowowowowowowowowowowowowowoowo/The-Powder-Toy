@@ -41,15 +41,17 @@ Window::~Window()
 	Subwindows.clear();
 }
 
-void Window::Resize(Point position_, Point size_)
+void Window::Resize(Point position, Point size)
 {
 	delete videoBuffer;
-	position = position_;
-	size = size_;
-	if (position.X == CENTERED)
-		position.X = (XRES+BARSIZE-size.X)/2;
-	if (position.Y == CENTERED)
-		position.Y = (YRES+MENUSIZE-size.Y)/2;
+	this->position = position;
+	this->size = size;
+	if (this->position.X == CENTERED)
+		this->position.X = (XRES+BARSIZE-size.X)/2;
+	if (this->position.Y == CENTERED)
+		this->position.Y = (YRES+MENUSIZE-size.Y)/2;
+	// If we are moving or shrinking this window, we need to restore the old video buffer from before showing ourselves
+	Engine::Ref().RestorePreviousBuffer();
 	videoBuffer = new gfx::VideoBuffer(size.X, size.Y);
 }
 
@@ -116,6 +118,21 @@ void Window::FocusComponent(Component *toFocus)
 	{
 		if (focused)
 			focused->OnDefocus();
+
+		// In unusual situations with subwindows or this window being a subwindow, make sure two components aren't focused at once
+		// Minor shortfall in cases of subwindows nested more than 2 layers ... but why would you do that .-.
+		for (auto &subwindow : Subwindows)
+			if (subwindow->focused != nullptr)
+			{
+				subwindow->focused->OnDefocus();
+				subwindow->focused = nullptr;
+			}
+		if (this->parent)
+			if (this->parent->focused)
+			{
+				this->parent->focused->OnDefocus();
+				this->parent->focused = nullptr;
+			}
 		focused = toFocus;
 		if (focused)
 			focused->OnFocus();
@@ -155,6 +172,15 @@ void Window::UpdateComponents()
 			Subwindows.erase(Subwindows.begin()+i);
 		}
 	}
+}
+
+void Window::SetTransparency(int transparency)
+{
+	if (transparency < 0)
+		transparency = 0;
+	else if (transparency > 255)
+		transparency = 255;
+	this->transparency = transparency;
 }
 
 void Window::DoExit()
@@ -216,7 +242,15 @@ void Window::DoDraw(pixel *copyBuf, Point copySize, Point copyPos)
 	if (hasBorder)
 		videoBuffer->DrawRect(0, 0, size.X, size.Y, Style::Border);
 	if (copyBuf)
-		videoBuffer->CopyBufferInto(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
+	{
+		if (!transparency)
+			videoBuffer->CopyBufferInto(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y);
+		else
+		{
+			Engine::Ref().RestorePreviousBuffer();
+			videoBuffer->CopyBufferIntoWithPartialAlpha(copyBuf, copySize.X, copySize.Y, copyPos.X, copyPos.Y, 255 - transparency);
+		}
+	}
 }
 
 void Window::DoMouseMove(int x, int y, int dx, int dy)

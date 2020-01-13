@@ -86,7 +86,7 @@ int luacon_transitionread(lua_State* l);
 int luacon_transitionwrite(lua_State* l);
 int luacon_tptIndex(lua_State *l);
 int luacon_tptNewIndex(lua_State *l);
-int process_command_lua(pixel *vid_buf, char *command, char **result);
+int process_command_lua(pixel *vid_buf, const char *command, char **result);
 void lua_hook(lua_State *L, lua_Debug *ar);
 
 extern int getPartIndex_curIdx;

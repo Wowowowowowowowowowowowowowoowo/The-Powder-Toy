@@ -44,7 +44,7 @@ public:
 	Point GetPosition() { return position; }
 	void SetPosition(Point position) { this->position = position; }
 	Point GetSize() { return size; }
-	void SetSize(Point size) { this->size = size; }
+	virtual void SetSize(Point size) { this->size = size; }
 	void SetMouseInside(bool mouseInside) { isMouseInside = mouseInside; } // used by Window.cpp
 	bool IsVisible() { return visible; }
 	void SetVisible(bool visible);

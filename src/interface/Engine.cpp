@@ -112,6 +112,13 @@ void Engine::CloseWindowDelayed()
 	}
 }
 
+// Called when a Window is resizing itself. If it's making itself smaller, needs to restore the old buffer
+void Engine::RestorePreviousBuffer()
+{
+	pixel *copy = buffers.top();
+	std::copy(&copy[0], &copy[VIDXRES * VIDYRES], &vid_buf[0]);
+}
+
 unsigned int Engine::GetScale()
 {
 	return scale;

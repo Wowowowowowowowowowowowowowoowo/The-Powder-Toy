@@ -22,6 +22,7 @@ public:
 	void CloseWindow(ui::Window *window);
 	void CloseTop();
 	ui::Window * GetTop() { return top; }
+	void RestorePreviousBuffer();
 	void ProcessWindowUpdates();
 
 	unsigned int GetScale();

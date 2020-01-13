@@ -56,6 +56,8 @@ public:
 	bool IsMouseDown() { return isMouseDown; }
 	bool CanQuit() { return !ignoreQuits; }
 	void HasBorder(bool border) { hasBorder = border; }
+	int GetTransparency() { return transparency; }
+	void SetTransparency(int transparency);
 
 	bool toDelete;
 
@@ -70,6 +72,7 @@ protected:
 	bool isMouseDown; // need to keep track of this for some things like buttons
 	bool ignoreQuits;
 	bool hasBorder;
+	int transparency = 0;
 
 	virtual void OnExit() { }
 	virtual void OnTick(uint32_t ticks) { }

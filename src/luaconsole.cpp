@@ -993,15 +993,13 @@ void luacon_close()
 		free(logs);
 	if (LuaCode)
 		free(LuaCode);
-	console_limit_history(0, last_command);
-	console_limit_history(0, last_command_result);
 }
 
-int process_command_lua(pixel *vid_buf, char *command, char **result)
+int process_command_lua(pixel *vid_buf, const char *command, char **result)
 {
 	if (command && strlen(command))
 	{
-		if(strncmp(command, "!", 1)==0)
+		if (strncmp(command, "!", 1)==0)
 		{
 			return process_command_old(luaSim, vid_buf, command+1, result);
 		}
@@ -1223,7 +1221,14 @@ int luatpt_setconsole(lua_State* l)
 		return 1;
 	}
 	int consolestate = luaL_checkint(l, 1);
-	console_mode = (consolestate==0?0:1);
+	if (consolestate != console_mode)
+	{
+		// scripts can only run in main window or console window, so just assume console window is on top and close it
+		if (console_mode)
+			Engine::Ref().CloseTop();
+		else
+			the_game->OpenConsole();
+	}
 	return 0;
 }
 

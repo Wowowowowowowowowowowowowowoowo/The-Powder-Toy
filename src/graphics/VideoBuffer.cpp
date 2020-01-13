@@ -50,10 +50,34 @@ void VideoBuffer::ClearRect(int x, int y, int w, int h)
 
 void VideoBuffer::CopyBufferInto(pixel* vidPaste, int vidWidth, int vidHeight, int x, int y)
 {
-	for (int i = 0; i < height && i < vidHeight-y; i++)
+	for (int i = 0; i < height && i < vidHeight - y; i++)
 	{
 		if (y+i >= 0)
 			std::copy(&vid[width*i], &vid[width*(i+1)], &vidPaste[x+((y+i)*vidWidth)]);
+	}
+}
+
+// like CopyBufferInto, but handles black pixels differently. It makes these partially transparent
+void VideoBuffer::CopyBufferIntoWithPartialAlpha(pixel* vidPaste, int vidWidth, int vidHeight, int x, int y, int alpha)
+{
+	for (int j = 0; j < height && j < vidHeight - y; j++)
+	{
+		for (int i = 0; i < width && i < vidWidth - x; i++)
+		{
+			if (vid[j * width + i])
+			{
+				vidPaste[x + i + ((y + j) * vidWidth)] = vid[j * width + i];
+			}
+			else
+			{
+				pixel t = vidPaste[x + i + ((y + j) * vidWidth)];
+				vidPaste[j * width + i] = PIXRGB(
+					((255 - alpha) * PIXR(t)) >> 8,
+					((255 - alpha) * PIXG(t)) >> 8,
+					((255 - alpha) * PIXB(t)) >> 8
+				);
+			}
+		}
 	}
 }
 

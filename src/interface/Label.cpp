@@ -36,6 +36,13 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	UpdateDisplayText();
 }
 
+void Label::SetSize(Point size)
+{
+	Component::SetSize(size);
+	if (autosizeX || autosizeY)
+		UpdateDisplayText();
+}
+
 void Label::SetText(std::string text_)
 {
 	text = text_;
@@ -178,9 +185,10 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 			case '\r':
 				break;
 			default:
+				bool hasCharacter = posX != 0;
 				//normal character, add to the current width and check if it's too long
 				posX += gfx::VideoBuffer::CharSize(text[i]);
-				if (!autosizeX && posX+4 >= size.X)
+				if (hasCharacter && !autosizeX && posX+4 >= size.X)
 				{
 					if (multiline)
 					{

@@ -46,6 +46,7 @@
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
+#include "gui/console/Console.h"
 
 static char hex[] = "0123456789ABCDEF";
 
@@ -117,12 +118,22 @@ void clean_text(char *text, int vwidth)
 			text[i] = ' ';
 }
 
-void save_console_history(cJSON **historyArray, command_history *commandList)
+/*void save_console_history(cJSON **historyArray, command_history *commandList)
 {
 	if (!commandList)
 		return;
 	save_console_history(historyArray, commandList->prev_command);
 	cJSON_AddItemToArray(*historyArray, cJSON_CreateString(commandList->command.str));
+}*/
+
+void save_console_history(cJSON **historyArray, cJSON **resultsArray)
+{
+	for (auto end = consoleHistory.rend(), iter = consoleHistory.rbegin(); iter < end; iter++)
+	{
+		auto historyItem = *iter;
+		cJSON_AddItemToArray(*historyArray, cJSON_CreateString(historyItem.first.c_str()));
+		cJSON_AddItemToArray(*resultsArray, cJSON_CreateString(historyItem.second.c_str()));
+	}
 }
 
 void cJSON_AddString(cJSON** obj, const char *name, int number)
@@ -209,11 +220,10 @@ void save_presets()
 	//Tpt++ console history
 	cJSON_AddItemToObject(root, "Console", consoleobj=cJSON_CreateObject());
 	tmpobj = cJSON_CreateStringArray(NULL, 0);
-	save_console_history(&tmpobj, last_command);
+	cJSON *resultsObj = cJSON_CreateStringArray(NULL, 0);
+	save_console_history(&tmpobj, &resultsObj);
 	cJSON_AddItemToObject(consoleobj, "History", tmpobj);
-	tmpobj = cJSON_CreateStringArray(NULL, 0);
-	save_console_history(&tmpobj, last_command_result);
-	cJSON_AddItemToObject(consoleobj, "HistoryResults", tmpobj);
+	cJSON_AddItemToObject(consoleobj, "HistoryResults", resultsObj);
 
 	//Version Info
 	cJSON_AddItemToObject(root, "version", versionobj=cJSON_CreateObject());
@@ -308,7 +318,7 @@ void save_presets()
 	free(outputdata);
 }
 
-void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
+/*void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
 {
 	command_history *currentcommand = *last_command;
 	for (int i = 0; i < count; i++)
@@ -322,6 +332,31 @@ void load_console_history(cJSON *tmpobj, command_history **last_command, int cou
 		else
 			strcpy(currentcommand->command.str, "");
 		*last_command = currentcommand;
+	}
+}*/
+
+/**
+ * Loads console history from cJSON objects. resultObj may be null if powder.pref was created in vanilla tpt
+ */
+void load_console_history(cJSON *commandObj, cJSON *resultObj)
+{
+	consoleHistory.clear();
+
+	int commandSize = cJSON_GetArraySize(commandObj);
+	int resultSize = resultObj ? cJSON_GetArraySize(resultObj) : 0;
+	// powder.pref is screwed up, just ignore all history
+	if (resultSize && commandSize != resultSize)
+		return;
+
+	for (int i = 0; i < commandSize; i++)
+	{
+		const char *command = cJSON_GetArrayItem(commandObj, i)->valuestring;
+		const char *result;
+		if (resultSize)
+			result = cJSON_GetArrayItem(resultObj, i)->valuestring;
+		else
+			result = "";
+		consoleHistory.push_front({std::string(command), std::string(result)});
 	}
 }
 
@@ -543,10 +578,12 @@ void load_presets(void)
 		{
 			if ((tmpobj = cJSON_GetObjectItem(consoleobj, "History")))
 			{
-				int size = cJSON_GetArraySize(tmpobj);
-				tmpobj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
+				//int size = cJSON_GetArraySize(tmpobj);
+				cJSON *resultsObj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
+				load_console_history(tmpobj, resultsObj);
+
 				// if results doesn't have the same number of items as history, don't load them. This might cause a crash, and wouldn't match anyway
-				if (tmpobj && cJSON_GetArraySize(tmpobj) == size)
+				/*if (tmpobj && cJSON_GetArraySize(tmpobj) == size)
 				{
 					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
 					load_console_history(tmpobj, &last_command_result, size);
@@ -556,7 +593,7 @@ void load_presets(void)
 				{
 					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
 					load_console_history(NULL, &last_command_result, size);
-				}
+				}*/
 			}
 		}
 

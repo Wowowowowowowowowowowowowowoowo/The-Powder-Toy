@@ -236,19 +236,10 @@ void ProfileViewer::UploadAvatar()
 
 void ProfileViewer::ResizeArea(int biographyLabelHeight)
 {
-	int yPos = 149+biographyLabelHeight;
+	int yPos = 149 + biographyLabelHeight;
 	if (yPos < scrollArea->GetSize().Y)
 		yPos = scrollArea->GetSize().Y;
-	int maxScroll = yPos-scrollArea->GetSize().Y;
-	if (maxScroll >= 0)
-	{
-		int oldMaxScroll = scrollArea->GetMaxScrollSize();
-		scrollArea->SetScrollable(true, maxScroll);
-		if (scrollArea->GetScrollPosition() == oldMaxScroll)
-			scrollArea->SetScrollPosition(maxScroll);
-	}
-	else
-		scrollArea->SetScrollable(false, 0);
+	scrollArea->SetScrollSize(yPos);
 }
 
 void ProfileViewer::OnSubwindowDraw(gfx::VideoBuffer *buf)
