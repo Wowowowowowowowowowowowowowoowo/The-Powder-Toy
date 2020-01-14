@@ -1181,11 +1181,6 @@ void PowderToy::OnTick(uint32_t ticks)
 
 	if (openConsole)
 	{
-		/*if (console_ui(GetVid()->GetVid()) == -1)
-		{
-			this->ignoreQuits = false;
-			this->toDelete = true;
-		}*/
 		OpenConsole();
 		openConsole = false;
 	}

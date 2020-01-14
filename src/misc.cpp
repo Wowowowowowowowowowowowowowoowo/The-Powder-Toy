@@ -118,14 +118,6 @@ void clean_text(char *text, int vwidth)
 			text[i] = ' ';
 }
 
-/*void save_console_history(cJSON **historyArray, command_history *commandList)
-{
-	if (!commandList)
-		return;
-	save_console_history(historyArray, commandList->prev_command);
-	cJSON_AddItemToArray(*historyArray, cJSON_CreateString(commandList->command.str));
-}*/
-
 void save_console_history(cJSON **historyArray, cJSON **resultsArray)
 {
 	for (auto end = consoleHistory.rend(), iter = consoleHistory.rbegin(); iter < end; iter++)
@@ -317,23 +309,6 @@ void save_presets()
 	fclose(f);
 	free(outputdata);
 }
-
-/*void load_console_history(cJSON *tmpobj, command_history **last_command, int count)
-{
-	command_history *currentcommand = *last_command;
-	for (int i = 0; i < count; i++)
-	{
-		currentcommand = (command_history*)malloc(sizeof(command_history));
-		memset(currentcommand, 0, sizeof(command_history));
-		currentcommand->prev_command = *last_command;
-		ui_label_init(&currentcommand->command, 15, 0, 0, 0);
-		if (tmpobj)
-			strncpy(currentcommand->command.str, cJSON_GetArrayItem(tmpobj, i)->valuestring, 1023);
-		else
-			strcpy(currentcommand->command.str, "");
-		*last_command = currentcommand;
-	}
-}*/
 
 /**
  * Loads console history from cJSON objects. resultObj may be null if powder.pref was created in vanilla tpt
@@ -578,22 +553,8 @@ void load_presets(void)
 		{
 			if ((tmpobj = cJSON_GetObjectItem(consoleobj, "History")))
 			{
-				//int size = cJSON_GetArraySize(tmpobj);
 				cJSON *resultsObj = cJSON_GetObjectItem(consoleobj, "HistoryResults");
 				load_console_history(tmpobj, resultsObj);
-
-				// if results doesn't have the same number of items as history, don't load them. This might cause a crash, and wouldn't match anyway
-				/*if (tmpobj && cJSON_GetArraySize(tmpobj) == size)
-				{
-					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
-					load_console_history(tmpobj, &last_command_result, size);
-				}
-				// well, tpt++ doesn't save HistoryResults and it is annoying to discard everything, so load History anyway with some hacks
-				else if (!tmpobj)
-				{
-					load_console_history(cJSON_GetObjectItem(consoleobj, "History"), &last_command, size);
-					load_console_history(NULL, &last_command_result, size);
-				}*/
 			}
 		}
 
