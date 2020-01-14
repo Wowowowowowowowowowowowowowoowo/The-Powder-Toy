@@ -1385,24 +1385,22 @@ int simulation_canMove(lua_State * l)
 
 int PartsClosure(lua_State * l)
 {
-	int i = lua_tointeger(l, lua_upvalueindex(1));
-	do
+	for (int i = lua_tointeger(l, lua_upvalueindex(1)); i <= luaSim->parts_lastActiveIndex; ++i)
 	{
-		if(i >= NPART)
-			return 0;
-		else
-			i++;
+		if (luaSim->parts[i].type)
+		{
+			lua_pushnumber(l, i + 1);
+			lua_replace(l, lua_upvalueindex(1));
+			lua_pushnumber(l, i);
+			return 1;
+		}
 	}
-	while (!parts[i].type);
-	lua_pushnumber(l, i);
-	lua_replace(l, lua_upvalueindex(1));
-	lua_pushnumber(l, i);
-	return 1;
+	return 0;
 }
 
 int simulation_parts(lua_State * l)
 {
-	lua_pushnumber(l, -1);
+	lua_pushnumber(l, 0); // first value PartsClosure will see = particle 0
 	lua_pushcclosure(l, PartsClosure, 1);
 	return 1;
 }
