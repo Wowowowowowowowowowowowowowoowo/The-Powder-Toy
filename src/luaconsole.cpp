@@ -596,6 +596,8 @@ int luacon_tptIndex(lua_State *l)
 		return lua_pushnumber(l, currentBrush->GetRadius().Y), 1;
 	if (!key.compare("brushID"))
 		return lua_pushnumber(l, currentBrush->GetShape()), 1;
+	else if (!key.compare("decoSpace"))
+		return lua_pushnumber(l, luaSim->decoSpace), 1;
 
 	//if not a special key, return the value in the table
 	return lua_rawget(l, 1), 1;
@@ -642,6 +644,13 @@ int luacon_tptNewIndex(lua_State *l)
 		currentBrush->SetRadius(Point(currentBrush->GetRadius().X, luaL_checkinteger(l, 3)));
 	else if (!key.compare("brushID"))
 		currentBrush->SetShape(luaL_checkinteger(l, 3)%BRUSH_NUM);
+	else if (!key.compare("decoSpace"))
+	{
+		int decoSpace = luaL_checkinteger(l, 3);
+		if (decoSpace < 0 || decoSpace > 3)
+			decoSpace = 0;
+		luaSim->decoSpace = decoSpace;
+	}
 	else
 	{
 		//if not a special key, set a value in the table

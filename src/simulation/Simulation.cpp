@@ -3538,28 +3538,86 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 	case DECO_SMUDGE:
 		if (x >= CELL && x < XRES-CELL && y >= CELL && y < YRES-CELL)
 		{
-			int rx, ry, num = 0, ta = 0;
-			for (rx=-2; rx<3; rx++)
-				for (ry=-2; ry<3; ry++)
+			int num = 0;
+			float tr = 0, tg = 0, tb = 0, ta = 0;
+			for (int rx = -2; rx <= 2; rx++)
+				for (int ry = -2; ry <= 2; ry++)
 				{
-					if (abs(rx)+abs(ry) > 2 && TYP(pmap[y+ry][x+rx]) && parts[ID(pmap[y+ry][x+rx])].dcolour)
+					if (abs(rx) + abs(ry) > 2 && TYP(pmap[y + ry][x + rx]) && parts[ID(pmap[y + ry][x + rx])].dcolour)
 					{
 						num++;
-						ta += COLA(parts[ID(pmap[y+ry][x+rx])].dcolour);
-						tr += COLR(parts[ID(pmap[y+ry][x+rx])].dcolour);
-						tg += COLG(parts[ID(pmap[y+ry][x+rx])].dcolour);
-						tb += COLB(parts[ID(pmap[y+ry][x+rx])].dcolour);
+						float pa = COLA(parts[ID(pmap[y+ry][x+rx])].dcolour) / 255.0f;
+						float pr = COLR(parts[ID(pmap[y+ry][x+rx])].dcolour) / 255.0f;
+						float pg = COLG(parts[ID(pmap[y+ry][x+rx])].dcolour) / 255.0f;
+						float pb = COLB(parts[ID(pmap[y+ry][x+rx])].dcolour) / 255.0f;
+
+						switch (decoSpace)
+						{
+						case 0: //sRGB
+							pa = (pa <= 0.04045f) ? (pa / 12.92f) : pow((pa + 0.055f) / 1.055f, 2.4f);
+							pr = (pr <= 0.04045f) ? (pr / 12.92f) : pow((pr + 0.055f) / 1.055f, 2.4f);
+							pg = (pg <= 0.04045f) ? (pg / 12.92f) : pow((pg + 0.055f) / 1.055f, 2.4f);
+							pb = (pb <= 0.04045f) ? (pb / 12.92f) : pow((pb + 0.055f) / 1.055f, 2.4f);
+							break;
+						case 1: // linear
+							break;
+						case 2: // Gamma = 2.2
+							pa = pow(pa, 2.2f);
+							pr = pow(pr, 2.2f);
+							pg = pow(pg, 2.2f);
+							pb = pow(pb, 2.2f);
+							break;
+						case 3: // Gamma = 1.8
+							pa = pow(pa, 1.8f);
+							pr = pow(pr, 1.8f);
+							pg = pow(pg, 1.8f);
+							pb = pow(pb, 1.8f);
+							break;
+						}
+
+						ta += pa;
+						tr += pr;
+						tg += pg;
+						tb += pb;
 					}
 				}
 			if (num == 0)
 				return;
-			ta = std::min(255,(int)((float)ta/num+.5));
-			tr = std::min(255,(int)((float)tr/num+.5));
-			tg = std::min(255,(int)((float)tg/num+.5));
-			tb = std::min(255,(int)((float)tb/num+.5));
-			if (!parts[rp].dcolour)
-				ta = std::max(0, ta-3);
-			parts[rp].dcolour = COLARGB(ta, tr, tg, tb);
+
+			ta = ta / num;
+			tr = tr / num;
+			tg = tg / num;
+			tb = tb / num;
+			switch (decoSpace)
+			{
+			case 0: // sRGB
+				ta = (ta <= 0.0031308f) ? (ta * 12.92f) : (1.055f * pow(ta, 1.f / 2.4f) - 0.055f);
+				tr = (tr <= 0.0031308f) ? (tr * 12.92f) : (1.055f * pow(tr, 1.f / 2.4f) - 0.055f);
+				tg = (tg <= 0.0031308f) ? (tg * 12.92f) : (1.055f * pow(tg, 1.f / 2.4f) - 0.055f);
+				tb = (tb <= 0.0031308f) ? (tb * 12.92f) : (1.055f * pow(tb, 1.f / 2.4f) - 0.055f);
+				break;
+			case 1: // linear
+				break;
+			case 2: // Gamma = 2.2
+				ta = pow(ta, 1 / 2.2f);
+				tr = pow(tr, 1 / 2.2f);
+				tg = pow(tg, 1 / 2.2f);
+				tb = pow(tb, 1 / 2.2f);
+				break;
+			case 3: // Gamma = 1.8
+				ta = pow(ta, 1 / 1.8f);
+				tr = pow(tr, 1 / 1.8f);
+				tg = pow(tg, 1 / 1.8f);
+				tb = pow(tb, 1 / 1.8f);
+				break;
+			}
+
+			int tai = std::min(255, static_cast<int>(ta * 255.0f + 0.5f));
+			int tri = std::min(255, static_cast<int>(tr * 255.0f + 0.5f));
+			int tgi = std::min(255, static_cast<int>(tg * 255.0f + 0.5f));
+			int tbi = std::min(255, static_cast<int>(tb * 255.0f + 0.5f));
+
+			parts[rp].dcolour = COLARGB(tai, tri, tgi, tbi);
 		}
 		break;
 	}

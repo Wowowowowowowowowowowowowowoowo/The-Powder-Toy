@@ -66,7 +66,7 @@ void Console::InitHistoryLabels()
 	// Allow some extra room up top
 	yPos -= 10;
 
-	scrollWindow->SetScrollSize(scrollWindow->GetSize().Y + -yPos);
+	scrollWindow->SetScrollSize(scrollWindow->GetSize().Y + -yPos, true);
 	if (yPos < 0)
 		RepositionLabels(scrollWindow->GetScrollSize() - scrollWindow->GetSize().Y);
 }
@@ -85,7 +85,7 @@ void Console::ResizeHistoryLabels()
 	// Allow some extra room up top
 	yPos -= 10;
 
-	scrollWindow->SetScrollSize(scrollWindow->GetSize().Y + -yPos);
+	scrollWindow->SetScrollSize(scrollWindow->GetSize().Y + -yPos, true);
 	if (yPos < 0)
 		RepositionLabels(scrollWindow->GetScrollSize() - scrollWindow->GetSize().Y);
 	scrollWindow->SetScrollPosition(scrollWindow->GetScrollSize());
@@ -116,7 +116,7 @@ void Console::Submit(std::string command)
 	consoleHistory.push_front({command, result});
 	DiscardOldestCommand();
 	// Add height of new label to the window's scroll size
-	scrollWindow->SetScrollSize(scrollWindow->GetScrollSize() + labelHeight);
+	scrollWindow->SetScrollSize(scrollWindow->GetScrollSize() + labelHeight, true);
 	// Not currently scrollable, so we need to move all labels upwards ourselves (ScrollWindow not handling this yet)
 	if (!scrollWindow->IsScrollable())
 		RepositionLabels(-labelHeight);
@@ -189,7 +189,7 @@ void Console::DiscardOldestCommand()
 		consoleHistory.pop_back();
 
 	int oldScrollSize = scrollWindow->GetScrollSize();
-	scrollWindow->SetScrollSize(scrollWindow->GetScrollSize() - subtractedSize);
+	scrollWindow->SetScrollSize(scrollWindow->GetScrollSize() - subtractedSize, true);
 	if (scrollWindow->GetScrollSize() > 0)
 		RepositionLabels(-tpt::min(subtractedSize, oldScrollSize));
 }

@@ -144,7 +144,7 @@ void ScrollWindow::OnMouseMove(int x, int y, Point difference)
 	}
 }
 
-void ScrollWindow::SetScrollSize(int maxScroll)
+void ScrollWindow::SetScrollSize(int maxScroll, bool canScrollFollow)
 {
 	// All components in the scroll window fit - disable scrolling
 	if (maxScroll - size.Y <= 0)
@@ -155,7 +155,7 @@ void ScrollWindow::SetScrollSize(int maxScroll)
 		return;
 	}
 	// If scroll window is expanding, automatically keep scrollbar attached to bottom
-	bool scrollFollow = !scrollable || scrolled + size.Y == scrollSize;
+	bool scrollFollow = canScrollFollow && (!scrollable || scrolled + size.Y == scrollSize);
 
 	scrollable = true;
 	scrollSize = maxScroll;

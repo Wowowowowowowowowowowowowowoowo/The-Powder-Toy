@@ -205,6 +205,7 @@ void save_presets()
 		cJSON_AddTrueToObject(simulationobj, "LoadPressure");
 	else
 		cJSON_AddFalseToObject(simulationobj, "LoadPressure");
+	cJSON_AddNumberToObject(simulationobj, "DecoSpace", globalSim->decoSpace);
 
 	//Tpt++ install check, prevents annoyingness
 	cJSON_AddTrueToObject(root, "InstallCheck");
@@ -545,6 +546,8 @@ void load_presets(void)
 				Snapshot::SetUndoHistoryLimit(tmpobj->valueint);
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "LoadPressure")))
 				globalSim->includePressure = tmpobj->valueint;
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "DecoSpace")))
+				globalSim->decoSpace = tmpobj->valueint;
 		}
 
 		//read console history

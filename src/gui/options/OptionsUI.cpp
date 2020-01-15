@@ -118,10 +118,19 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Edge Mode:");
 	scrollArea->AddComponent(descLabel);
 
+	prev = decoSpaceDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"sRGB", "Linear", "Gamma 2.2", "Gamma 1.8"});
+	decoSpaceDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - decoSpaceDropdown->GetSize().X, decoSpaceDropdown->GetPosition().Y));
+	decoSpaceDropdown->SetCallback([&](unsigned int option) { this->DecoSpaceSelected(option); });
+	scrollArea->AddComponent(decoSpaceDropdown);
+
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Smudge Tool Color Space:");
+	scrollArea->AddComponent(descLabel);
+
 	// set dropdown widths to width of largest one
 	int maxWidth = airSimDropdown->GetSize().X;
 	maxWidth = tpt::max(maxWidth, gravityDropdown->GetSize().X);
 	maxWidth = tpt::max(maxWidth, edgeModeDropdown->GetSize().X);
+	maxWidth = tpt::max(maxWidth, decoSpaceDropdown->GetSize().X);
 	int xPos = scrollArea->GetUsableWidth() - 5 - maxWidth;
 	airSimDropdown->SetPosition(Point(xPos, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetSize(Point(maxWidth, airSimDropdown->GetSize().Y));
@@ -129,6 +138,8 @@ OptionsUI::OptionsUI(Simulation *sim):
 	gravityDropdown->SetSize(Point(maxWidth, gravityDropdown->GetSize().Y));
 	edgeModeDropdown->SetPosition(Point(xPos, edgeModeDropdown->GetPosition().Y));
 	edgeModeDropdown->SetSize(Point(maxWidth, edgeModeDropdown->GetSize().Y));
+	decoSpaceDropdown->SetPosition(Point(xPos, decoSpaceDropdown->GetPosition().Y));
+	decoSpaceDropdown->SetSize(Point(maxWidth, decoSpaceDropdown->GetSize().Y));
 
 #ifndef TOUCHUI
 	prev = doubleSizeCheckbox  = new Checkbox(Point(heatSimCheckbox->GetPosition().X, prev->Below(Point(0, 12)).Y), Point(Checkbox::AUTOSIZE, checkboxHeight), "Large Window");
@@ -260,6 +271,7 @@ void OptionsUI::InitializeOptions()
 	airSimDropdown->SetSelectedOption(airMode);
 	gravityDropdown->SetSelectedOption(sim->gravityMode);
 	edgeModeDropdown->SetSelectedOption(sim->edgeMode);
+	decoSpaceDropdown->SetSelectedOption(sim->decoSpace);
 
 #ifdef TOUCHUI
 	decorationCheckbox->SetChecked(decorations_enable);
@@ -333,6 +345,13 @@ void OptionsUI::EdgeModeSelected(unsigned int option)
 	}
 	oldEdgeMode = sim->GetEdgeMode();
 }
+
+
+void OptionsUI::DecoSpaceSelected(unsigned int option)
+{
+	sim->decoSpace = option;
+}
+
 
 void OptionsUI::DoubleSizeChecked(bool checked)
 {
@@ -423,7 +442,7 @@ void OptionsUI::OnDraw(gfx::VideoBuffer *buf)
 
 void OptionsUI::OnSubwindowDraw(gfx::VideoBuffer *buf)
 {
-	buf->DrawLine(0, edgeModeDropdown->Below(Point(0, 5)).Y, scrollArea->GetUsableWidth() - 1, edgeModeDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
+	buf->DrawLine(0, decoSpaceDropdown->Below(Point(0, 5)).Y, scrollArea->GetUsableWidth() - 1, decoSpaceDropdown->Below(Point(0, 5)).Y, 200, 200, 200, 255);
 #ifndef TOUCHUI
 	buf->DrawLine(0, altFullscreenCheckbox->Below(Point(0, 17)).Y, scrollArea->GetUsableWidth() - 1, altFullscreenCheckbox->Below(Point(0, 17)).Y, 200, 200, 200, 255);
 #endif

@@ -29,7 +29,7 @@ public:
 
 	bool IsScrollable() { return scrollable; }
 	int GetUsableWidth() { return size.X - scrollbarWidth; }
-	void SetScrollSize(int maxScroll);
+	void SetScrollSize(int maxScroll, bool canScrollFollow = false);
 	int GetScrollSize() { return scrollSize; }
 	int GetScrollPosition() { return scrolled; }
 	void SetScrollPosition(int pos);

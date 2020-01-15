@@ -16,7 +16,7 @@ class OptionsUI : public ui::Window
 	ui::ScrollWindow *scrollArea;
 
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
-	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown;
+	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown, *decoSpaceDropdown;
 
 	Label *resizableLabel, *filteringLabel, *forceIntegerScalingLabel;
 	Checkbox *doubleSizeCheckbox, *resizableCheckbox, *fullscreenCheckbox, *altFullscreenCheckbox;
@@ -40,6 +40,7 @@ class OptionsUI : public ui::Window
 	void GravitySelected(unsigned int option);
 	unsigned int oldEdgeMode;
 	void EdgeModeSelected(unsigned int option);
+	void DecoSpaceSelected(unsigned int option);
 	void DoubleSizeChecked(bool checked);
 	void ResizableChecked(bool checked);
 	void FilteringSelected(unsigned int option);
