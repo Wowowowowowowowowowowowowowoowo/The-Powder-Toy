@@ -33,7 +33,7 @@ Console::Console():
 
 	submitButton = new Button(Point(0, size.Y - 17), Point(17, 17), "\xCB");
 	submitButton->SetTextColor(COLARGB(255, 255, 0, 0));
-	submitButton->SetEnabled(false);
+	CheckSubmitButton();
 	submitButton->SetCallback([&](int button)
 	{
 		if (!commandTextbox->GetText().empty())
@@ -51,7 +51,10 @@ Console::Console():
 Console::~Console()
 {
 	console_mode = false; // legacy flag, but still used for several things
-	unsubmittedCommand = commandTextbox->GetText();
+	if (historyLoc == -1)
+		unsubmittedCommand = commandTextbox->GetText();
+	else
+		unsubmittedCommand = "";
 }
 
 void Console::InitHistoryLabels()
@@ -121,6 +124,7 @@ void Console::Submit(std::string command)
 	if (!scrollWindow->IsScrollable())
 		RepositionLabels(-labelHeight);
 	unsubmittedCommand = "";
+	historyLoc = -1;
 }
 
 std::string Console::RunCommand(std::string command)
@@ -196,7 +200,7 @@ void Console::DiscardOldestCommand()
 
 void Console::SetHistoryLoc(int historyLoc)
 {
-	if (historyLoc == 0)
+	if (this->historyLoc == -1)
 		unsubmittedCommand = commandTextbox->GetText();
 	this->historyLoc = historyLoc;
 
@@ -206,6 +210,7 @@ void Console::SetHistoryLoc(int historyLoc)
 		commandTextbox->SetText(unsubmittedCommand);
 	else
 		commandTextbox->SetText("");
+	CheckSubmitButton();
 }
 
 void Console::OnSubwindowDraw(gfx::VideoBuffer *buf)
