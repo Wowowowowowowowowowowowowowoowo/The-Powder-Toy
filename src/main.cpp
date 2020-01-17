@@ -131,7 +131,6 @@ int secret_els = 0;
 int tab_num = 1;
 int num_tabs = 1;
 bool show_tabs = false;
-Brush* currentBrush;
 Tool* activeTools[3];
 float toolStrength = 1.0f;
 int autosave = 0;

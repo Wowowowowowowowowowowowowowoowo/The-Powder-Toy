@@ -37,6 +37,7 @@ public:
 	bool IsInside(int x, int y);
 };
 
-extern Brush* currentBrush;
+extern Brush *currentBrush;
+extern bool perfectCircleBrush;
 
 #endif

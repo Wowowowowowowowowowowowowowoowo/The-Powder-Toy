@@ -2552,39 +2552,38 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 	}
 	else
 	{
-		int tempy = y, i, j, jmax, oldy;
-		// tempy is the smallest y value that is still inside the brush
-		// jmax is the largest y value that is still inside the brush
+		int tempy = y - 1, i, j, jmax, oldy;
+		// tempy is the closest y value that is just outside (above) the brush
+		// jmax is the closest y value that is just outside (below) the brush
 
-		//For triangle brush, start at the very bottom
+		// For triangle brush, start at the very bottom
 		if (shape == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			oldy = tempy;
-			while (brush && brush->IsInside(i-x,tempy-y))
+			while (brush && tempy >= y - ry && brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
-			tempy = tempy + 1;
 			if (fill)
 			{
-				//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+				// If triangle brush, create parts down to the bottom always; if not go down to the bottom border
 				if (shape == TRI_BRUSH)
 					jmax = y + ry;
 				else
-					jmax = 2*y - tempy;
+					jmax = 2 * y - tempy;
 
-				for (j = jmax; j >= tempy; j--)
+				for (j = jmax - 1; j > tempy; j--)
 				{
 					if (CreatePartFlags(i, j, c, flags))
 						f = 1;
-					//don't create twice in the vertical center line
+					// Don't create twice in the vertical center line
 					if (i!=x && CreatePartFlags(2*x-i, j, c, flags))
 						f = 1;
 				}
 			}
 			else
 			{
-				for (j = oldy; j >= tempy; j--)
+				for (j = oldy + 1; j > tempy; j--)
 				{
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (shape == TRI_BRUSH)
@@ -3136,29 +3135,28 @@ void Simulation::CreateToolBrush(int x, int y, int tool, float strength, Brush* 
 	}
 	else
 	{
-		int tempy = y, i, j, jmax;
-		// tempy is the smallest y value that is still inside the brush
-		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+		int tempy = y - 1, i, j, jmax;
+		// tempy is the closest y value that is just outside (above) the brush
+		// jmax is the closest y value that is just outside (below) the brush
 
-		//For triangle brush, start at the very bottom
+		// For triangle brush, start at the very bottom
 		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			//loop up until it finds a point not in the brush
-			while (brush->IsInside(i-x,tempy-y))
+			while (tempy >= y - ry && brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
-			tempy = tempy + 1;
 
-			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			// If triangle brush, create parts down to the bottom always; if not go down to the bottom border
 			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
-				jmax = 2*y - tempy;
-			for (j = tempy; j <= jmax; j++)
+				jmax = 2 * y - tempy;
+			for (j = tempy + 1; j < jmax; j++)
 			{
 				CreateTool(i, j, x, y, tool, strength);
-				//don't create twice in the vertical center line
+				// Don't create twice in the vertical center line
 				if (i != x)
 					CreateTool(2*x-i, j, x, y, tool, strength);
 			}
@@ -3286,29 +3284,28 @@ void Simulation::CreatePropBrush(int x, int y, StructProperty prop, PropertyValu
 	}
 	else
 	{
-		int tempy = y, i, j, jmax;
-		// tempy is the smallest y value that is still inside the brush
-		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+		int tempy = y - 1, i, j, jmax;
+		// tempy is the closest y value that is just outside (above) the brush
+		// jmax is the closest y value that is just outside (below) the brush
 
-		//For triangle brush, start at the very bottom
+		// For triangle brush, start at the very bottom
 		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			//loop up until it finds a point not in the brush
-			while (brush->IsInside(i - x, tempy - y))
+			while (tempy >= y - ry && brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
-			tempy = tempy + 1;
 
-			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			// If triangle brush, create parts down to the bottom always; if not go down to the bottom border
 			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
 				jmax = 2 * y - tempy;
-			for (j = tempy; j <= jmax; j++)
+			for (j = tempy + 1; j < jmax; j++)
 			{
 				CreateProp(i, j, prop, propValue);
-				//don't create twice in the vertical center line
+				// Don't create twice in the vertical center line
 				if (i != x)
 					CreateProp(2 * x - i, j, prop, propValue);
 			}
@@ -3638,30 +3635,29 @@ void Simulation::CreateDecoBrush(int x, int y, int tool, ARGBColour color, Brush
 	}
 	else
 	{
-		int tempy = y, i, j, jmax;
-		// tempy is the smallest y value that is still inside the brush
-		// jmax is the largest y value that is still inside the brush (bottom border of brush)
+		int tempy = y - 1, i, j, jmax;
+		// tempy is the closest y value that is just outside (above) the brush
+		// jmax is the closest y value that is just outside (below) the brush
 
-		//For triangle brush, start at the very bottom
+		// For triangle brush, start at the very bottom
 		if (brush->GetShape() == TRI_BRUSH)
 			tempy = y + ry;
 		for (i = x - rx; i <= x; i++)
 		{
 			//loop up until it finds a point not in the brush
-			while (brush->IsInside(i-x,tempy-y))
+			while (tempy >= y - ry && brush->IsInside(i - x, tempy - y))
 				tempy = tempy - 1;
-			tempy = tempy + 1;
 
-			//If triangle brush, create parts down to the bottom always; if not go down to the bottom border
+			// If triangle brush, create parts down to the bottom always; if not go down to the bottom border
 			if (brush->GetShape() == TRI_BRUSH)
 				jmax = y + ry;
 			else
-				jmax = 2*y - tempy;
+				jmax = 2 * y - tempy;
 
-			for (j = tempy; j <= jmax; j++)
+			for (j = tempy + 1; j < jmax; j++)
 			{
 				CreateDeco(i, j, tool, color);
-				//don't create twice in the vertical center line
+				// Don't create twice in the vertical center line
 				if (i != x)
 					CreateDeco(2*x-i, j, tool, color);
 			}

@@ -23,7 +23,7 @@ class OptionsUI : public ui::Window
 	Checkbox *forceIntegerScalingCheckbox;
 	Dropdown *filteringDropdown;
 
-	Checkbox *fastQuitCheckbox, *updatesCheckbox, *stickyCategoriesCheckbox, *savePressureCheckbox;
+	Checkbox *fastQuitCheckbox, *updatesCheckbox, *stickyCategoriesCheckbox, *savePressureCheckbox, *circleCheckbox;
 	Button *dataFolderButton;
 
 	Simulation * sim;
@@ -51,6 +51,7 @@ class OptionsUI : public ui::Window
 	void UpdatesChecked(bool checked);
 	void SavePressureChecked(bool checked);
 	void StickyCatsChecked(bool checked);
+	void CircleChecked(bool checked);
 	void DataFolderClicked();
 
 	void OnDraw(gfx::VideoBuffer *buf) override;

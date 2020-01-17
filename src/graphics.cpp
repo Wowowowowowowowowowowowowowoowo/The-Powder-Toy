@@ -3211,19 +3211,21 @@ void render_cursor(pixel *vid, int x, int y, Tool* tool, Brush* brush)
 				xor_pixel(x, j, vid);
 		else
 		{
-			int tempy = y, i, j, oldy;
+			int tempy = y - 1, i, j, oldy;
 			if (brush->GetShape() == TRI_BRUSH)
 				tempy = y + ry;
 			for (i = x - rx; i <= x; i++) {
 				oldy = tempy;
-				while (brush->IsInside(i-x,tempy-y))
+				// Find new position just outside of circle boundary
+				while (tempy >= y - ry && brush->IsInside(i-x,tempy-y))
 					tempy = tempy - 1;
-				tempy = tempy + 1;
-				if (oldy != tempy && brush->GetShape() != SQUARE_BRUSH)
+				// Make border 1 pixel thick instead of 2
+				if (i != x - rx && oldy != tempy)
 					oldy--;
+				// Triangle brush is prettier without a complete line drawn between all points
 				if (brush->GetShape() == TRI_BRUSH)
 					oldy = tempy;
-				for (j = tempy; j <= oldy; j++) {
+				for (j = tempy + 1; j <= oldy + 1; j++) {
 					int i2 = 2*x-i, j2 = 2*y-j;
 					if (brush->GetShape() == TRI_BRUSH)
 						j2 = y+ry;

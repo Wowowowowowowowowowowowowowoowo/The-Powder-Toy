@@ -9,6 +9,7 @@
 
 #include "OptionsUI.h"
 #include "common/tpt-minmax.h"
+#include "game/Brush.h"
 #include "game/Menus.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
@@ -240,6 +241,15 @@ OptionsUI::OptionsUI(Simulation *sim):
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	scrollArea->AddComponent(descLabel);
 
+	prev = circleCheckbox = new Checkbox(prev->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Perfect Circle Brush");
+	circleCheckbox->UseCheckIcon(useCheckIcon);
+	circleCheckbox->SetCallback([&](bool checked) { this->CircleChecked(checked); });
+	scrollArea->AddComponent(circleCheckbox);
+
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Better circle brush, without incorrect points on edges");
+	descLabel->SetColor(COLRGB(150, 150, 150));
+	scrollArea->AddComponent(descLabel);
+
 #ifndef TOUCHUI
 	prev = dataFolderButton = new Button(prev->Below(Point(0, 17)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Open Data Folder");
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
@@ -291,6 +301,7 @@ void OptionsUI::InitializeOptions()
 #endif
 	updatesCheckbox->SetChecked(doUpdates);
 	savePressureCheckbox->SetChecked(sim->includePressure);
+	circleCheckbox->SetChecked(perfectCircleBrush);
 }
 
 void OptionsUI::HeatSimChecked(bool checked)
@@ -394,14 +405,19 @@ void OptionsUI::UpdatesChecked(bool checked)
 	doUpdates = checked;
 }
 
+void OptionsUI::SavePressureChecked(bool checked)
+{
+	sim->includePressure = checked;
+}
+
 void OptionsUI::StickyCatsChecked(bool checked)
 {
 	stickyCategories = checked;
 }
 
-void OptionsUI::SavePressureChecked(bool checked)
+void OptionsUI::CircleChecked(bool checked)
 {
-	sim->includePressure = checked;
+	perfectCircleBrush = checked;
 }
 
 void OptionsUI::DataFolderClicked()

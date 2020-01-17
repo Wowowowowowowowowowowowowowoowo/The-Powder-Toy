@@ -39,6 +39,7 @@
 #include "update.h"
 
 #include "common/Platform.h"
+#include "game/Brush.h"
 #include "game/Favorite.h"
 #include "game/Menus.h"
 #include "graphics/Renderer.h"
@@ -284,6 +285,8 @@ void save_presets()
 		cJSON_AddNumberToObject(root, "WindowY", savedWindowY);
 	if (stickyCategories)
 		cJSON_AddTrueToObject(root, "MouseClickRequired");
+	if (perfectCircleBrush)
+		cJSON_AddTrueToObject(root, "PerfectCircleBrush");
 
 	//additional settings from my mod
 	cJSON_AddNumberToObject(root, "heatmode", heatmode);
@@ -614,6 +617,8 @@ void load_presets(void)
 			savedWindowY = tmpobj->valueint;
 		if ((tmpobj = cJSON_GetObjectItem(root, "MouseClickRequired")))
 			stickyCategories = tmpobj->valueint ? true : false;
+		if ((tmpobj = cJSON_GetObjectItem(root, "PerfectCircleBrush")))
+			perfectCircleBrush = tmpobj->valueint ? true : false;
 
 		//Read some extra mod settings
 		if ((tmpobj = cJSON_GetObjectItem(root, "heatmode")))
