@@ -95,7 +95,7 @@ int PCLN_graphics(GRAPHICS_FUNC_ARGS)
 
 bool PCLN_ctypeDraw(CTYPEDRAW_FUNC_ARGS)
 {
-	if (t == PT_PSCN || t == PT_NSCN)
+	if (t == PT_PSCN || t == PT_NSCN || t == PT_SPRK)
 		return false;
 	return ctypeDrawVInTmp(CTYPEDRAW_FUNC_SUBCALL_ARGS);
 }
