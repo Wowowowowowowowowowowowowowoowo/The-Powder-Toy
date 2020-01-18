@@ -621,7 +621,7 @@ void Save::ParseSaveOPS()
 				while (bson_iterator_next(&stkmiter))
 				{
 					CheckBsonFieldBool(stkmiter, "rocketBoots1", &stkm.rocketBoots1);
-					CheckBsonFieldBool(stkmiter, "rocketBoots1", &stkm.rocketBoots1);
+					CheckBsonFieldBool(stkmiter, "rocketBoots2", &stkm.rocketBoots2);
 					CheckBsonFieldBool(stkmiter, "fan1", &stkm.fan1);
 					CheckBsonFieldBool(stkmiter, "fan2", &stkm.fan2);
 					if (!strcmp(bson_iterator_key(&stkmiter), "rocketBootsFigh") && bson_iterator_type(&stkmiter) == BSON_ARRAY)
