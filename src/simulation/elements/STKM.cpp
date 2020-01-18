@@ -753,6 +753,7 @@ void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Loss = 1.0f;
 	elem->Collision = 0.0f;
 	elem->Gravity = 0.0f;
+	elem->NewtonianGravity = 0.0f;
 	elem->Diffusion = 0.0f;
 	elem->HotAir = 0.00f	* CFDS;
 	elem->Falldown = 0;
