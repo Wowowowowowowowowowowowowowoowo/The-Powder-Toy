@@ -2,6 +2,7 @@
 #define CONSOLE_H
 
 #include <deque>
+#include <string>
 #include "defines.h"
 #include "interface/Window.h"
 

@@ -183,7 +183,6 @@ void Console::DiscardOldestCommand()
 	while (consoleHistoryLabels.size() > 20)
 	{
 		auto consoleHistory = consoleHistoryLabels.end() - 1;
-		std::cout << consoleHistory->first->GetText() << std::endl;
 		scrollWindow->RemoveComponent(consoleHistory->first);
 		scrollWindow->RemoveComponent(consoleHistory->second);
 		consoleHistoryLabels.pop_back();
