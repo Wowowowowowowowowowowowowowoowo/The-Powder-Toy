@@ -3381,14 +3381,14 @@ public:
 	}
 };
 
-static int http_request_gc(lua_State *l)
+int http_request_gc(lua_State *l)
 {
 	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
 	rh->~RequestHandle();
 	return 0;
 }
 
-static int http_request_status(lua_State *l)
+int http_request_status(lua_State *l)
 {
 	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
 	if (rh->Dead())
@@ -3406,7 +3406,7 @@ static int http_request_status(lua_State *l)
 	return 1;
 }
 
-static int http_request_progress(lua_State *l)
+int http_request_progress(lua_State *l)
 {
 	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
 	if (!rh->Dead())
@@ -3420,7 +3420,7 @@ static int http_request_progress(lua_State *l)
 	return 0;
 }
 
-static int http_request_cancel(lua_State *l)
+int http_request_cancel(lua_State *l)
 {
 	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
 	if (!rh->Dead())
@@ -3430,7 +3430,7 @@ static int http_request_cancel(lua_State *l)
 	return 0;
 }
 
-static int http_request_finish(lua_State *l)
+int http_request_finish(lua_State *l)
 {
 	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
 	if (!rh->Dead())
@@ -3444,25 +3444,30 @@ static int http_request_finish(lua_State *l)
 	return 0;
 }
 
-static int http_request(lua_State *l)
+int http_request(lua_State *l, bool isPost)
 {
 	std::string uri(luaL_checkstring(l, 1));
+
 	std::map<std::string, std::string> post_data;
-	if (lua_istable(l, 2))
+	if (isPost)
 	{
-		lua_pushnil(l);
-		while (lua_next(l, 2))
+		if (lua_istable(l, 2))
 		{
-			lua_pushvalue(l, -2);
-			post_data.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
-			lua_pop(l, 2);
+			lua_pushnil(l);
+			while (lua_next(l, 2))
+			{
+				lua_pushvalue(l, -2);
+				post_data.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
+				lua_pop(l, 2);
+			}
 		}
 	}
+
 	std::map<std::string, std::string> headers;
-	if (lua_istable(l, 3))
+	if (lua_istable(l, isPost ? 3 : 2))
 	{
 		lua_pushnil(l);
-		while (lua_next(l, 3))
+		while (lua_next(l, isPost ? 3 : 2))
 		{
 			lua_pushvalue(l, -2);
 			headers.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
@@ -3478,6 +3483,16 @@ static int http_request(lua_State *l)
 	luaL_newmetatable(l, "HTTPRequest");
 	lua_setmetatable(l, -2);
 	return 1;
+}
+
+int http_get(lua_State *l)
+{
+	return http_request(l, false);
+}
+
+int http_post(lua_State *l)
+{
+	return http_request(l, true);
 }
 
 void initHttpAPI(lua_State *l)
@@ -3496,7 +3511,8 @@ void initHttpAPI(lua_State *l)
 	lua_setfield(l, -2, "finish");
 	lua_setfield(l, -2, "__index");
 	struct luaL_Reg httpAPIMethods [] = {
-		{"request", http_request},
+		{"get", http_get},
+		{"post", http_post},
 		{NULL, NULL}
 	};
 	luaL_register(l, "http", httpAPIMethods);
