@@ -8,6 +8,7 @@
 #endif
 
 #include "OptionsUI.h"
+#include "common/Format.h"
 #include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
@@ -143,16 +144,18 @@ OptionsUI::OptionsUI(Simulation *sim):
 	decoSpaceDropdown->SetSize(Point(maxWidth, decoSpaceDropdown->GetSize().Y));
 
 #ifndef TOUCHUI
-	prev = doubleSizeCheckbox  = new Checkbox(Point(heatSimCheckbox->GetPosition().X, prev->Below(Point(0, 12)).Y), Point(Checkbox::AUTOSIZE, checkboxHeight), "Large Window");
-	doubleSizeCheckbox->UseCheckIcon(useCheckIcon);
-	doubleSizeCheckbox->SetCallback([&](bool checked) { this->DoubleSizeChecked(checked); });
-	scrollArea->AddComponent(doubleSizeCheckbox);
+	std::vector<std::string> scaleOptions;
+	for (int i = 1; i <= Engine::Ref().GuessBestScale(); i++)
+		scaleOptions.push_back(Format::NumberToString<int>(i) + "x");
+	prev = scaleDropdown = new Dropdown(Point(heatSimCheckbox->GetPosition().X, prev->Below(Point(0, 14)).Y), Point(23, Dropdown::AUTOSIZE), scaleOptions);
+	scaleDropdown->SetCallback([&](unsigned int option) { this->ScaleSelected(option); });
+	scrollArea->AddComponent(scaleDropdown);
 
-	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Double window size for larger screens");
+	descLabel = new Label(prev->Right(Point(3, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Window scale factor for larger screens");
 	descLabel->SetColor(COLRGB(150, 150, 150));
 	scrollArea->AddComponent(descLabel);
 
-	prev = resizableCheckbox = new Checkbox(prev->Below(Point(0, 17)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Resizable Window");
+	prev = resizableCheckbox = new Checkbox(prev->Below(Point(0, 10)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Resizable Window");
 	resizableCheckbox->UseCheckIcon(useCheckIcon);
 	resizableCheckbox->SetCallback([&](bool checked) { this->ResizableChecked(checked); });
 	scrollArea->AddComponent(resizableCheckbox);
@@ -286,7 +289,7 @@ void OptionsUI::InitializeOptions()
 #ifdef TOUCHUI
 	decorationCheckbox->SetChecked(decorations_enable);
 #else
-	doubleSizeCheckbox->SetChecked(Engine::Ref().GetScale() >= 2);
+	scaleDropdown->SetSelectedOption(Engine::Ref().GetScale() - 1);
 	resizableCheckbox->SetChecked(Engine::Ref().IsResizable());
 	filteringDropdown->SetSelectedOption(Engine::Ref().GetPixelFilteringMode());
 	filteringDropdown->SetEnabled(resizableCheckbox->IsChecked());
@@ -364,9 +367,9 @@ void OptionsUI::DecoSpaceSelected(unsigned int option)
 }
 
 
-void OptionsUI::DoubleSizeChecked(bool checked)
+void OptionsUI::ScaleSelected(unsigned int option)
 {
-	Engine::Ref().SetScale(checked ? 2 : 1);
+	Engine::Ref().SetScale(option + 1);
 }
 
 void OptionsUI::ResizableChecked(bool checked)

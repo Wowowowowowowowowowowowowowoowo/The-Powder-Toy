@@ -133,6 +133,24 @@ void Engine::SetScale(unsigned int scale)
 	}
 }
 
+constexpr int SCALE_MAXIMUM = 10;
+constexpr int SCALE_MARGIN = 30;
+
+int Engine::GuessBestScale()
+{
+	const int widthNoMargin = screenWidth - SCALE_MARGIN;
+	const int widthGuess = widthNoMargin / VIDXRES;
+
+	const int heightNoMargin = screenHeight - SCALE_MARGIN;
+	const int heightGuess = heightNoMargin / VIDYRES;
+
+	int guess = std::min(widthGuess, heightGuess);
+	if(guess < 1 || guess > SCALE_MAXIMUM)
+		guess = 1;
+
+	return guess;
+}
+
 bool Engine::IsResizable()
 {
 	return resizable;

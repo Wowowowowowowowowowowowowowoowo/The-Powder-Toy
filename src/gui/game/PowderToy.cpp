@@ -1205,18 +1205,19 @@ void PowderToy::OnTick(uint32_t ticks)
 		Engine::Ref().ShowWindow(new PropWindow());
 		openProp = false;
 	}
-	if (doubleScreenDialog)
+	if (showLargeScreenDialog)
 	{
+		int scale = Engine::Ref().GetScale();
 		std::stringstream message;
-		message << "Switching to double size mode since your screen was determined to be large enough: ";
-		message << screenWidth << "x" << screenHeight << " detected, " << (XRES+BARSIZE)*2 << "x" << (YRES+MENUSIZE)*2 << " required";
-		message << "\nTo undo this, hit Cancel. You can toggle double size mode in settings at any time.";
+		message << "Switching to " << scale << "x size mode since your screen was determined to be large enough: ";
+		message << screenWidth << "x" << screenHeight << " detected, " << VIDXRES * scale << "x" << VIDYRES * scale << " required";
+		message << "\nTo undo this, hit Cancel. You can change this in settings at any time.";
 		ConfirmPrompt *confirm = new ConfirmPrompt([](bool wasConfirmed) {
 			if (!wasConfirmed)
 				Engine::Ref().SetScale(1);
 		}, "Large screen detected", message.str());
 		Engine::Ref().ShowWindow(confirm);
-		doubleScreenDialog = false;
+		showLargeScreenDialog = false;
 	}
 
 	// a ton of stuff with the buttons on the bottom row has to be updated

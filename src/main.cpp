@@ -107,7 +107,7 @@ int saveURIOpen = 0;
 Save * saveDataOpen = NULL;
 
 bool firstRun = false;
-bool doubleScreenDialog = false;
+bool showLargeScreenDialog = false;
 int screenWidth = 0;
 int screenHeight = 0;
 int do_open = 0;
@@ -1029,10 +1029,14 @@ int main(int argc, char *argv[])
 			exit(1);
 	}
 #ifndef ANDROID
-	if (firstRun && Engine::Ref().GetScale() == 1 && screenWidth - 30 > VIDXRES * 2 && screenHeight - 30 > VIDYRES * 2)
+	if (firstRun && Engine::Ref().GetScale() == 1)
 	{
-		Engine::Ref().SetScale(2);
-		doubleScreenDialog = true;
+		int scale = Engine::Ref().GuessBestScale();
+		if (scale > 1)
+		{
+			Engine::Ref().SetScale(scale);
+			showLargeScreenDialog = true;
+		}
 	}
 #endif
 	save_presets();

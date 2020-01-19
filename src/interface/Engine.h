@@ -27,6 +27,7 @@ public:
 
 	unsigned int GetScale();
 	void SetScale(unsigned int scale);
+	int GuessBestScale();
 
 	bool IsResizable();
 	void SetResizable(bool resizable, bool recreateWindow);

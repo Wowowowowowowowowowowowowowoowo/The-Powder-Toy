@@ -18,8 +18,9 @@ class OptionsUI : public ui::Window
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown, *decoSpaceDropdown;
 
+	Dropdown *scaleDropdown;
 	Label *resizableLabel, *filteringLabel, *forceIntegerScalingLabel;
-	Checkbox *doubleSizeCheckbox, *resizableCheckbox, *fullscreenCheckbox, *altFullscreenCheckbox;
+	Checkbox *resizableCheckbox, *fullscreenCheckbox, *altFullscreenCheckbox;
 	Checkbox *forceIntegerScalingCheckbox;
 	Dropdown *filteringDropdown;
 
@@ -41,7 +42,7 @@ class OptionsUI : public ui::Window
 	unsigned int oldEdgeMode;
 	void EdgeModeSelected(unsigned int option);
 	void DecoSpaceSelected(unsigned int option);
-	void DoubleSizeChecked(bool checked);
+	void ScaleSelected(unsigned int option);
 	void ResizableChecked(bool checked);
 	void FilteringSelected(unsigned int option);
 	void FullscreenChecked(bool checked);

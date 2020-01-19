@@ -156,7 +156,7 @@ const int menuIconWidth = 17;
 #define DEBUG_PARTICLE_UPDATES	0x0008
 
 extern bool firstRun;
-extern bool doubleScreenDialog;
+extern bool showLargeScreenDialog;
 extern int screenWidth;
 extern int screenHeight;
 extern float FPSB2;
