@@ -26,8 +26,9 @@
 #include "simulation/StructProperty.h"
 #include "powder.h"
 
-class ElementDataContainer;
 class Brush;
+class CoordStack;
+class ElementDataContainer;
 class Save;
 
 class Simulation
@@ -207,6 +208,8 @@ private:
 	// Functions in Transitions.cpp
 	bool TransferHeat(int i, int t, int surround[8]);
 	bool CheckPressureTransitions(int i, int t);
+
+	CoordStack& getCoordStackSingleton();
 };
 
 extern Simulation *globalSim; // TODO: remove this

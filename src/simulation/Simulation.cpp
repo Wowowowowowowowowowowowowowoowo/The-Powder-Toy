@@ -126,6 +126,14 @@ void Simulation::Clear()
 		draw_bframe();
 }
 
+CoordStack& Simulation::getCoordStackSingleton()
+{
+	// Future-proofing in case Simulation is later multithreaded
+	thread_local CoordStack cs;
+	cs.clear();
+	return cs;
+}
+
 void Simulation::RecountElements()
 {
 	std::fill(&elementCount[0], &elementCount[PT_NUM], 0);
@@ -2379,7 +2387,7 @@ bool Simulation::flood_water(int x, int y, int i)
 
 	try
 	{
-		CoordStack cs;
+		CoordStack& cs = getCoordStackSingleton();
 		cs.push(x, y);
 		do
 		{
@@ -2431,7 +2439,7 @@ bool Simulation::flood_water(int x, int y, int i)
 						cs.push(x, y + 1);
 		} while (cs.getSize() > 0);
 	}
-	catch (std::exception &e)
+	catch (CoordStackOverflowException& e)
 	{
 		std::cerr << e.what() << std::endl;
 		return false;
@@ -2759,7 +2767,7 @@ int Simulation::FloodParts(int x, int y, int fullc, int replace, int flags)
 
 	try
 	{
-		CoordStack cs;
+		CoordStack& cs = getCoordStackSingleton();
 		cs.push(x, y);
 
 		do
@@ -3398,7 +3406,7 @@ int Simulation::FloodProp(int x, int y, StructProperty prop, PropertyValue propV
 	std::fill_n(&bitmap[0], XRES*YRES, 0);
 	try
 	{
-		CoordStack cs;
+		CoordStack& cs = getCoordStackSingleton();
 		cs.push(x, y);
 		do
 		{
@@ -3432,7 +3440,7 @@ int Simulation::FloodProp(int x, int y, StructProperty prop, PropertyValue propV
 						cs.push(x, y+dy);
 		} while (cs.getSize()>0);
 	}
-	catch (std::exception& e)
+	catch (CoordStackOverflowException& e)
 	{
 		std::cerr << e.what() << std::endl;
 		delete[] bitmap;
@@ -3758,7 +3766,7 @@ void Simulation::FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColou
 
 	try
 	{
-		CoordStack cs;
+		CoordStack& cs = getCoordStackSingleton();
 		cs.push(x, y);
 		do
 		{
@@ -3791,7 +3799,7 @@ void Simulation::FloodDeco(pixel *vid, int x, int y, ARGBColour color, ARGBColou
 						cs.push(x, y+1);
 		} while (cs.getSize()>0);
 	}
-	catch (std::exception& e)
+	catch (CoordStackOverflowException& e)
 	{
 		std::cerr << e.what() << std::endl;
 		delete[] bitmap;
