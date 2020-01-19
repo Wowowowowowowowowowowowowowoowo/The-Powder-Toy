@@ -3349,11 +3349,6 @@ public:
 		return dead || request->CheckDone();
 	}
 
-	bool Running() const
-	{
-		return !dead && request->CheckStarted();
-	}
-
 	void Progress(int *total, int *done)
 	{
 		if (!dead)
@@ -3404,13 +3399,9 @@ static int http_request_status(lua_State *l)
 	{
 		lua_pushliteral(l, "done");
 	}
-	else if (rh->Running())
-	{
-		lua_pushliteral(l, "running");
-	}
 	else
 	{
-		lua_pushliteral(l, "queued");
+		lua_pushliteral(l, "running");
 	}
 	return 1;
 }
