@@ -1,5 +1,6 @@
 #include "Request.h"
 #ifndef NOHTTP
+#include "defines.h"
 #include <curl/curl.h>
 #include "RequestManager.h"
 #include "common/Platform.h"
