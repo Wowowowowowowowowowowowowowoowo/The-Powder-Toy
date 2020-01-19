@@ -214,7 +214,7 @@ void Request::Start()
 		curl_easy_setopt(easy, CURLOPT_ERRORBUFFER, error_buffer);
 		error_buffer[0] = 0;
 
-		curl_easy_setopt(easy, CURLOPT_TIMEOUT, timeout);
+		curl_easy_setopt(easy, CURLOPT_CONNECTTIMEOUT, timeout);
 		curl_easy_setopt(easy, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(easy, CURLOPT_URL, uri.c_str());
 

@@ -135,5 +135,8 @@ void initEventAPI(lua_State * l);
 int event_register(lua_State * l);
 int event_unregister(lua_State * l);
 int event_getmodifiers(lua_State * l);
+
+void initHttpAPI(lua_State * l);
+
 #endif
 #endif

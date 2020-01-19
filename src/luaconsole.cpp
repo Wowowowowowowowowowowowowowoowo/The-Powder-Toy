@@ -173,6 +173,7 @@ void luacon_open()
 	initElementsAPI(l);
 	initPlatformAPI(l);
 	initEventAPI(l);
+	initHttpAPI(l);
 	lua_getglobal(l, "tpt");
 
 	tptProperties = lua_gettop(l);

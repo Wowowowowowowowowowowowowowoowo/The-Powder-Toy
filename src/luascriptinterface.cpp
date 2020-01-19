@@ -24,6 +24,7 @@
 #include "game/Authors.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
+#include "game/Request.h"
 #include "game/Save.h"
 #include "game/Sign.h"
 #include "game/ToolTip.h"
@@ -3310,6 +3311,204 @@ int event_getmodifiers(lua_State * l)
 {
 	lua_pushnumber(l, Engine::Ref().GetModifiers());
 	return 1;
+}
+
+class RequestHandle
+{
+	Request *request;
+	bool dead;
+
+public:
+	RequestHandle(std::string &uri, std::map<std::string, std::string> &post_data, std::map<std::string, std::string> &headers)
+	{
+		dead = false;
+		request = new Request(uri);
+		for (auto &header : headers)
+		{
+			request->AddHeader(header.first, header.second);
+		}
+		request->AddPostData(post_data);
+		request->Start();
+	}
+
+	~RequestHandle()
+	{
+		if (!Dead())
+		{
+			Cancel();
+		}
+	}
+
+	bool Dead() const
+	{
+		return dead;
+	}
+
+	bool Done() const
+	{
+		return dead || request->CheckDone();
+	}
+
+	bool Running() const
+	{
+		return !dead && request->CheckStarted();
+	}
+
+	void Progress(int *total, int *done)
+	{
+		if (!dead)
+		{
+			request->CheckProgress(total, done);
+		}
+	}
+
+	void Cancel()
+	{
+		if (!dead)
+		{
+			request->Cancel();
+			dead = true;
+		}
+	}
+
+	std::string Finish(int *status_out)
+	{
+		std::string data;
+		if (!dead)
+		{
+			if (request->CheckDone())
+			{
+				data = request->Finish(status_out);
+				dead = true;
+			}
+		}
+		return data;
+	}
+};
+
+static int http_request_gc(lua_State *l)
+{
+	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
+	rh->~RequestHandle();
+	return 0;
+}
+
+static int http_request_status(lua_State *l)
+{
+	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
+	if (rh->Dead())
+	{
+		lua_pushliteral(l, "dead");
+	}
+	else if (rh->Done())
+	{
+		lua_pushliteral(l, "done");
+	}
+	else if (rh->Running())
+	{
+		lua_pushliteral(l, "running");
+	}
+	else
+	{
+		lua_pushliteral(l, "queued");
+	}
+	return 1;
+}
+
+static int http_request_progress(lua_State *l)
+{
+	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
+	if (!rh->Dead())
+	{
+		int total, done;
+		rh->Progress(&total, &done);
+		lua_pushinteger(l, total);
+		lua_pushinteger(l, done);
+		return 2;
+	}
+	return 0;
+}
+
+static int http_request_cancel(lua_State *l)
+{
+	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
+	if (!rh->Dead())
+	{
+		rh->Cancel();
+	}
+	return 0;
+}
+
+static int http_request_finish(lua_State *l)
+{
+	auto *rh = (RequestHandle *)luaL_checkudata(l, 1, "HTTPRequest");
+	if (!rh->Dead())
+	{
+		int status_out;
+		std::string data = rh->Finish(&status_out);
+		lua_pushlstring(l, data.c_str(), data.size());
+		lua_pushinteger(l, status_out);
+		return 2;
+	}
+	return 0;
+}
+
+static int http_request(lua_State *l)
+{
+	std::string uri(luaL_checkstring(l, 1));
+	std::map<std::string, std::string> post_data;
+	if (lua_istable(l, 2))
+	{
+		lua_pushnil(l);
+		while (lua_next(l, 2))
+		{
+			lua_pushvalue(l, -2);
+			post_data.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
+			lua_pop(l, 2);
+		}
+	}
+	std::map<std::string, std::string> headers;
+	if (lua_istable(l, 3))
+	{
+		lua_pushnil(l);
+		while (lua_next(l, 3))
+		{
+			lua_pushvalue(l, -2);
+			headers.emplace(lua_tostring(l, -1), lua_tostring(l, -2));
+			lua_pop(l, 2);
+		}
+	}
+	auto *rh = (RequestHandle *)lua_newuserdata(l, sizeof(RequestHandle));
+	if (!rh)
+	{
+		return 0;
+	}
+	new(rh) RequestHandle(uri, post_data, headers);
+	luaL_newmetatable(l, "HTTPRequest");
+	lua_setmetatable(l, -2);
+	return 1;
+}
+
+void initHttpAPI(lua_State *l)
+{
+	luaL_newmetatable(l, "HTTPRequest");
+	lua_pushcfunction(l, http_request_gc);
+	lua_setfield(l, -2, "__gc");
+	lua_newtable(l);
+	lua_pushcfunction(l, http_request_status);
+	lua_setfield(l, -2, "status");
+	lua_pushcfunction(l, http_request_progress);
+	lua_setfield(l, -2, "progress");
+	lua_pushcfunction(l, http_request_cancel);
+	lua_setfield(l, -2, "cancel");
+	lua_pushcfunction(l, http_request_finish);
+	lua_setfield(l, -2, "finish");
+	lua_setfield(l, -2, "__index");
+	struct luaL_Reg httpAPIMethods [] = {
+		{"request", http_request},
+		{NULL, NULL}
+	};
+	luaL_register(l, "http", httpAPIMethods);
 }
 
 #endif
