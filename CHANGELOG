@@ -1028,4 +1028,5 @@ fill in areas slightly more naturally. Add (default) option to make deco tools
 use sRGB color space, Gamma 1.8 and Gamma 2.2 were also added. Add option to
 use perfect circle brush instead of TPT's nonstandard circle calculations. Fix
 STK2 rocket boots not saving in saves. Guess best scale on startup. Add http
-api for Lua.
+api for Lua. Fix mac version not starting due to misplaced file. Fix linux
+64 bit version wrongly depending on libssl1.0 instead of libssl1.1.
