@@ -1,3 +1,4 @@
+#include "common/tpt-minmax.h"
 #include "graphics.h"
 #include "Engine.h"
 #include "EventLoopSDL.h"
