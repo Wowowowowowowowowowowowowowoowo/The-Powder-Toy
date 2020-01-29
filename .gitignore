@@ -19,10 +19,12 @@ config.log
 
 # QT Creator project files
 *.config
-*.creator
+*.creator*
 *.files
 *.includes
 *.user
+*.cflags
+*.cxxflags
 
 # Visual studio project files
 *.sdf

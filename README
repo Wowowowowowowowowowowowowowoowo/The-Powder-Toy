@@ -186,15 +186,12 @@ Console
 The console has been redone to fix many issues the original one had. Text 
 will no longer overlap, it properly wraps text on both the input and output 
 sides, allowing you to see overly long commands. You can drag the line in the 
-middle of the console to adjust how much room either side gets. When typing a 
-command the input will also wrap around, and you can type or paste up to 1024 
-characters. In addition, console output is saved to powder.pref so you can 
-see what previous commands returned. Another feature (which is very outdated 
-just like lua code in saves) is the ability to tab complete console commands. 
-If you type "tpt.set_pr" it will recognize the command you tried to use and 
-show in grey what will be completed when you press tab.
-Not implemented yet are: syntax highlighting like tpt++ recently got, 
-a scrollbar, and unlimited input / output lengths.
+middle of the console to adjust how much room either side gets. The console
+also now scrolls, allowing you to see the previous 20 commands and command
+output. When typing a command the input will also wrap around, fixing the
+arbitrarily short limit of the console in vanilla TPT. In addition, console
+output is saved to powder.pref so you can see what previous commands returned.
+Syntax highlighting from vanilla TPT has not been added yet.
 
 Save Preview
 This may not look a lot different than the default TPT, because tpt++ 
@@ -273,7 +270,7 @@ None (at least that I know of)
 -------------------------------------TODO-------------------------------------
 ------------------------------------------------------------------------------
 TODO: '>' means currently being worked on/added next
->Use new tpt++ methods to fetch saves and not over 2 year old ones.
+>Use new tpt++ methods to fetch saves and not over 7 year old ones.
 >Rewrite save browser and save preview UI to new interface
 Support alternate save servers
 Support multiple logins / "remember me" setting

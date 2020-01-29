@@ -1010,3 +1010,22 @@ resetting to .type, without indicating it was doing so. Add back PWHT
 because some people still use it. The feature where it can set any property
 (not just .temp) was adjusted slightly. .tmp2 no longer needs to be set, it can
 now set pavg0 and pavg1, and setting .type is now ctype 3 instead of 0.
+
+Version 44.0 2020-01-28
+Update multiplayer script to .101. Add scrollbar to profile viewer and options
+menu. Rewrite console. It now uses the new interface style, can be scrolled
+(and has a scrollbar), and has no limit on the command length. Everything else
+still works the same, besides tab completion, which has been removed. Add
+option to use higher scale modes than double scale, if monitor resolution is
+high enough. The rest of the changelog is all stuff I copied over from vanilla.
+Add "Sticky Categories" option to control whether clicks are needed to change
+menusections. Add toggleable option to include pressure in saves and stamps.
+.cps and .stm files can now be opened by dropping them on the window. Rescan
+stamps now sorts by time created. Revise ctype drawing code, add Lua event
+listeners for this. Add Lua event listeners for create, create_allowed, and
+change_type. Ability to set default properties in Lua. Make water equalization
+fill in areas slightly more naturally. Add (default) option to make deco tools
+use sRGB color space, Gamma 1.8 and Gamma 2.2 were also added. Add option to
+use perfect circle brush instead of TPT's nonstandard circle calculations. Fix
+STK2 rocket boots not saving in saves. Guess best scale on startup. Add http
+api for Lua.
