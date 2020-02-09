@@ -187,7 +187,7 @@ void ScrollWindow::SetScrollPosition(int pos)
 	scrolled = pos;
 	for (auto &comp : Components)
 	{
-		comp->SetPosition(Point(comp->GetPosition().X, comp->GetPosition().Y-(scrolled-oldScrolled)));
+		comp->SetPosition(Point(comp->GetPosition().X, comp->GetPosition().Y - (scrolled - oldScrolled)));
 
 		int posX = lastMouseX - this->position.X - comp->GetPosition().X, posY = lastMouseY - this->position.Y - comp->GetPosition().Y;
 		// update isMouseInside for this component
@@ -200,5 +200,8 @@ void ScrollWindow::SetScrollPosition(int pos)
 		else
 			comp->SetMouseInside(false);
 	}
+
+	for (auto &sub : Subwindows)
+		sub->SetPosition(Point(sub->GetPosition().X, sub->GetPosition().Y - (scrolled - oldScrolled)));
 }
 }
