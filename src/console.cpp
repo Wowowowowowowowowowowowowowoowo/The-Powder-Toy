@@ -312,8 +312,8 @@ int process_command_old(Simulation * sim, pixel *vid_buf, const char *command, c
 				j = atoi(console3);
 				if (j)
 				{
-					open_ui(vid_buf, console3, NULL, 0);
-					console_mode = false;
+					if (open_ui(vid_buf, console3, NULL, 0))
+						return -1;
 				}
 			}
 			else if (strcmp(console2, "if")==0 && console3[0])
