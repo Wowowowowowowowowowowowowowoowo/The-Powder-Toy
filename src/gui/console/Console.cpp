@@ -60,9 +60,9 @@ Console::~Console()
 void Console::InitHistoryLabels()
 {
 	int yPos = scrollWindow->GetSize().Y;
-	for (auto &consoleHistory : consoleHistory)
+	for (auto &history : consoleHistory)
 	{
-		std::pair<Label*, Label*> labels = GetHistoryLabels(consoleHistory.first, consoleHistory.second);
+		std::pair<Label*, Label*> labels = GetHistoryLabels(history.first, history.second);
 		yPos -= AddHistoryLabels(labels.first, labels.second, yPos, true);
 		consoleHistoryLabels.push_back(labels);
 	}

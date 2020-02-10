@@ -96,7 +96,7 @@ int SDLGetModifiers()
 
 Point lastMousePosition;
 
-int EventProcess(SDL_Event event, Window_ * eventHandler)
+int EventProcess(SDL_Event event, ui::Window * eventHandler)
 {
 	switch (event.type)
 	{
@@ -183,7 +183,7 @@ void MainLoop()
 	Engine &engine = Engine::Ref();
 	while (engine.Running())
 	{
-		Window_ * top = engine.GetTop();
+		ui::Window * top = engine.GetTop();
 		// weird thing done when entering old interfaces that use sdl_poll loops
 		if (sendNewEvents)
 		{
