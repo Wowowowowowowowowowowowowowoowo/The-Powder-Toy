@@ -840,13 +840,13 @@ int luacon_part_update(unsigned int t, int i, int x, int y, int surround_space, 
 		if (callret)
 		{
 			luacon_log("In particle update: " + luacon_geterror());
-			lua_pop(l, 1);
 		}
 		else
 		{
 			if (lua_isboolean(l, -1))
 				retval = lua_toboolean(l, -1);
 		}
+		lua_pop(l, 1);
 	}
 	return retval;
 }
