@@ -567,7 +567,10 @@ void PowderToy::OpenConsoleBtn(bool alt)
 	if (alt)
 		Platform::ShowOnScreenKeyboard("", false);
 	else
-		console_mode = 1;
+	{
+		Console *console = new Console();
+		Engine::Ref().ShowWindow(console);
+	}
 }
 
 void PowderToy::ToggleSettingBtn(bool alt)

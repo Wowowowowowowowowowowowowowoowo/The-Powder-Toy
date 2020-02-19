@@ -35,6 +35,8 @@
 #ifdef ANDROID
 #include <SDL/SDL_screenkeyboard.h>
 #include <SDL/SDL_android.h>
+//#include <android/log.h>
+//__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "The value of 1 + 1 is %d", 1+1);
 #endif
 
 #include "Platform.h"

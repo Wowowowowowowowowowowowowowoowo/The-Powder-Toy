@@ -338,6 +338,8 @@ void Textbox::OnFocus()
 	memcpy(buffer, text.c_str(), tpt::min(text.length() + 1, (size_t)1024));
 	Platform::GetOnScreenKeyboardInput(buffer, 1024, autoCorrect);
 	SetText(buffer);
+	if (callback)
+		callback();
 #endif
 }
 

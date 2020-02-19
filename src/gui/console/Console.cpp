@@ -29,7 +29,9 @@ Console::Console():
 	if (!unsubmittedCommand.empty())
 		commandTextbox->SetText(unsubmittedCommand);
 	this->AddComponent(commandTextbox);
+#ifndef TOUCHUI
 	FocusComponent(commandTextbox);
+#endif
 
 	submitButton = new Button(Point(0, size.Y - 17), Point(17, 17), "\xCB");
 	submitButton->SetTextColor(COLARGB(255, 255, 0, 0));
