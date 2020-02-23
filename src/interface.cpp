@@ -1143,7 +1143,8 @@ int int_pair_cmp (const void * a, const void * b)
 void element_search_ui(pixel *vid_buf, Tool ** selectedLeft, Tool ** selectedRight)
 {
 	int windowHeight = 300, windowWidth = 240;
-	int x0 = (XRES-windowWidth)/2, y0 = (YRES-windowHeight)/2, b = 1, bq, mx, my;
+	int x0 = (XRES-windowWidth)/2, y0 = (YRES-windowHeight)/2, b = 1, mx, my;
+	volatile int bq; // MSVC will optimize this away, causing the check for hover to never run
 	int toolx = 0, tooly = 0, i, xoff, yoff, found;
 	int_pair tempInts[PT_NUM];
 	int selectedl = -1;
