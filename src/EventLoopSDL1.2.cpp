@@ -110,7 +110,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 
 		if (eventHandler)
 		{
-			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.scancode, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.sym, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
 			char c[2];
 			sprintf(c, "%c", event.key.keysym.unicode);
 			std::string text = c;
@@ -167,10 +167,10 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 		lastMousePosition = Point(mx, my);
 		break;
 	}
-	case SDL_VIDEORESIZE:
+	//case SDL_VIDEORESIZE:
 		// screen resize event, we are supposed to call SDL_SetVideoMode with the new size. Ignore this entirely and call it with the old size :)
 		// if we don't do this, the touchscreen calibration variables won't ever be set properly
-		sdl_scrn = SDL_SetVideoMode(VIDXRES, VIDYRES, 32, SDL_SWSURFACE);
+		//sdl_scrn = SDL_SetVideoMode(VIDXRES, VIDYRES, 32, SDL_SWSURFACE);
 	}
 	return 0;
 }

@@ -104,11 +104,12 @@ protected:
 	void VideoBufferHack();
 	bool InsideSubwindow(int x, int y);
 
+	Component *clicked = nullptr;
+
 private:
 	Window *parent;
 	bool mouseDownOutside;
 	Component *focused;
-	Component *clicked;
 };
 }
 

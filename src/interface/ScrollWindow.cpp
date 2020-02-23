@@ -58,7 +58,11 @@ void ScrollWindow::DoMouseDown(int x, int y, unsigned char button)
 {
 	if (isMouseInsideScrollbar)
 	{
-		scrollbarHeld = true;
+		// This if statement fixes a bug on the Android port when using the dropdowns in the Options menu
+		// Usually you can't be inside the scrollbar and a subwindow at once, but in the touch interface, the entire scrollwindow acts as
+		// the scrollbar, so we need to prevent this
+		if (!InsideSubwindow(x - position.X, y - position.Y))
+			scrollbarHeld = true;
 		initialClickX = x;
 		initialClickY = y;
 		initialOffset = scrolled;
@@ -69,10 +73,42 @@ void ScrollWindow::DoMouseDown(int x, int y, unsigned char button)
 #else
 	if (!isMouseInsideScrollbar)
 		Window::DoMouseDown(x, y, button);
+	else
+		CheckFocus(x, y);
 #endif
 }
 
 #ifdef TOUCHUI
+// In touch interface, the mousedown event doesn't happen until mouse up
+// We still want components to be focused / clicked before then, so set that manually here
+void ScrollWindow::CheckFocus(int x, int y)
+{
+	if (InsideSubwindow(x - position.X, y - position.Y))
+		return;
+	if (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y)
+		return;
+
+	bool focusedSomething = false;
+	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	{
+		Component *temp = *iter;
+		if (temp->IsVisible() && temp->IsEnabled())
+		{
+			int posX = x-this->position.X-temp->GetPosition().X, posY = y-this->position.Y-temp->GetPosition().Y;
+			bool inside = posX >= 0 && posX < temp->GetSize().X && posY >= 0 && posY < temp->GetSize().Y;
+			if (inside)
+			{
+				focusedSomething = true;
+				FocusComponent(temp);
+				clicked = temp;
+				break;
+			}
+		}
+	}
+	if (!focusedSomething)
+		FocusComponent(NULL);
+}
+
 void ScrollWindow::DoMouseUp(int x, int y, unsigned char button)
 {
 	if (!hasScrolled)

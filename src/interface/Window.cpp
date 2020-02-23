@@ -18,10 +18,9 @@ Window::Window(Point position_, Point size_):
 	isMouseDown(false),
 	ignoreQuits(false),
 	hasBorder(true),
-	parent(NULL),
+	parent(nullptr),
 	mouseDownOutside(false),
-	focused(NULL),
-	clicked(NULL)
+	focused(nullptr)
 {
 	if (position.X == CENTERED)
 		position.X = (XRES+BARSIZE-size.X)/2;
@@ -98,7 +97,7 @@ void Window::RemoveComponent(Component *other)
 	if (other == focused)
 		FocusComponent(NULL);
 	if (other == clicked)
-		clicked = NULL;
+		clicked = nullptr;
 }
 
 void Window::RemoveSubwindow(Window *other)
@@ -284,7 +283,7 @@ void Window::DoMouseMove(int x, int y, int dx, int dy)
 				{
 					temp->SetMouseInside(false);
 					if (temp == clicked)
-						clicked = NULL;
+						clicked = nullptr;
 				}
 				temp->OnMouseMoved(posX, posY, Point(dx, dy));
 			}
@@ -375,7 +374,7 @@ void Window::DoMouseUp(int x, int y, unsigned char button)
 				temp->OnMouseUp(posX, posY, button);
 		}
 	}
-	clicked = NULL;
+	clicked = nullptr;
 
 	OnMouseUp(x, y, button);
 }

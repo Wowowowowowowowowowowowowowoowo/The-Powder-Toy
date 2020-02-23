@@ -39,6 +39,7 @@ protected:
 	void OnDrawBeforeComponents(gfx::VideoBuffer *buf) override;
 	void DoMouseDown(int x, int y, unsigned char button) override;
 #ifdef TOUCHUI
+	void CheckFocus(int x, int y);
 	void DoMouseUp(int x, int y, unsigned char button) override;
 #endif
 	void OnMouseUp(int x, int y, unsigned char button) override;
