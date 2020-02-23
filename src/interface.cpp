@@ -45,7 +45,7 @@
 #endif
 
 #include "cJSON.h"
-#include "console.h"
+#include "legacy_console.h"
 #include "defines.h"
 #include "EventLoopSDL.h"
 #include "font.h"

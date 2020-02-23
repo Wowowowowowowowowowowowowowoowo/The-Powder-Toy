@@ -68,7 +68,7 @@
 #include "IntroText.h"
 #include "md5.h"
 #include "update.h"
-#include "console.h"
+#include "legacy_console.h"
 #include "luaconsole.h"
 #include "luascriptinterface.h"
 #include "save_legacy.h"

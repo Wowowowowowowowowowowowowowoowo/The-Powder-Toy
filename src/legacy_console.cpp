@@ -20,7 +20,7 @@
 #include <sstream>
 #include "interface.h"
 #include "powder.h"
-#include "console.h"
+#include "legacy_console.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ElementDataContainer.h"

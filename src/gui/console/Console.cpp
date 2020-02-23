@@ -1,5 +1,5 @@
 #include "Console.h"
-#include "console.h"
+#include "legacy_console.h"
 #include "luaconsole.h"
 #include "common/tpt-minmax.h"
 #include "graphics/ARGBColour.h"

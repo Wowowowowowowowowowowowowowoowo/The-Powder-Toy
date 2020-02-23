@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "console.h" // For console_parse_type
+#include "legacy_console.h" // For console_parse_type
 #include "misc.h" // For GetToolFromIdentifier
 #include "common/Format.h"
 #include "interface/Button.h"

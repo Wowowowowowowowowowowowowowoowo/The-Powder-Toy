@@ -34,7 +34,7 @@ extern "C"
 #include "socket/socket.lua.h"
 }
 
-#include "console.h"
+#include "legacy_console.h"
 #include "defines.h"
 #include "graphics.h"
 #include "interface.h"
@@ -1230,7 +1230,7 @@ int luatpt_setconsole(lua_State* l)
 		lua_pushnumber(l, console_mode);
 		return 1;
 	}
-	int consolestate = luaL_checkint(l, 1);
+	bool consolestate = luaL_checkint(l, 1) ? true : false;
 	if (consolestate != console_mode)
 	{
 		// scripts can only run in main window or console window, so just assume console window is on top and close it
