@@ -4674,7 +4674,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 									strcpy(link, SCHEME SERVER "/User.html?Name=");
 									strcaturl(link, info->commentauthorsunformatted[cc]);
 									open_link(link);*/
-									profileToOpen = info->commentauthorsunformatted[cc];
+									//profileToOpen = info->commentauthorsunformatted[cc];
 								}
 								else if (sdl_mod & KMOD_SHIFT) //, or search for a user's saves
 								{
