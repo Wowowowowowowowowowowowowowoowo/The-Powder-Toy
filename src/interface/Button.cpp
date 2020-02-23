@@ -147,7 +147,7 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 				if (IsHeld())
 				{
 					realTextColor = COLPACK(0x000000);
-					backgroundColor = COLMODALPHA(255, Style::HighlightAlpha);
+					backgroundColor = color;
 				}
 				else
 				{
