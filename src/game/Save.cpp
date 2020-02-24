@@ -2345,6 +2345,13 @@ void Save::BuildSave()
 						RESTRICTVERSION(94, 0);
 					}
 				}
+				if (particles[i].type == PT_LSNS)
+				{
+					if (particles[i].tmp >= 1 || particles[i].tmp <= 3)
+					{
+						RESTRICTVERSION(95, 0);
+					}
+				}
 				// Get the pmap entry for the next particle in the same position
 				i = partsPosLink[i];
 			}
@@ -2441,6 +2448,17 @@ void Save::BuildSave()
 		}
 	}
 
+	for (size_t i = 0; i < signs.size(); i++)
+	{
+		Point pos = signs[i].GetRealPos();
+		if (signs[i].GetText().length() && pos.X >= 0 && pos.X <= fullW && pos.Y >= 0 && pos.Y <= fullH)
+		{
+			bool v95 = false;
+			signs[i].GetDisplayText(nullptr, &v95);
+			if (v95)
+				RESTRICTVERSION(95, 0);
+		}
+	}
 	bson b;
 	b.data = NULL;
 	auto bson_deleter = [](bson * b) { bson_destroy(b); };

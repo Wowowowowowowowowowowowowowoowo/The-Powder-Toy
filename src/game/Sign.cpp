@@ -118,6 +118,8 @@ void Sign::SetText(std::string newText)
 
 const particle *GetParticleAt(Simulation *sim, int x, int y)
 {
+	if (!sim)
+		return nullptr;
 	if (photons[y][x])
 		return &sim->parts[ID(photons[y][x])];
 	else if (pmap[y][x])
@@ -125,7 +127,7 @@ const particle *GetParticleAt(Simulation *sim, int x, int y)
 	return nullptr;
 }
 
-std::string Sign::GetDisplayText(Simulation * sim) const
+std::string Sign::GetDisplayText(Simulation * sim, bool *v95) const
 {
 	if (type == Normal && text.length() && x >= 0 && x < XRES && y >= 0 && y < YRES)
 	{
@@ -150,11 +152,31 @@ std::string Sign::GetDisplayText(Simulation * sim) const
 						displayTextStream << std::fixed << std::setprecision(2) << parts[ID(pmap[y][x])].temp-273.15f;
 					else
 						displayTextStream << "N/A";
+					// * We would really only need to do this if the sign used the new
+					//   keyword "temp" or if the text was more than just "{t}", but 95.0
+					//   upgrades such signs at load time anyway.
+					// * The same applies to "{p}" and "{aheat}" signs.
+					if (v95)
+						*v95 = true;
 				}
 				else if (between_curlies == "p" || between_curlies == "pres")
-					displayTextStream << std::fixed << std::setprecision(2) << sim->air->pv[y/CELL][x/CELL];
+				{
+					float pres = 0.0f;
+					if (sim)
+						pres = sim->air->pv[y/CELL][x/CELL];
+					displayTextStream << std::fixed << std::setprecision(2) << pres;
+					if (v95)
+						*v95 = true;
+				}
 				else if (between_curlies == "a" || between_curlies == "aheat")
-					displayTextStream << std::fixed << std::setprecision(2) << sim->air->pv[y/CELL][x/CELL];
+				{
+					float aheat = 0.0f;
+					if (sim)
+						aheat = sim->air->pv[y/CELL][x/CELL];
+					displayTextStream << std::fixed << std::setprecision(2) << aheat;
+					if (v95)
+						*v95 = true;
+				}
 				else if (between_curlies == "type")
 				{
 					const particle *part = GetParticleAt(sim, x, y);
@@ -164,6 +186,8 @@ std::string Sign::GetDisplayText(Simulation * sim) const
 						displayTextStream << "Empty";
 					else
 						displayTextStream << "empty";
+					if (v95)
+						*v95 = true;
 				}
 				else if (between_curlies == "ctype")
 				{
@@ -180,21 +204,29 @@ std::string Sign::GetDisplayText(Simulation * sim) const
 						displayTextStream << "Empty";
 					else
 						displayTextStream << "empty";
+					if (v95)
+						*v95 = true;
 				}
 				else if (between_curlies == "life")
 				{
 					const particle *part = GetParticleAt(sim, x, y);
 					displayTextStream << (part ? part->life : 0);
+					if (v95)
+						*v95 = true;
 				}
 				else if (between_curlies == "tmp")
 				{
 					const particle *part = GetParticleAt(sim, x, y);
 					displayTextStream << (part ? part->tmp : 0);
+					if (v95)
+						*v95 = true;
 				}
 				else if (between_curlies == "tmp2")
 				{
 					const particle *part = GetParticleAt(sim, x, y);
 					displayTextStream << (part ? part->tmp2 : 0);
+					if (v95)
+						*v95 = true;
 				}
 				else
 					displayTextStream << '{' << between_curlies << '}';

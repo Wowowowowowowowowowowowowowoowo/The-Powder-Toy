@@ -16,6 +16,7 @@ private:
 	int x, y;
 	Justification ju;
 	Type type;
+	bool isV95 = false;
 
 public:
 	Sign(std::string text, int x, int y, Justification justification);
@@ -24,7 +25,7 @@ public:
 	void SetText(std::string newText);
 	std::string GetText() const { return text; }
 	std::string GetLinkText() const { return linkText; }
-	std::string GetDisplayText(Simulation * sim) const;
+	std::string GetDisplayText(Simulation * sim, bool *v95 = nullptr) const;
 
 	void SetJustification(Justification newJustification) { ju = newJustification; }
 	Justification GetJustification() const { return ju; }
