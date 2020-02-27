@@ -179,7 +179,7 @@ vcxproj.write(r"""<?xml version="1.0" encoding="utf-8"?>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>shell32.lib;ws2_32.lib;SDL2.lib;SDL2main.lib;libbz2.lib;pthreadVC2.lib;luajit2.0.lib;libfftw3f-3.lib;zlib.lib;libcurl.lib;regex.lib;winmm.lib;imm32.lib;version.lib;Ole32.lib;OleAut32.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+	  <AdditionalDependencies>shell32.lib;ws2_32.lib;SDL2.lib;SDL2main.lib;libbz2.lib;pthreadVC2.lib;luajit2.0.lib;libfftw3f-3.lib;zlib.lib;libcurl.lib;regex.lib;winmm.lib;imm32.lib;version.lib;Ole32.lib;OleAut32.lib;Wldap32.lib;crypt32.lib;SetupApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
