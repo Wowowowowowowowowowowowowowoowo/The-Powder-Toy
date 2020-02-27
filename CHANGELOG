@@ -1034,3 +1034,9 @@ api for Lua. Fix mac version not starting due to misplaced file. Fix linux
 Version 44.0 (build 118) 2020-01-29
 Fix linux 64 bit version wrongly depending on libssl1.0 instead of libssl1.1.
 For real this time!
+
+Version 44.1 2020-02-26
+Fix graphical bug when scrolling Options menu with dropdown open. Fix console
+staying open after doing !load. Fix stack overflow in Lua particle updates.
+Fix element search UI on Windows. Fix bug reporter. Remove ctrl+click on
+usernames feature in save preview, because it just crashes the game.

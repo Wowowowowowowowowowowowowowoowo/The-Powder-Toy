@@ -26,23 +26,23 @@
 #else
 #define PATH_SEP "/"
 #endif
- 
+
 //VersionInfoStart
-#define SAVE_VERSION 94
-#define MINOR_VERSION 1
-#define BUILD_NUM 343
+#define SAVE_VERSION 95
+#define MINOR_VERSION 0
+#define BUILD_NUM 345
 //VersionInfoEnd
-#define FAKE_SAVE_VERSION 94
-#define FAKE_MINOR_VER 1
+#define FAKE_SAVE_VERSION 95
+#define FAKE_MINOR_VER 0
 
 #define MOD_VERSION 44
-#define MOD_MINOR_VERSION 0
+#define MOD_MINOR_VERSION 1
 #define MOD_SAVE_VERSION 25 //This is not the version number of my mod anymore, it's only changed when I change the saving code
-#define MOD_BUILD_VERSION 118 //For update checks
+#define MOD_BUILD_VERSION 119 //For update checks
 
 #define MOBILE_MAJOR 1
-#define MOBILE_MINOR 7
-#define MOBILE_BUILD 113
+#define MOBILE_MINOR 8
+#define MOBILE_BUILD 114
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
