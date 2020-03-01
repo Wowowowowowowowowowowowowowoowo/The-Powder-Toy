@@ -767,7 +767,7 @@ void PowderToy::AdjustCursorSize(int d, bool keyShortcut)
 	if (PlacingZoomWindow())
 	{
 		if (keyShortcut && !altHeld)
-			d = static_cast<int>(std::ceil(zoomScopeSize / 5.0f + 0.5f));
+			d = d * static_cast<int>(std::ceil(zoomScopeSize / 5.0f + 0.5f));
 		zoomScopeSize = std::max(2, std::min(zoomScopeSize+d, 60));
 		zoomFactor = 256/zoomScopeSize;
 		UpdateZoomCoordinates(zoomMousePosition);
