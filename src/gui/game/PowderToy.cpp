@@ -1676,8 +1676,6 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			else
 				quadrant = (diff.Y > 0) ? 2 : 0; // down : up
 
-			std::cout << quadrant << ", " << stampQuadrant << std::endl;
-
 			// shift (arrow keys)
 			if (quadrant == stampQuadrant)
 				TranslateSave(Point((quadrant-2)%2, (quadrant-1)%2));
