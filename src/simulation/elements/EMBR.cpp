@@ -64,9 +64,10 @@ int EMBR_graphics(GRAPHICS_FUNC_ARGS)
 	bool deco = false;
 	if (decorations_enable && cpart->dcolour && (cpart->dcolour&0xFF000000))
 	{
+		// commented out because no "blackDecorations" in my mod
 		/*if (!blackDecorations) // if blackDecorations is off, always show deco
 			deco = true;
-		else*/ if (((cpart->dcolour>>24)&0xFF) >= 250 && ((cpart->dcolour>>16)&0xFF) <= 5 && ((cpart->dcolour>>8)&0xFF) <= 5 && ((cpart->dcolour)&0xFF) <= 5) // else only render black deco
+		else/ if (((cpart->dcolour>>24)&0xFF) >= 250 && ((cpart->dcolour>>16)&0xFF) <= 5 && ((cpart->dcolour>>8)&0xFF) <= 5 && ((cpart->dcolour)&0xFF) <= 5) // else only render black deco*/
 			deco = true;
 	}
 

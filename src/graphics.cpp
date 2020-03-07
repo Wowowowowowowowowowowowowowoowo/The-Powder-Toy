@@ -1981,6 +1981,7 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 					pixel_mode = PMODE_FLAT;
 				}
 
+				// Apply decoration color
 				if (!(color_mode & ~COLOR_GRAD) && decorations_enable && deca)
 				{
 					deca++;
