@@ -411,8 +411,8 @@ int DrawMenus(pixel *vid_buf, int hover, int mouseY)
 #else
 
 bool draggingMenuSections = false;
-int menuOffset = 0, menuStart = 0;
 const int menuIconHeight = 20;
+int menuOffset = -menuIconHeight * SC_POWDERS, menuStart = 0;
 int DrawMenusTouch(pixel *vid_buf, int b, int bq, int mx, int my)
 {
 	int xStart = menuStartPosition-2, y = YRES-70+menuOffset+1;

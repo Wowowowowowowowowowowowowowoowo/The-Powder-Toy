@@ -64,7 +64,11 @@ const wallType wallTypes[] =
 	{"EWALL",           "DEFAULT_WL_EWALL", COLPACK(0x808080), COLPACK(0x808080), 0,  "E-Wall. Becomes transparent when electricity is connected."},
 	{"DETECTOR",        "DEFAULT_WL_DTECT", COLPACK(0xFF8080), COLPACK(0xFF2008), 1,  "Detector. Generates electricity when a particle is inside."},
 	{"STREAMLINE",      "DEFAULT_WL_STRM",  COLPACK(0x808080), COLPACK(0x000000), 0,  "Streamline. Creates a line that follows air movement."},
+#ifndef TOUCHUI
 	{"FAN",             "DEFAULT_WL_FAN",   COLPACK(0x8080FF), COLPACK(0x000000), 1,  "Fan. Accelerates air. Use the line tool to set direction and strength."},
+#else
+	{"FAN",             "DEFAULT_WL_FAN",   COLPACK(0x8080FF), COLPACK(0x000000), 1,  "Fan. Accelerates air. Fan acceleration cannot be set on Android."},
+#endif
 	{"LIQUID WALL",     "DEFAULT_WL_LIQD",  COLPACK(0xC0C0C0), COLPACK(0x101010), 2,  "Allows liquids, blocks all other particles. Conductive."},
 	{"ABSORB WALL",     "DEFAULT_WL_ABSRB", COLPACK(0x808080), COLPACK(0x000000), 1,  "Absorbs particles but lets air currents through."},
 	{"WALL",            "DEFAULT_WL_WALL",  COLPACK(0x808080), COLPACK(0x000000), 3,  "Basic wall, blocks everything."},
