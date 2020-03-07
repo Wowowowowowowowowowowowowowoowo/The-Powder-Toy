@@ -1554,7 +1554,7 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 		else
 		{
 			int xOffset = (loadSize.X - loadSize.Y)/2;
-			Point diff = cursor - GetStampPos() / CELL * CELL;
+			Point diff = cursor - GetStampCenterPos() / CELL * CELL;
 			if (std::abs(diff.X) - xOffset > std::abs(diff.Y))
 				stampQuadrant = (diff.X > 0) ? 3 : 1; // right : left
 			else
@@ -1670,11 +1670,13 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			// if you move between quadrants you can rotate in that direction
 			// or flip horizontally / vertically by dragging accross the stamp without touching the side quadrants
 			int quadrant, xOffset = (loadSize.X - loadSize.Y) / 2;
-			Point diff = cursor - GetStampPos() / CELL * CELL;
+			Point diff = cursor - GetStampCenterPos() / CELL * CELL;
 			if (std::abs(diff.X)-xOffset > std::abs(diff.Y))
 				quadrant = (diff.X > 0) ? 3 : 1; // right : left
 			else
 				quadrant = (diff.Y > 0) ? 2 : 0; // down : up
+
+			std::cout << quadrant << ", " << stampQuadrant << std::endl;
 
 			// shift (arrow keys)
 			if (quadrant == stampQuadrant)

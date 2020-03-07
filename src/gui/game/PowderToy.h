@@ -172,6 +172,7 @@ public:
 	StampState GetStampState() { return state; }
 	void ResetStampState();
 	Point GetStampPos() { return (loadPos - (loadSize - stampOffset)/2) / CELL * CELL; }
+	Point GetStampCenterPos() { return (loadPos + stampOffset/2) / CELL * CELL; }
 	Point GetStampSize() { return loadSize; }
 	pixel * GetStampImg() { return waitToDraw ? NULL : stampImg; }
 	Point GetSavePos() { return savePos; }
