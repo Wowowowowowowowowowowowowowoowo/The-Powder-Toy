@@ -172,7 +172,7 @@ std::string Sign::GetDisplayText(Simulation * sim, bool *v95) const
 				{
 					float aheat = 0.0f;
 					if (sim)
-						aheat = sim->air->pv[y/CELL][x/CELL];
+						aheat = sim->air->hv[y/CELL][x/CELL];
 					displayTextStream << std::fixed << std::setprecision(2) << aheat;
 					if (v95)
 						*v95 = true;
