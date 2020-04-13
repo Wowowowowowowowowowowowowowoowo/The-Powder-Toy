@@ -140,97 +140,96 @@ std::string Sign::GetDisplayText(Simulation * sim, bool *v95) const
 			last_appended_pos = left_curly_pos;
 
 			right_curly_pos = text.find('}', left_curly_pos + 1);
-			if (right_curly_pos != text.npos)
-			{
-				last_appended_pos = right_curly_pos + 1;
+			if (right_curly_pos == text.npos)
+				break;
+			last_appended_pos = right_curly_pos + 1;
 
-				std::string between_curlies = text.substr(left_curly_pos + 1, right_curly_pos - (left_curly_pos + 1));
-				if (between_curlies == "t" || between_curlies == "temp")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					if (part)
-						displayTextStream << std::fixed << std::setprecision(2) << parts[ID(pmap[y][x])].temp-273.15f;
-					else
-						displayTextStream << "N/A";
-					// * We would really only need to do this if the sign used the new
-					//   keyword "temp" or if the text was more than just "{t}", but 95.0
-					//   upgrades such signs at load time anyway.
-					// * The same applies to "{p}" and "{aheat}" signs.
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "p" || between_curlies == "pres")
-				{
-					float pres = 0.0f;
-					if (sim)
-						pres = sim->air->pv[y/CELL][x/CELL];
-					displayTextStream << std::fixed << std::setprecision(2) << pres;
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "a" || between_curlies == "aheat")
-				{
-					float aheat = 0.0f;
-					if (sim)
-						aheat = sim->air->hv[y/CELL][x/CELL];
-					displayTextStream << std::fixed << std::setprecision(2) << aheat;
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "type")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					if (part)
-						displayTextStream << sim->ElementResolve(part->type, part->ctype);
-					else if (displayTextStream.str().empty())
-						displayTextStream << "Empty";
-					else
-						displayTextStream << "empty";
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "ctype")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					if (part)
-					{
-						int ctype = part->ctype;
-						if (sim->IsElementOrNone(ctype))
-							displayTextStream << sim->ElementResolve(ctype, 0);
-						else
-							displayTextStream << ctype;
-					}
-					else if (displayTextStream.str().empty())
-						displayTextStream << "Empty";
-					else
-						displayTextStream << "empty";
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "life")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					displayTextStream << (part ? part->life : 0);
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "tmp")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					displayTextStream << (part ? part->tmp : 0);
-					if (v95)
-						*v95 = true;
-				}
-				else if (between_curlies == "tmp2")
-				{
-					const particle *part = GetParticleAt(sim, x, y);
-					displayTextStream << (part ? part->tmp2 : 0);
-					if (v95)
-						*v95 = true;
-				}
+			std::string between_curlies = text.substr(left_curly_pos + 1, right_curly_pos - (left_curly_pos + 1));
+			if (between_curlies == "t" || between_curlies == "temp")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				if (part)
+					displayTextStream << std::fixed << std::setprecision(2) << parts[ID(pmap[y][x])].temp-273.15f;
 				else
-					displayTextStream << '{' << between_curlies << '}';
+					displayTextStream << "N/A";
+				// * We would really only need to do this if the sign used the new
+				//   keyword "temp" or if the text was more than just "{t}", but 95.0
+				//   upgrades such signs at load time anyway.
+				// * The same applies to "{p}" and "{aheat}" signs.
+				if (v95)
+					*v95 = true;
 			}
+			else if (between_curlies == "p" || between_curlies == "pres")
+			{
+				float pres = 0.0f;
+				if (sim)
+					pres = sim->air->pv[y/CELL][x/CELL];
+				displayTextStream << std::fixed << std::setprecision(2) << pres;
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "a" || between_curlies == "aheat")
+			{
+				float aheat = 0.0f;
+				if (sim)
+					aheat = sim->air->hv[y/CELL][x/CELL];
+				displayTextStream << std::fixed << std::setprecision(2) << aheat;
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "type")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				if (part)
+					displayTextStream << sim->ElementResolve(part->type, part->ctype);
+				else if (displayTextStream.str().empty())
+					displayTextStream << "Empty";
+				else
+					displayTextStream << "empty";
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "ctype")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				if (part)
+				{
+					int ctype = part->ctype;
+					if (sim->IsElementOrNone(ctype))
+						displayTextStream << sim->ElementResolve(ctype, 0);
+					else
+						displayTextStream << ctype;
+				}
+				else if (displayTextStream.str().empty())
+					displayTextStream << "Empty";
+				else
+					displayTextStream << "empty";
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "life")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				displayTextStream << (part ? part->life : 0);
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "tmp")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				displayTextStream << (part ? part->tmp : 0);
+				if (v95)
+					*v95 = true;
+			}
+			else if (between_curlies == "tmp2")
+			{
+				const particle *part = GetParticleAt(sim, x, y);
+				displayTextStream << (part ? part->tmp2 : 0);
+				if (v95)
+					*v95 = true;
+			}
+			else
+				displayTextStream << '{' << between_curlies << '}';
 		}
 		if (right_curly_pos == (size_t)-1)
 			return text;
