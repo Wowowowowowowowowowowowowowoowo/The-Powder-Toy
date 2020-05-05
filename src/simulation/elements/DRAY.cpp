@@ -36,7 +36,8 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 					{
 						bool overwrite = parts[ID(r)].ctype == PT_PSCN;
 						// Positions where the line will start being copied at
-						int partsRemaining = copyLength, xCopyTo, yCopyTo;
+						int partsRemaining = copyLength, xCopyTo = -1, yCopyTo = -1;
+						int localCopyLength = copyLength;
 
 						// INWR doesn't spark from diagonals
 						if (parts[ID(r)].ctype == PT_INWR && rx && ry)
@@ -47,6 +48,9 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						bool isEnergy = false;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 						{
+							// Out of bounds, stop looking and don't copy anything
+							if (!sim->InBounds(xCurrent, yCurrent))
+								break;
 							int rr;
 							// Haven't found a particle yet, keep looking for one
 							// The first particle it sees decides whether it will copy energy particles or not
@@ -71,11 +75,10 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 							// Checks for when to stop:
 							//  1: If .tmp isn't set, and the element in this spot is the ctype, then stop
 							//  2: If .tmp is set, stop when the length limit reaches 0
-							//  3. Stop when we are out of bounds
-							if ((!copyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
-							        || !(--partsRemaining && sim->InBounds(xCurrent+xStep, yCurrent+yStep)))
+							if ((!localCopyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
+									|| !--partsRemaining)
 							{
-								copyLength -= partsRemaining;
+								localCopyLength -= partsRemaining;
 								xCopyTo = xCurrent + xStep*copySpaces;
 								yCopyTo = yCurrent + yStep*copySpaces;
 								break;
@@ -83,7 +86,7 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 						}
 
 						// Now, actually copy the particles
-						partsRemaining = copyLength + 1;
+						partsRemaining = localCopyLength + 1;
 						int type, p;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; sim->InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
 						{
