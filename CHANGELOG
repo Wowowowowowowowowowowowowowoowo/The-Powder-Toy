@@ -1041,3 +1041,9 @@ with dropdown open. Fix console staying open after doing !load. Fix stack
 overflow in Lua particle updates. Fix element search UI on Windows. Fix bug
 reporter. Remove ctrl+click on usernames feature in save preview, because it
 just crashes the game. Change version number to 95.0 - build 345.
+
+Version 44.2 2020-05-04
+Fix [ key zoom window shortcut. Fix decorated fireworks not exploding in the
+right color. Fix {aheat} signs using pressure instead of aheat. Fix infinite
+loop if link sign text doesn't end with }. Fix DRAY bug when one DRAY is
+sparked multiple times in a frame (fixes "virus killer" id:2536933)
