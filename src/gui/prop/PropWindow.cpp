@@ -161,7 +161,7 @@ bool PropWindow::ParseInteger(const std::string& value, bool isHex)
 	else
 	{
 		auto val = ParseNumber<int>(value, isHex, isParsed);
-		if (isType && (val < 0 || val >= PT_NUM))
+		if (isType && (val < 0 || val >= PT_NUM || !globalSim->elements[val].Enabled))
 			return false;
 		if (isParsed)
 		{
