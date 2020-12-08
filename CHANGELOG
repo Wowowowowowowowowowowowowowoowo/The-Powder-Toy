@@ -1047,3 +1047,9 @@ Fix [ key zoom window shortcut. Fix decorated fireworks not exploding in the
 right color. Fix {aheat} signs using pressure instead of aheat. Fix infinite
 loop if link sign text doesn't end with }. Fix DRAY bug when one DRAY is
 sparked multiple times in a frame (fixes "virus killer" id:2536933)
+
+Version 44.3 2020-12-07
+Update to TPTMP 1.0. This version adds some QoL features, and also adds
+authentication to the TPT servers. This authentication happens automatically
+on join, and anyone who isn't logged in will be forwarded to the guest lobby.
+Fix PROP tool being able to set type to invalid (disabled) elements.
