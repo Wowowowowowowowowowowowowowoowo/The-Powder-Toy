@@ -1062,3 +1062,6 @@ Version 44.5 2020-12-28
 Update to TPTMP 1.0.2. This version redoes the user authentication to integrate
 with a brand new api in the website, greatly simplifying and further improving
 the security of the authentication process.
+
+Version 44.5 (build 124) 2020-12-28
+Update to new TPTMP 1.0.2. This fixes token expiration.
