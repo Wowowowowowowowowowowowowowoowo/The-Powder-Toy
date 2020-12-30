@@ -189,7 +189,7 @@ void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int 
 	}
 	for (int i = 0; i < w && x+i < width; i++)
 	{
-		if (y + i >= 0 && y < height)
+		if (y >= 0 && y < height)
 			DrawPixel(x+i, y, r, g, b, a);
 		if (y+h-1 < height)
 			DrawPixel(x+i, y+h-1, r, g, b, a);
