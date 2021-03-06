@@ -2061,7 +2061,7 @@ int luatpt_getscript(lua_State* l)
 	int confirmPrompt = luaL_optint(l, 4, 1);
 
 	std::stringstream url;
-	url << "http://starcatcher.us/scripts/main.lua?get=" << scriptID;
+	url << "https://starcatcher.us/scripts/main.lua?get=" << scriptID;
 	if (confirmPrompt && !confirm_ui(lua_vid_buf, "Do you want to install script?", url.str().c_str(), "Install"))
 		return 0;
 
