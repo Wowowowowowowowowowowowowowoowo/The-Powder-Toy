@@ -914,7 +914,9 @@ int Simulation::part_create(int p, int x, int y, int t, int v)
 		}
 		else if (IsWallBlocking(x, y, t))
 			return -1;
-		if (photons[y][x] && (elements[t].Properties & TYPE_ENERGY))
+		else if (bmap[y/CELL][x/CELL] == WL_DETECT && elements[t].Properties & TYPE_SOLID)
+			return -1;
+		else if (photons[y][x] && (elements[t].Properties & TYPE_ENERGY))
 			return -1;
 	}
 	// End Brush Creation
@@ -1498,7 +1500,6 @@ bool Simulation::UpdateParticle(int i)
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWPOWDER && !(elements[t].Properties&TYPE_PART)) ||
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWGAS && !(elements[t].Properties&TYPE_GAS)) || //&&  elements[t].Falldown!=0 && t!=PT_FIRE && t!=PT_SMKE && t!=PT_HFLM) ||
 		   (bmap[y/CELL][x/CELL] == WL_ALLOWENERGY && !(elements[t].Properties&TYPE_ENERGY)) ||
-		   (bmap[y/CELL][x/CELL] == WL_DETECT && (t==PT_METL || t==PT_SPRK)) ||
 		   (bmap[y/CELL][x/CELL] == WL_EWALL && !emap[y/CELL][x/CELL])
 #ifdef NOMOD
 		  ) && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FIGH))
