@@ -3283,6 +3283,7 @@ int search_ui(pixel *vid_buf)
 	float ry;
 	ui_edit ed;
 	ui_richtext motd;
+	int searchFailureCode = -1;
 
 
 	Request *saveListDownload = NULL;
@@ -3709,6 +3710,12 @@ int search_ui(pixel *vid_buf)
 			fillrect(vid_buf, 0, 30, XRES+BARSIZE, YRES+MENUSIZE-30, 0, 0, 0, 150);
 			drawtext(vid_buf, (XRES+BARSIZE-textwidth("Loading ..."))/2, (YRES+MENUSIZE)/2, "Loading ...", 255, 255, 255, 255);
 		}
+		else if (searchFailureCode != -1)
+		{
+			std::string errorMsg = "\boHTTP Error " + Format::NumberToString<int>(searchFailureCode) + ": " + Request::GetStatusCodeDesc(searchFailureCode);
+			fillrect(vid_buf, 0, 30, XRES+BARSIZE, YRES+MENUSIZE-30, 0, 0, 0, 150);
+			drawtext(vid_buf, (XRES+BARSIZE-textwidth(errorMsg.c_str()))/2, (YRES+MENUSIZE)/2, errorMsg.c_str(), 255, 255, 255, 255);
+		}
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
 		ui_edit_process(mx, my, b, bq, &ed);
@@ -3936,7 +3943,10 @@ int search_ui(pixel *vid_buf)
 				}
 				ui_richtext_settext(server_motd, &motd);
 				motd.x = (XRES-textwidth(motd.printstr))/2;
+				searchFailureCode = -1;
 			}
+			else
+				searchFailureCode = status;
 			for (auto requestPair : thumbDownloads)
 			{
 				free(requestPair.imgId);
