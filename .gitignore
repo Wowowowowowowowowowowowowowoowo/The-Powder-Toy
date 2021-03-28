@@ -26,6 +26,10 @@ config.log
 *.cflags
 *.cxxflags
 
+# KDevelop project files
+*.kdev4
+/.kdev4
+
 # Visual studio project files
 *.sdf
 *.opensdf
