@@ -1042,17 +1042,7 @@ void PowderToy::OnTick(uint32_t ticks)
 	{
 		int status = 200;
 		std::string ret = versionCheck->Finish(&status);
-		if (status != 200 || ParseServerReturn((char*)ret.c_str(), status, true))
-		{
-#ifndef ANDROID
-			if (status != 503)
-			{
-				SetInfoTip("Error, could not find update server. Press Ctrl+u to go check for a newer version manually on the tpt website");
-				UpdateToolTip("", Point(16, 20), INTROTIP, 0);
-			}
-#endif
-		}
-		else
+		if (status == 200 && !ParseServerReturn((char*)ret.c_str(), status, true))
 		{
 			std::istringstream datastream(ret);
 			Json::Value root;
