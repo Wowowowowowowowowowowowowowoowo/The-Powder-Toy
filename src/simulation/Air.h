@@ -47,8 +47,9 @@ public:
 
 	Air();
 	void MakeKernel();
-
+	
 	void Clear();
+	void ClearAirH();
 
 	void UpdateAirHeat(bool isVertical);
 	void UpdateAir();

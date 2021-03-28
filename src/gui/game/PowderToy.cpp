@@ -2120,7 +2120,9 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		break;
 	case SDL_SCANCODE_U:
 		if (ctrlHeld)
-			Platform::OpenLink("https://powdertoy.co.uk/Discussions/Thread/View.html?Thread=11117");
+		{
+			sim->air->ClearAirH();
+		}
 		else
 		{
 			aheat_enable = !aheat_enable;

@@ -64,6 +64,11 @@ void Air::Clear()
 	}
 }
 
+void Air::ClearAirH()
+{
+	std::fill(&hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)), outside_temp);
+}
+
 void Air::UpdateAirHeat(bool isVertical)
 {
 	if (!aheat_enable)
