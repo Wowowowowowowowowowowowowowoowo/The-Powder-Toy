@@ -29,6 +29,8 @@ int TSNS_update(UPDATE_FUNC_ARGS)
 				{
 					int r = pmap[y+ry][x+rx];
 					if (!r)
+						r = photons[y+ry][x+rx];
+					if (!r)
 						continue;
 					int rt = TYP(r);
 					if (parts_avg(i, ID(r), PT_INSL) != PT_INSL)

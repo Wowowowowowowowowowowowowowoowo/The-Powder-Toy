@@ -24,6 +24,8 @@ int HSWC_update(UPDATE_FUNC_ARGS)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
 					int r = pmap[y+ry][x+rx];
+					if (!r)
+						r = photons[y+ry][x+rx];
 					if (TYP(r) == PT_FILT)
 					{
 						int newTemp = parts[ID(r)].ctype - 0x10000000;
