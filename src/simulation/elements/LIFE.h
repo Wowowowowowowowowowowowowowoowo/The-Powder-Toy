@@ -94,7 +94,10 @@ public:
 					}
 					else
 					{
-						parts[ID(r)].tmp--;
+						if (!(bmap[ny/CELL][nx/CELL] == WL_STASIS && emap[ny/CELL][nx/CELL] < 8))
+						{
+							parts[ID(r)].tmp --;
+						}
 					}
 				}
 			}
