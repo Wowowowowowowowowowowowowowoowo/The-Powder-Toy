@@ -19,6 +19,7 @@
 int ARAY_update(UPDATE_FUNC_ARGS)
 {
 	int nxx, nyy, docontinue, nxi, nyi;
+	int long_bray_life = parts[i].life > 0 ? parts[i].life : 1020;
 	for (int rx=-1; rx <= 1; rx++)
 		for (int ry=-1; ry <= 1; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -68,7 +69,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									// if it hits another BRAY that isn't red
 									if (nyy!=0 || nxx!=0)
 									{
-										parts[r].life = 1020; // makes it last a while
+										parts[r].life = long_bray_life; // makes it last a while
 										parts[r].tmp = 1;
 										if (!parts[r].ctype) // and colors it if it isn't already
 											parts[r].ctype = colored;
@@ -78,7 +79,7 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									docontinue = 0;
 									break;
 								case 1://if it hits one that already was a long life, reset it
-									parts[r].life = 1020;
+									parts[r].life = long_bray_life;
 									//docontinue = 1;
 									break;
 								}
