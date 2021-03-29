@@ -175,6 +175,12 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 							sim->part_kill(ID(r));
 							continue;
 						}
+						if ((parts[i].ctype == PT_STNE || parts[i].ctype == PT_NONE) && RNG::Ref().chance(1, 60))
+						{
+							parts[i].ctype = PT_SLCN;
+							sim->part_kill(ID(r));
+							continue;
+						}
 					}
 				}
 
@@ -190,6 +196,35 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 							parts[i].ctype = PT_CRMC;
 							parts[ID(r)].ctype = PT_CRMC;
 						}
+					}
+					else if (rt == PT_O2 && parts[i].ctype == PT_SLCN)
+					{
+						switch (RNG::Ref().between(0, 2))
+						{
+							case 0:
+								parts[i].ctype = PT_SAND;
+								break;
+								
+							case 1:
+								parts[i].ctype = PT_CLST;
+								// avoid creating CRMC.
+								if (parts[i].temp >= sim->elements[PT_PQRT].HighTemperatureTransitionThreshold * 3)
+								{
+									parts[i].ctype = PT_PQRT;
+								}
+								break;
+								
+							case 2:
+								parts[i].ctype = PT_STNE;
+								break;
+						}
+						sim->part_kill(ID(r));
+						continue;
+					}
+					else if (rt == PT_LAVA && (parts[ID(r)].ctype == PT_METL || parts[ID(r)].ctype == PT_BMTL) && parts[i].ctype == PT_SLCN)
+					{
+						parts[i].ctype = PT_NSCN;
+						parts[ID(r)].ctype = PT_PSCN;
 					}
 					else if (rt == PT_HEAC && parts[i].ctype == PT_HEAC)
 					{
