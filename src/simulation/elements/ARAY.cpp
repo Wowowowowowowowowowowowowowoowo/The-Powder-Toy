@@ -19,6 +19,7 @@
 int ARAY_update(UPDATE_FUNC_ARGS)
 {
 	int nxx, nyy, docontinue, nxi, nyi;
+	int short_bray_life = parts[i].life > 0 ? parts[i].life : 30;
 	int long_bray_life = parts[i].life > 0 ? parts[i].life : 1020;
 	for (int rx=-1; rx <= 1; rx++)
 		for (int ry=-1; ry <= 1; ry++)
@@ -53,7 +54,10 @@ int ARAY_update(UPDATE_FUNC_ARGS)
 									parts[nr].life = 2;
 								}
 								else
+								{
 									parts[nr].ctype = colored;
+									parts[nr].life = short_bray_life;
+								}
 								parts[nr].temp = parts[i].temp;
 								if (isBlackDeco)
 									parts[nr].dcolour = COLRGB(0, 0, 0);
