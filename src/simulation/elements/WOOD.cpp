@@ -19,6 +19,14 @@ int WOOD_update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].temp > 450 && parts[i].temp > parts[i].tmp2)
 		parts[i].tmp2 = (int)parts[i].temp;
+
+	if (parts[i].temp > 773.0f && sim->air->pv[y/CELL][x/CELL] <= -10.0f)
+	{
+		float temp = parts[i].temp;
+		sim->part_create(i, x, y, PT_BCOL);
+		parts[i].temp = temp;
+	}
+
 	return 0;
 }
 
