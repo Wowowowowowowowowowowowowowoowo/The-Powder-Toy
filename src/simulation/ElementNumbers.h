@@ -18,7 +18,7 @@
 #if (!defined(ElementNumbers_H_Numbers) || (defined(ElementNumbers_Include_Decl) && !defined(ElementNumbers_H_Decl)) || (defined(ElementNumbers_Include_Call) && !defined(ElementNumbers_H_Call)))
 
 //Defines for the number of elements that are rarely changed. Seems like it doesn't belong here ...
-#define PT_NORMAL_NUM 188
+#define PT_NORMAL_NUM 189
 
 #undef ElementNumbers_Include_Numbers
 
@@ -248,6 +248,7 @@ DEFINE_ELEMENT(RFGL, 184)
 DEFINE_ELEMENT(LSNS, 185)
 DEFINE_ELEMENT(LDTC, 186)
 DEFINE_ELEMENT(SLCN, 187)
+DEFINE_ELEMENT(PTNM, 188)
 
 #ifndef NOMOD
 DEFINE_ELEMENT(MOVS, PT_NORMAL_NUM)
