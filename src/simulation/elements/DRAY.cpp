@@ -24,118 +24,116 @@ int DRAY_update(UPDATE_FUNC_ARGS)
 		copyLength = parts[i].tmp  = 0;
 	else if (copyLength > 0)
 		copySpaces++; //strange hack
-	if (!parts[i].life) // only fire when life is 0, but nothing sets the life right now
-	{
-		for (int rx = -1; rx <= 1; rx++)
-			for (int ry = -1; ry <= 1; ry++)
-				if (BOUNDS_CHECK && (rx || ry))
+
+	for (int rx = -1; rx <= 1; rx++)
+		for (int ry = -1; ry <= 1; ry++)
+			if (BOUNDS_CHECK && (rx || ry))
+			{
+				int r = pmap[y+ry][x+rx];
+				// Spark found, start creating
+				if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3)
 				{
-					int r = pmap[y+ry][x+rx];
-					// Spark found, start creating
-					if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3)
+					bool overwrite = parts[ID(r)].ctype == PT_PSCN;
+					// Positions where the line will start being copied at
+					int partsRemaining = copyLength, xCopyTo = -1, yCopyTo = -1;
+					int localCopyLength = copyLength;
+
+					// INWR doesn't spark from diagonals
+					if (parts[ID(r)].ctype == PT_INWR && rx && ry)
+						continue;
+
+					// Figure out where the copying will start/end
+					bool foundParticle = false;
+					bool isEnergy = false;
+					for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
 					{
-						bool overwrite = parts[ID(r)].ctype == PT_PSCN;
-						// Positions where the line will start being copied at
-						int partsRemaining = copyLength, xCopyTo = -1, yCopyTo = -1;
-						int localCopyLength = copyLength;
-
-						// INWR doesn't spark from diagonals
-						if (parts[ID(r)].ctype == PT_INWR && rx && ry)
-							continue;
-
-						// Figure out where the copying will start/end
-						bool foundParticle = false;
-						bool isEnergy = false;
-						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
+						// Out of bounds, stop looking and don't copy anything
+						if (!sim->InBounds(xCurrent, yCurrent))
+							break;
+						int rr;
+						// Haven't found a particle yet, keep looking for one
+						// The first particle it sees decides whether it will copy energy particles or not
+						if (!foundParticle)
 						{
-							// Out of bounds, stop looking and don't copy anything
-							if (!sim->InBounds(xCurrent, yCurrent))
-								break;
-							int rr;
-							// Haven't found a particle yet, keep looking for one
-							// The first particle it sees decides whether it will copy energy particles or not
-							if (!foundParticle)
+							rr = pmap[yCurrent][xCurrent];
+							if (!rr)
 							{
-								rr = pmap[yCurrent][xCurrent];
-								if (!rr)
-								{
-									rr = photons[yCurrent][xCurrent];
-									if (rr)
-										foundParticle = isEnergy = true;
-								}
-								else
-									foundParticle = true;
-							}
-							// Now that it knows what kind of particle it is copying, do some extra stuff here so we can determine when to stop
-							if ((ctype && sim->elements[ctype].Properties&TYPE_ENERGY) || isEnergy)
 								rr = photons[yCurrent][xCurrent];
+								if (rr)
+									foundParticle = isEnergy = true;
+							}
 							else
-								rr = pmap[yCurrent][xCurrent];
+								foundParticle = true;
+						}
+						// Now that it knows what kind of particle it is copying, do some extra stuff here so we can determine when to stop
+						if ((ctype && sim->elements[ctype].Properties&TYPE_ENERGY) || isEnergy)
+							rr = photons[yCurrent][xCurrent];
+						else
+							rr = pmap[yCurrent][xCurrent];
 
-							// Checks for when to stop:
-							//  1: If .tmp isn't set, and the element in this spot is the ctype, then stop
-							//  2: If .tmp is set, stop when the length limit reaches 0
-							if ((!localCopyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
-									|| !--partsRemaining)
+						// Checks for when to stop:
+						//  1: If .tmp isn't set, and the element in this spot is the ctype, then stop
+						//  2: If .tmp is set, stop when the length limit reaches 0
+						if ((!localCopyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
+								|| !--partsRemaining)
+						{
+							localCopyLength -= partsRemaining;
+							xCopyTo = xCurrent + xStep*copySpaces;
+							yCopyTo = yCurrent + yStep*copySpaces;
+							break;
+						}
+					}
+
+					// Now, actually copy the particles
+					partsRemaining = localCopyLength + 1;
+					int type, p;
+					for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; sim->InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
+					{
+						// Get particle to copy
+						if (isEnergy)
+							type = TYP(photons[yCurrent][xCurrent]);
+						else
+							type = TYP(pmap[yCurrent][xCurrent]);
+
+						// If sparked by PSCN, overwrite whatever is in the target location, instead of just ignoring it
+						if (overwrite)
+						{
+							if (isEnergy)
 							{
-								localCopyLength -= partsRemaining;
-								xCopyTo = xCurrent + xStep*copySpaces;
-								yCopyTo = yCurrent + yStep*copySpaces;
-								break;
+								if (photons[yCopyTo][xCopyTo])
+									sim->part_kill(ID(photons[yCopyTo][xCopyTo]));
+							}
+							else
+							{
+								if (pmap[yCopyTo][xCopyTo])
+									sim->part_kill(ID(pmap[yCopyTo][xCopyTo]));
 							}
 						}
+						// Spark hack
+						if (type == PT_SPRK)
+							p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
+						else if (type)
+							p = sim->part_create(-1, xCopyTo, yCopyTo, type);
+						else
+							continue;
 
-						// Now, actually copy the particles
-						partsRemaining = localCopyLength + 1;
-						int type, p;
-						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; sim->InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
+						// If new particle was created successfully
+						if (p >= 0)
 						{
-							// Get particle to copy
-							if (isEnergy)
-								type = TYP(photons[yCurrent][xCurrent]);
-							else
-								type = TYP(pmap[yCurrent][xCurrent]);
-
-							// If sparked by PSCN, overwrite whatever is in the target location, instead of just ignoring it
-							if (overwrite)
-							{
-								if (isEnergy)
-								{
-									if (photons[yCopyTo][xCopyTo])
-										sim->part_kill(ID(photons[yCopyTo][xCopyTo]));
-								}
-								else
-								{
-									if (pmap[yCopyTo][xCopyTo])
-										sim->part_kill(ID(pmap[yCopyTo][xCopyTo]));
-								}
-							}
 							// Spark hack
 							if (type == PT_SPRK)
-								p = sim->part_create(-1, xCopyTo, yCopyTo, PT_METL);
-							else if (type)
-								p = sim->part_create(-1, xCopyTo, yCopyTo, type);
+								sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
+							if (isEnergy)
+								parts[p] = parts[ID(photons[yCurrent][xCurrent])];
 							else
-								continue;
+								parts[p] = parts[ID(pmap[yCurrent][xCurrent])];
 
-							// If new particle was created successfully
-							if (p >= 0)
-							{
-								// Spark hack
-								if (type == PT_SPRK)
-									sim->part_change_type(p, xCopyTo, yCopyTo, PT_SPRK);
-								if (isEnergy)
-									parts[p] = parts[ID(photons[yCurrent][xCurrent])];
-								else
-									parts[p] = parts[ID(pmap[yCurrent][xCurrent])];
-
-								parts[p].x = (float)xCopyTo;
-								parts[p].y = (float)yCopyTo;
-							}
+							parts[p].x = (float)xCopyTo;
+							parts[p].y = (float)yCopyTo;
 						}
 					}
 				}
-	}
+			}
 	return 0;
 }
 
@@ -169,7 +167,7 @@ void DRAY_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Latent = 0;
 	elem->Description = "Duplicator ray. Replicates a line of particles in front of it.";
 
-	elem->Properties = TYPE_SOLID | PROP_LIFE_DEC;
+	elem->Properties = TYPE_SOLID;
 
 	elem->LowPressureTransitionThreshold = IPL;
 	elem->LowPressureTransitionElement = NT;
