@@ -1078,6 +1078,9 @@ void Simulation::part_change_type_force(int i, int t)
 // kills particle ID #i
 void Simulation::part_kill(int i)
 {
+	if (i < 0 || i >= NPART)
+		return;
+
 	int x = (int)(parts[i].x + 0.5f);
 	int y = (int)(parts[i].y + 0.5f);
 

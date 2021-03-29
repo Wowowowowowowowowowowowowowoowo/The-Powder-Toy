@@ -788,6 +788,9 @@ int simulation_floodParts(lua_State * l)
 	int cm = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 
+	if (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+
 	int ret = luaSim->FloodParts(x, y, c, cm, flags);
 	lua_pushinteger(l, ret);
 	return 1;
