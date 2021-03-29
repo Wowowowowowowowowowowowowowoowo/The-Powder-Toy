@@ -173,6 +173,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 						{
 							parts[i].ctype = PT_METL;
 							sim->part_kill(ID(r));
+							continue;
 						}
 					}
 				}
