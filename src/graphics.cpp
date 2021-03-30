@@ -2808,7 +2808,7 @@ void render_signs(pixel *vid_buf, Simulation * sim)
 			textCol = COLPACK(0x9353D3);
 			break;
 		}
-		drawtext(vid_buf, x+3, y+3, sign->GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
+		drawtext(vid_buf, x+3, y+4, sign->GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
 
 		// draw the little line on the buttom
 		Point realPos = sign->GetRealPos();
