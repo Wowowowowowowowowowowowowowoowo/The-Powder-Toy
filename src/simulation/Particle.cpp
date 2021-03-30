@@ -4,21 +4,21 @@
 #include "Particle.h"
 
 std::vector<StructProperty> particle::properties = {
-	{ "type"   , StructProperty::ParticleType, offsetof(particle, type   ) },
-	{ "life"   , StructProperty::Integer     , offsetof(particle, life   ) },
-	{ "ctype"  , StructProperty::ParticleType, offsetof(particle, ctype  ) },
-	{ "x"      , StructProperty::Float       , offsetof(particle, x      ) },
-	{ "y"      , StructProperty::Float       , offsetof(particle, y      ) },
-	{ "vx"     , StructProperty::Float       , offsetof(particle, vx     ) },
-	{ "vy"     , StructProperty::Float       , offsetof(particle, vy     ) },
-	{ "temp"   , StructProperty::Float       , offsetof(particle, temp   ) },
-	{ "flags"  , StructProperty::UInteger    , offsetof(particle, flags  ) },
-	{ "tmp"    , StructProperty::Integer     , offsetof(particle, tmp    ) },
-	{ "tmp2"   , StructProperty::Integer     , offsetof(particle, tmp2   ) },
-	{ "dcolour", StructProperty::UInteger    , offsetof(particle, dcolour) },
-	{ "dcolor" , StructProperty::UInteger    , offsetof(particle, dcolour) },
-	{ "pavg0"  , StructProperty::Float       , offsetof(particle, pavg[0]) },
-	{ "pavg1"  , StructProperty::Float       , offsetof(particle, pavg[1]) },
+	{ "type"   , StructProperty::ParticleType, (intptr_t)(offsetof(particle, type   )) },
+	{ "life"   , StructProperty::Integer     , (intptr_t)(offsetof(particle, life   )) },
+	{ "ctype"  , StructProperty::ParticleType, (intptr_t)(offsetof(particle, ctype  )) },
+	{ "x"      , StructProperty::Float       , (intptr_t)(offsetof(particle, x      )) },
+	{ "y"      , StructProperty::Float       , (intptr_t)(offsetof(particle, y      )) },
+	{ "vx"     , StructProperty::Float       , (intptr_t)(offsetof(particle, vx     )) },
+	{ "vy"     , StructProperty::Float       , (intptr_t)(offsetof(particle, vy     )) },
+	{ "temp"   , StructProperty::Float       , (intptr_t)(offsetof(particle, temp   )) },
+	{ "flags"  , StructProperty::UInteger    , (intptr_t)(offsetof(particle, flags  )) },
+	{ "tmp"    , StructProperty::Integer     , (intptr_t)(offsetof(particle, tmp    )) },
+	{ "tmp2"   , StructProperty::Integer     , (intptr_t)(offsetof(particle, tmp2   )) },
+	{ "dcolour", StructProperty::UInteger    , (intptr_t)(offsetof(particle, dcolour)) },
+	{ "dcolor" , StructProperty::UInteger    , (intptr_t)(offsetof(particle, dcolour)) },
+	{ "pavg0"  , StructProperty::Float       , (intptr_t)(offsetof(particle, pavg[0])) },
+	{ "pavg1"  , StructProperty::Float       , (intptr_t)(offsetof(particle, pavg[1])) },
 };
 
 std::vector<StructProperty> const &particle::GetProperties()
