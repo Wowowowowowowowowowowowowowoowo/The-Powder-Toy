@@ -842,8 +842,8 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		}
 		break;
 	case PT_CNCT:
-		// Check below CNCT for another CNCT
-		if (y < ny && TYP(pmap[y+1][x]) == PT_CNCT)
+		// Check below CNCT for another CNCT or ROCK
+		if (y < ny && (TYP(pmap[y+1][x]) == PT_CNCT || TYP(pmap[y+1][x]) == PT_ROCK))
 			return 0;
 		break;
 	case PT_GBMB:

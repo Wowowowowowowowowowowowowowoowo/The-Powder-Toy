@@ -137,7 +137,6 @@ int VSNS_update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
 void VSNS_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_VSNS";
