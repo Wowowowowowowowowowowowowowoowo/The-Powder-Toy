@@ -43,8 +43,18 @@
 #define PPIP_TMPFLAG_TRIGGER_ON      0x10000000
 #define PPIP_TMPFLAG_TRIGGERS        0x1C000000
 
-signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
-signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+signed char pos_1_rx[] = { -1,-1,-1, 0, 0, 1, 1, 1 };
+signed char pos_1_ry[] = { -1, 0, 1,-1, 1,-1, 0, 1 };
+int pos_1_patch90[] = { 2, 4, 7, 1, 6, 0, 3, 5 };
+
+void PIPE_patch90(particle &part)
+{
+	auto oldDirForward = (part.tmp & 0x00001C00) >> 10;
+	auto newDirForward = pos_1_patch90[oldDirForward];
+	auto oldDirReverse = (part.tmp & 0x0001C000) >> 14;
+	auto newDirReverse = pos_1_patch90[oldDirReverse];
+	part.tmp = (part.tmp & 0xFFFE23FF) | (newDirForward << 10) | (newDirReverse << 14);
+}
 
 unsigned int prevColor(unsigned int flags)
 {

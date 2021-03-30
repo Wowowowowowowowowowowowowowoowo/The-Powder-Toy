@@ -32,6 +32,7 @@ public:
 	}
 };
 
+void PIPE_patch90(particle &part);
 void PIPE_transfer_pipe_to_part(Simulation *sim, particle *pipe, particle *part, bool STOR=false);
 
 #endif
