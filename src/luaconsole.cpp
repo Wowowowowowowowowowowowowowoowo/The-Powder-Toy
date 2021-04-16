@@ -1044,7 +1044,7 @@ int luatpt_getelement(lua_State *l)
 	if (lua_isnumber(l, 1))
 	{
 		t = luaL_optint(l, 1, 1);
-		if (!luaSim->IsElement(t))
+		if (!luaSim->IsElementOrNone(t))
 			return luaL_error(l, "Unrecognised element number '%d'", t);
 		name = luaSim->elements[TYP(t)].Name.c_str();
 		lua_pushstring(l, name);

@@ -18,7 +18,7 @@
 void NONE_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_NONE";
-	elem->Name = "";
+	elem->Name = "NONE";
 	elem->Colour = COLPACK(0x000000);
 	elem->MenuVisible = 1;
 	elem->MenuSection = SC_SPECIAL;

@@ -1114,10 +1114,8 @@ std::string Simulation::ElementResolve(int type, int ctype)
 {
 	if (type == PT_LIFE && ctype >= 0 && ctype < NGOL)
 		return golTypes[ctype].name;
-	else if (type > 0 && type < PT_NUM)
+	else if (type >= 0 && type < PT_NUM)
 		return elements[type].Name;
-	else if (type == 0)
-		return "NONE";
 	return "Empty";
 }
 

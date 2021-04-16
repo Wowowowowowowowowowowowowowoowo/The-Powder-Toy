@@ -121,7 +121,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	int toolID = current->GetID();
 	if (current->GetType() == ELEMENT_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[toolID].Colour), globalSim->elements[toolID].Name);
+		draw_tool_button(vid_buf, x, y, PIXPACK(globalSim->elements[toolID].Colour), toolID == 0 ? "" : globalSim->elements[toolID].Name);
 
 		//special case for erase tool
 		if (!toolID)
