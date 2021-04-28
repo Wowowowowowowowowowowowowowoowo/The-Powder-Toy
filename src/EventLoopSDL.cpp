@@ -75,6 +75,23 @@ void SaveWindowPosition()
 	savedWindowY = y - borderTop;
 }
 
+void SDL_Quit_Wrapper()
+{
+	if (SDL_GetWindowFlags(sdl_window) & SDL_WINDOW_OPENGL)
+	{
+		// * nvidia-460 egl registers callbacks with x11 that end up being called
+		//   after egl is unloaded unless we grab it here and release it after
+		//   sdl closes the display. this is an nvidia driver weirdness but
+		//   technically an sdl bug. glfw has this fixed:
+		//   https://github.com/glfw/glfw/commit/9e6c0c747be838d1f3dc38c2924a47a42416c081
+		SDL_GL_LoadLibrary(NULL);
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_GL_UnloadLibrary();
+	}
+
+	SDL_Quit();
+}
+
 int sdl_opened = 0;
 void RecreateWindow();
 int SDLOpen()
@@ -130,7 +147,7 @@ int SDLOpen()
 	SDL_FreeSurface(icon);
 #endif
 
-	atexit(SDL_Quit);
+	atexit(SDL_Quit_Wrapper);
 
 	sdl_opened = 1;
 	return 1;
