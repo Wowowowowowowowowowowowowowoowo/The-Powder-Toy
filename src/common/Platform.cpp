@@ -366,6 +366,7 @@ bool RegisterExtension()
 	if (CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (LPVOID*)&shellLink) != S_OK)
 		goto finalise;
 	shellLink->SetPath(Platform::WinWiden(currentfilename).c_str());
+	shellLink->SetWorkingDirectory(Platform::WinWiden(AppDataPath).c_str());
 	shellLink->SetDescription(L"Jacob1's Mod");
 	if (shellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&shellLinkPersist) != S_OK)
 		goto finalise;
