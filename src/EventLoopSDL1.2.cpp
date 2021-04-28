@@ -105,6 +105,9 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 			Engine::Ref().Shutdown();
 		return 1;
 	case SDL_KEYDOWN:
+		if (SDL_GetModState() & KMOD_GUI)
+			break;
+
 		sdl_key = event.key.keysym.sym; // LEGACY
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
@@ -129,6 +132,9 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 		}
 		break;
 	case SDL_KEYUP:
+		if (SDL_GetModState() & KMOD_GUI)
+			break;
+
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
