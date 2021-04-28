@@ -111,11 +111,27 @@ void DoRestart(bool saveTab, bool disableSignals)
 	if (exename)
 	{
 #ifdef WIN
-		ShellExecute(NULL, "open", exename, disableSignals ? "disable-bluescreen" : nullptr, nullptr, SW_SHOWNORMAL);
+		int ret = (int)ShellExecute(NULL, NULL, exename, disableSignals ? "disable-bluescreen" : nullptr, nullptr, SW_SHOWNORMAL);
+		if (ret <= 32)
+		{
+			fprintf(stderr, "cannot restart: ShellExecute(...) failed: code %i\n", ret);
+		}
+		else
+		{
+#ifndef NOHTTP
+			RequestManager::Ref().Shutdown();
+#endif
+		}
 #elif defined(LIN) || defined(MACOSX)
 		execl(exename, "powder", disableSignals ? "disable-bluescreen" : nullptr);
+		int ret = errno;
+		fprintf(stderr, "cannot restart: execl(...) failed: code %i\n", ret);
 #endif
 		free(exename);
+	}
+	else
+	{
+		fprintf(stderr, "cannot restart: no executable name???\n");
 	}
 	exit(-1);
 #endif
