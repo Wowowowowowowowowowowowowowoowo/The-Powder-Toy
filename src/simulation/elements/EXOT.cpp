@@ -65,8 +65,8 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 					if (rt != PT_EXOT && rt != PT_BREL && !(sim->elements[rt].Properties & PROP_INDESTRUCTIBLE) &&
 					        rt != PT_PRTI && rt != PT_PRTO && rt != PT_VOID && rt != PT_NBHL && rt != PT_WARP)
 					{
-						sim->part_create(i, x, y, rt);
-						return 1;
+						if (sim->part_create(i, x, y, rt) != -1)
+							return 1;
 					}
 			}
 	parts[i].tmp--;
@@ -129,8 +129,8 @@ int EXOT_update(UPDATE_FUNC_ARGS)
 	{
 		if (parts[i].temp < 50.0f)
 		{
-			sim->part_create(i, x, y, PT_HFLM);
-			return 1;
+			if (sim->part_create(i, x, y, PT_HFLM) != -1) // I don't see how this could fail but whatever
+				return 1;
 		}
 		else
 			parts[i].temp -= 1.0f;
