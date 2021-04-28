@@ -23,6 +23,11 @@ namespace Platform
 	// Filesystem stuff (TODO: add more stuff)
 	void MakeDirectory(std::string dir);
 	std::vector<std::string> DirectorySearch(std::string directory, std::string search, std::vector<std::string> extensions);
+
+#ifdef WIN
+	std::string WinNarrow(const std::wstring& source);
+	std::wstring WinWiden(const std::string& source);
+#endif
 }
 
 

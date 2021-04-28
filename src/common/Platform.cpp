@@ -7,6 +7,7 @@
 #include <dirent.h>
 
 #ifdef WIN
+#include "game/RequestManager.h"
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
@@ -198,6 +199,11 @@ void LoadFileInResource(int name, int type, unsigned int& size, const char*& dat
 bool RegisterExtension()
 {
 #ifdef WIN
+	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	wchar_t programsPath[MAX_PATH];
+	IShellLinkW* shellLink = NULL;
+	IPersistFile* shellLinkPersist = NULL;
+
 	bool returnval;
 	LONG rresult;
 	HKEY newkey;
@@ -355,6 +361,16 @@ bool RegisterExtension()
 	}
 	RegCloseKey(newkey);
 
+	if (SHGetFolderPathW(NULL, CSIDL_PROGRAMS, NULL, SHGFP_TYPE_CURRENT, programsPath) != S_OK)
+		goto finalise;
+	if (CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (LPVOID*)&shellLink) != S_OK)
+		goto finalise;
+	shellLink->SetPath(Platform::WinWiden(currentfilename).c_str());
+	shellLink->SetDescription(L"Jacob1's Mod");
+	if (shellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&shellLinkPersist) != S_OK)
+		goto finalise;
+	shellLinkPersist->Save(Platform::WinWiden(Platform::WinNarrow(programsPath) + "\\Jacob1's Mod.lnk").c_str(), TRUE);
+
 	returnval = true;
 	finalise:
 
@@ -362,6 +378,12 @@ bool RegisterExtension()
 	if(opencommand) free(opencommand);
 	if(currentfilename) free(currentfilename);
 	if(protocolcommand) free(protocolcommand);
+
+	if (shellLinkPersist)
+		shellLinkPersist->Release();
+	if (shellLink)
+		shellLink->Release();
+	CoUninitialize();
 
 	return returnval;
 #elif ANDROID
@@ -641,5 +663,37 @@ std::vector<std::string> DirectorySearch(std::string directory, std::string sear
 	//Filter results
 	return searchResults;
 }
+
+#ifdef WIN
+std::string WinNarrow(const std::wstring& source)
+{
+	int buffer_size = WideCharToMultiByte(CP_UTF8, 0, source.c_str(), source.size(), nullptr, 0, NULL, NULL);
+	if (!buffer_size)
+	{
+		return "";
+	}
+	std::string output(buffer_size, 0);
+	if (!WideCharToMultiByte(CP_UTF8, 0, source.c_str(), source.size(), &output[0], buffer_size, NULL, NULL))
+	{
+		return "";
+	}
+	return output;
+}
+
+std::wstring WinWiden(const std::string& source)
+{
+	int buffer_size = MultiByteToWideChar(CP_UTF8, 0, source.c_str(), source.size(), nullptr, 0);
+	if (!buffer_size)
+	{
+		return L"";
+	}
+	std::wstring output(buffer_size, 0);
+	if (!MultiByteToWideChar(CP_UTF8, 0, source.c_str(), source.size(), &output[0], buffer_size))
+	{
+		return L"";
+	}
+	return output;
+}
+#endif
 
 }
