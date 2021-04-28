@@ -91,6 +91,8 @@ private:
 	Point saveSize;
 	Save *clipboardData;
 
+	bool showBrush = true;
+
 	// bottom bar buttons
 	Button *openBrowserButton;
 	Button *reloadButton;
@@ -215,6 +217,8 @@ public:
 
 	void TogglePause();
 	void SetPause(bool pause);
+	void SetBrushEnable(bool showBrush) { this->showBrush = showBrush; }
+	bool GetBrushEnable() { return showBrush; }
 	void OpenConsole();
 
 	bool IsinsideRenderOptions() { return insideRenderOptions; }

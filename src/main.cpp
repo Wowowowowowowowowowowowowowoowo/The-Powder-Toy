@@ -1189,7 +1189,7 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		}
 
 		// draw normal cursor
-		if (!the_game->MouseClicksIgnored())
+		if (!the_game->MouseClicksIgnored() && the_game->GetBrushEnable())
 		{
 			PowderToy::DrawState drawState = the_game->GetDrawState();
 			Point initialDrawPoint = the_game->GetInitialDrawPoint();

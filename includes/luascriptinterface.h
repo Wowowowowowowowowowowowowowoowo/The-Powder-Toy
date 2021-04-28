@@ -79,6 +79,7 @@ int renderer_colorMode(lua_State * l);
 int renderer_decorations(lua_State * l);
 int renderer_grid(lua_State * l);
 int renderer_debugHUD(lua_State * l);
+int renderer_showBrush(lua_State * l);
 int renderer_depth3d(lua_State * l);
 int renderer_zoomEnabled(lua_State *l);
 int renderer_zoomWindowInfo(lua_State *l);

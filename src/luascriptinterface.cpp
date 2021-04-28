@@ -1730,6 +1730,7 @@ void initRendererAPI(lua_State * l)
 		{"decorations", renderer_decorations},
 		{"grid", renderer_grid},
 		{"debugHUD", renderer_debugHUD},
+		{"showBrush", renderer_showBrush},
 		{"depth3d", renderer_depth3d},
 		{"zoomEnabled", renderer_zoomEnabled},
 		{"zoomWindow", renderer_zoomWindowInfo},
@@ -1913,6 +1914,19 @@ int renderer_debugHUD(lua_State * l)
 	}
 	DEBUG_MODE = luaL_optint(l, 1, 0);
 	SetCurrentHud();
+	return 0;
+}
+
+int renderer_showBrush(lua_State * l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, the_game->GetBrushEnable());
+		return 1;
+	}
+	int brush = luaL_optint(l, 1, -1);
+	the_game->SetBrushEnable(brush);
 	return 0;
 }
 
