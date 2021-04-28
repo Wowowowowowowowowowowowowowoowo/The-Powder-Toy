@@ -49,6 +49,7 @@ extern "C"
 #include "game/Brush.h"
 #include "game/Request.h"
 #include "game/Menus.h"
+#include "game/ToolTip.h"
 #include "graphics/Renderer.h"
 #include "gui/game/PowderToy.h"
 #include "lua/LuaSmartRef.h"
@@ -1890,6 +1891,8 @@ int luatpt_hud(lua_State* l)
 	}
 	int hudstate = luaL_checkint(l, 1);
 	hud_enable = (hudstate==0?0:1);
+	if (!hud_enable)
+		UpdateToolTip("", Point(16, 20), INTROTIP, 0);
 	return 0;
 }
 
