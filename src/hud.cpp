@@ -116,10 +116,12 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					{
 						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), golTypes[ID(parts[underID].ctype)].name.c_str());
 					}
-					else if (!tctype || sim->IsElement(tctype))
+					else if (sim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[tctype].Name.c_str());
-					else
+					else if (tctype)
 						sprintf(nametext, "%s (%d), ", sim->elements[underType].Name.c_str(), tctype);
+					else
+						sprintf(nametext, "%s (), ", sim->elements[underType].Name.c_str());
 				}
 				else
 				{
