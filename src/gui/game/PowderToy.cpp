@@ -473,7 +473,6 @@ void PowderToy::LoginBtn()
 		int ret = login_ui(vid_buf);
 		if (ret && svf_login)
 		{
-			save_presets();
 			if (sessionCheck)
 			{
 				sessionCheck->Cancel();
@@ -481,6 +480,7 @@ void PowderToy::LoginBtn()
 			}
 			loginFinished = 1;
 		}
+		save_presets();
 	}
 }
 

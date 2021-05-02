@@ -1,6 +1,7 @@
 #include "Console.h"
 #include "legacy_console.h"
 #include "luaconsole.h"
+#include "misc.h"
 #include "common/tpt-minmax.h"
 #include "graphics/ARGBColour.h"
 #include "graphics/VideoBuffer.h"
@@ -127,6 +128,7 @@ void Console::Submit(std::string command)
 		RepositionLabels(-labelHeight);
 	unsubmittedCommand = "";
 	historyLoc = -1;
+	save_presets();
 }
 
 std::string Console::RunCommand(std::string command)
