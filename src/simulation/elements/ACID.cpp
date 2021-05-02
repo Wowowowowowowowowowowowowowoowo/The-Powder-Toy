@@ -54,7 +54,16 @@ int ACID_update(UPDATE_FUNC_ARGS)
 								newtemp = 0;
 							parts[i].temp += newtemp;
 							parts[i].life--;
-							sim->part_kill(ID(r));
+							switch (rt)
+							{
+								case PT_LITH:
+									sim->part_change_type(ID(r), x + rx, y + ry, PT_H2);
+									break;
+									
+								default:
+									sim->part_kill(ID(r));
+									break;
+							}
 						}
 					}
 					else if (parts[i].life <= 50)
