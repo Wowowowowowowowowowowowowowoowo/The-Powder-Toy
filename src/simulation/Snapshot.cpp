@@ -124,6 +124,7 @@ void Snapshot::Restore(Simulation * sim, const Snapshot &snap)
 		parts[i].type = 0;
 	std::copy(snap.Particles.begin(), snap.Particles.end(), parts);
 	sim->parts_lastActiveIndex = NPART-1;
+	sim->air->RecalculateBlockAirMaps(sim);
 	sim->RecalcFreeParticles(false);
 	if (sim->grav->IsEnabled())
 	{
