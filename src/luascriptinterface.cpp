@@ -1526,57 +1526,72 @@ int simulation_photons(lua_State * l)
 	return 1;
 }
 
-int NeighboursClosure(lua_State * l)
+int NeighboursClosure(lua_State *l)
 {
-	int rx = lua_tointeger(l, lua_upvalueindex(1));
-	int ry = lua_tointeger(l, lua_upvalueindex(2));
-	int sx = lua_tointeger(l, lua_upvalueindex(3));
-	int sy = lua_tointeger(l, lua_upvalueindex(4));
-	int x = lua_tointeger(l, lua_upvalueindex(5));
-	int y = lua_tointeger(l, lua_upvalueindex(6));
-	int i = 0;
-	do
+	int cx = lua_tointeger(l, lua_upvalueindex(1));
+	int cy = lua_tointeger(l, lua_upvalueindex(2));
+	int rx = lua_tointeger(l, lua_upvalueindex(3));
+	int ry = lua_tointeger(l, lua_upvalueindex(4));
+	int t = lua_tointeger(l, lua_upvalueindex(5));
+	int x = lua_tointeger(l, lua_upvalueindex(6));
+	int y = lua_tointeger(l, lua_upvalueindex(7));
+	while (y <= cy + ry)
 	{
-		x++;
-		if (x > rx)
+		int px = x;
+		int py = y;
+		x += 1;
+		if (x > cx + rx)
 		{
-			x = -rx;
-			y++;
-			if (y > ry)
-				return 0;
+			x = cx - rx;
+			y += 1;
 		}
-		if (!(x || y) || sx+x<0 || sy+y<0 || sx+x>=XRES*CELL || sy+y>=YRES*CELL)
+		int r = pmap[py][px];
+		if (!(r && (!t || TYP(r) == t))) // * If not [exists and is of the correct type]
 		{
-			continue;
+			r = 0;
 		}
-		i = pmap[y+sy][x+sx];
-		if (!i)
-			i = photons[y+sy][x+sx];
+		if (!r)
+		{
+			r = photons[py][px];
+			if (!(r && (!t || TYP(r) == t))) // * If not [exists and is of the correct type]
+			{
+				r = 0;
+			}
+		}
+		if (r)
+		{
+			lua_pushnumber(l, x);
+			lua_replace(l, lua_upvalueindex(6));
+			lua_pushnumber(l, y);
+			lua_replace(l, lua_upvalueindex(7));
+			lua_pushnumber(l, ID(r));
+			lua_pushnumber(l, px);
+			lua_pushnumber(l, py);
+			return 3;
+		}
 	}
-	while (!i);
-	lua_pushnumber(l, x);
-	lua_replace(l, lua_upvalueindex(5));
-	lua_pushnumber(l, y);
-	lua_replace(l, lua_upvalueindex(6));
-	lua_pushnumber(l, ID(i));
-	lua_pushnumber(l, x+sx);
-	lua_pushnumber(l, y+sy);
-	return 3;
+	return 0;
 }
 
 int simulation_neighbours(lua_State * l)
 {
-	int x=luaL_checkint(l, 1);
-	int y=luaL_checkint(l, 2);
-	int rx=luaL_optint(l, 3, 2);
-	int ry=luaL_optint(l, 4, 2);
+	int cx = luaL_checkint(l, 1);
+	int cy = luaL_checkint(l, 2);
+	int rx = luaL_optint(l, 3, 2);
+	int ry = luaL_optint(l, 4, 2);
+	int t = luaL_optint(l, 5, PT_NONE);
+	if (rx < 0 || ry < 0)
+	{
+		luaL_error(l, "Invalid radius");
+	}
+	lua_pushnumber(l, cx);
+	lua_pushnumber(l, cy);
 	lua_pushnumber(l, rx);
 	lua_pushnumber(l, ry);
-	lua_pushnumber(l, x);
-	lua_pushnumber(l, y);
-	lua_pushnumber(l, -rx-1);
-	lua_pushnumber(l, -ry);
-	lua_pushcclosure(l, NeighboursClosure, 6);
+	lua_pushnumber(l, t);
+	lua_pushnumber(l, cx - rx);
+	lua_pushnumber(l, cy - ry);
+	lua_pushcclosure(l, NeighboursClosure, 7);
 	return 1;
 }
 
