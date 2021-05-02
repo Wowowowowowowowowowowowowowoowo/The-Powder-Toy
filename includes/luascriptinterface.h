@@ -4,11 +4,15 @@
 
 #include <luaconsole.h>
 #include "simulation/StructProperty.h"
+#include "simulation/SimulationData.h"
 
 // idea from mniip, makes things much simpler 
 #define SETCONST(L, NAME)\
 	lua_pushinteger(L, NAME);\
 	lua_setfield(L, -2, #NAME)
+
+extern char custom_can_move[PT_NUM][PT_NUM];
+void custom_init_can_move();
 
 int simulation_signIndex(lua_State *l);
 int simulation_signNewIndex(lua_State *l);

@@ -350,6 +350,14 @@ void initSimulationAPI(lua_State * l)
 	lua_pushcfunction(l, simulation_deletesign);
 	lua_setfield(l, -2, "delete");
 	lua_setfield(l, -2, "signs");
+
+	for (auto moving = 0; moving < PT_NUM; ++moving)
+	{
+		for (auto into = 0; into < PT_NUM; ++into)
+		{
+			custom_can_move[moving][into] = 0;
+		}
+	}
 }
 
 int simulation_partNeighbours(lua_State * l)
@@ -1382,7 +1390,9 @@ int simulation_canMove(lua_State * l)
 	}
 	else
 	{
-		luaSim->can_move[movingElement][destinationElement] = (unsigned char)luaL_checkint(l, 3);
+		int setting = (unsigned char)luaL_checkint(l, 3) & 0x7F;
+		custom_can_move[movingElement][destinationElement] = setting | 0x80;
+		luaSim->can_move[movingElement][destinationElement] = setting;
 		return 0;
 	}
 }
@@ -1726,6 +1736,22 @@ int simulation_stickman(lua_State *l)
 		return 1;
 	}
 	return 0;
+}
+
+char custom_can_move[PT_NUM][PT_NUM];
+void custom_init_can_move()
+{
+	luaSim->InitCanMove();
+	for (auto moving = 0; moving < PT_NUM; ++moving)
+	{
+		for (auto into = 0; into < PT_NUM; ++into)
+		{
+			if (custom_can_move[moving][into] & 0x80)
+			{
+				luaSim->can_move[moving][into] = custom_can_move[moving][into] & 0x7F;
+			}
+		}
+	}
 }
 
 /*
@@ -2764,7 +2790,14 @@ int elements_loadDefault(lua_State * l)
 	}
 
 	FillMenus();
-	luaSim->InitCanMove();
+	for (auto moving = 0; moving < PT_NUM; ++moving)
+	{
+		for (auto into = 0; into < PT_NUM; ++into)
+		{
+			custom_can_move[moving][into] = 0;
+		}
+	}
+	custom_init_can_move();
 	memset(graphicscache, 0, sizeof(gcache_item)*PT_NUM);
 	return 0;
 }
@@ -2832,6 +2865,13 @@ int elements_allocate(lua_State * l)
 		lua_setfield(l, -2, identifier.c_str());
 		lua_pop(l, 1);
 	}
+
+	for (auto elem = 0; elem < PT_NUM; ++elem)
+	{
+		custom_can_move[elem][newID] = 0;
+		custom_can_move[newID][elem] = 0;
+	}
+	custom_init_can_move();
 
 	lua_pushinteger(l, newID);
 	return 1;
@@ -2952,7 +2992,7 @@ int elements_element(lua_State * l)
 		lua_pop(l, 1);
 
 		FillMenus();
-		luaSim->InitCanMove();
+		custom_init_can_move();
 		graphicscache[id].isready = 0;
 
 		return 0;
@@ -3018,7 +3058,7 @@ int elements_property(lua_State * l)
 			}
 
 			FillMenus();
-			luaSim->InitCanMove();
+			custom_init_can_move();
 			graphicscache[id].isready = 0;
 
 			return 0;
