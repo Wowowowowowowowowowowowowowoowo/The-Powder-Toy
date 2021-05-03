@@ -148,7 +148,6 @@ extern int svf_login;
 extern int svf_admin;
 extern int svf_mod;
 extern char svf_user[64];
-extern char svf_pass[64];
 extern char svf_user_id[64];
 extern char svf_session_id[64];
 extern char svf_session_key[64];

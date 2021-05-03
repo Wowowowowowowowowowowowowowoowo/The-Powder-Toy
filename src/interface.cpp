@@ -54,7 +54,6 @@
 #include "hud.h"
 #include "images.h"
 #include "luaconsole.h"
-#include "md5.h"
 #include "misc.h"
 #include "powder.h"
 #include "powdergraphics.h"
@@ -87,7 +86,6 @@ int svf_admin = 0;
 int svf_mod = 0;
 char svf_user[64] = "";
 char svf_user_id[64] = "";
-char svf_pass[64] = "";
 char svf_session_id[64] = "";
 char svf_session_key[64] = "";
 
@@ -1653,9 +1651,6 @@ bool login_ui(pixel *vid_buf)
 {
 	int x0=(XRES+BARSIZE-192)/2,y0=(YRES+MENUSIZE-80)/2,b=1,bq,mx,my;
 	ui_edit ed1,ed2;
-	char passwordHash[33];
-	char totalHash[33];
-	char hashStream[99]; //not really a stream ...
 	bool signIn = false;
 
 	while (!sdl_poll())
@@ -1765,22 +1760,14 @@ bool login_ui(pixel *vid_buf)
 		return false;
 	}
 
-	strcpy(svf_user, ed1.str);
-	strcpy(svf_pass, ed2.str);
-	//md5_ascii(svf_pass, (unsigned char *)ed2.str, 0);
+	strncpy(svf_user, ed1.str, 64);
 
-	md5_ascii(passwordHash, (unsigned char *)svf_pass, strlen(svf_pass));
-	passwordHash[32] = 0;
-	sprintf(hashStream, "%s-%s", svf_user, passwordHash);
-	//hashStream << username << "-" << passwordHash;
-	md5_ascii(totalHash, (const unsigned char *)hashStream, strlen(hashStream));
-	totalHash[32] = 0;
 	// new scope because of goto warning
 	{
 		int status;
-		std::string data = Request::SimpleAuth(SCHEME SERVER "/Login.json", &status, svf_user_id, svf_session_id, {
-			{ "Username", svf_user },
-			{ "Hash", totalHash },
+		std::string data = Request::SimpleAuth("https://" SERVER "/Login.json", &status, svf_user_id, svf_session_id, {
+			{ "name", svf_user },
+			{ "pass", ed2.str },
 		});
 		if (status == 200 && !data.empty())
 		{
@@ -1790,12 +1777,14 @@ bool login_ui(pixel *vid_buf)
 				tmpobj = cJSON_GetObjectItem(root, "Status");
 				if (tmpobj && tmpobj->type == cJSON_Number && tmpobj->valueint == 1)
 				{
+					if((tmpobj = cJSON_GetObjectItem(root, "Username")) && tmpobj->type == cJSON_String)
+						strncpy(svf_user, tmpobj->valuestring, 64);
 					if((tmpobj = cJSON_GetObjectItem(root, "UserID")) && tmpobj->type == cJSON_Number)
 						sprintf(svf_user_id, "%i", tmpobj->valueint);
 					if((tmpobj = cJSON_GetObjectItem(root, "SessionID")) && tmpobj->type == cJSON_String)
-						strcpy(svf_session_id, tmpobj->valuestring);
+						strncpy(svf_session_id, tmpobj->valuestring, 64);
 					if((tmpobj = cJSON_GetObjectItem(root, "SessionKey")) && tmpobj->type == cJSON_String)
-						strcpy(svf_session_key, tmpobj->valuestring);
+						strncpy(svf_session_key, tmpobj->valuestring, 64);
 					if((tmpobj = cJSON_GetObjectItem(root, "Elevation")) && tmpobj->type == cJSON_String)
 					{
 						char * elevation = tmpobj->valuestring;
@@ -1860,7 +1849,6 @@ bool login_ui(pixel *vid_buf)
 
 fail:
 	strcpy(svf_user, "");
-	strcpy(svf_pass, "");
 	strcpy(svf_user_id, "");
 	strcpy(svf_session_id, "");
 	svf_login = 0;
