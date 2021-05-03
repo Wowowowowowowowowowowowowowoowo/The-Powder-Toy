@@ -1,13 +1,16 @@
 #ifndef HUD_H
 #define HUD_H
 
+#include <string>
 #include "graphics/ARGBColour.h"
+#include "graphics/Pixel.h"
 
 class Simulation;
 
 void HudDefaults();
 void SetCurrentHud();
 
+std::string ElementResolve(Simulation * sim, int type, int ctype);
 void SetRightHudText(Simulation * sim, int x, int y);
 void SetLeftHudText(Simulation * sim, float FPSB2);
 void DrawHud(int introTextAlpha, int qTipAlpha);

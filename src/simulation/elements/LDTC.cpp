@@ -88,7 +88,7 @@ int LDTC_update(UPDATE_FUNC_ARGS)
 
 					// If ctype isn't set (no type restriction), or ctype matches what we found
 					// Can use .tmp2 flag to invert this
-					bool matchesCtype = parts[i].ctype == TYP(rr) && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra);
+					bool matchesCtype = ctype == TYP(rr) && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra);
 					bool matchesFilter = !ctype || (invertFilter ^ (int)matchesCtype);
 					if (!matchesFilter)
 					{
@@ -177,6 +177,6 @@ void LDTC_init_element(ELEMENT_INIT_FUNC_ARGS)
 
 	elem->Update = &LDTC_update;
 	elem->Graphics = nullptr;
-	elem->CtypeDraw = &ctypeDrawVInTmp;
+	elem->CtypeDraw = &ctypeDrawVInCtype;
 	elem->Init = &LDTC_init_element;
 }

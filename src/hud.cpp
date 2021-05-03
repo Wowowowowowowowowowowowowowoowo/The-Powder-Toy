@@ -49,6 +49,13 @@ void SetCurrentHud()
 		memcpy(currentHud, debugHud, sizeof(currentHud));
 }
 
+std::string ElementResolve(Simulation * sim, int type, int ctype)
+{
+	if (!type)
+		return "";
+	return sim->ElementResolve(type, ctype);
+}
+
 void SetRightHudText(Simulation * sim, int x, int y)
 {
 	if (x >= 0 && x < XRES && y >= 0 && y < YRES)
@@ -87,9 +94,9 @@ void SetRightHudText(Simulation * sim, int x, int y)
 				if (underType == PT_LIFE && parts[underID].ctype >= 0 && parts[underID].ctype < NGOL)
 				{
 					if (currentHud[49] || !currentHud[11])
-						sprintf(nametext, "%s, ", golTypes[parts[underID].ctype].name.c_str());
+						sprintf(nametext, "%s, ", ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
 					else
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), golTypes[parts[underID].ctype].name.c_str());
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
 				}
 				else if (currentHud[13] && underType == PT_LAVA && sim->IsElement(parts[underID].ctype))
 				{
@@ -112,10 +119,10 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					int tctype = parts[underID].ctype;
 					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
-					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV) && TYP(parts[underID].ctype) == PT_LIFE && ID(parts[underID].ctype) >= 0 && ID(parts[underID].ctype) < NGOL)
-					{
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), golTypes[ID(parts[underID].ctype)].name.c_str());
-					}
+					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV || underType == PT_LDTC))
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)).c_str());
+					else if (currentHud[49] && (underType == PT_CLNE || underType == PT_BCLN || underType == PT_PCLN || underType == PT_PBCN || underType == PT_DTEC))
+						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, parts[underID].ctype, parts[underID].tmp).c_str());
 					else if (sim->IsElement(tctype))
 						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[tctype].Name.c_str());
 					else if (tctype)
