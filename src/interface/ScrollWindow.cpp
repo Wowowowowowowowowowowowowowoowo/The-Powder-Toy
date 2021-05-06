@@ -1,4 +1,5 @@
 #include "ScrollWindow.h"
+#include "defines.h"
 #include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Engine.h"
@@ -23,9 +24,9 @@ void ScrollWindow::DoMouseWheel(int x, int y, int d)
 		lastMouseX = x;
 		lastMouseY = y;
 		if (Engine::Ref().IsMomentumScroll())
-			scrollVelocity -= d * 2;
+			scrollVelocity -= d * scrollSpeedMomentum;
 		else
-			scrollVelocity -= d * 15;
+			scrollVelocity -= d * scrollSpeed;
 	}
 
 	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -51,7 +52,7 @@ void ScrollWindow::OnTick(uint32_t ticks)
 	{
 		if (scrollVelocity > -0.5f && scrollVelocity < 0.5f)
 			scrollVelocity = 0;
-		scrollVelocity *= 0.98f;
+		scrollVelocity *= scrollDeceleration;
 	}
 	else
 		scrollVelocity = 0.0f;

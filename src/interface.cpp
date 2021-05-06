@@ -5021,8 +5021,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (sdl_key=='[' && !ed.focus)
 			{
-				comment_scroll += 10;
-				comment_scroll_float += 10.0f;
+				comment_scroll += scrollSpeed * 2;
+				comment_scroll_float += scrollSpeed * 2;
 				if (comment_scroll_float > 0)
 				{
 					comment_scroll_float = 0;
@@ -5031,8 +5031,8 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			}
 			if (sdl_key==']' && !ed.focus && !disable_scrolling)
 			{
-				comment_scroll -= 10;
-				comment_scroll_float -= 10.0f;
+				comment_scroll -= scrollSpeed * 2;
+				comment_scroll_float -= scrollSpeed * 2;
 			}
 #ifndef TOUCHUI
 			//If mouse was clicked outside of the window bounds.
