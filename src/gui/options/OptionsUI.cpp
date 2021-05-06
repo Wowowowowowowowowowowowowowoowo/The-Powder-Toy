@@ -225,6 +225,15 @@ OptionsUI::OptionsUI(Simulation *sim):
 	scrollArea->AddComponent(descLabel);
 
 #ifndef TOUCHUI
+	prev = momentumScrollingCheckbox = new Checkbox(prev->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Momentum Scrolling");
+	momentumScrollingCheckbox->UseCheckIcon(useCheckIcon);
+	momentumScrollingCheckbox->SetCallback([&](bool checked) { this->MomentumChecked(checked); });
+	scrollArea->AddComponent(momentumScrollingCheckbox);
+	
+	descLabel = new Label(prev->Below(Point(15, 0)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Acceleration instead of step scroll");
+	descLabel->SetColor(COLRGB(150, 150, 150));
+	scrollArea->AddComponent(descLabel);
+
 	prev = stickyCategoriesCheckbox = new Checkbox(prev->Below(Point(0, 15)), Point(Checkbox::AUTOSIZE, checkboxHeight), "Sticky categories");
 	stickyCategoriesCheckbox->UseCheckIcon(useCheckIcon);
 	stickyCategoriesCheckbox->SetCallback([&](bool checked) { this->StickyCatsChecked(checked); });
@@ -300,6 +309,7 @@ void OptionsUI::InitializeOptions()
 
 #ifndef TOUCHUI
 	fastQuitCheckbox->SetChecked(Engine::Ref().IsFastQuit());
+	momentumScrollingCheckbox->SetChecked(Engine::Ref().IsMomentumScroll());
 	stickyCategoriesCheckbox->SetChecked(stickyCategories);
 #endif
 	updatesCheckbox->SetChecked(doUpdates);
@@ -411,6 +421,11 @@ void OptionsUI::UpdatesChecked(bool checked)
 void OptionsUI::SavePressureChecked(bool checked)
 {
 	sim->includePressure = checked;
+}
+
+void OptionsUI::MomentumChecked(bool checked)
+{
+	Engine::Ref().SetMomentumScroll(checked);
 }
 
 void OptionsUI::StickyCatsChecked(bool checked)

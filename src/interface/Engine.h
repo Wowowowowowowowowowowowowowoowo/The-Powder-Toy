@@ -44,6 +44,9 @@ public:
 	bool IsForceIntegerScaling();
 	void SetForceIntegerScaling(bool forceIntegerScaling);
 
+	bool IsMomentumScroll() { return momentumScroll; }
+	void SetMomentumScroll(bool momentumScroll) { this->momentumScroll = momentumScroll; }
+	
 	bool IsFastQuit() { return fastQuit; }
 	void SetFastQuit(bool fastQuit) { this->fastQuit = fastQuit; }
 
@@ -66,6 +69,7 @@ private:
 	bool fullscreen = false;
 	bool altFullscreen = false;
 	bool forceIntegerScaling = true;
+	bool momentumScroll = true;
 
 	bool fastQuit = false;
 };

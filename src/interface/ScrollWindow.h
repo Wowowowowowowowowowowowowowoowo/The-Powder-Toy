@@ -10,6 +10,7 @@ class ScrollWindow : public Window
 {
 	bool scrollable;
 	int scrollSize, scrolled;
+	float scrollVelocity = 0.0f, scrolledFloat;
 	int lastMouseX, lastMouseY;
 
 	bool isMouseInsideScrollbar = false, scrollbarHeld = false;
@@ -44,6 +45,7 @@ protected:
 #endif
 	void OnMouseUp(int x, int y, unsigned char button) override;
 	void DoMouseWheel(int x, int y, int d) override;
+	void OnTick(uint32_t ticks) override;
 	void OnDraw(gfx::VideoBuffer *buf) override;
 	void OnMouseMove(int x, int y, Point difference) override;
 };

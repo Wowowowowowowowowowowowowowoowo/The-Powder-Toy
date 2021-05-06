@@ -245,6 +245,7 @@ extern int do_open;
 extern pixel *vid_buf;
 
 extern int scrollSpeed;
+extern int scrollSpeedMomentum;
 extern float scrollDeceleration;
 
 extern unsigned short last_major, last_minor, update_flag, last_build;

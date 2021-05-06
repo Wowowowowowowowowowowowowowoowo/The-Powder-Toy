@@ -1,6 +1,7 @@
 #include "ScrollWindow.h"
 #include "common/tpt-minmax.h"
 #include "graphics/VideoBuffer.h"
+#include "interface/Engine.h"
 
 namespace ui
 {
@@ -9,6 +10,7 @@ ScrollWindow::ScrollWindow(Point position, Point size):
 	scrollable(false),
 	scrollSize(0),
 	scrolled(0),
+	scrolledFloat(0.0f),
 	lastMouseX(0),
 	lastMouseY(0)
 {
@@ -20,10 +22,10 @@ void ScrollWindow::DoMouseWheel(int x, int y, int d)
 	{
 		lastMouseX = x;
 		lastMouseY = y;
-		if (d > 0)
-			SetScrollPosition(std::max(scrolled - d * 4, 0));
-		else if (d < 0)
-			SetScrollPosition(std::min(scrolled - d * 4, scrollSize - size.Y));
+		if (Engine::Ref().IsMomentumScroll())
+			scrollVelocity -= d * 2;
+		else
+			scrollVelocity -= d * 15;
 	}
 
 	/*for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
@@ -38,6 +40,37 @@ void ScrollWindow::OnDrawBeforeComponents(gfx::VideoBuffer *buf)
 {
 	if (onDraw != nullptr)
 		onDraw(buf);
+}
+
+void ScrollWindow::OnTick(uint32_t ticks)
+{
+	int oldScrolled = scrolledFloat;
+	scrolledFloat += scrollVelocity;
+
+	if (Engine::Ref().IsMomentumScroll())
+	{
+		if (scrollVelocity > -0.5f && scrollVelocity < 0.5f)
+			scrollVelocity = 0;
+		scrollVelocity *= 0.98f;
+	}
+	else
+		scrollVelocity = 0.0f;
+
+	if (int(scrolledFloat) != oldScrolled)
+	{
+		if (int(scrolledFloat) > scrollSize - size.Y)
+		{
+			scrolledFloat = scrollSize - size.Y;
+			scrollVelocity = 0.0f;
+		}
+		else if (int(scrolledFloat) < 0)
+		{
+			scrolledFloat = 0.0f;
+			scrollVelocity = 0.0f;
+		}
+		SetScrollPosition(int(scrolledFloat));
+	}
+	
 }
 
 void ScrollWindow::OnDraw(gfx::VideoBuffer *buf)

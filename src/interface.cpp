@@ -4216,20 +4216,16 @@ bool CheckSwearing(std::string text)
 	return false;
 }
 
-#ifdef WIN
-// not sure if it is my new computer or windows, scrolling is slow
-// other people have complained about it before too, so increase the default speed on windows
 int scrollSpeed = 15;
-float scrollDeceleration = 0.99f;
-#else
-int scrollSpeed = 6;
-float scrollDeceleration = 0.95f;
-#endif
+int scrollSpeedMomentum = 2;
+float scrollDeceleration = 0.98f;
+
 int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 {
 	int b=1,bq,mx,my,cc=0,ccy=0,cix=0;
 	int hasdrawninfo=0,hasdrawncthumb=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,retval=0,bc=255,openable=1;
 	int comment_scroll = 0, comment_page = 0, disable_scrolling = 0;
+	float comment_scroll_float = 0.0f;
 	Save *save = nullptr;
 #ifdef TOUCHUI
 	int lastY = 0;
@@ -4725,6 +4721,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 							if (ccy+comment_scroll < 0 && cc == info->comment_count-1 && !commentsDownloadStarted) // reset to top of comments
 							{
 								comment_scroll = 0;
+								comment_scroll_float = 0.0f;
 								scroll_velocity = 0.0f;
 							}
 
@@ -4969,6 +4966,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						comment_page = 0;
 						info->comment_count = 0;
 						comment_scroll = 0;
+						comment_scroll_float = 0.0f;
 						scroll_velocity = 0.0f;
 						ed.str[0] = 0;
 					}
@@ -4993,25 +4991,30 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 #endif
 			if (scroll_velocity)
 			{
-				comment_scroll += (int)scroll_velocity;
-				if (comment_scroll > 0)
-				{
-					comment_scroll = 0;
-					scroll_velocity = 0;
-				}
-				else
+				comment_scroll_float += scroll_velocity;
+				comment_scroll = int(comment_scroll_float);
+				
+				if (Engine::Ref().IsMomentumScroll())
 				{
 					scroll_velocity *= scrollDeceleration;
 					if (std::abs(scroll_velocity) < .5f)
 						scroll_velocity = 0.0f;
+				}
+				else
+					scroll_velocity = 0.0f;
+
+				if (comment_scroll > 0)
+				{
+					comment_scroll = 0;
+					comment_scroll_float = 0.0f;
+					scroll_velocity = 0.0f;
 				}
 			}
 			if (sdl_wheel)
 			{
 				if (!disable_scrolling || sdl_wheel > 0)
 				{
-					comment_scroll += scrollSpeed*sdl_wheel;
-					scroll_velocity += sdl_wheel;
+					scroll_velocity += (Engine::Ref().IsMomentumScroll() ? scrollSpeedMomentum : scrollSpeed) * sdl_wheel * 2;
 					if (comment_scroll > 0)
 						comment_scroll = 0;
 				}
@@ -5019,12 +5022,17 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 			if (sdl_key=='[' && !ed.focus)
 			{
 				comment_scroll += 10;
-				if (comment_scroll > 0)
+				comment_scroll_float += 10.0f;
+				if (comment_scroll_float > 0)
+				{
+					comment_scroll_float = 0;
 					comment_scroll = 0;
+				}
 			}
 			if (sdl_key==']' && !ed.focus && !disable_scrolling)
 			{
 				comment_scroll -= 10;
+				comment_scroll_float -= 10.0f;
 			}
 #ifndef TOUCHUI
 			//If mouse was clicked outside of the window bounds.

@@ -275,6 +275,8 @@ void save_presets()
 		cJSON_AddTrueToObject(root, "AltFullscreen");
 	if (!Engine::Ref().IsForceIntegerScaling())
 		cJSON_AddFalseToObject(root, "ForceIntegerScaling");
+	if (!Engine::Ref().IsMomentumScroll())
+		cJSON_AddFalseToObject(root, "MomentumScroll");
 	if (Engine::Ref().IsFastQuit())
 		cJSON_AddTrueToObject(root, "FastQuit");
 	else
@@ -303,6 +305,7 @@ void save_presets()
 
 	cJSON_AddItemToObject(root, "SavePreview", tmpobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(tmpobj, "scrollSpeed", scrollSpeed);
+	cJSON_AddNumberToObject(tmpobj, "scrollSpeedMomentum", scrollSpeedMomentum);
 	cJSON_AddNumberToObject(tmpobj, "scrollDeceleration", scrollDeceleration);
 	cJSON_AddNumberToObject(tmpobj, "ShowIDs", show_ids);
 	
@@ -609,6 +612,8 @@ void load_presets(void)
 			Engine::Ref().SetAltFullscreen(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "ForceIntegerScaling")))
 			Engine::Ref().SetForceIntegerScaling(tmpobj->valueint ? true : false);
+		if ((tmpobj = cJSON_GetObjectItem(root, "MomentumScroll")))
+			Engine::Ref().SetMomentumScroll(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "FastQuit")))
 			Engine::Ref().SetFastQuit(tmpobj->valueint ? true : false);
 		if ((tmpobj = cJSON_GetObjectItem(root, "WindowX")))
@@ -650,6 +655,8 @@ void load_presets(void)
 		{
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollSpeed")) && tmpobj->valueint > 0)
 				scrollSpeed = tmpobj->valueint;
+			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollSpeedMomentum")) && tmpobj->valueint > 0)
+				scrollSpeedMomentum = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "scrollDeceleration")) && tmpobj->valuedouble >= 0 && tmpobj->valuedouble <= 1)
 				scrollDeceleration = tmpobj->valuedouble;
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs")))
@@ -669,6 +676,12 @@ void load_presets(void)
 				scrollDeceleration = 0.99f;
 			}
 #endif
+			// New defaults which match vanilla tpt
+			if (last_build <= 345)
+			{
+				scrollSpeed = 15;
+				scrollDeceleration = 0.98f;
+			}
 		}
 	}
 	else
