@@ -144,12 +144,13 @@ void OpenLink(std::string uri)
 #ifdef ANDROID
 	SDL_ANDROID_OpenExternalWebBrowser(uri.c_str());
 #elif WIN
-	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
+	if ((int)ShellExecute(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) <= 32)
+		ret = 1;
 #elif MACOSX
-	std::string command = "open " + uri;
+	std::string command = "open \"" + uri + "\"";
 	ret = system(command.c_str());
 #elif LIN
-	std::string command = "xdg-open " + uri;
+	std::string command = "xdg-open \"" + uri + "\"";
 	ret = system(command.c_str());
 #else
 	ret = 1;
