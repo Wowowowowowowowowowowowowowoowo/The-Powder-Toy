@@ -130,6 +130,7 @@ void luacon_open()
 		{"setfire", &luatpt_setfire},
 		{"setdebug", &luatpt_setdebug},
 		{"setfpscap",&luatpt_setfpscap},
+		{"setdrawcap",&luatpt_setdrawcap},
 		{"getscript",&luatpt_getscript},
 		{"setwindowsize",&luatpt_setwindowsize},
 		{"watertest",&luatpt_togglewater},
@@ -2046,13 +2047,28 @@ int luatpt_setfpscap(lua_State* l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, limitFPS);
+		lua_pushnumber(l, Engine::Ref().GetFpsLimit());
 		return 1;
 	}
-	int fpscap = luaL_checkint(l, 1);
-	if (fpscap < 2)
+	float fpscap = luaL_checknumber(l, 1);
+	if (fpscap < 2.0f)
 		return luaL_error(l, "fps cap too small");
-	limitFPS = fpscap;
+	Engine::Ref().SetFpsLimit(fpscap);
+	return 0;
+}
+
+int luatpt_setdrawcap(lua_State* l)
+{
+	int acount = lua_gettop(l);
+	if (acount == 0)
+	{
+		lua_pushnumber(l, Engine::Ref().GetDrawingFrequency());
+		return 1;
+	}
+	int drawcap = luaL_checkint(l, 1);
+	if (drawcap < 0)
+		return luaL_error(l, "draw cap too small");
+	Engine::Ref().SetDrawingFrequency(drawcap);
 	return 0;
 }
 

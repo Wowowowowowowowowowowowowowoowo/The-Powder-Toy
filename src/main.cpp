@@ -121,7 +121,6 @@ int last_active_menu = 0;
 int last_fav_menu = SC_FAV;
 int framerender = 0;
 bool pretty_powder = false;
-int limitFPS = 60;
 int finding = 0;
 int foundParticles = 0;
 int highesttemp = MAX_TEMP;
@@ -864,8 +863,7 @@ int main(int argc, char *argv[])
 
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost
-	
-	limitFPS = 60;
+
 	vid_buf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	part_vbuf = (pixel*)calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
 	part_vbuf_store = part_vbuf;

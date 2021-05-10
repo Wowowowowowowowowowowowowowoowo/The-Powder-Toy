@@ -173,7 +173,6 @@ extern int last_fav_menu;
 extern bool hud_enable;
 extern bool pretty_powder;
 extern bool drawgrav_enable;
-extern int limitFPS;
 extern bool water_equal_test;
 extern int finding;
 extern int foundParticles;

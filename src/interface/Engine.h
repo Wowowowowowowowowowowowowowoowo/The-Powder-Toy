@@ -46,7 +46,12 @@ public:
 
 	bool IsMomentumScroll() { return momentumScroll; }
 	void SetMomentumScroll(bool momentumScroll) { this->momentumScroll = momentumScroll; }
-	
+
+	float GetFpsLimit() { return fpsLimit; }
+	void SetFpsLimit(float fpsLimit) { this->fpsLimit = fpsLimit; }
+	int GetDrawingFrequency() { return drawLimit; }
+	void SetDrawingFrequency(int drawLimit) { this->drawLimit = drawLimit; }
+
 	bool IsFastQuit() { return fastQuit; }
 	void SetFastQuit(bool fastQuit) { this->fastQuit = fastQuit; }
 
@@ -70,6 +75,9 @@ private:
 	bool altFullscreen = false;
 	bool forceIntegerScaling = true;
 	bool momentumScroll = true;
+
+	float fpsLimit = 60.0f;
+	int drawLimit = 0;
 
 	bool fastQuit = false;
 };

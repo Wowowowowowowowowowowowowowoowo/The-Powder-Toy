@@ -115,6 +115,12 @@ int SDLOpen()
 				screenWidth = rect.w;
 				screenHeight = rect.h;
 			}
+
+			SDL_DisplayMode displayMode;
+			if (!SDL_GetCurrentDisplayMode(displayIndex, &displayMode) && displayMode.refresh_rate >= 60)
+			{
+				Engine::Ref().SetDrawingFrequency(displayMode.refresh_rate);
+			}
 		}
 	}
 
@@ -413,7 +419,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 	return 0;
 }
 
-uint32_t lastTick;
+uint32_t lastTick, drawingTimer;
 bool inOldInterface = false;
 void MainLoop()
 {
@@ -473,10 +479,16 @@ void MainLoop()
 
 		uint32_t currentTick = SDL_GetTicks();
 		top->DoTick(currentTick-lastTick);
+		drawingTimer += currentTick - lastTick;
 		lastTick = currentTick;
 
-		top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
-		SDLBlit(vid_buf);
+		int drawcap = Engine::Ref().GetDrawingFrequency();
+		if (!drawcap || drawingTimer > 1000.f/drawcap)
+		{
+			drawingTimer = 0;
+			top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
+			SDLBlit(vid_buf);
+		}
 		limit_fps();
 
 		engine.ProcessWindowUpdates();
@@ -682,6 +694,7 @@ void limit_fps()
 	int frameTime = SDL_GetTicks() - currentTime;
 
 	frameTimeAvg = frameTimeAvg * .8 + frameTime * .2;
+	float limitFPS = Engine::Ref().GetFpsLimit();
 	if (limitFPS > 2)
 	{
 		double offset = 1000.0 / limitFPS - frameTimeAvg;
