@@ -224,20 +224,92 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	unsigned int animDataPos = 0;
 #endif
 
-	int i, r;
+	int r;
+	bool doFullScan = false;
+	for (unsigned int n = 0; n < NPART && n < save->particlesCount; n++)
+	{
+		particle *tempPart = &save->particles[n];
+		tempPart->x += (float)loadX;
+		tempPart->y += (float)loadY;
+		int x = int(tempPart->x + 0.5f);
+		int y = int(tempPart->y + 0.5f);
+		
+		// Check various scenarios where we are unable to spawn the element, and set type to 0 to block spawning later
+		if (!InBounds(x, y))
+		{
+			tempPart->type = 0;
+			continue;
+		}
+
+		int type = tempPart->type;
+		if (type < 0 && type >= PT_NUM)
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		// Ensure we can spawn this element
+		if ((type == PT_STKM || type == PT_STKM2 || type == PT_SPAWN || type == PT_SPAWN2) && elementCount[type] > 0)
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		if (type == PT_FIGH && !((FIGH_ElementDataContainer*)elementData[PT_FIGH])->CanAlloc())
+		{
+			tempPart->type = 0;
+			continue;
+		}
+		if (!elements[type].Enabled)
+		{
+			tempPart->type = 0;
+			continue;
+		}
+
+		if ((r = pmap[y][x]))
+		{
+			// Particle already exists in this location. Set pmap to 0, then kill it and all stacked particles in the loop below
+			pmap[y][x] = 0;
+			doFullScan = true;
+		}
+		else if ((r = photons[y][x]))
+		{
+			// Particle already exists in this location. Set photons to 0, then kill it and all stacked particles in the loop below
+			photons[y][x] = 0;
+			doFullScan = true;
+		}
+	}
+
+	if (doFullScan)
+	{
+		// Loop through particles to find particles in need of being killed
+		for (int i = 0; i <= parts_lastActiveIndex; i++) {
+			if (parts[i].type)
+			{
+				int x = int(parts[i].x + 0.5f);
+				int y = int(parts[i].y + 0.5f);
+				if (elements[parts[i].type].Properties & TYPE_ENERGY)
+				{
+					if (!photons[y][x])
+						part_kill(i);
+				}
+				else
+				{
+					if (!pmap[y][x])
+						part_kill(i);
+				}
+			}
+		}
+	}
+
+	int i;
 	// Map of soap particles loaded into this save, old ID -> new ID
 	std::map<unsigned int, unsigned int> soapList;
 	for (unsigned int n = 0; n < NPART && n < save->particlesCount; n++)
 	{
 		particle tempPart = save->particles[n];
-		tempPart.x += (float)loadX;
-		tempPart.y += (float)loadY;
 		int x = int(tempPart.x + 0.5f);
 		int y = int(tempPart.y + 0.5f);
-		if (!InBounds(x, y))
-			continue;
 
-		if (tempPart.type >= 0 && tempPart.type < PT_NUM)
+		if (tempPart.type > 0 && tempPart.type < PT_NUM)
 		{
 			if (hasPalette)
 				tempPart.type = partMap[tempPart.type];
@@ -245,15 +317,6 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				tempPart.type = save->FixType(tempPart.type);
 		}
 		else
-			continue;
-		int type = tempPart.type;
-
-		// Ensure we can spawn this element
-		if ((type == PT_STKM || type == PT_STKM2 || type == PT_SPAWN || type == PT_SPAWN2) && elementCount[type] > 0)
-			continue;
-		if (type == PT_FIGH && !((FIGH_ElementDataContainer*)elementData[PT_FIGH])->CanAlloc())
-			continue;
-		if (!elements[type].Enabled)
 			continue;
 
 		// These store type in ctype, but are special because they store extra information in the bits after type
@@ -299,33 +362,15 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			tempPart.temp = elements[tempPart.type].DefaultProperties.temp;
 		}
 
-		//Replace existing
-		if ((r = pmap[y][x]))
-		{
-			elementCount[parts[ID(r)].type]--;
-			parts[ID(r)] = tempPart;
-			i = ID(r);
-			elementCount[tempPart.type]++;
-		}
-		else if ((r = photons[y][x]))
-		{
-			elementCount[parts[ID(r)].type]--;
-			parts[ID(r)] = tempPart;
-			i = ID(r);
-			elementCount[tempPart.type]++;
-		}
-		//Allocate new particle
-		else
-		{
-			if (pfree == -1)
-				break;
-			i = pfree;
-			pfree = parts[i].life;
-			if (i > parts_lastActiveIndex)
-				parts_lastActiveIndex = i;
-			parts[i] = tempPart;
-			elementCount[tempPart.type]++;
-		}
+		// Allocate particle (this location is guaranteed to be empty due to "full scan" logic above)
+		if (pfree == -1)
+			break;
+		i = pfree;
+		pfree = parts[i].life;
+		if (i > parts_lastActiveIndex)
+			parts_lastActiveIndex = i;
+		parts[i] = tempPart;
+		elementCount[tempPart.type]++;
 
 		switch (parts[i].type)
 		{
