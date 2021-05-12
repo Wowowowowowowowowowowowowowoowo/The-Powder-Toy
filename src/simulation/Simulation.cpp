@@ -306,9 +306,6 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	for (unsigned int n = 0; n < NPART && n < save->particlesCount; n++)
 	{
 		particle tempPart = save->particles[n];
-		int x = int(tempPart.x + 0.5f);
-		int y = int(tempPart.y + 0.5f);
-
 		if (tempPart.type > 0 && tempPart.type < PT_NUM)
 		{
 			if (hasPalette)
@@ -2574,7 +2571,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 		if (newlife > 55)
 			newlife = 55;
 		c = PMAP(newlife, c);
-		lightningRecreate = newlife/4;
+		lightningRecreate = std::max(newlife / 4, 1);
 		rx = ry = 0;
 	}
 	else if (c == PT_STKM || c == PT_STKM2 || c == PT_FIGH)
