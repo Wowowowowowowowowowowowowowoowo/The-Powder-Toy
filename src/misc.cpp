@@ -695,19 +695,19 @@ void load_presets(void)
 					if (tempCustomGol->type != cJSON_String)
 						continue;
 
-					CustomGOLData cust;
+					CustomGOLData cgol;
 					std::string customGol = tempCustomGol->valuestring;
 					std::string color1Str, color2Str;
 
 					int pos, pos2;
 					pos2 = customGol.find(' ');
 					if (pos2 == -1) continue;
-					cust.nameString = customGol.substr(0, pos2);
+					cgol.nameString = customGol.substr(0, pos2);
 					pos = pos2 + 1;
 
 					pos2 = customGol.find(' ', pos);
 					if (pos2 == -1) continue;
-					cust.ruleString = customGol.substr(pos, pos2 - pos);
+					cgol.ruleString = customGol.substr(pos, pos2 - pos);
 					pos = pos2 + 1;
 
 					pos2 = customGol.find(' ', pos);
@@ -719,17 +719,17 @@ void load_presets(void)
 					if (pos2 != -1) continue;
 					color2Str = customGol.substr(pos);
 
-					if (!ValidateGOLName(cust.nameString))
+					if (!ValidateGOLName(cgol.nameString))
 						continue;
 
-					cust.rule = ParseGOLString(cust.ruleString);
-					if (cust.rule == -1)
+					cgol.rule = ParseGOLString(cgol.ruleString);
+					if (cgol.rule == -1)
 						continue;
 
-					cust.color1 = Format::StringToNumber<int>(color1Str);
-					cust.color2 = Format::StringToNumber<int>(color2Str);
+					cgol.color1 = Format::StringToNumber<int>(color1Str);
+					cgol.color2 = Format::StringToNumber<int>(color2Str);
 
-					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cust);
+					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cgol);
 				}
 			}
 		}

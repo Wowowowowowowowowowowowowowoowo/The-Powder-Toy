@@ -100,13 +100,13 @@ bool GolWindow::AddGol()
 	}
 	ruleString = SerialiseGOLRule(rule); // * Make it canonical.
 
-	CustomGOLData data;
-	data.color1 = COLMODALPHA(lowColor, 0);
-	data.color2 = COLMODALPHA(highColor, 0);
-	data.rule = rule;
-	data.ruleString = ruleString;
-	data.nameString = name;
-	if (!((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(data))
+	CustomGOLData cgol;
+	cgol.color1 = COLMODALPHA(lowColor, 0);
+	cgol.color2 = COLMODALPHA(highColor, 0);
+	cgol.rule = rule;
+	cgol.ruleString = ruleString;
+	cgol.nameString = name;
+	if (!((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cgol))
 	{
 		ErrorPrompt *errorPrompt = new ErrorPrompt("Duplicate name, cannot add");
 		Engine::Ref().ShowWindow(errorPrompt);

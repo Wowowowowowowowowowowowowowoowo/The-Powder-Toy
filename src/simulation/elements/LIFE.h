@@ -14,11 +14,6 @@ struct CustomGOLData
 	int rule, color1, color2;
 	std::string nameString, ruleString;
 
-	inline bool operator <(const CustomGOLData &other) const
-	{
-		return rule < other.rule;
-	}
-
 	inline bool operator ==(const CustomGOLData &other) const
 	{
 		return rule == other.rule;
@@ -249,12 +244,12 @@ public:
 		return customGol;
 	}
 
-	bool AddCustomGOL(CustomGOLData custGOL)
+	bool AddCustomGOL(CustomGOLData cgol)
 	{
-		if (std::any_of(customGol.begin(), customGol.end(), [&](CustomGOLData c) { return custGOL.nameString == c.nameString || custGOL.rule == c.rule; }))
+		if (std::any_of(customGol.begin(), customGol.end(), [&](CustomGOLData c) { return cgol.nameString == c.nameString || cgol.rule == c.rule; }))
 			return false;
 
-		customGol.push_back(custGOL);
+		customGol.push_back(cgol);
 		return true;
 	}
 
