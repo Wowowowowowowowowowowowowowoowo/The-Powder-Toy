@@ -75,6 +75,7 @@ class GolTool : public Tool
 {
 public:
 	GolTool(int golID);
+	GolTool(int ruleset, std::string name, std::string description);
 	int GetID();
 
 	int DrawPoint(Simulation *sim, Brush *brush, Point position, float toolStrength) override;

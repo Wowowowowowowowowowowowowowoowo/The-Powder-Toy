@@ -38,6 +38,7 @@
 #include "cJSON.h"
 #include "update.h"
 
+#include "common/Format.h"
 #include "common/Platform.h"
 #include "game/Brush.h"
 #include "game/Favorite.h"
@@ -47,7 +48,9 @@
 #include "simulation/Simulation.h"
 #include "simulation/Snapshot.h"
 #include "simulation/Tool.h"
+
 #include "gui/console/Console.h"
+#include "simulation/elements/LIFE.h"
 
 static char hex[] = "0123456789ABCDEF";
 
@@ -308,7 +311,23 @@ void save_presets()
 	cJSON_AddNumberToObject(tmpobj, "scrollSpeedMomentum", scrollSpeedMomentum);
 	cJSON_AddNumberToObject(tmpobj, "scrollDeceleration", scrollDeceleration);
 	cJSON_AddNumberToObject(tmpobj, "ShowIDs", show_ids);
-	
+
+	auto cachedName = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedName();
+	auto cachedRuleString = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedRuleString();
+	auto customGol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL();
+	cJSON_AddItemToObject(root, "CustomGOL", tmpobj=cJSON_CreateObject());
+	cJSON_AddStringToObject(tmpobj, "Name", cachedName.c_str());
+	cJSON_AddStringToObject(tmpobj, "Rule", cachedRuleString.c_str());
+	cJSON * customGolArr = cJSON_CreateArray();
+	for (auto &cgol : customGol)
+	{
+		std::stringstream golStream;
+		golStream << cgol.nameString << " " << cgol.ruleString << " " << cgol.color1 << " " << cgol.color2;
+		cJSON_AddItemToArray(customGolArr, cJSON_CreateString(golStream.str().c_str()));
+	}
+	cJSON_AddItemToObject(tmpobj, "Types", customGolArr);
+
+
 	outputdata = cJSON_Print(root);
 	cJSON_Delete(root);
 
@@ -358,7 +377,7 @@ void load_presets(void)
 	cJSON *root;
 	if (prefdata && (root = cJSON_Parse(prefdata)))
 	{
-		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *itemobj;
+		cJSON *userobj, *versionobj, *recobj, *tmpobj, *graphicsobj, *hudobj, *simulationobj, *consoleobj, *itemobj, *customgolobj;
 		
 		//Read user data
 		userobj = cJSON_GetObjectItem(root, "User");
@@ -451,8 +470,6 @@ void load_presets(void)
 				std::string identifier = cJSON_GetArrayItem(tmpobj, i)->valuestring;
 				Favorite::Ref().AddFavorite(identifier);
 			}
-			if (favSize)
-				FillMenus();
 		}
 		
 		//Read Records
@@ -634,10 +651,7 @@ void load_presets(void)
 			autosave = tmpobj->valueint;
 #ifndef NOMOD
 		if ((tmpobj = cJSON_GetObjectItem(root, "EXPL_unlocked")))
-		{
 			explUnlocked = true;
-			FillMenus();
-		}
 #endif
 /*#ifndef TOUCHUI
 		if ((tmpobj = cJSON_GetObjectItem(root, "old_menu")))
@@ -661,6 +675,63 @@ void load_presets(void)
 				scrollDeceleration = tmpobj->valuedouble;
 			if ((tmpobj = cJSON_GetObjectItem(itemobj, "ShowIDs")))
 				show_ids = tmpobj->valueint;
+		}
+
+		customgolobj = cJSON_GetObjectItem(root, "CustomGOL");
+		if (customgolobj)
+		{
+			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Name")) && tmpobj->type == cJSON_String)
+				((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedName(tmpobj->valuestring);
+			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Rule")) && tmpobj->type == cJSON_String)
+				((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedRuleString(tmpobj->valuestring);
+
+			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Types")) && tmpobj->type == cJSON_Array)
+			{
+				int count = cJSON_GetArraySize(tmpobj);
+				cJSON * tempCustomGol;
+				for (int i = 0; i < count; i++)
+				{
+					tempCustomGol = cJSON_GetArrayItem(tmpobj, i);
+					if (tempCustomGol->type != cJSON_String)
+						continue;
+
+					CustomGOLData cust;
+					std::string customGol = tempCustomGol->valuestring;
+					std::string color1Str, color2Str;
+
+					int pos, pos2;
+					pos2 = customGol.find(' ');
+					if (pos2 == -1) continue;
+					cust.nameString = customGol.substr(0, pos2);
+					pos = pos2 + 1;
+
+					pos2 = customGol.find(' ', pos);
+					if (pos2 == -1) continue;
+					cust.ruleString = customGol.substr(pos, pos2 - pos);
+					pos = pos2 + 1;
+
+					pos2 = customGol.find(' ', pos);
+					if (pos2 == -1) continue;
+					color1Str = customGol.substr(pos, pos2 - pos);
+					pos = pos2 + 1;
+
+					pos2 = customGol.find(' ', pos);
+					if (pos2 != -1) continue;
+					color2Str = customGol.substr(pos);
+
+					if (!ValidateGOLName(cust.nameString))
+						continue;
+
+					cust.rule = ParseGOLString(cust.ruleString);
+					if (cust.rule == -1)
+						continue;
+
+					cust.color1 = Format::StringToNumber<int>(color1Str);
+					cust.color2 = Format::StringToNumber<int>(color2Str);
+
+					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cust);
+				}
+			}
 		}
 
 		cJSON_Delete(root);

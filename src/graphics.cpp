@@ -48,6 +48,7 @@
 #include "simulation/GolNumbers.h"
 #include "simulation/elements/EMP.h"
 #include "simulation/elements/FIGH.h"
+#include "simulation/elements/LIFE.h"
 #include "simulation/elements/STKM.h"
 
 #include "gui/game/PowderToy.h"
@@ -365,7 +366,20 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 	}
 	else if (current->GetType() == GOL_TOOL)
 	{
-		draw_tool_button(vid_buf, x, y, PIXPACK(golTypes[toolID].colour), golTypes[toolID].name);
+		if (toolID < NGOL)
+			draw_tool_button(vid_buf, x, y, PIXPACK(builtinGol[toolID].color), builtinGol[toolID].name);
+		else
+		{
+			auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+			int color = 0;
+			std::string name;
+			if (cgol)
+			{
+				color = cgol->color1;
+				name = cgol->nameString;
+			}
+			draw_tool_button(vid_buf, x, y, PIXPACK(color), name);
+		}
 	}
 	else if (current->GetType() == FAV_MENU_BUTTON)
 	{

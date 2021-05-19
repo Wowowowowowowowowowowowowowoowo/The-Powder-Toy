@@ -12,6 +12,7 @@ using namespace ui;
 Button::Button(Point position, Point size_, std::string text_):
 	Component(position, size_),
 	textColor(Style::Border),
+	backgroundColor(0),
 	tooltip(NULL),
 	alignment(CENTER),
 	state(NORMAL),
@@ -60,6 +61,11 @@ void Button::SetTextColor(ARGBColour newColor)
 	textColor = newColor;
 }
 
+void Button::SetBackgroundColor(ARGBColour newColor)
+{
+	backgroundColor = newColor;
+}
+
 void Button::SetTooltip(ToolTip *newTip)
 {
 	delete tooltip;
@@ -105,13 +111,13 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 		vid->DrawRect(position.X, position.Y, size.X, size.Y, COLMULT(color, Style::DisabledMultiplier));
 
 	ARGBColour realTextColor;
-	ARGBColour backgroundColor = 0;
+	ARGBColour backColor = 0;
 	if (!enabled)
 	{
 		if (state == INVERTED)
-			backgroundColor = color;
-		else if (state == HIGHLIGHTED)
-			backgroundColor = COLMODALPHA(color, Style::HighlightAlpha);
+			backColor = color;
+		else if (backgroundColor)
+			backColor = backgroundColor;
 		realTextColor = COLMULT(textColor, Style::DisabledMultiplier);
 	}
 #ifdef TOUCHUI
@@ -125,15 +131,13 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 		if (state == INVERTED)
 		{
 			realTextColor = COLRGB(255 - COLR(textColor), 255 - COLG(textColor), 255 - COLB(textColor));
-			backgroundColor = color;
-		}
-		else if (state == HIGHLIGHTED)
-		{
-			backgroundColor = COLMODALPHA(color, Style::HighlightAlpha);
-			realTextColor = textColor;
+			backColor = color;
 		}
 		else
+		{
+			backColor = backgroundColor;
 			realTextColor = textColor;
+		}
 	}
 	else
 	{
@@ -147,44 +151,43 @@ void Button::OnDraw(gfx::VideoBuffer* vid)
 				if (IsHeld())
 				{
 					realTextColor = COLPACK(0x000000);
-					backgroundColor = color;
+					backColor = color;
 				}
 				else
 				{
 					unsigned int heldAmount = std::min((int)(timeHeldDown / 20), 100);
 					realTextColor = textColor;
-					backgroundColor = COLMODALPHA(color, 100 + heldAmount);
+					backColor = COLMODALPHA(color, 100 + heldAmount);
 				}
+			}
+			else if (backgroundColor)
+			{
+				backColor = COLMODALPHA(color, Style::HighlightAlphaHover);;
+				realTextColor = COLPACK(0x000000);
 			}
 			else
 			{
-				backgroundColor = color;
+				backColor = color;
 				realTextColor = COLPACK(0x000000);
 			}
 		}
 		// Mouse over button, not held down
 		else
 		{
-			if (state == INVERTED)
+			if (state == INVERTED || backgroundColor)
 			{
-				backgroundColor = COLMODALPHA(color, Style::InvertAlphaHover);
+				backColor = COLMODALPHA(color, Style::InvertAlphaHover);
 				realTextColor = COLRGB(255 - COLR(textColor), 255 - COLG(textColor), 255 - COLB(textColor));
-			}
-			else if (state == HIGHLIGHTED)
-			{
-				backgroundColor = COLMODALPHA(color, Style::HighlightAlphaHover);
-				realTextColor = textColor;
 			}
 			else
 			{
-				backgroundColor = COLMODALPHA(color, Style::HoverAlpha);
+				backColor = COLMODALPHA(color, Style::HoverAlpha);
 				realTextColor = textColor;
 			}
 		}
 	}
-	// background color (if required)
-	if (backgroundColor)
-		vid->FillRect(position.X+1, position.Y+1, size.X-2, size.Y-2, backgroundColor);
+	if (backColor)
+		vid->FillRect(position.X+1, position.Y+1, size.X-2, size.Y-2, backColor);
 
 	if (alignment == LEFT)
 	{

@@ -25,70 +25,67 @@ int LIFE_update(UPDATE_FUNC_ARGS)
 
 int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 {
-	ARGBColour col;
-	// Colors for life states
-	if (cpart->ctype == NGT_LOTE)
+	auto color1 = cpart->dcolour;
+	auto color2 = cpart->tmp;
+	if (!color1)
 	{
-		if (cpart->tmp == 2)
-			col = COLRGB(255, 128, 0);
-		else if (cpart->tmp == 1)
-			col = COLRGB(255, 255, 0);
+		color1 = PIXPACK(0xFFFFFF);
+	}
+	auto ruleset = cpart->ctype;
+	bool renderDeco = true; //!ren->blackDecorations;
+	if (ruleset >= 0 && ruleset < NGOL)
+	{
+		if (!renderDeco)
+		{
+			color1 = builtinGol[ruleset].color;
+			color2 = builtinGol[ruleset].color2;
+			renderDeco = true;
+		}
+		ruleset = builtinGol[ruleset].ruleset;
+	}
+	if (renderDeco)
+	{
+		auto states = ((ruleset >> 17) & 0xF) + 2;
+		if (states == 2)
+		{
+			*colr = PIXR(color1);
+			*colg = PIXG(color1);
+			*colb = PIXB(color1);
+		}
 		else
-			col = COLRGB(255, 0, 0);
+		{
+			auto mul = (cpart->tmp2 - 1) / float(states - 2);
+			*colr = int(PIXR(color1) * mul + PIXR(color2) * (1.f - mul));
+			*colg = int(PIXG(color1) * mul + PIXG(color2) * (1.f - mul));
+			*colb = int(PIXB(color1) * mul + PIXB(color2) * (1.f - mul));
+		}
 	}
-	else if (cpart->ctype == NGT_FRG2)
-	{
-		if (cpart->tmp == 2)
-			col = COLRGB(0, 100, 50);
-		else
-			col = COLRGB(0, 255, 90);
-	}
-	else if (cpart->ctype == NGT_STAR)
-	{
-		if (cpart->tmp == 4)
-			col = COLRGB(0, 0, 128);
-		else if (cpart->tmp == 3)
-			col = COLRGB(0, 0, 150);
-		else if (cpart->tmp == 2)
-			col = COLRGB(0, 0, 190);
-		else if (cpart->tmp == 1)
-			col = COLRGB(0, 0, 230);
-		else
-			col = COLRGB(0, 0, 70);
-	}
-	else if (cpart->ctype == NGT_FROG)
-	{
-		if (cpart->tmp == 2)
-			col = COLRGB(0, 100, 0);
-		else
-			col = COLRGB(0, 255, 0);
-	}
-	else if (cpart->ctype == NGT_BRAN)
-	{
-		if (cpart->tmp == 1)
-			col = COLRGB(150, 150, 0);
-		else
-			col = COLRGB(255, 255, 0);
-	}
-	else if (cpart->ctype >= 0 && cpart->ctype < NGOL)
-	{
-		col = golTypes[cpart->ctype].colour;
-	}
-	else
-		col = sim->elements[cpart->type].Colour;
-	*colr = COLR(col);
-	*colg = COLG(col);
-	*colb = COLB(col);
+	*pixel_mode |= NO_DECO;
 	return 0;
 }
 
 void LIFE_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	if (v >= 0 && v < NGOL)
+	// * 0x200000: No need to look for colours, they'll be set later anyway.
+	bool skipLookup = v & 0x200000;
+	v &= 0x1FFFFF;
+	sim->parts[i].ctype = v;
+	if (v < NGOL)
 	{
-		sim->parts[i].tmp = grule[v+1][9] - 1;
-		sim->parts[i].ctype = v;
+		sim->parts[i].dcolour = builtinGol[v].color;
+		sim->parts[i].tmp = builtinGol[v].color2;
+		v = builtinGol[v].ruleset;
 	}
+	else if (!skipLookup)
+	{
+		auto *cgol = ((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->GetCustomGOLByRule(v);
+		if (cgol)
+		{
+			sim->parts[i].dcolour = cgol->color1;
+			sim->parts[i].tmp = cgol->color2;
+		}
+	}
+	sim->parts[i].tmp2 = ((v >> 17) & 0xF) + 1;
 }
 
 void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)

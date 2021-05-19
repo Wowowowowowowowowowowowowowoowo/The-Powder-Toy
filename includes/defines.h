@@ -32,7 +32,7 @@
 #define MINOR_VERSION 0
 #define BUILD_NUM 345
 //VersionInfoEnd
-#define FAKE_SAVE_VERSION 95
+#define FAKE_SAVE_VERSION 96
 #define FAKE_MINOR_VER 0
 
 #define MOD_VERSION 44

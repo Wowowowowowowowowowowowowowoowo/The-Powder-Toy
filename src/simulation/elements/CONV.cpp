@@ -19,7 +19,7 @@
 int CONV_update(UPDATE_FUNC_ARGS)
 {
 	int ctype = TYP(parts[i].ctype), ctypeExtra = ID(parts[i].ctype);
-	if (ctype <= 0 || !sim->elements[ctype].Enabled || ctype == PT_CONV || (ctype == PT_LIFE && (ctypeExtra < 0 || ctypeExtra >= NGOL)))
+	if (ctype <= 0 || !sim->elements[ctype].Enabled || ctype == PT_CONV)
 	{
 		for (int rx = -1; rx <= 1; rx++)
 			for (int ry = -1; ry <= 1; ry++)

@@ -14,11 +14,11 @@ public:
 	Favorite();
 	
 	void AddFavorite(std::string identifier);
-	void RemoveFavorite(std::string identifier);
+	bool RemoveFavorite(std::string identifier);
 	bool IsFavorite(std::string identifier);
 	
 	void AddRecent(std::string identifier);
-	void RemoveRecent(std::string identifier);
+	bool RemoveRecent(std::string identifier);
 	bool IsRecent(std::string identifier);
 	
 	int GetSize(bool favoritesOnly=false);

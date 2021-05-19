@@ -1253,6 +1253,15 @@ void Save::ParseSaveOPS()
 							particles[newIndex].tmp = 0;
 						}
 					}
+					if (createdVersion < 96)
+					{
+						if (particles[newIndex].type == PT_LIFE && particles[newIndex].ctype >= 0 && particles[newIndex].ctype < NGOL)
+						{
+							particles[newIndex].tmp2 = particles[newIndex].tmp;
+							particles[newIndex].dcolour = builtinGol[particles[newIndex].ctype].color;
+							particles[newIndex].tmp = builtinGol[particles[newIndex].ctype].color2;
+						}
+					}
 					// Note: PSv was used in version 77.0 and every version before, add something in PSv too if the element is that old
 
 					newIndex++;
@@ -1608,10 +1617,10 @@ void Save::ParseSavePSv()
 					tmp |= (data[pos++]);
 					particles[i-1].tmp = tmp;
 					if (ver < 53 && !particles[i-1].tmp)
-						for (int q = 1; q <= NGOL; q++)
+						for (int q = 0; q < NGOL; q++)
 						{
-							if (particles[i-1].type == oldgolTypes[q-1] && grule[q][9] == 2)
-								particles[i-1].tmp = grule[q][9] - 1;
+							if (particles[i-1].type == builtinGol[q].oldtype && (builtinGol[q].ruleset >> 17)==0)
+								particles[i-1].tmp = (builtinGol[q].ruleset >> 17)+1;
 						}
 					if (ver>=51 && ver<53 && particles[i-1].type==PT_PBCN)
 					{
@@ -1787,7 +1796,7 @@ void Save::ParseSavePSv()
 				particles[i-1].type = PT_LIFE;
 				for (int gnum = 0; gnum < NGOL; gnum++)
 				{
-					if (type == oldgolTypes[gnum])
+					if (type == builtinGol[gnum].oldtype)
 						particles[i-1].ctype = gnum;
 				}
 				type = PT_LIFE;
@@ -1797,11 +1806,21 @@ void Save::ParseSavePSv()
 				//Replace old GOL ctypes in clone
 				for (int gnum = 0; gnum<NGOL; gnum++)
 				{
-					if (particles[i-1].ctype == oldgolTypes[gnum])
+					if (particles[i-1].ctype == builtinGol[gnum].oldtype)
 					{
 						particles[i-1].ctype = PT_LIFE;
 						particles[i-1].tmp = gnum;
 					}
+				}
+			}
+			if (type == PT_LIFE)
+			{
+				particles[i-1].tmp2 = particles[i-1].tmp;
+				particles[i-1].tmp = 0;
+				if (particles[i-1].ctype >= 0 && particles[i-1].ctype < NGOL)
+				{
+					particles[i-1].dcolour = builtinGol[particles[i-1].ctype].color;
+					particles[i-1].tmp = builtinGol[particles[i-1].ctype].color2;
 				}
 			}
 			if (type == PT_LCRY)
@@ -2210,7 +2229,7 @@ void Save::BuildSave()
 				}
 				
 				// Dcolour (optional), 4 bytes
-				if (particles[i].dcolour && COLA(particles[i].dcolour))
+				if (particles[i].dcolour && (COLA(particles[i].dcolour) || particles[i].type == PT_LIFE))
 				{
 					fieldDesc |= 1 << 6;
 					partsData[partsDataLen++] = COLA(particles[i].dcolour);
@@ -2355,6 +2374,10 @@ void Save::BuildSave()
 					{
 						RESTRICTVERSION(95, 0);
 					}
+				}
+				if (particles[i].type == PT_LIFE)
+				{
+					RESTRICTVERSION(96, 0);
 				}
 				// Get the pmap entry for the next particle in the same position
 				i = partsPosLink[i];

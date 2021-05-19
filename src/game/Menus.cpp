@@ -2,12 +2,13 @@
 #include <sstream>
 #include "Menus.h"
 #include "Favorite.h"
+#include "hud.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/GolNumbers.h"
-#include "hud.h"
+#include "simulation/elements/LIFE.h"
 
 void MenuSection::ClearTools()
 {
@@ -139,6 +140,10 @@ void FillMenus()
 	{
 		menuSections[SC_LIFE]->AddTool(new GolTool(i));
 	}
+	for (auto &cgol : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL())
+	{
+		menuSections[SC_LIFE]->AddTool(new GolTool(cgol.rule, cgol.nameString, "Custom GOL type: " + cgol.ruleString));
+	}
 
 	//Fill up wall menu
 	for (int i = 0; i < WALLCOUNT; i++)
@@ -159,6 +164,8 @@ void FillMenus()
 			else
 				menuSections[SC_TOOL]->AddTool(new PropTool());
 		}
+		else if (i == TOOL_GOL)
+			menuSections[SC_LIFE]->AddTool(new ToolTool(i));
 		else
 			menuSections[SC_TOOL]->AddTool(new ToolTool(i));
 	}

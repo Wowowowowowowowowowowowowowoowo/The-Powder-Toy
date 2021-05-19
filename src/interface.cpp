@@ -79,7 +79,9 @@
 
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/game/PowderToy.h"
+#include "gui/gol/GolWindow.h"
 #include "simulation/elements/ANIM.h"
+#include "simulation/elements/LIFE.h"
 
 int svf_login = 0;
 int svf_admin = 0;
@@ -2953,6 +2955,11 @@ void menu_select_element(int b, Tool* over)
 			activeTools[0] = over;
 			if (((ToolTool*)over)->GetID() == TOOL_PROP)
 				openProp = true;
+			if (((ToolTool*)over)->GetID() == TOOL_GOL)
+			{
+				auto *golWindow = new GolWindow();
+				Engine::Ref().ShowWindow(golWindow);
+			}
 			Favorite::Ref().AddRecent(over->GetIdentifier());
 			FillMenus();
 		}
@@ -2988,8 +2995,24 @@ void menu_select_element(int b, Tool* over)
 		}
 		else if ((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL|KMOD_GUI)) && !(sdl_mod & (KMOD_ALT)))
 		{
-			Favorite::Ref().RemoveFavorite(over->GetIdentifier());
-			Favorite::Ref().RemoveRecent(over->GetIdentifier());
+			bool removed = Favorite::Ref().RemoveFavorite(over->GetIdentifier());
+			removed = Favorite::Ref().RemoveRecent(over->GetIdentifier()) || removed;
+
+			if (!removed && over->GetType() == GOL_TOOL && over->GetID() >= NGOL)
+			{
+				auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+				int cgolRule = cgol->rule;
+				auto *confirmPrompt = new ConfirmPrompt([cgolRule](bool b) {
+					if (b)
+					{
+						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->RemoveCustomGOL(cgolRule);
+						FillMenus();
+						save_presets();
+					}
+				}, "Remove custom GOL type", "Are you sure you want to remove " + cgol->nameString + "?");
+				Engine::Ref().ShowWindow(confirmPrompt);
+			}
+
 			FillMenus();
 			save_presets();
 		}
@@ -2998,6 +3021,11 @@ void menu_select_element(int b, Tool* over)
 			activeTools[1] = over;
 			if (((ToolTool*)over)->GetID() == TOOL_PROP)
 				openProp = true;
+			if (((ToolTool*)over)->GetID() == TOOL_GOL)
+			{
+				auto *golWindow = new GolWindow();
+				Engine::Ref().ShowWindow(golWindow);
+			}
 			Favorite::Ref().AddRecent(over->GetIdentifier());
 			FillMenus();
 		}

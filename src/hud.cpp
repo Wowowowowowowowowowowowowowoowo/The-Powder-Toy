@@ -91,7 +91,7 @@ void SetRightHudText(Simulation * sim, int x, int y)
 		{
 			if (currentHud[10])
 			{
-				if (underType == PT_LIFE && parts[underID].ctype >= 0 && parts[underID].ctype < NGOL)
+				if (underType == PT_LIFE)
 				{
 					if (currentHud[49] || !currentHud[11])
 						sprintf(nametext, "%s, ", ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
@@ -171,9 +171,11 @@ void SetRightHudText(Simulation * sim, int x, int y)
 			}
 			if (currentHud[20])
 			{
-				if (currentHud[12] || (underType != PT_RFRG && underType != PT_RFGL))
+				if (underType != PT_RFRG && underType != PT_RFGL && underType != PT_LIFE)
+				{
 					sprintf(tempstring,"Tmp: %d, ",parts[underID].tmp);
-				strappend(heattext,tempstring);
+					strappend(heattext,tempstring);
+				}
 			}
 			if (currentHud[21])
 			{
@@ -543,7 +545,7 @@ void DrawRecordsInfo(Simulation * sim)
 	if (num_parts)
 	{
 		if (activeTools[0]->GetType() == GOL_TOOL)
-			sprintf(infotext,"%%%s: %f", golTypes[activeTools[0]->GetID()].name.c_str(),(float)totalselected/num_parts*100);
+			sprintf(infotext,"%%%s: %f", sim->ElementResolve(PT_LIFE, activeTools[0]->GetID()).c_str(),(float)totalselected/num_parts*100);
 		else if (((ElementTool*)activeTools[0])->GetID() > 0)
 			sprintf(infotext,"%%%s: %f", sim->elements[activeTools[0]->GetID()].Name.c_str(),(float)totalselected/num_parts*100);
 		else

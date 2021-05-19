@@ -1,16 +1,20 @@
 #include <sstream>
 #include "Tool.h"
 #include "defines.h"
+#include "GolNumbers.h"
 #include "graphics.h"
 #include "hud.h"
 #include "interface.h"
 #include "powder.h"
-#include "graphics/ARGBColour.h"
 #include "Simulation.h"
-#include "WallNumbers.h"
 #include "ToolNumbers.h"
-#include "GolNumbers.h"
+#include "WallNumbers.h"
 #include "game/Brush.h"
+#include "game/Menus.h"
+#include "graphics/ARGBColour.h"
+#include "interface/Engine.h"
+#include "gui/gol/GolWindow.h"
+#include "simulation/elements/LIFE.h"
 
 Tool::Tool(int toolID, std::string toolIdentifier, std::string description):
 	identifier(toolIdentifier),
@@ -104,8 +108,20 @@ Tool* Tool::Sample(Simulation *sim, Point position)
 	{
 		if (TYP(sample) == PT_LIFE)
 		{
-			if (parts[ID(sample)].ctype < NGOL)
-				return GetToolFromIdentifier(golTypes[parts[ID(sample)].ctype].identifier);
+			int ctype = parts[ID(sample)].ctype;
+			if (ctype < NGOL)
+				return GetToolFromIdentifier("DEFAULT_PT_LIFE_" + builtinGol[ctype].name);
+			else
+			{
+				for (auto *tool : menuSections[SC_LIFE]->tools)
+				{
+					if  (tool->GetID() == ctype)
+						return tool;
+				}
+				std::string ruleStr = SerialiseGOLRule(ctype);
+				auto *golWindow = new GolWindow(ruleStr, parts[ID(sample)].dcolour, parts[ID(sample)].tmp);
+				Engine::Ref().ShowWindow(golWindow);
+			}
 		}
 		else
 		{
@@ -166,7 +182,12 @@ void PlopTool::Click(Simulation *sim, Point position)
 
 
 GolTool::GolTool(int golID):
-	Tool(GOL_TOOL, golID, golTypes[golID].identifier, golTypes[golID].description)
+	Tool(GOL_TOOL, golID, "DEFAULT_PT_LIFE_" + builtinGol[golID].name, builtinGol[golID].description)
+{
+
+}
+GolTool::GolTool(int ruleset, std::string name, std::string description):
+	Tool(GOL_TOOL, ruleset, "DEFAULT_PT_LIFECUST_" + name, description)
 {
 
 }
@@ -267,14 +288,14 @@ ToolTool::ToolTool(int toolID):
 }
 int ToolTool::DrawPoint(Simulation *sim, Brush* brush, Point position, float toolStrength)
 {
-	if (toolID == TOOL_SIGN)
+	if (toolID == TOOL_SIGN || toolID == TOOL_GOL)
 		return 1;
 	sim->CreateToolBrush(position.X, position.Y, toolID, toolStrength, brush);
 	return 0;
 }
 void ToolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point endPos, bool held, float toolStrength)
 {
-	if (toolID == TOOL_SIGN)
+	if (toolID == TOOL_SIGN || toolID == TOOL_GOL)
 		return;
 	if (toolID == TOOL_WIND)
 		toolStrength = held ? 0.01f*toolStrength : 0.002f;
@@ -282,7 +303,7 @@ void ToolTool::DrawLine(Simulation *sim, Brush *brush, Point startPos, Point end
 }
 void ToolTool::DrawRect(Simulation *sim, Brush *brush, Point startPos, Point endPos)
 {
-	if (toolID == TOOL_SIGN)
+	if (toolID == TOOL_SIGN || toolID == TOOL_GOL)
 		return;
 	sim->CreateToolBox(startPos.X, startPos.Y, endPos.X, endPos.Y, toolID, toolStrength);
 }

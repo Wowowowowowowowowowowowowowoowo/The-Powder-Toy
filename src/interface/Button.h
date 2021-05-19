@@ -17,12 +17,13 @@ class Button : public Component
 {
 public:
 	enum TextAlign { LEFT, CENTER };
-	enum State { NORMAL, HIGHLIGHTED, INVERTED, HOLD };
+	enum State { NORMAL, INVERTED, HOLD };
 	static const uint32_t heldThreshold = 1000;
 
 private:
 	std::string text;
 	ARGBColour textColor;
+	ARGBColour backgroundColor;
 	ToolTip *tooltip;
 	std::function<void(int)> callback = nullptr;
 	TextAlign alignment;
@@ -40,6 +41,7 @@ public:
 	void SetText(std::string text_);
 	void SetColor(ARGBColour newColor) override;
 	void SetTextColor(ARGBColour newColor);
+	void SetBackgroundColor(ARGBColour newColor);
 	void SetTooltip(ToolTip *newTip);
 	void SetTooltipText(std::string newTooltip);
 	void SetCallback(std::function<void(int)> callback) { this->callback = callback; }

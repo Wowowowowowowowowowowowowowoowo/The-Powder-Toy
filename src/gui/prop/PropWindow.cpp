@@ -14,7 +14,9 @@
 #include "simulation/Particle.h"
 #include "simulation/Simulation.h" // For console_parse_type
 #include "simulation/Tool.h"
+
 #include "gui/dialogs/ErrorPrompt.h"
+#include "simulation/elements/LIFE.h"
 
 PropWindow::PropWindow():
 	ui::Window(Point(CENTERED, CENTERED), Point(175, 80))
@@ -240,10 +242,41 @@ bool PropWindow::ParseValue(std::string value)
 			propTool->propValue = { elNumber };
 			return true;
 		}
-		Engine::Ref().ShowWindow(new ErrorPrompt("Invalid element name"));
-		return false;
 	}
 
-	Engine::Ref().ShowWindow(new ErrorPrompt("Invalid number"));
+	if (properties[selectedProperty].Name == "ctype")
+	{
+		std::string upperValue = Format::ToUpper(value);
+		if (value.length() > 1 && (value.at(0) == 'B' || value.at(0) == 'b') && value.find('/') != value.npos)
+		{
+			int v = ParseGOLString(upperValue);
+			if (v != -1)
+			{
+				propTool->propValue = { v };
+				return true;
+			}
+		}
+		for (int i = 0; i < NGOL; i++)
+		{
+			if (builtinGol[i].name == upperValue)
+			{
+				propTool->propValue = { i };
+				return true;
+			}
+		}
+		for (auto &cgol : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL())
+		{
+			if (cgol.nameString == upperValue)
+			{
+				propTool->propValue = { ID(cgol.rule) };
+				return true;
+			}
+		}
+	}
+
+	if (properties[selectedProperty].Type == StructProperty::ParticleType)
+		Engine::Ref().ShowWindow(new ErrorPrompt("Invalid element name"));
+	else
+		Engine::Ref().ShowWindow(new ErrorPrompt("Invalid number"));
 	return false;
 }

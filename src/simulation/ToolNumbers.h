@@ -14,7 +14,8 @@
 #define TOOL_WIND	8
 #define TOOL_PROP	9
 #define TOOL_SIGN	10
-#define TOOLCOUNT	11
+#define TOOL_GOL	11
+#define TOOLCOUNT	12
 
 #define OLD_PT_WIND	147
 #define OLD_WL_SIGN	126
@@ -42,7 +43,8 @@ static toolType toolTypes[] =
 	{"CYCL", "DEFAULT_TOOL_CYCL",	COLPACK(0x132F5B), "Cyclone, produces swirling air currents."},
 	{"WIND", "DEFAULT_UI_WIND",		COLPACK(0x404040), "Creates air movement."},
 	{"PROP", "DEFAULT_UI_PROPERTY",	COLPACK(0xFFAA00), "Property drawing tool."},
-	{"SIGN", "DEFAULT_UI_SIGN",		COLPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."}
+	{"SIGN", "DEFAULT_UI_SIGN",		COLPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."},
+	{"CUST", "DEFAULT_UI_ADDLIFE",	COLPACK(0xFEA900), "Add a new custom GOL type. (Use ctrl+shift+rightclick to remove them)"}
 };
 
 #define DECO_DRAW		0

@@ -28,8 +28,10 @@ public:
 
 	void DrawPixel(int x, int y, int r, int g, int b, int a);
 	void DrawPixel(int x, int y, ARGBColour color);
+	void XorPixel(int x, int y);
 	void DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a);
 	void DrawLine(int x1, int y1, int x2, int y2, ARGBColour color);
+	void XorLine(int x1, int y1, int x2, int y2);
 	void DrawRect(int x, int y, int w, int h, int r, int g, int b, int a);
 	void DrawRect(int x, int y, int w, int h, ARGBColour color);
 	void FillRect(int x, int y, int w, int h, int r, int g, int b, int a);

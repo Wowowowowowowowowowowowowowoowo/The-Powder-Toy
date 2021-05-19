@@ -27,7 +27,7 @@ int BCLN_update(UPDATE_FUNC_ARGS)
 		parts[i].vx += ADVECTION * sim->air->vx[y/CELL][x/CELL];
 		parts[i].vy += ADVECTION * sim->air->vy[y/CELL][x/CELL];
 	}
-	if (parts[i].ctype <= 0 || parts[i].ctype >= PT_NUM || !sim->elements[parts[i].ctype].Enabled || (parts[i].ctype == PT_LIFE && (parts[i].tmp < 0 || parts[i].tmp >= NGOL)))
+	if (parts[i].ctype <= 0 || parts[i].ctype >= PT_NUM || !sim->elements[parts[i].ctype].Enabled)
 	{
 		for (int rx = -1; rx <= 1; rx++)
 			for (int ry = -1; ry <= 1; ry++)

@@ -15,9 +15,9 @@ void Favorite::AddFavorite(std::string identifier)
 	RemoveRecent(identifier);
 }
 
-void Favorite::RemoveFavorite(std::string identifier)
+bool Favorite::RemoveFavorite(std::string identifier)
 {
-	favorites.erase(std::remove(favorites.begin(), favorites.end(), identifier), favorites.end());
+	return favorites.erase(std::remove(favorites.begin(), favorites.end(), identifier), favorites.end()) != favorites.end();
 }
 
 bool Favorite::IsFavorite(std::string identifier)
@@ -35,9 +35,9 @@ void Favorite::AddRecent(std::string identifier)
 	}
 }
 
-void Favorite::RemoveRecent(std::string identifier)
+bool Favorite::RemoveRecent(std::string identifier)
 {
-	recents.erase(std::remove(recents.begin(), recents.end(), identifier), recents.end());
+	return recents.erase(std::remove(recents.begin(), recents.end(), identifier), recents.end()) != recents.end();
 }
 
 bool Favorite::IsRecent(std::string identifier)

@@ -119,6 +119,19 @@ void VideoBuffer::DrawPixel(int x, int y, ARGBColour color)
 	DrawPixel(x, y, COLR(color), COLG(color), COLB(color), COLA(color));
 }
 
+//This function does NO bounds checking
+void VideoBuffer::XorPixel(int x, int y)
+{
+	//if (x < 0 || y < 0 || x >= width || y >= height || a == 0)
+	//	return;
+	int c = vid[y*width+x];
+	c = PIXB(c) + 3 * PIXG(c) + 2 * PIXR(c);
+	if (c < 512)
+		vid[y*width+x] = PIXPACK(0xC0C0C0);
+	else
+		vid[y*width+x] = PIXPACK(0x404040);
+}
+
 void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, int a)
 {
 	int dx, dy, startX, startY, e, x, y;
@@ -163,6 +176,47 @@ void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, int r, int g, int b, 
 void VideoBuffer::DrawLine(int x1, int y1, int x2, int y2, ARGBColour color)
 {
 	DrawLine(x1, y1, x2, y2, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
+void VideoBuffer::XorLine(int x1, int y1, int x2, int y2)
+{
+	int dx, dy, startX, startY, e, x, y;
+	bool reverseXY = false;
+
+	dx = std::abs(x1-x2);
+	dy = std::abs(y1-y2);
+	startX = (x1<x2) ? 1 : -1;
+	startY = (y1<y2) ? 1 : -1;
+	x = x1;
+	y = y1;
+
+	if (dy > dx)
+	{
+		dx = dx + dy;
+		dy = dx - dy;
+		dx = dx - dy;
+		reverseXY = true;
+	}
+
+	e = (dy<<2) - dx;
+	for (int i = 0; i <= dx; i++)
+	{
+		if (x >= 0 && y >= 0 && x < width && y < height)
+			XorPixel(x, y);
+		if (e >= 0)
+		{
+			if (reverseXY)
+				x = x + startX;
+			else
+				y = y + startY;
+			e = e - (dx<<2);
+		}
+		if (reverseXY)
+			y = y + startY;
+		else
+			x = x + startX;
+		e = e + (dy<<2);
+	}
 }
 
 void VideoBuffer::DrawRect(int x, int y, int w, int h, int r, int g, int b, int a)

@@ -1,7 +1,9 @@
 #ifndef GOLNUMBERS_H
 #define GOLNUMBERS_H
+#include <list>
 #include <string>
 #include "graphics/ARGBColour.h"
+#include "graphics/Pixel.h"
 
 #define NGOL 24
 
@@ -30,7 +32,7 @@
 #define GT_STAR 144
 #define GT_FROG 145
 #define GT_BRAN 146
- 
+
 //New IDs for GOL types
 #define NGT_GOL 0
 #define NGT_HLIF 1
@@ -56,73 +58,6 @@
 #define NGT_STAR 21
 #define NGT_FROG 22
 #define NGT_BRAN 23
-
-static const char grule[NGOL+1][10] =
-{
-//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
-	{0,0,0,0,0,0,0,0,0,2},//blank
-	{0,0,1,3,0,0,0,0,0,2},//GOL
-	{0,0,1,3,0,0,2,0,0,2},//HLIF
-	{0,0,0,2,3,3,1,1,0,2},//ASIM
-	{0,1,1,2,0,1,2,0,0,2},//2x2
-	{0,0,0,3,1,0,3,3,3,2},//DANI
-	{0,1,0,3,0,3,0,2,1,2},//AMOE
-	{0,0,1,2,1,1,2,0,2,2},//MOVE
-	{0,0,1,3,0,2,0,2,1,2},//PGOL
-	{0,0,0,2,0,3,3,3,3,2},//DMOE
-	{0,0,0,3,3,0,0,0,0,2},//34
-	{0,0,0,2,2,3,0,0,0,2},//LLIF
-	{0,0,1,3,0,1,3,3,3,2},//STAN
-	{0,0,2,0,0,0,0,0,0,2},//SEED
-	{0,1,1,3,1,1,0,0,0,2},//MAZE
-	{0,0,1,3,0,1,1,3,3,2},//COAG
-	{0,0,1,1,3,3,2,2,2,2},//WALL
-	{0,3,0,0,0,0,0,0,0,2},//GNAR
-	{0,3,0,3,0,3,0,3,0,2},//REPL
-	{1,0,0,2,2,3,1,1,3,2},//MYST
-	{0,0,0,3,1,1,0,2,1,4},//LOTE
-	{0,1,1,2,1,0,0,0,0,3},//FRG2
-	{0,0,2,1,1,1,1,2,2,6},//STAR
-	{0,1,1,2,2,0,0,0,0,3},//FROG
-	{0,0,2,0,2,0,3,0,0,3},//BRAN
-};
-
-struct golType
-{
-	std::string name;
-	std::string identifier;
-	ARGBColour colour;
-	std::string description;
-};
-typedef struct golType golType;
-
-const golType golTypes[NGOL] =
-{
-	{"GOL",		"DEFAULT_PT_LIFE_GOL",	COLPACK(0x0CAC00), "Game Of Life: Begin 3/Stay 23"},
-	{"HLIF",	"DEFAULT_PT_LIFE_HLIF",	COLPACK(0xFF0000), "High Life: B36/S23"},
-	{"ASIM",	"DEFAULT_PT_LIFE_ASIM",	COLPACK(0x0000FF), "Assimilation: B345/S4567"},
-	{"2x2",		"DEFAULT_PT_LIFE_2x2",	COLPACK(0xFFFF00), "2x2: B36/S125"},
-	{"DANI",	"DEFAULT_PT_LIFE_DANI",	COLPACK(0x00FFFF), "Day and Night: B3678/S34678"},
-	{"AMOE",	"DEFAULT_PT_LIFE_AMOE",	COLPACK(0xFF00FF), "Amoeba: B357/S1358"},
-	{"MOVE",	"DEFAULT_PT_LIFE_MOVE",	COLPACK(0xFFFFFF), "'Move' particles. Does not move things.. it is a life type: B368/S245"},
-	{"PGOL",	"DEFAULT_PT_LIFE_PGOL",	COLPACK(0xE05010), "Pseudo Life: B357/S238"},
-	{"DMOE",	"DEFAULT_PT_LIFE_DMOE",	COLPACK(0x500000), "Diamoeba: B35678/S5678"},
-	{"34",		"DEFAULT_PT_LIFE_34",	COLPACK(0x500050), "34: B34/S34"},
-	{"LLIF",	"DEFAULT_PT_LIFE_LLIF",	COLPACK(0x505050), "Long Life: B345/S5"},
-	{"STAN",	"DEFAULT_PT_LIFE_STAN",	COLPACK(0x5000FF), "Stains: B3678/S235678"},
-	{"SEED",	"DEFAULT_PT_LIFE_SEED",	COLPACK(0xFBEC7D), "Seeds: B2/S"},
-	{"MAZE",	"DEFAULT_PT_LIFE_MAZE",	COLPACK(0xA8E4A0), "Maze: B3/S12345"},
-	{"COAG",	"DEFAULT_PT_LIFE_COAG",	COLPACK(0x9ACD32), "Coagulations: B378/S235678"},
-	{"WALL",	"DEFAULT_PT_LIFE_WALL",	COLPACK(0x0047AB), "Walled cities: B45678/S2345"},
-	{"GNAR",	"DEFAULT_PT_LIFE_GNAR",	COLPACK(0xE5B73B), "Gnarl: B1/S1"},
-	{"REPL",	"DEFAULT_PT_LIFE_REPL",	COLPACK(0x259588), "Replicator: B1357/S1357"},
-	{"MYST",	"DEFAULT_PT_LIFE_MYST",	COLPACK(0x0C3C00), "Mystery: B3458/S05678"},
-	{"LOTE",	"DEFAULT_PT_LIFE_LOTE",	COLPACK(0xFF0000), "Living on the Edge: B37/S3458/4"},
-	{"FRG2",	"DEFAULT_PT_LIFE_FRG2",	COLPACK(0x00FF00), "Like Frogs rule: B3/S124/3"},
-	{"STAR",	"DEFAULT_PT_LIFE_STAR",	COLPACK(0x0000FF), "Like Star Wars rule: B278/S3456/6"},
-	{"FROG",	"DEFAULT_PT_LIFE_FROG",	COLPACK(0x00AA00), "Frogs: B34/S12/3"},
-	{"BRAN",	"DEFAULT_PT_LIFE_BRAN",	COLPACK(0xCCCC00), "Brian 6: B246/S6/3"}
-};
 
 const int oldgolTypes[NGOL] =
 {
@@ -150,6 +85,53 @@ const int oldgolTypes[NGOL] =
 	GT_STAR,
 	GT_FROG,
 	GT_BRAN,
+};
+
+struct BuiltinGOL
+{
+	std::string name;
+	int oldtype;
+	int ruleset;
+	pixel color, color2;
+	int goltype;
+	std::string description;
+};
+
+const BuiltinGOL builtinGol[NGOL] = {
+	// * Ruleset:
+	//   * bits x = 8..0: stay if x neighbours present
+	//   * bits x = 16..9: begin if x-8 neighbours present
+	//   * bits 20..17: 4-bit unsigned int encoding the number of states minus 2; 2 states is
+	//     encoded as 0, 3 states as 1, etc.
+	//   * states are kind of long until a cell dies; normal ones use two states (living and dead),
+	//     for others the intermediate states live but do nothing
+	//   * the ruleset constants below look 20-bit, but rulesets actually consist of 21
+	//     bits of data; bit 20 just happens to not be set for any of the built-in types,
+	//     as none of them have 10 or more states
+	{ "GOL",  GT_GOL , 0x0080C, COLPACK(0x0CAC00), COLPACK(0x0CAC00), NGT_GOL,  "Game Of Life: Begin 3/Stay 23" },
+	{ "HLIF", GT_HLIF, 0x0480C, COLPACK(0xFF0000), COLPACK(0xFF0000), NGT_HLIF, "High Life: B36/S23" },
+	{ "ASIM", GT_ASIM, 0x038F0, COLPACK(0x0000FF), COLPACK(0x0000FF), NGT_ASIM, "Assimilation: B345/S4567" },
+	{ "2X2",  GT_2x2 , 0x04826, COLPACK(0xFFFF00), COLPACK(0xFFFF00), NGT_2x2,  "2X2: B36/S125" },
+	{ "DANI", GT_DANI, 0x1C9D8, COLPACK(0x00FFFF), COLPACK(0x00FFFF), NGT_DANI, "Day and Night: B3678/S34678" },
+	{ "AMOE", GT_AMOE, 0x0A92A, COLPACK(0xFF00FF), COLPACK(0xFF00FF), NGT_AMOE, "Amoeba: B357/S1358" },
+	{ "MOVE", GT_MOVE, 0x14834, COLPACK(0xFFFFFF), COLPACK(0xFFFFFF), NGT_MOVE, "'Move' particles. Does not move things.. it is a life type: B368/S245" },
+	{ "PGOL", GT_PGOL, 0x0A90C, COLPACK(0xE05010), COLPACK(0xE05010), NGT_PGOL, "Pseudo Life: B357/S238" },
+	{ "DMOE", GT_DMOE, 0x1E9E0, COLPACK(0x500000), COLPACK(0x500000), NGT_DMOE, "Diamoeba: B35678/S5678" },
+	{ "3-4",  GT_34  , 0x01818, COLPACK(0x500050), COLPACK(0x500050), NGT_34,   "3-4: B34/S34" },
+	{ "LLIF", GT_LLIF, 0x03820, COLPACK(0x505050), COLPACK(0x505050), NGT_LLIF, "Long Life: B345/S5" },
+	{ "STAN", GT_STAN, 0x1C9EC, COLPACK(0x5000FF), COLPACK(0x5000FF), NGT_STAN, "Stains: B3678/S235678" },
+	{ "SEED", GT_SEED, 0x00400, COLPACK(0xFBEC7D), COLPACK(0xFBEC7D), NGT_SEED, "Seeds: B2/S" },
+	{ "MAZE", GT_MAZE, 0x0083E, COLPACK(0xA8E4A0), COLPACK(0xA8E4A0), NGT_MAZE, "Maze: B3/S12345" },
+	{ "COAG", GT_COAG, 0x189EC, COLPACK(0x9ACD32), COLPACK(0x9ACD32), NGT_COAG, "Coagulations: B378/S235678" },
+	{ "WALL", GT_WALL, 0x1F03C, COLPACK(0x0047AB), COLPACK(0x0047AB), NGT_WALL, "Walled cities: B45678/S2345" },
+	{ "GNAR", GT_GNAR, 0x00202, COLPACK(0xE5B73B), COLPACK(0xE5B73B), NGT_GNAR, "Gnarl: B1/S1" },
+	{ "REPL", GT_REPL, 0x0AAAA, COLPACK(0x259588), COLPACK(0x259588), NGT_REPL, "Replicator: B1357/S1357" },
+	{ "MYST", GT_MYST, 0x139E1, COLPACK(0x0C3C00), COLPACK(0x0C3C00), NGT_MYST, "Mystery: B3458/S05678" },
+	{ "LOTE", GT_LOTE, 0x48938, COLPACK(0xFF0000), COLPACK(0xFFFF00), NGT_LOTE, "Living on the Edge: B37/S3458/4" },
+	{ "FRG2", GT_FRG2, 0x20816, COLPACK(0x006432), COLPACK(0x00FF5A), NGT_FRG2, "Like Frogs rule: B3/S124/3" },
+	{ "STAR", GT_STAR, 0x98478, COLPACK(0x000040), COLPACK(0x0000E6), NGT_STAR, "Like Star Wars rule: B278/S3456/6" },
+	{ "FROG", GT_FROG, 0x21806, COLPACK(0x006400), COLPACK(0x00FF00), NGT_FROG, "Frogs: B34/S12/3" },
+	{ "BRAN", GT_BRAN, 0x25440, COLPACK(0xFFFF00), COLPACK(0x969600), NGT_BRAN, "Brian 6: B246/S6/3" }
 };
 
 #endif

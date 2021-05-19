@@ -35,6 +35,7 @@
 #include "game/Save.h"
 #include "game/Sign.h"
 #include "simulation/elements/ANIM.h"
+#include "simulation/elements/LIFE.h"
 #include "simulation/elements/MOVS.h"
 #include "simulation/elements/FIGH.h"
 #include "simulation/elements/PPIP.h"
@@ -1154,8 +1155,19 @@ void Simulation::part_delete(int x, int y)
 
 std::string Simulation::ElementResolve(int type, int ctype)
 {
-	if (type == PT_LIFE && ctype >= 0 && ctype < NGOL)
-		return golTypes[ctype].name;
+	if (type == PT_LIFE)
+	{
+		if (ctype >= 0 && ctype < NGOL)
+		{
+			return builtinGol[ctype].name;
+		}
+		auto *cgol = ((LIFE_ElementDataContainer*)elementData[PT_LIFE])->GetCustomGOLByRule(ctype);
+		if (cgol)
+		{
+			return cgol->nameString;
+		}
+		return SerialiseGOLRule(ctype);
+	}
 	else if (type >= 0 && type < PT_NUM)
 		return elements[type].Name;
 	return "Empty";

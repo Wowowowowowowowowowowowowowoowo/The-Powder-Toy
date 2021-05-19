@@ -32,6 +32,7 @@
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
 #include "interface/Engine.h"
+#include "interface/Style.h"
 #include "interface/Window.h"
 #include "lua/LuaEvents.h"
 #include "simulation/Simulation.h"
@@ -43,6 +44,7 @@
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/dialogs/InfoPrompt.h"
 #include "gui/dialogs/ErrorPrompt.h"
+#include "gui/gol/GolWindow.h"
 #include "gui/options/OptionsUI.h"
 #include "gui/profile/ProfileViewer.h"
 #include "gui/prop/PropWindow.h"
@@ -125,6 +127,8 @@ PowderToy::PowderToy():
 	sim = new Simulation();
 	globalSim = sim;
 
+	load_presets();
+
 	InitMenusections();
 	FillMenus();
 	regularTools[0] = "DEFAULT_PT_DUST";
@@ -136,8 +140,6 @@ PowderToy::PowderToy():
 	activeTools[0] = GetToolFromIdentifier(regularTools[0]);
 	activeTools[1] = GetToolFromIdentifier(regularTools[1]);
 	activeTools[2] = GetToolFromIdentifier(regularTools[2]);
-
-	load_presets();
 
 	// start placing the bottom row of buttons, starting from the left
 #ifdef TOUCHUI
@@ -1273,8 +1275,8 @@ void PowderToy::OnTick(uint32_t ticks)
 	bool votesAllowed = svf_login && svf_open && svf_own == 0 && svf_myvote == 0;
 	upvoteButton->SetEnabled(votesAllowed && voteDownload == NULL);
 	downvoteButton->SetEnabled(votesAllowed && voteDownload == NULL);
-	upvoteButton->SetState(svf_myvote == 1 ? Button::HIGHLIGHTED : Button::NORMAL);
-	downvoteButton->SetState(svf_myvote == -1 ? Button::HIGHLIGHTED : Button::NORMAL);
+	upvoteButton->SetBackgroundColor(svf_myvote == 1 ? COLMODALPHA(upvoteButton->GetColor(), ui::Style::HighlightAlpha) : 0);
+	downvoteButton->SetBackgroundColor(svf_myvote == -1 ? COLMODALPHA(upvoteButton->GetColor(), ui::Style::HighlightAlpha) : 0);
 	if (svf_myvote == 1)
 	{
 		upvoteButton->SetTooltipText("You like this");
