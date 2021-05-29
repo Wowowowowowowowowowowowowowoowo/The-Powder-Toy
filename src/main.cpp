@@ -814,6 +814,8 @@ bool openProp = false;
 PowderToy *the_game;
 int main(int argc, char *argv[])
 {
+	SDLInit();
+
 	bool benchmark_enable = false;
 
 #ifdef X86_SSE
@@ -859,7 +861,23 @@ int main(int argc, char *argv[])
 		}
 	}
 	if (!usedDdir)
-		Platform::ChdirToDataDirectory();
+	{
+#ifdef WIN
+		struct _stat s;
+		if (_stat("powder.pref", &s) != 0)
+#else
+		struct stat s;
+		if (stat("powder.pref", &s) != 0)
+#endif
+		{
+			char *ddir = SDL_GetPrefPath(NULL, "The Powder Toy");
+			if (ddir)
+			{
+				chdir(ddir);
+				SDL_free(ddir);
+			}
+		}
+	}
 
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost

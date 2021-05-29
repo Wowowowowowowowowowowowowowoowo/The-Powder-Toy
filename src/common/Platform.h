@@ -13,7 +13,6 @@ namespace Platform
 	unsigned long GetTime();
 	void LoadFileInResource(int name, int type, unsigned int& size, const char*& data);
 	bool RegisterExtension();
-	void ChdirToDataDirectory();
 	bool ShowOnScreenKeyboard(const char *str, bool autoCorrect = true);
 	void GetOnScreenKeyboardInput(char * buff, int buffSize, bool autoCorrect = true);
 	bool IsOnScreenKeyboardShown();

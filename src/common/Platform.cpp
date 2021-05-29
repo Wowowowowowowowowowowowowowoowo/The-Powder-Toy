@@ -508,23 +508,6 @@ bool RegisterExtension()
 #endif
 }
 
-void ChdirToDataDirectory()
-{
-#ifdef MACOSX
-	FSRef ref;
-	OSType folderType = kApplicationSupportFolderType;
-	char path[PATH_MAX];
-
-	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
-
-	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
-
-	std::string tptPath = std::string(path) + "/The Powder Toy";
-	mkdir(tptPath.c_str(), 0755);
-	chdir(tptPath.c_str());
-#endif
-}
-
 // brings up an on screen keyboard and sends one key input for every key pressed
 // the tiny keyboard designed to do this doesn't work, so this will bring up a blocking keyboard
 // key presses are still sent one at a time when it is done (also seems to overflow every 90 characters, which seems to be the max)

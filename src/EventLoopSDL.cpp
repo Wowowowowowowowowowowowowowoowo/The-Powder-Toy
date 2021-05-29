@@ -94,11 +94,22 @@ void SDL_Quit_Wrapper()
 
 int sdl_opened = 0;
 void RecreateWindow();
-int SDLOpen()
+void SDLInit()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	// https://bugzilla.libsdl.org/show_bug.cgi?id=3796
+	if (SDL_Init(0) < 0)
 	{
 		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
+		exit(-1);
+	}
+	atexit(SDL_Quit_Wrapper);
+}
+
+int SDLOpen()
+{
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
+	{
+		fprintf(stderr, "Initializing SDL (video subsystem): %s\n", SDL_GetError());
 		return 0;
 	}
 
@@ -153,9 +164,8 @@ int SDLOpen()
 	SDL_FreeSurface(icon);
 #endif
 
-	atexit(SDL_Quit_Wrapper);
-
 	sdl_opened = 1;
+
 	return 1;
 }
 

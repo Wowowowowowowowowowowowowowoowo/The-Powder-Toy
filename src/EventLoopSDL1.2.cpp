@@ -52,6 +52,17 @@ void SDL_Quit_Wrapper()
 	SDL_Quit();
 }
 
+void SDLInit()
+{
+	// https://bugzilla.libsdl.org/show_bug.cgi?id=3796
+	if (SDL_Init(0) < 0)
+	{
+		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
+		exit(-1);
+	}
+	atexit(SDL_Quit_Wrapper);
+}
+
 int sdl_opened = 0;
 int SDLOpen()
 {
