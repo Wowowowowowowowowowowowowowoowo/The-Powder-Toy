@@ -1,6 +1,6 @@
 #ifdef TOUCHUI
 const char *const introText =
-	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.freenode.net #powder\n"
+	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.libera.chat #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
 	"Android version " MTOS(MOBILE_MAJOR) "." MTOS(MOBILE_MINOR) " build " MTOS(MOBILE_BUILD) "\n"
 	"\n"
@@ -30,7 +30,7 @@ const char *const introText =
 	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
 #else
 const char *const introText =
-	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.freenode.net #powder\n"
+	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.libera.chat #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
 	"\brJ\bla\boc\bgo\btb\bb1\bp'\bws \bbMod version " MTOS(MOD_VERSION) "." MTOS(MOD_MINOR_VERSION) " build " MTOS(MOD_BUILD_VERSION) "\bg   Codebase based on C version 83.0\n"
 	"\n"
@@ -57,46 +57,46 @@ const char *const introText =
 	"\n"
 	"\bgTo use online features such as saving, you need to register at: \brhttps://powdertoy.co.uk/Register.html\n"
 	"\n"
-	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
+	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM)
 #endif
 
 
 #ifdef X86
-	"X86 "
+	" X86"
 #endif
 #ifdef X86_SSE
-	"X86_SSE "
+	" X86_SSE"
 #endif
 #ifdef X86_SSE2
-	"X86_SSE2 "
+	" X86_SSE2"
 #endif
 #ifdef X86_SSE3
-	"X86_SSE3 "
+	" X86_SSE3"
 #endif
 #ifdef LIN
 #ifdef _64BIT
-	"LIN64 "
+	" LIN64"
 #else
-	"LIN32 "
+	" LIN32"
 #endif
 #endif
 #ifdef WIN
 #ifdef _64BIT
-	"WIN64 "
+	" WIN64"
 #else
-	"WIN32 "
+	" WIN32"
 #endif
 #endif
 #ifdef MACOSX
-	"MACOSX "
+	" MACOSX"
 #endif
 #ifdef ANDROID
-	"ANDROID "
+	" ANDROID"
 #endif
 #ifdef LUACONSOLE
-	"LUACONSOLE "
+	" LUACONSOLE"
 #endif
 #ifdef GRAVFFT
-	"GRAVFFT "
+	" GRAVFFT"
 #endif
     ;
