@@ -25,7 +25,7 @@ class OptionsUI : public ui::Window
 	Dropdown *filteringDropdown;
 
 	Checkbox *fastQuitCheckbox, *updatesCheckbox, *momentumScrollingCheckbox, *stickyCategoriesCheckbox, *savePressureCheckbox, *circleCheckbox;
-	Button *dataFolderButton;
+	Button *dataFolderButton, *migrationButton;
 
 	Simulation * sim;
 
@@ -55,6 +55,7 @@ class OptionsUI : public ui::Window
 	void StickyCatsChecked(bool checked);
 	void CircleChecked(bool checked);
 	void DataFolderClicked();
+	void MigrationClicked();
 
 	void OnDraw(gfx::VideoBuffer *buf) override;
 	void OnSubwindowDraw(gfx::VideoBuffer *buf);

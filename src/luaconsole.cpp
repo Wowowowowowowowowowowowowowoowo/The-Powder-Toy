@@ -2353,7 +2353,7 @@ int LuaCodeLen = 0;
 bool ranLuaCode = true;
 void ReadLuaCode()
 {
-	if (!file_exists("luacode.txt"))
+	if (!Platform::FileExists("luacode.txt"))
 	{
 		error_ui(lua_vid_buf, 0, "Place some code in luacode.txt");
 		return;

@@ -524,6 +524,36 @@ void stamp_init()
 	fclose(f);
 }
 
+void rescan_stamps()
+{
+	std::list<std::string> stampIDs;
+	std::vector<std::string> stampList = Platform::DirectorySearch("stamps", "", { ".stm" });
+	for (auto &stamp : stampList)
+	{
+		if (stamp.length() == 14)
+			stampIDs.push_back(stamp.substr(0, 10));
+	}
+	stampIDs.sort(std::greater<std::string>());
+
+	FILE *f = fopen("stamps" PATH_SEP "stamps.def", "wb");
+	if (!f)
+	{
+		error_ui(vid_buf, 0, "Could not open stamps.def");
+	}
+	else
+	{
+		for (auto & stampID : stampIDs)
+			fwrite(stampID.c_str(), stampID.length(), 1, f);
+		fclose(f);
+
+		for (int i = 0; i < STAMP_MAX; i++)
+			if (stamps[i].thumb)
+				free(stamps[i].thumb);
+		stamp_count = 0;
+		stamp_init();
+	}
+}
+
 void stamps_free()
 {
 	for (int i = 0; i < STAMP_MAX; i++)
@@ -833,6 +863,8 @@ int main(int argc, char *argv[])
 	display_mode = Renderer::Ref().GetDisplayModesRaw();
 	Renderer::Ref().SetColorMode(COLOR_DEFAULT);
 
+	Platform::originalCwd = Platform::GetCwd();
+
 	bool usedDdir = false;
 	for (int i = 1; i < argc; i++)
 	{
@@ -841,6 +873,8 @@ int main(int argc, char *argv[])
 			int ret = chdir(argv[i+1]);
 			if (ret)
 				std::cout << "Error, could not change directory\n";
+			else
+				Platform::sharedCwd = argv[i + 1];
 			i++;
 			usedDdir = true;
 		}
@@ -862,6 +896,7 @@ int main(int argc, char *argv[])
 	}
 	if (!usedDdir)
 	{
+		char *ddir = SDL_GetPrefPath(NULL, "The Powder Toy");
 #ifdef WIN
 		struct _stat s;
 		if (_stat("powder.pref", &s) != 0)
@@ -870,12 +905,14 @@ int main(int argc, char *argv[])
 		if (stat("powder.pref", &s) != 0)
 #endif
 		{
-			char *ddir = SDL_GetPrefPath(NULL, "The Powder Toy");
 			if (ddir)
-			{
 				chdir(ddir);
-				SDL_free(ddir);
-			}
+		}
+
+		if (ddir)
+		{
+			Platform::sharedCwd = ddir;
+			SDL_free(ddir);
 		}
 	}
 
@@ -1066,7 +1103,7 @@ int main(int argc, char *argv[])
 	lua_vid_buf = the_game->GetVid()->GetVid();
 	char *autorun_result = NULL;
 	luacon_openeventcompat();
-	if (file_exists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
+	if (Platform::FileExists("autorun.lua") && luacon_eval("dofile(\"autorun.lua\")", &autorun_result)) //Autorun lua script
 	{
 		luacon_log(luacon_geterror());
 	}
@@ -1075,7 +1112,7 @@ int main(int argc, char *argv[])
 		luacon_log(autorun_result);
 	}
 
-	if (file_exists("scriptmanager.lua")) //Script manager updates
+	if (Platform::FileExists("scriptmanager.lua")) //Script manager updates
 	{
 		if (luacon_eval("dofile(\"scriptmanager.lua\")", &autorun_result))
 		{
@@ -1087,7 +1124,7 @@ int main(int argc, char *argv[])
 	else
 		luacon_openscriptmanager();
 	// TPTMP through the script manager, use that version instead
-	if (!file_exists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
+	if (!Platform::FileExists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
 		luacon_openmultiplayer();
 	if (autorun_result)
 		free(autorun_result);
@@ -1103,7 +1140,7 @@ int main(int argc, char *argv[])
 		for (int i = 2; i <= 9; i++)
 		{
 			sprintf(fn, "tabs" PATH_SEP "%d.stm", i);
-			if (file_exists(fn))
+			if (Platform::FileExists(fn))
 				num_tabs++;
 			else
 				break;
@@ -1724,11 +1761,7 @@ void main_end_hack()
 		sprintf(name,"tabs%s%d.stm",PATH_SEP,i);
 		remove(name);
 	}
-#ifdef WIN
-	_rmdir("tabs");
-#else
-	rmdir("tabs");
-#endif
+	Platform::DeleteDirectory("tabs");
 	stamps_free();
 }
 #endif

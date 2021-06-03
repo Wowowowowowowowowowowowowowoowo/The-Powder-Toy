@@ -9,6 +9,7 @@
 
 #include "OptionsUI.h"
 #include "common/Format.h"
+#include "common/Platform.h"
 #include "common/tpt-minmax.h"
 #include "game/Brush.h"
 #include "game/Menus.h"
@@ -21,6 +22,8 @@
 #include "interface/ScrollWindow.h"
 #include "interface/Textbox.h"
 #include "simulation/Simulation.h"
+#include "gui/dialogs/ConfirmPrompt.h"
+#include "gui/dialogs/InfoPrompt.h"
 
 OptionsUI::OptionsUI(Simulation *sim):
 	ui::Window(Point(CENTERED, CENTERED), Point(310, 350)),
@@ -267,6 +270,14 @@ OptionsUI::OptionsUI(Simulation *sim):
 	dataFolderButton->SetCallback([&](int mb) { this->DataFolderClicked(); });
 	scrollArea->AddComponent(dataFolderButton);
 
+	if (!Platform::sharedCwd.empty())
+	{
+		migrationButton = new Button(dataFolderButton->GetPosition(), Point(Button::AUTOSIZE, Button::AUTOSIZE), "Migrate to shared data directory");
+		migrationButton->SetPosition(Point(size.X - migrationButton->GetSize().X - 17, migrationButton->GetPosition().Y));
+		migrationButton->SetCallback([&](int mb) { this->MigrationClicked(); });
+		scrollArea->AddComponent(migrationButton);
+	}
+
 	scrollArea->SetScrollSize(prev->Below(Point(0, 5)).Y);
 #else
 	scrollArea->SetScrollSize(descLabel->Below(Point(0, 5)).Y);
@@ -454,6 +465,20 @@ void OptionsUI::DataFolderClicked()
 	if (ret)
 		std::cout << "Error, could not open data directory" << std::endl;
 	delete[] workingDirectory;
+}
+
+void OptionsUI::MigrationClicked()
+{
+	std::string from = Platform::originalCwd;
+	std::string to = Platform::sharedCwd;
+	Engine::Ref().ShowWindow(new ConfirmPrompt([=](bool wasConfirmed) {
+		if (wasConfirmed)
+		{
+			std::string ret = Platform::DoMigration(from, to);
+			Engine::Ref().ShowWindow(new InfoPrompt("Migration complete", ret));
+		}
+	}, "Do Migration?", "This will migrate all stamps, saves, and scripts from\n\bt" + from + "\bw\nto the shared data directory at\n\bt" + to + "\bw\n\n" +
+		"Files that already exist will not be overwritten."));
 }
 
 void OptionsUI::OnDraw(gfx::VideoBuffer *buf)

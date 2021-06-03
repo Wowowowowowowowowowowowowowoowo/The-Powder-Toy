@@ -2019,39 +2019,8 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 		}
 		if (b && !bq && mx >= XRES-65 && mx <= XRES-25 && my >= YRES+MENUSIZE-18 && my < YRES+MENUSIZE-2 && confirm_ui(vid_buf, "Rescan stamps?", "Rescanning stamps will find all stamps in your stamps/ directory and overwrite stamps.def", "OK"))
 		{
-			DIR *directory;
-			struct dirent * entry;
-			directory = opendir("stamps");
-			if (directory != NULL)
-			{
-				std::list<std::string> stampIDs;
-				while ((entry = readdir(directory)))
-				{
-					if (strstr(entry->d_name, ".stm") && strlen(entry->d_name) == 14)
-						stampIDs.push_back(std::string(entry->d_name).substr(0, 10));
-				}
-				closedir(directory);
-				stampIDs.sort(std::greater<std::string>());
-
-				FILE *f = fopen("stamps" PATH_SEP "stamps.def", "wb");
-				if (!f)
-				{
-					error_ui(vid_buf, 0, "Could not open stamps.def");
-				}
-				else
-				{
-					for (auto & stampID : stampIDs)
-						fwrite(stampID.c_str(), stampID.length(), 1, f);
-					fclose(f);
-
-					for (int i = 0; i < STAMP_MAX; i++)
-						if (stamps[i].thumb)
-							free(stamps[i].thumb);
-					stamp_count = 0;
-					stamp_init();
-					page_count = (stamp_count-1)/per_page+1;
-				}
-			}
+			rescan_stamps();
+			page_count = (stamp_count - 1) / per_page + 1;
 		}
 
 		if (sdl_key==SDLK_RETURN)
@@ -6366,7 +6335,7 @@ int DoLocalSave(std::string savename, Save *save, bool force)
 	std::stringstream filename;
 	filename << LOCAL_SAVE_DIR << PATH_SEP << savename;
 
-	if (!force && file_exists(filename.str().c_str()))
+	if (!force && Platform::FileExists(filename.str()))
 	{
 		return -1;
 	}

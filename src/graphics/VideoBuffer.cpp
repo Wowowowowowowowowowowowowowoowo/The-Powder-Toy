@@ -392,6 +392,9 @@ int VideoBuffer::DrawString(int x, int y, const std::string &s, int r, int g, in
 		case '\b':
 			if (s.length() < i+1)
 				break;
+			oldR = r;
+			oldG = g;
+			oldB = b;
 			switch (s[i+1])
 			{
 			case 'w':

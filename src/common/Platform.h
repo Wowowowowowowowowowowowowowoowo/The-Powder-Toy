@@ -6,6 +6,7 @@
 
 namespace Platform
 {
+	std::string GetCwd();
 	char *ExecutableName();
 	void DoRestart(bool saveTab, bool disableSignals);
 	void OpenLink(std::string uri);
@@ -19,16 +20,35 @@ namespace Platform
 	void Vibrate(int milliseconds);
 	int CheckLoadedPtsave();
 
-	// Filesystem stuff (TODO: add more stuff)
-	void MakeDirectory(std::string dir);
+	bool Stat(std::string filename);
+	bool FileExists(std::string filename);
+	bool DirectoryExists(std::string directory);
+
+	/**
+	 * @return true on success
+	 */
+	bool DeleteFile(std::string filename);
+
+	/**
+	 * @return true on success
+	 */
+	bool DeleteDirectory(std::string folder);
+
+	/**
+	 * @return true on success
+	 */
+	bool MakeDirectory(std::string dir);
 	std::vector<std::string> DirectorySearch(std::string directory, std::string search, std::vector<std::string> extensions);
+	std::string DoMigration(std::string fromDir, std::string toDir);
 
 #ifdef WIN
 	std::string WinNarrow(const std::wstring& source);
 	std::wstring WinWiden(const std::string& source);
 #endif
-}
 
+	extern std::string originalCwd;
+	extern std::string sharedCwd;
+}
 
 #ifdef ANDROID
 	#define IDENT_PLATFORM "ANDROID"

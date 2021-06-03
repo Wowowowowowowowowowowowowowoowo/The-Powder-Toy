@@ -3,20 +3,26 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
+#include <fstream>
 #include <sstream>
+#include <stack>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #ifdef WIN
 #include "game/RequestManager.h"
+#include <direct.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
-#include <direct.h>
 #ifndef __GNUC__
 #include <io.h>
 #endif
+#ifdef _MSC_VER
+#undef chdir
+#define chdir _chdir //chdir is deprecated in visual studio
+#endif
 #else
-#include <sys/stat.h>
 #include <unistd.h>
 #include <ctime>
 #endif
@@ -25,7 +31,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreServices/CoreServices.h>
 #include <mach-o/dyld.h>
-#include <sys/stat.h>
 #include <sys/time.h> // gettimeofday
 #endif
 
@@ -45,6 +50,16 @@
 
 namespace Platform
 {
+
+std::string originalCwd;
+std::string sharedCwd;
+
+std::string GetCwd()
+{
+	char cwdTemp[PATH_MAX];
+	getcwd(cwdTemp, PATH_MAX);
+	return cwdTemp;
+}
 
 char *ExecutableName()
 {
@@ -558,13 +573,94 @@ int CheckLoadedPtsave()
 	return 0;
 }
 
-
-void MakeDirectory(std::string dir)
+bool Stat(std::string filename)
 {
 #ifdef WIN
-	_mkdir(dir.c_str());
+	struct _stat s;
+	if (_stat(filename.c_str(), &s) == 0)
 #else
-	mkdir(dir.c_str(), 0755);
+	struct stat s;
+	if (stat(filename.c_str(), &s) == 0)
+#endif
+	{
+		return true; // Something exists, be it a file, directory, link, etc.
+	}
+	else
+	{
+		return false; // Doesn't exist
+	}
+}
+
+bool FileExists(std::string filename)
+{
+#ifdef WIN
+	struct _stat s;
+	if (_stat(filename.c_str(), &s) == 0)
+#else
+	struct stat s;
+	if (stat(filename.c_str(), &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFREG)
+		{
+			return true; // Is file
+		}
+		else
+		{
+			return false; // Is directory or something else
+		}
+	}
+	else
+	{
+		return false; // Doesn't exist
+	}
+}
+
+bool DirectoryExists(std::string directory)
+{
+#ifdef WIN
+	struct _stat s;
+	if (_stat(directory.c_str(), &s) == 0)
+#else
+	struct stat s;
+	if (stat(directory.c_str(), &s) == 0)
+#endif
+	{
+		if(s.st_mode & S_IFDIR)
+		{
+			return true; // Is directory
+		}
+		else
+		{
+			return false; // Is file or something else
+		}
+	}
+	else
+	{
+		return false; // Doesn't exist
+	}
+}
+
+bool DeleteFile(std::string filename)
+{
+	return std::remove(filename.c_str()) == 0;
+}
+
+bool DeleteDirectory(std::string folder)
+{
+#ifdef WIN
+	return _rmdir(folder.c_str()) == 0;
+#else
+	return rmdir(folder.c_str()) == 0;
+#endif
+}
+
+bool MakeDirectory(std::string dir)
+{
+#ifdef WIN
+	return _mkdir(dir.c_str()) == 0;
+#else
+	return mkdir(dir.c_str(), 0755) == 0;
 #endif
 }
 
@@ -647,6 +743,142 @@ std::vector<std::string> DirectorySearch(std::string directory, std::string sear
 
 	//Filter results
 	return searchResults;
+}
+
+std::string DoMigration(std::string fromDir, std::string toDir)
+{
+	if (fromDir.at(fromDir.length() - 1) != '/')
+		fromDir = fromDir + '/';
+	if (toDir.at(toDir.length() - 1) != '/')
+		toDir = toDir + '/';
+
+	std::ofstream logFile(fromDir + "/migrationlog.txt", std::ios::out);
+	logFile << "Running migration of data from " << fromDir + " to " << toDir << std::endl;
+
+	// Get lists of files to migrate
+	auto stamps = DirectorySearch(fromDir + "stamps", "", { ".stm" });
+	auto saves = DirectorySearch(fromDir + "Saves", "", { ".cps", ".stm" });
+	auto scripts = DirectorySearch(fromDir + "scripts", "", { ".lua", ".txt" });
+	auto downloadedScripts = DirectorySearch(fromDir + "scripts/downloaded", "", { ".lua" });
+	bool hasScriptinfo = FileExists(toDir + "scripts/downloaded/scriptinfo");
+	auto screenshots = DirectorySearch(fromDir, "powdertoy-", { ".png" });
+	bool hasAutorun = FileExists(fromDir + "autorun.lua");
+	bool hasScriptManager = FileExists(fromDir + "scriptmanager.lua");
+	bool hasPref = FileExists(fromDir + "powder.pref");
+
+	if (stamps.empty() && saves.empty() && scripts.empty() && downloadedScripts.empty() && screenshots.empty(), !hasAutorun && !hasScriptManager && !hasPref)
+	{
+		logFile << "Nothing to migrate.";
+		return "Nothing to migrate. This button is used to migrate data from pre-96.0 TPT installations to the shared directory";
+	}
+
+	std::stringstream result;
+	std::stack<std::string> dirsToDelete;
+
+	// Migrate a list of files
+	auto migrateList = [&](std::vector<std::string> list, std::string directory, std::string niceName) {
+		result << std::endl << niceName << ": ";
+		if (!list.empty() && !directory.empty())
+			MakeDirectory(toDir + directory);
+		int migratedCount = 0, failedCount = 0;
+		for (auto &item : list)
+		{
+			std::string from = fromDir + directory + "/" + item;
+			std::string to = toDir + directory + "/" + item;
+			if (!FileExists(to))
+			{
+				if (rename(from.c_str(), to.c_str()))
+				{
+					failedCount++;
+					logFile << "failed to move " << from << " to " << to << std::endl;
+				}
+				else
+				{
+					migratedCount++;
+					logFile << "moved " << from << " to " << to << std::endl;
+				}
+			}
+			else
+			{
+				logFile << "skipping " << from << "(already exists)" << std::endl;
+			}
+		}
+
+		dirsToDelete.push(directory);
+		result << "\bt" << migratedCount << " migratated\x0E, \br" << failedCount << " failed\x0E";
+		int duplicates = list.size() - migratedCount - failedCount;
+		if (duplicates)
+			result << ", " << list.size() - migratedCount - failedCount << " skipped (duplicate)";
+	};
+
+	// Migrate a single file
+	auto migrateFile = [&fromDir, &toDir, &result, &logFile](std::string filename) {
+		std::string from = fromDir + filename;
+		std::string to = toDir + filename;
+		if (!FileExists(to))
+		{
+			if (rename(from.c_str(), to.c_str()))
+			{
+				logFile << "failed to move " << from << " to " << to << std::endl;
+				result << std::endl << "\br" << filename << " migration failed\x0E";
+			}
+			else
+			{
+				logFile << "moved " << from << " to " << to << std::endl;
+				result << std::endl << filename << " migrated";
+			}
+		}
+		else
+		{
+			logFile << "skipping " << from << "(already exists)" << std::endl;
+			result << std::endl << filename << " skipped (already exists)";
+		}
+
+		if (!DeleteFile(fromDir + filename)) {
+			logFile << "failed to delete " << filename << std::endl;
+		}
+	};
+
+	// Do actual migration
+	DeleteFile(fromDir + "stamps/stamps.def");
+	migrateList(stamps, "stamps", "Stamps");
+	migrateList(saves, "Saves", "Saves");
+	if (!scripts.empty())
+		migrateList(scripts, "scripts", "Scripts");
+	if (!hasScriptinfo && !downloadedScripts.empty())
+	{
+		migrateList(downloadedScripts, "scripts/downloaded", "Downloaded scripts");
+		migrateFile("scripts/downloaded/scriptinfo");
+	}
+	if (!screenshots.empty())
+		migrateList(screenshots, "", "Screenshots");
+	if (hasAutorun)
+		migrateFile("autorun.lua");
+	if (hasScriptManager)
+		migrateFile("scriptmanager.lua");
+	if (hasPref)
+		migrateFile("powder.pref");
+
+	// Delete leftover directories
+	while (!dirsToDelete.empty())
+	{
+		std::string toDelete = dirsToDelete.top();
+		if (!DeleteDirectory(fromDir + toDelete)) {
+			logFile << "failed to delete " << toDelete << std::endl;
+		}
+		dirsToDelete.pop();
+	}
+
+	// chdir into the new directory
+	chdir(toDir.c_str());
+
+	if (scripts.size())
+		rescan_stamps();
+
+	logFile << std::endl << std::endl << "Migration complete. Results: " << result.str();
+	logFile.close();
+
+	return result.str();
 }
 
 #ifdef WIN

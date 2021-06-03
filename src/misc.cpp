@@ -833,37 +833,6 @@ void *file_load(const char *fn, int *size)
 	return s;
 }
 
-int file_exists(const char *filename)
-{
-	int exists = 0;
-#ifdef WIN
-	struct _stat s;
-	if(_stat(filename, &s) == 0)
-#else
-	struct stat s;
-	if(stat(filename, &s) == 0)
-#endif
-	{
-		if(s.st_mode & S_IFDIR)
-		{
-			exists = 1;
-		}
-		else if(s.st_mode & S_IFREG)
-		{
-			exists = 1;
-		}
-		else
-		{
-			exists = 1;
-		}
-	}
-	else
-	{
-		exists = 0;
-	}
-	return exists;
-}
-
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b)//convert 0-255(0-360 for H) HSV values to 0-255 RGB
 {
 	float hh, ss, vv, c, x;

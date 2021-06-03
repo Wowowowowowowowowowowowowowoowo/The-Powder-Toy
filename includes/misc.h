@@ -50,7 +50,6 @@ void strcaturl(char *dst, char *src);
 
 void strappend(char *dst, const char *src);
 
-int file_exists(const char *filename);
 void *file_load(const char *fn, int *size);
 
 void HSV_to_RGB(int h,int s,int v,int *r,int *g,int *b);

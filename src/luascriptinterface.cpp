@@ -2109,7 +2109,8 @@ int fileSystem_exists(lua_State * l)
 {
 	const char * filename = luaL_checkstring(l, 1);
 
-	lua_pushboolean(l, file_exists(filename));
+	bool ret = Platform::Stat(filename);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
@@ -2117,61 +2118,17 @@ int fileSystem_isFile(lua_State * l)
 {
 	const char * filename = luaL_checkstring(l, 1);
 
-	int isFile = 0;
-#ifdef WIN
-	struct _stat s;
-	if(_stat(filename, &s) == 0)
-#else
-	struct stat s;
-	if(stat(filename, &s) == 0)
-#endif
-	{
-		if(s.st_mode & S_IFREG)
-		{
-			isFile = 1; //Is file
-		}
-		else
-		{
-			isFile = 0; //Is directory or something else
-		}
-	}
-	else
-	{
-		isFile = 0; //Doesn't exist
-	}
-
-	lua_pushboolean(l, isFile);
+	bool ret = Platform::FileExists(filename);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
 int fileSystem_isDirectory(lua_State * l)
 {
-	const char * filename = luaL_checkstring(l, 1);
+	const char * dirname = luaL_checkstring(l, 1);
 
-	int isDir = 0;
-#ifdef WIN
-	struct _stat s;
-	if(_stat(filename, &s) == 0)
-#else
-	struct stat s;
-	if(stat(filename, &s) == 0)
-#endif
-	{
-		if(s.st_mode & S_IFDIR)
-		{
-			isDir = 1; //Is directory
-		}
-		else
-		{
-			isDir = 0; //Is file or something else
-		}
-	}
-	else
-	{
-		isDir = 0; //Doesn't exist
-	}
-
-	lua_pushboolean(l, isDir);
+	bool ret = Platform::DirectoryExists(dirname);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
@@ -2179,27 +2136,17 @@ int fileSystem_makeDirectory(lua_State * l)
 {
 	const char * dirname = luaL_checkstring(l, 1);
 
-	int ret = 0;
-#ifdef WIN
-	ret = _mkdir(dirname);
-#else
-	ret = mkdir(dirname, 0755);
-#endif
-	lua_pushboolean(l, ret == 0);
+	bool ret = Platform::MakeDirectory(dirname);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
 int fileSystem_removeDirectory(lua_State * l)
 {
-	const char * filename = luaL_checkstring(l, 1);
+	const char * directory = luaL_checkstring(l, 1);
 
-	int ret = 0;
-#ifdef WIN
-	ret = _rmdir(filename);
-#else
-	ret = rmdir(filename);
-#endif
-	lua_pushboolean(l, ret == 0);
+	bool ret = Platform::DeleteDirectory(directory);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
@@ -2207,13 +2154,8 @@ int fileSystem_removeFile(lua_State * l)
 {
 	const char * filename = luaL_checkstring(l, 1);
 
-	int ret = 0;
-#ifdef WIN
-	ret = _unlink(filename);
-#else
-	ret = unlink(filename);
-#endif
-	lua_pushboolean(l, ret == 0);
+	bool ret = Platform::DeleteFile(filename);
+	lua_pushboolean(l, ret);
 	return 1;
 }
 
