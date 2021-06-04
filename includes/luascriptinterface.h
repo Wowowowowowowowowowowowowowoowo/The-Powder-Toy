@@ -145,5 +145,7 @@ void initHttpAPI(lua_State * l);
 int http_get(lua_State *l);
 int http_post(lua_State *l);
 
+void initSocketAPI(lua_State * l);
+
 #endif
 #endif

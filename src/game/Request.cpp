@@ -18,6 +18,35 @@
 # define REQUEST_USE_CURL_TLSV13CL
 #endif
 
+void SetupCurlEasyCiphers(CURL *easy)
+{
+#ifdef SECURE_CIPHERS_ONLY
+	curl_version_info_data *version_info = curl_version_info(CURLVERSION_NOW);
+	std::string ssl_type = version_info->ssl_version;
+	if (ssl_type.find("OpenSSL") != ssl_type.npos)
+	{
+		curl_easy_setopt(easy, CURLOPT_SSL_CIPHER_LIST, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256");
+#ifdef REQUEST_USE_CURL_TLSV13CL
+		curl_easy_setopt(easy, CURLOPT_TLS13_CIPHERS, "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:TLS_AES_128_CCM_8_SHA256:TLS_AES_128_CCM_SHA256");
+#endif
+	}
+	else if (ssl_type.find("Schannel") != ssl_type.npos)
+	{
+		// TODO: add more cipher algorithms
+		curl_easy_setopt(easy, CURLOPT_SSL_CIPHER_LIST, "CALG_ECDH_EPHEM");
+	}
+#endif
+	// TODO: Find out what TLS1.2 is supported on, might need to also allow TLS1.0
+	curl_easy_setopt(easy, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 70, 0)
+	curl_easy_setopt(easy, CURLOPT_SSL_OPTIONS, CURLSSLOPT_REVOKE_BEST_EFFORT);
+#elif defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 44, 0)
+	curl_easy_setopt(easy, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+#elif defined(WIN)
+# error "Curl version too low (v7.44+ required)."
+#endif
+}
+
 Request::Request(std::string uri_):
 	uri(uri_),
 	rm_total(0),
@@ -192,31 +221,7 @@ void Request::Start()
 		curl_easy_setopt(easy, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
 		curl_easy_setopt(easy, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS | CURLPROTO_HTTP);
 #endif
-#ifdef SECURE_CIPHERS_ONLY
-		curl_version_info_data *version_info = curl_version_info(CURLVERSION_NOW);
-		std::string ssl_type = version_info->ssl_version;
-		if (ssl_type.find("OpenSSL") != ssl_type.npos)
-		{
-			curl_easy_setopt(easy, CURLOPT_SSL_CIPHER_LIST, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256");
-#ifdef REQUEST_USE_CURL_TLSV13CL
-			curl_easy_setopt(easy, CURLOPT_TLS13_CIPHERS, "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:TLS_AES_128_CCM_8_SHA256:TLS_AES_128_CCM_SHA256");
-#endif
-		}
-		else if (ssl_type.find("Schannel") != ssl_type.npos)
-		{
-			// TODO: add more cipher algorithms
-			curl_easy_setopt(easy, CURLOPT_SSL_CIPHER_LIST, "CALG_ECDH_EPHEM");
-		}
-#endif
-		// TODO: Find out what TLS1.2 is supported on, might need to also allow TLS1.0
-		curl_easy_setopt(easy, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-#if defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 70, 0)
-curl_easy_setopt(easy, CURLOPT_SSL_OPTIONS, CURLSSLOPT_REVOKE_BEST_EFFORT);
-#elif defined(CURL_AT_LEAST_VERSION) && CURL_AT_LEAST_VERSION(7, 44, 0)
-curl_easy_setopt(easy, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
-#elif defined(WIN)
-# error "Curl version too low (v7.44+ required)."
-#endif
+		SetupCurlEasyCiphers(easy);
 		curl_easy_setopt(easy, CURLOPT_MAXREDIRS, 10L);
 
 		curl_easy_setopt(easy, CURLOPT_ERRORBUFFER, error_buffer);

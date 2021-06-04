@@ -28,11 +28,6 @@
 #ifdef WIN
 #include <direct.h>
 #endif
-extern "C"
-{
-#include "socket/luasocket.h"
-#include "socket/socket.lua.h"
-}
 
 #include "legacy_console.h"
 #include "defines.h"
@@ -154,17 +149,6 @@ void luacon_open()
 	l = luaL_newstate();
 	luaL_openlibs(l);
 	luaopen_bit(l);
-	luaopen_socket_core(l);
-	lua_getglobal(l, "package");
-	lua_pushstring(l, "loaded");
-	lua_rawget(l, -2);
-	lua_pushstring(l, "socket");
-	lua_rawget(l, -2);
-	lua_pushstring(l, "socket.core");
-	lua_pushvalue(l, -2);
-	lua_rawset(l, -4);
-	lua_pop(l, 3);
-	luaopen_socket(l);
 	luaL_register(l, "tpt", tptluaapi);
 	
 	luaSim = globalSim;
@@ -176,6 +160,7 @@ void luacon_open()
 	initPlatformAPI(l);
 	initEventAPI(l);
 	initHttpAPI(l);
+	initSocketAPI(l);
 	lua_getglobal(l, "tpt");
 
 	tptProperties = lua_gettop(l);

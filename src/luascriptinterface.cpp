@@ -33,6 +33,7 @@
 #include "graphics/Renderer.h"
 #include "interface/Engine.h"
 #include "lua/LuaSmartRef.h"
+#include "lua/LuaTCPSocket.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/Snapshot.h"
@@ -3515,14 +3516,16 @@ void initHttpAPI(lua_State *l)
 	lua_pushcfunction(l, http_request_gc);
 	lua_setfield(l, -2, "__gc");
 	lua_newtable(l);
-	lua_pushcfunction(l, http_request_status);
-	lua_setfield(l, -2, "status");
-	lua_pushcfunction(l, http_request_progress);
-	lua_setfield(l, -2, "progress");
-	lua_pushcfunction(l, http_request_cancel);
-	lua_setfield(l, -2, "cancel");
-	lua_pushcfunction(l, http_request_finish);
-	lua_setfield(l, -2, "finish");
+	struct luaL_Reg httpRequestIndexMethods[] = {
+		{ "status", http_request_status },
+		{ "progress", http_request_progress },
+		{ "cancel", http_request_cancel },
+		{ "finish", http_request_finish },
+		{ NULL, NULL }
+	};
+	luaL_register(l, NULL, httpRequestIndexMethods);
+	lua_pop(l, 1);
+	lua_newtable(l);
 	lua_setfield(l, -2, "__index");
 	struct luaL_Reg httpAPIMethods [] = {
 		{"get", http_get},
@@ -3530,6 +3533,11 @@ void initHttpAPI(lua_State *l)
 		{NULL, NULL}
 	};
 	luaL_register(l, "http", httpAPIMethods);
+}
+
+void initSocketAPI(lua_State * l)
+{
+	LuaTCPSocket::Open(l);
 }
 
 #endif
