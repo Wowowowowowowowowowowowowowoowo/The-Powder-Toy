@@ -169,6 +169,7 @@ void ScrollWindow::OnMouseMove(int x, int y, Point difference)
 		float scrollPos = 0;
 		if (scrolled > 0)
 			scrollPos = static_cast<float>(size.Y - scrollHeight) * (static_cast<float>(scrolled) / static_cast<float>(scrollSize - size.Y));
+		scrollPos += this->position.Y;
 
 		isMouseInsideScrollbar = x >= size.X - scrollbarWidth && x < size.X && y >= scrollPos && y < scrollPos + scrollHeight;
 #else
@@ -220,7 +221,7 @@ void ScrollWindow::SetScrollSize(int maxScroll, bool canScrollFollow)
 	if (maxScroll - size.Y <= 0)
 	{
 		scrollable = false;
-		scrolled = 0;
+		scrolled = scrolledFloat = 0;
 		scrollSize = maxScroll;
 		return;
 	}
@@ -255,6 +256,7 @@ void ScrollWindow::SetScrollPosition(int pos)
 		return;
 
 	scrolled = pos;
+	scrolledFloat = pos;
 	for (auto &comp : Components)
 	{
 		comp->SetPosition(Point(comp->GetPosition().X, comp->GetPosition().Y - (scrolled - oldScrolled)));
