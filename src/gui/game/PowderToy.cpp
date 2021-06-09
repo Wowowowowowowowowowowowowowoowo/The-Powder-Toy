@@ -1766,14 +1766,16 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				try
 				{
 					clipboardData->BuildSave();
-					sim->ClearArea(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				}
 				catch (BuildException & e)
 				{
 					delete clipboardData;
 					clipboardData = NULL;
 					Engine::Ref().ShowWindow(new ErrorPrompt("Error building save: " + std::string(e.what())));
+					break;
 				}
+				Snapshot::TakeSnapshot(sim);
+				sim->ClearArea(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
 			}
 			case SAVE:
