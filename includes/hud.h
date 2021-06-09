@@ -62,7 +62,7 @@ const hud hud_menu[] =
 	{"TEM#", COLPACK(0x000000), 2, "Show all temperatures to "},
 	{"LIFE", COLPACK(0x000000), 2, "Show a particle's life value"},
 	{"TMP",  COLPACK(0x000000), 2, "Show a particle's tmp value"},
-	{"TMP2", COLPACK(0x000000), 2, "Show a particle's tmp2 value"},
+	{"TMP2", COLPACK(0x000000), 2, "Show a particle's tmp2 value only for elements which use it"},
 	{"CORD", COLPACK(0x000000), 2, "Show a particle's exact coordinates"},
 	{"CRD#", COLPACK(0x000000), 2, "Show x and y coordinates to "},
 	{"VEL",  COLPACK(0x000000), 2, "Show a particle's x and y velocities"},
@@ -99,6 +99,7 @@ const hud hud_menu[] =
 	{"FILT", COLPACK(0x000000), 2, "Show FILT tmp modes in the HUD"},
 	{"PAVG", COLPACK(0x000000), 2, "Show pavg[0] and pavg[1], used by VIRS and PIPE to store extra info"},
 	{"EMAP", COLPACK(0x000000), 3, "Show the value of emap, used in conductive walls"},
+	{"TMPX", COLPACK(0x000000), 2, "Show a particle's tmp2 value for all elements"},
 };
 
 #define HUD_BACK 0
@@ -107,8 +108,8 @@ const hud hud_menu[] =
 #define HUD_COORD 3
 #define HUD_RESET 4
 #define HUD_REALSTART 5
-#define HUD_NUM 58
-#define HUD_OPTIONS 53
+#define HUD_NUM 59
+#define HUD_OPTIONS 54
 
 extern int currentHud[HUD_OPTIONS];
 extern int normalHud[HUD_OPTIONS];

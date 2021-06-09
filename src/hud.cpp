@@ -35,8 +35,8 @@ int currentHud[HUD_OPTIONS];
 
 void HudDefaults()
 {
-	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0,0,0};
-	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,1,1,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1,0,0};
+	int defaultNormalHud[HUD_OPTIONS] = {0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,2,0,0,0,0,2,0,2,1,2,0,0,0,2,0,2,0,2,0,1,0,0,0,0,2,0,2,1,0,0,1,1,0,0,0,0};
+	int defaultDebugHud[HUD_OPTIONS] =  {0,0,1,2,1,0,0,0,1,0,1,1,1,0,1,1,0,0,4,1,1,1,0,4,0,4,1,4,1,1,1,4,0,4,0,4,0,1,0,0,0,0,4,0,4,1,0,0,1,1,1,0,0,0};
 	memcpy(normalHud, defaultNormalHud, sizeof(normalHud));
 	memcpy(debugHud, defaultDebugHud, sizeof(debugHud));
 }
@@ -177,7 +177,8 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					strappend(heattext,tempstring);
 				}
 			}
-			if (currentHud[21])
+			if (currentHud[53] || (currentHud[21] &&
+					(underType == PT_CRAY || underType == PT_DRAY || underType == PT_EXOT || underType == PT_LIGH || underType == PT_SOAP || underType == PT_TRON || underType == PT_VIBR || underType == PT_VIRS || underType == PT_WARP || underType == PT_LCRY || underType == PT_CBNW || underType == PT_TSNS || underType == PT_DTEC || underType == PT_LSNS || underType == PT_PSTN || underType == PT_LDTC || underType == PT_VSNS)))
 			{
 				sprintf(tempstring,"Tmp2: %d, ",parts[underID].tmp2);
 				strappend(heattext,tempstring);
