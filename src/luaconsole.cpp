@@ -2214,34 +2214,46 @@ int luatpt_maxframes(lua_State* l)
 
 int luatpt_createwall(lua_State* l)
 {
-	int acount, wx, wy, wt, width = 1, height = 1, nx, ny;
-	acount = lua_gettop(l);
-	wx = luaL_optint(l,1,-1);
-	wy = luaL_optint(l,2,-1);
-	if (acount > 3)
+	int args = lua_gettop(l);
+	if (args < 3 || args > 7 || args % 2 != 1)
+		return luaL_error(l, "Incorrect numbner of arguments");
+	int x = luaL_optint(l, 1, 0);
+	int y = luaL_optint(l, 2, 0);
+	int w = luaL_optint(l, 3, 0);
+	int h = luaL_optint(l, 4, 0);
+	float fvx = float(luaL_optnumber(l, 5, 0));
+	float fvy = float(luaL_optnumber(l, 6, 0));
+
+	int wallType = luaL_optint(l, args, 0);
+	if (wallType < 0 || wallType >= WALLCOUNT)
 	{
-		width = luaL_optint(l,3,1);
-		height = luaL_optint(l,4,1);
+		return luaL_error(l, "Unrecognised wall number %d", wallType);
 	}
-	if (lua_isnumber(l, acount))
-		wt = luaL_optint(l,acount,WL_WALL);
-	else
+
+	bool setFv = args == 7;
+	if (args < 5)
 	{
-		const char* name = luaL_optstring(l, acount, "WALL");
-		if (!console_parse_wall_type(name, &wt))
-			return luaL_error(l, "Unrecognised wall '%s'", name);
+		w = 1;
+		h = 1;
 	}
-	if (wx < 0 || wx >= XRES/CELL || wy < 0 || wy >= YRES/CELL)
-		return luaL_error(l, "coordinates out of range (%d,%d)", wx, wy);
-	if (wx+width > (XRES/CELL))
-		width = (XRES/CELL)-wx;
-	if (wy+height > (YRES/CELL))
-		height = (YRES/CELL)-wy;
-	if (wt < 0 || wt >= WALLCOUNT || wallTypes[wt].drawstyle == -1)
-		return luaL_error(l, "Unrecognised wall number %d", wt);
-	for (nx = wx; nx < wx+width; nx++)
-		for (ny = wy; ny < wy+height; ny++)
-			bmap[ny][nx] = wt;
+	if (x < 0              ) x = 0              ;
+	if (y < 0              ) y = 0              ;
+	if (x > XRES / CELL    ) x = XRES / CELL    ;
+	if (y > YRES / CELL    ) y = YRES / CELL    ;
+	if (w > XRES / CELL - x) w = XRES / CELL - x;
+	if (h > YRES / CELL - y) h = YRES / CELL - y;
+	for (int yy = y; yy < y + h; ++yy)
+	{
+		for (int xx = x; xx < x + w; ++xx)
+		{
+			bmap[yy][xx] = wallType;
+			if (setFv)
+			{
+				luaSim->air->fvx[yy][xx] = fvx;
+				luaSim->air->fvy[yy][xx] = fvy;
+			}
+		}
+	}
 	return 0;
 }
 
