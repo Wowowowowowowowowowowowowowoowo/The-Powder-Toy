@@ -579,6 +579,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		if (!sys_pause || replace == 2)
 			sys_pause = save->paused;
 		airMode = save->airMode;
+		if (save->ambientAirTempPresent)
+			air->SetTemporaryAmbientAirTemp(save->ambientAirTemp);
 		gravityMode = save->gravityMode;
 		saveEdgeMode = save->edgeMode;
 		if (save->msRotationPresent)
@@ -867,7 +869,8 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 #endif
 	newSave->paused = sys_pause;
 	newSave->gravityMode = gravityMode;
-	newSave->airMode = airMode;;
+	newSave->airMode = airMode;
+	newSave->ambientAirTemp = air->GetAmbientAirTemp();
 	newSave->edgeMode = edgeMode;
 	newSave->legacyEnable = legacy_enable;
 	newSave->waterEEnabled = water_equal_test;

@@ -1358,10 +1358,10 @@ int simulation_ambientAirTemp(lua_State * l)
 	int acount = lua_gettop(l);
 	if (acount == 0)
 	{
-		lua_pushnumber(l, luaSim->air->outside_temp);
+		lua_pushnumber(l, luaSim->air->GetAmbientAirTemp());
 		return 1;
 	}
-	luaSim->air->outside_temp = (float)luaL_optnumber(l, 1, 295.15f);
+	luaSim->air->SetAmbientAirTemp((float)luaL_optnumber(l, 1, R_TEMP + 273.15));
 	return 0;
 }
 

@@ -343,6 +343,12 @@ void Textbox::OnFocus()
 #endif
 }
 
+void Textbox::OnDefocus()
+{
+	if (defocusCallback)
+		defocusCallback();
+}
+
 void Textbox::SetAutoSize(bool X, bool Y, Point limit)
 {
 	autosizeX = X;

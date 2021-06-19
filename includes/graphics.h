@@ -124,6 +124,8 @@ void blendpixel(pixel *vid, int x, int y, int r, int g, int b, int a);
 
 void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag);
 
+pixel HeatToColor(float temp);
+
 void draw_air(pixel *vid, Simulation * sim);
 
 void draw_grav_zones(pixel *vid);

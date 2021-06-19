@@ -79,6 +79,8 @@ Save::Save(const Save & save):
 	paused(save.paused),
 	gravityMode(save.gravityMode),
 	airMode(save.airMode),
+	ambientAirTemp(save.ambientAirTemp),
+	ambientAirTempPresent(save.ambientAirTempPresent),
 	edgeMode(save.edgeMode),
 	hudEnable(save.hudEnable),
 	hudEnablePresent(save.hudEnablePresent),
@@ -202,6 +204,7 @@ void Save::InitVars()
 	paused = false;
 	gravityMode = 0;
 	airMode = 0;
+	ambientAirTemp = R_TEMP + 273.15;
 	edgeMode = 0;
 	hasPressure = false;
 	hasAmbientHeat = false;
@@ -451,6 +454,23 @@ bool Save::CheckBsonFieldInt(bson_iterator iter, const char *field, int *setting
 	return false;
 }
 
+bool Save::CheckBsonFieldFloat(bson_iterator iter, const char *field, float *setting)
+{
+	if (!strcmp(bson_iterator_key(&iter), field))
+	{
+		if (bson_iterator_type(&iter) == BSON_DOUBLE)
+		{
+			*setting = float(bson_iterator_int(&iter));
+			return true;
+		}
+		else
+		{
+			fprintf(stderr, "Wrong type for %s, expected double, got type %i\n", bson_iterator_key(&iter),  bson_iterator_type(&iter));
+		}
+	}
+	return false;
+}
+
 void Save::ParseSaveOPS()
 {
 	unsigned char *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *fanData = NULL, *wallData = NULL, *soapLinkData = NULL;
@@ -551,6 +571,7 @@ void Save::ParseSaveOPS()
 		hudEnablePresent = CheckBsonFieldBool(iter, "hud_enable", &hudEnable) || hudEnablePresent;
 		CheckBsonFieldInt(iter, "gravityMode", &gravityMode);
 		CheckBsonFieldInt(iter, "airMode", &airMode);
+		ambientAirTempPresent = CheckBsonFieldFloat(iter, "ambientAirTemp", &ambientAirTemp) || ambientAirTempPresent;
 		CheckBsonFieldInt(iter, "edgeMode", &edgeMode);
 		CheckBsonFieldInt(iter, "pmapbits", &pmapbits);
 		activeMenuPresent = CheckBsonFieldInt(iter, "activeMenu", &activeMenu) || activeMenuPresent;
@@ -2519,6 +2540,11 @@ void Save::BuildSave()
 	bson_append_bool(&b, "paused", paused);
 	bson_append_int(&b, "gravityMode", gravityMode);
 	bson_append_int(&b, "airMode", airMode);
+	if (fabsf(ambientAirTemp - (R_TEMP + 273.15f)) > 0.0001f)
+	{
+		bson_append_double(&b, "ambientAirTemp", ambientAirTemp);
+		RESTRICTVERSION(96, 0);
+	}
 #ifndef NOMOD
 	bson_append_bool(&b, "msrotation", msRotation);
 #endif

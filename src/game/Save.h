@@ -148,6 +148,8 @@ public:
 	bool paused;
 	int gravityMode;
 	int airMode;
+	float ambientAirTemp;
+	bool ambientAirTempPresent = false;
 	int edgeMode;
 	// jacob1's mod simulation options
 	// Since not all saves have these, use a bool to decide whether to overwrite options when loading saves
@@ -238,6 +240,7 @@ private:
 	void CheckBsonFieldUser(bson_iterator iter, const char *field, unsigned char **data, unsigned int *fieldLen);
 	bool CheckBsonFieldBool(bson_iterator iter, const char *field, bool *flag);
 	bool CheckBsonFieldInt(bson_iterator iter, const char *field, int *setting);
+	bool CheckBsonFieldFloat(bson_iterator iter, const char *field, float *setting);
 	void ParseSaveOPS();
 	void ParseSavePSv();
 

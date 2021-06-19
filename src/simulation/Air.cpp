@@ -25,7 +25,9 @@
 Air::Air()
 {
 	MakeKernel();
-	outside_temp = 295.15f;
+	ambientAirTemp = R_TEMP + 273.15;
+	saveAmbientAirTemp = 0.0f;
+	usingSaveAmbientAirTemp = false;
 
 	Clear();
 }
@@ -55,18 +57,22 @@ void Air::Clear()
 	std::fill(&fvx[0][0], &fvx[0][0]+((XRES/CELL)*(YRES/CELL)), 0.0f);
 	std::fill(&bmap_blockair[0][0], &bmap_blockair[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
 	std::fill(&bmap_blockairh[0][0], &bmap_blockairh[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
+
+	// When clearing sim / air, stop using any temporary ambient air temp, use the user-defined setting instead
+	usingSaveAmbientAirTemp = false;
+	float airTemp = GetAmbientAirTemp();
 	for (int x = 0; x < XRES/CELL; x++)
 	{
 		for (int y = 0; y < YRES/CELL; y++)
 		{
-			hv[y][x] = outside_temp;
+			hv[y][x] = airTemp;
 		}
 	}
 }
 
 void Air::ClearAirH()
 {
-	std::fill(&hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)), outside_temp);
+	std::fill(&hv[0][0], &hv[0][0]+((XRES/CELL)*(YRES/CELL)), GetAmbientAirTemp());
 }
 
 void Air::UpdateAirHeat(bool isVertical)
@@ -74,24 +80,26 @@ void Air::UpdateAirHeat(bool isVertical)
 	if (!aheat_enable)
 		return;
 
+	float ambientAirTemp = GetAmbientAirTemp();
+
 	// Set ambient heat temp on the edges every frame
 	for (int i = 0; i < YRES/CELL; i++)
 	{
-		hv[i][0] = outside_temp;
-		hv[i][1] = outside_temp;
-		hv[i][XRES/CELL-3] = outside_temp;
-		hv[i][XRES/CELL-2] = outside_temp;
-		hv[i][XRES/CELL-1] = outside_temp;
+		hv[i][0] = ambientAirTemp;
+		hv[i][1] = ambientAirTemp;
+		hv[i][XRES/CELL-3] = ambientAirTemp;
+		hv[i][XRES/CELL-2] = ambientAirTemp;
+		hv[i][XRES/CELL-1] = ambientAirTemp;
 	}
 
 	// Set ambient heat temp on the edges every frame
 	for (int i = 0; i < XRES/CELL; i++)
 	{
-		hv[0][i] = outside_temp;
-		hv[1][i] = outside_temp;
-		hv[YRES/CELL-3][i] = outside_temp;
-		hv[YRES/CELL-2][i] = outside_temp;
-		hv[YRES/CELL-1][i] = outside_temp;
+		hv[0][i] = ambientAirTemp;
+		hv[1][i] = ambientAirTemp;
+		hv[YRES/CELL-3][i] = ambientAirTemp;
+		hv[YRES/CELL-2][i] = ambientAirTemp;
+		hv[YRES/CELL-1][i] = ambientAirTemp;
 	}
 
 	float dh, dx, dy;
@@ -417,4 +425,26 @@ void Air::RecalculateBlockAirMaps(Simulation * sim)
 				bmap_blockairh[y][x]++;
 		}
 	}*/
+}
+
+void Air::SetAmbientAirTemp(float ambientAirTemp)
+{
+	this->ambientAirTemp = ambientAirTemp;
+	usingSaveAmbientAirTemp = false;
+}
+
+void Air::SetTemporaryAmbientAirTemp(float ambientAirTemp)
+{
+	this->saveAmbientAirTemp = ambientAirTemp;
+	usingSaveAmbientAirTemp = true;
+}
+
+float Air::GetAmbientAirTemp()
+{
+	return usingSaveAmbientAirTemp ? saveAmbientAirTemp : ambientAirTemp;
+}
+
+float Air::GetAmbientAirTempPref()
+{
+	return ambientAirTemp;
 }

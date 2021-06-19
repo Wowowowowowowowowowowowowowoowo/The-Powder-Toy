@@ -201,6 +201,7 @@ void save_presets()
 	//Tpt++ Simulation setting(s)
 	cJSON_AddItemToObject(root, "Simulation", simulationobj=cJSON_CreateObject());
 	cJSON_AddNumberToObject(simulationobj, "EdgeMode", globalSim->edgeMode);
+	cJSON_AddNumberToObject(simulationobj, "AmbientAirTemp", globalSim->air->GetAmbientAirTempPref());
 	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", globalSim->grav->IsEnabled());
 	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
@@ -557,6 +558,8 @@ void load_presets(void)
 					edgeMode = 0;
 				globalSim->edgeMode = edgeMode;
 			}
+			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientAirTemp")))
+				globalSim->air->SetAmbientAirTemp(tmpobj->valuedouble);
 #ifndef TOUCHUI
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				globalSim->grav->StartAsync();

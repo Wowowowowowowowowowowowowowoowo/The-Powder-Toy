@@ -29,6 +29,10 @@ class Air
 	float ovx[YRES/CELL][XRES/CELL];
 	float ovy[YRES/CELL][XRES/CELL];
 
+	float ambientAirTemp;
+	float saveAmbientAirTemp;
+	bool usingSaveAmbientAirTemp;
+
 public:
 	float pv[YRES/CELL][XRES/CELL];
 	float vx[YRES/CELL][XRES/CELL];
@@ -41,7 +45,6 @@ public:
 
 	// Ambient Heat
 	float hv[YRES/CELL][XRES/CELL], ohv[YRES/CELL][XRES/CELL];
-	float outside_temp;
 
 	float kernel[9];
 
@@ -55,6 +58,11 @@ public:
 	void UpdateAir();
 
 	void RecalculateBlockAirMaps(Simulation * sim);
+
+	void SetAmbientAirTemp(float ambientAirTemp);
+	void SetTemporaryAmbientAirTemp(float ambientAirTemp);
+	float GetAmbientAirTemp();
+	float GetAmbientAirTempPref();
 };
 
 #endif

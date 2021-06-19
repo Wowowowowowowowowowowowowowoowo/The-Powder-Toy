@@ -1444,6 +1444,13 @@ void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag)
 		drawtext(vid_buf, x+3, y+2, t, 255, 255, 255, 255);
 	}
 }
+
+pixel HeatToColor(float temp)
+{
+	int caddress = (int)restrict_flt((int)(restrict_flt(temp, 0.0f, (float)MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) * 3.0f, 0.0f, (1024.0f * 3) - 3);
+	return COLARGB(255, (int)((unsigned char)color_data[caddress] * 0.7f), (int)((unsigned char)color_data[caddress + 1] * 0.7f), (int)((unsigned char)color_data[caddress + 2] * 0.7f));
+}
+
 void draw_air(pixel *vid, Simulation * sim)
 {
 	pixel c;
@@ -1470,8 +1477,8 @@ void draw_air(pixel *vid, Simulation * sim)
 				else
 				{
 					float ttemp = sim->air->hv[y][x]+(-MIN_TEMP);
-					int caddress = (int)restrict_flt((int)( restrict_flt(ttemp, 0.0f, (float)MAX_TEMP+(-MIN_TEMP)) / ((MAX_TEMP+(-MIN_TEMP))/1024) ) *3.0f, 0.0f, (1024.0f*3)-3);
-					c = PIXRGB((int)((unsigned char)color_data[caddress]*0.7f), (int)((unsigned char)color_data[caddress+1]*0.7f), (int)((unsigned char)color_data[caddress+2]*0.7f));
+					c = HeatToColor(ttemp);
+					c = PIXPACK(c);
 				}
 			}
 			else if (display_mode & DISPLAY_AIRC)

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #ifdef WIN
 #include <direct.h>
@@ -8,6 +9,7 @@
 #endif
 
 #include "OptionsUI.h"
+#include "graphics.h" // for HeatToColor
 #include "common/Format.h"
 #include "common/Platform.h"
 #include "common/tpt-minmax.h"
@@ -24,6 +26,7 @@
 #include "simulation/Simulation.h"
 #include "gui/dialogs/ConfirmPrompt.h"
 #include "gui/dialogs/InfoPrompt.h"
+#include "gui/prop/PropWindow.h" // for ParseFloat
 
 OptionsUI::OptionsUI(Simulation *sim):
 	ui::Window(Point(CENTERED, CENTERED), Point(310, 350)),
@@ -100,15 +103,25 @@ OptionsUI::OptionsUI(Simulation *sim):
 
 
 	prev = airSimDropdown = new Dropdown(prev->Below(Point(0, 17)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"On", "Pressure Off", "Velocity Off", "Off", "No Update"});
-	airSimDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - airSimDropdown->GetSize().X, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetCallback([&](unsigned int option) { this->AirSimSelected(option); });
 	scrollArea->AddComponent(airSimDropdown);
 
 	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Air Simulation Mode:");
 	scrollArea->AddComponent(descLabel);
 
+	prev = airTempTextbox = new Textbox(prev->Below(Point(0, 4)), Point(0, Textbox::AUTOSIZE), "");
+	airTempTextbox->SetCallback([&]() { this->UpdateAirTemp(airTempTextbox->GetText(), false); });
+	airTempTextbox->SetDefocusCallback([&]() { this->UpdateAirTemp(airTempTextbox->GetText(), true); });
+	scrollArea->AddComponent(airTempTextbox);
+
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Ambienty Air Temperature:");
+	scrollArea->AddComponent(descLabel);
+
+	airTempDisplay = new Button(Point(0, airTempTextbox->GetPosition().Y), Point(17, 17), "");
+	airTempDisplay->SetEnabled(false);
+	scrollArea->AddComponent(airTempDisplay);
+
 	prev = gravityDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Vertical", "Off", "Radial"});
-	gravityDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - gravityDropdown->GetSize().X, gravityDropdown->GetPosition().Y));
 	gravityDropdown->SetCallback([&](unsigned int option) { this->GravitySelected(option); });
 	scrollArea->AddComponent(gravityDropdown);
 
@@ -116,7 +129,6 @@ OptionsUI::OptionsUI(Simulation *sim):
 	scrollArea->AddComponent(descLabel);
 
 	prev = edgeModeDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"Void", "Solid", "Loop"});
-	edgeModeDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - edgeModeDropdown->GetSize().X, edgeModeDropdown->GetPosition().Y));
 	edgeModeDropdown->SetCallback([&](unsigned int option) { this->EdgeModeSelected(option); });
 	scrollArea->AddComponent(edgeModeDropdown);
 
@@ -124,7 +136,6 @@ OptionsUI::OptionsUI(Simulation *sim):
 	scrollArea->AddComponent(descLabel);
 
 	prev = decoSpaceDropdown = new Dropdown(prev->Below(Point(0, 4)), Point(Dropdown::AUTOSIZE, Dropdown::AUTOSIZE), {"sRGB", "Linear", "Gamma 2.2", "Gamma 1.8"});
-	decoSpaceDropdown->SetPosition(Point(scrollArea->GetUsableWidth() - 5 - decoSpaceDropdown->GetSize().X, decoSpaceDropdown->GetPosition().Y));
 	decoSpaceDropdown->SetCallback([&](unsigned int option) { this->DecoSpaceSelected(option); });
 	scrollArea->AddComponent(decoSpaceDropdown);
 
@@ -136,9 +147,13 @@ OptionsUI::OptionsUI(Simulation *sim):
 	maxWidth = tpt::max(maxWidth, gravityDropdown->GetSize().X);
 	maxWidth = tpt::max(maxWidth, edgeModeDropdown->GetSize().X);
 	maxWidth = tpt::max(maxWidth, decoSpaceDropdown->GetSize().X);
+	maxWidth = tpt::max(maxWidth, 70); // space for air temp textbox
 	int xPos = scrollArea->GetUsableWidth() - 5 - maxWidth;
 	airSimDropdown->SetPosition(Point(xPos, airSimDropdown->GetPosition().Y));
 	airSimDropdown->SetSize(Point(maxWidth, airSimDropdown->GetSize().Y));
+	airTempTextbox->SetPosition(Point(xPos, airTempTextbox->GetPosition().Y));
+	airTempTextbox->SetSize(Point(maxWidth - 21, airTempTextbox->GetSize().Y));
+	airTempDisplay->SetPosition(Point(xPos + maxWidth - airTempDisplay->GetSize().X, airTempDisplay->GetPosition().Y));
 	gravityDropdown->SetPosition(Point(xPos, gravityDropdown->GetPosition().Y));
 	gravityDropdown->SetSize(Point(maxWidth, gravityDropdown->GetSize().Y));
 	edgeModeDropdown->SetPosition(Point(xPos, edgeModeDropdown->GetPosition().Y));
@@ -302,6 +317,10 @@ void OptionsUI::InitializeOptions()
 	waterEqalizationCheckbox->SetChecked(water_equal_test);
 
 	airSimDropdown->SetSelectedOption(airMode);
+	UpdateAmbientAirTempPreview(sim->air->GetAmbientAirTemp(), true);
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(2) << sim->air->GetAmbientAirTemp();
+	airTempTextbox->SetText(ss.str());
 	gravityDropdown->SetSelectedOption(sim->gravityMode);
 	edgeModeDropdown->SetSelectedOption(sim->edgeMode);
 	decoSpaceDropdown->SetSelectedOption(sim->decoSpace);
@@ -359,6 +378,59 @@ void OptionsUI::WaterEqualizationChecked(bool checked)
 void OptionsUI::AirSimSelected(unsigned int option)
 {
 	airMode = option;
+}
+
+void OptionsUI::UpdateAirTemp(std::string temp, bool isDefocus)
+{
+	float airTemp;
+	bool isValid = PropWindow::ParseFloat(temp, &airTemp, true);
+
+	// While defocusing, correct out of range temperatures and empty textboxes
+	if (isDefocus)
+	{
+		if (temp.empty())
+		{
+			isValid = true;
+			airTemp = R_TEMP + 273.15;
+		}
+		else if (!isValid)
+			return;
+		else if (airTemp < MIN_TEMP)
+			airTemp = MIN_TEMP;
+		else if (airTemp > MAX_TEMP)
+			airTemp = MAX_TEMP;
+		else
+			return;
+
+		// Update textbox with the new value
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(2) << airTemp;
+		airTempTextbox->SetText(ss.str());
+	}
+	// Out of range temperatures are invalid, preview should go away
+	else if (airTemp < MIN_TEMP || airTemp > MAX_TEMP)
+		isValid = false;
+
+	// If valid, set temp
+	if (isValid)
+		sim->air->SetAmbientAirTemp(airTemp);
+
+	UpdateAmbientAirTempPreview(airTemp, isValid);
+}
+
+void OptionsUI::UpdateAmbientAirTempPreview(float airTemp, bool isValid)
+{
+	if (isValid)
+	{
+		pixel color = HeatToColor(airTemp);
+		airTempDisplay->SetBackgroundColor(color);
+		airTempDisplay->SetText("");
+	}
+	else
+	{
+		airTempDisplay->SetBackgroundColor(0);
+		airTempDisplay->SetText("?");
+	}
 }
 
 void OptionsUI::GravitySelected(unsigned int option)

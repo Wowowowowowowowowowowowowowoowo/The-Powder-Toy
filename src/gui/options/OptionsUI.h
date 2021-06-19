@@ -1,5 +1,6 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
+#include <string>
 #include "interface/Window.h"
 
 class Button;
@@ -7,6 +8,7 @@ class Checkbox;
 class Dropdown;
 class Label;
 class Simulation;
+class Textbox;
 namespace ui
 {
 	class ScrollWindow;
@@ -17,6 +19,8 @@ class OptionsUI : public ui::Window
 
 	Checkbox *heatSimCheckbox, *ambientCheckbox, *newtonianCheckbox, *waterEqalizationCheckbox, *decorationCheckbox;
 	Dropdown *airSimDropdown, *gravityDropdown, *edgeModeDropdown, *decoSpaceDropdown;
+	Textbox *airTempTextbox;
+	Button *airTempDisplay;
 
 	Dropdown *scaleDropdown;
 	Label *resizableLabel, *filteringLabel, *forceIntegerScalingLabel;
@@ -56,6 +60,10 @@ class OptionsUI : public ui::Window
 	void CircleChecked(bool checked);
 	void DataFolderClicked();
 	void MigrationClicked();
+
+	void UpdateAirTemp(std::string temp, bool isDefocus);
+	void UpdateAmbientAirTempPreview(float airTemp, bool isValid);
+
 
 	void OnDraw(gfx::VideoBuffer *buf) override;
 	void OnSubwindowDraw(gfx::VideoBuffer *buf);

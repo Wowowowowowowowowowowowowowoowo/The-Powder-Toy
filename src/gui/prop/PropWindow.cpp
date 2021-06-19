@@ -174,38 +174,44 @@ bool PropWindow::ParseInteger(const std::string& value, bool isHex)
 	return false;
 }
 
+bool PropWindow::ParseFloat(const std::string& value, float* out, bool isTemp)
+{
+	// Special handling for temperature, allow using celcius or farenheit
+	bool isCelcius = false, isFarenheit = false;
+	if (isTemp)
+	{
+		if (value[value.length() - 1] == 'C')
+			isCelcius = true;
+		else if (value[value.length() - 1] == 'F')
+			isFarenheit = true;
+	}
+
+	bool isParsed = false;
+	auto val = ParseNumber<float>((isCelcius || isFarenheit) ? value.substr(0, value.length() - 1) : value, false, isParsed);
+	if (isParsed)
+	{
+		if (isCelcius)
+			val += 273.15f;
+		else if (isFarenheit)
+			val = (val - 32) * 5 / 9 + 273.15f;
+		*out = val;
+		return true;
+	}
+	return false;
+}
+
 bool PropWindow::ParseValue(std::string value)
 {
 	// Try to parse a floating point number
 	if (properties[selectedProperty].Type == StructProperty::Float)
 	{
-		// Special handling for temperature, allow using celcius or farenheit
-		bool isCelcius = false, isFarenheit = false;
-		if (properties[selectedProperty].Name == "temp")
-		{
-			if (value[value.length() - 1] == 'C')
-				isCelcius = true;
-			else if (value[value.length() - 1] == 'F')
-				isFarenheit = true;
-			if (isCelcius || isFarenheit)
-				value = value.substr(0, value.length() - 1);
-		}
-
-		bool isParsed = false;
-		auto val = ParseNumber<float>(value, false, isParsed);
-		if (isParsed)
-		{
-			if (isCelcius)
-				val += 273.15f;
-			else if (isFarenheit)
-				val = (val - 32) * 5 / 9 + 273.15f;
-			PropertyValue propValue;
-			propValue.Float = val;
+		PropertyValue propValue;
+		bool ret = ParseFloat(value, &propValue.Float, properties[selectedProperty].Name == "temp");
+		if (ret)
 			propTool->propValue = propValue;
-			return true;
-		}
-		Engine::Ref().ShowWindow(new ErrorPrompt("Invalid floating point number"));
-		return false;
+		else
+			Engine::Ref().ShowWindow(new ErrorPrompt("Invalid floating point number"));
+		return ret;
 	}
 
 	// Check for quotes, in case there's a custom element called "42" or something

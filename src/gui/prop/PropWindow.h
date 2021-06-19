@@ -22,11 +22,13 @@ class PropWindow : public ui::Window
 	void LoadFromPropTool();
 
 	template<typename T>
-	T ParseNumber(const std::string& num, bool isHex, bool &isParsed);
+	static T ParseNumber(const std::string& num, bool isHex, bool &isParsed);
 	bool ParseInteger(const std::string& num, bool isHex);
 	bool ParseValue(std::string value);
 public:
 	PropWindow();
+	
+	static bool ParseFloat(const std::string& value, float* out, bool isTemp);
 
 	void OnPropertyChanged(unsigned int option);
 
