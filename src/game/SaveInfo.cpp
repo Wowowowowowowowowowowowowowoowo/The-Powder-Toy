@@ -96,6 +96,16 @@ void SaveInfo::SetSaveID(int value)
 	saveID = value; // capped at length 15 in tpt++
 }
 
+std::string SaveInfo::GetSaveVersion() const
+{
+	return saveVersion;
+}
+
+void SaveInfo::SetSaveVersion(std::string value)
+{
+	saveVersion = value;
+}
+
 bool SaveInfo::GetPublished() const
 {
 	return published;

@@ -16,6 +16,7 @@ class SaveInfo
 
 	// these are only used for online saves
 	int saveID;
+	std::string saveVersion;
 	bool published;
 	std::string description;
 	std::string author;
@@ -40,6 +41,8 @@ public:
 
 	int GetSaveID() const;
 	void SetSaveID(int value);
+	std::string GetSaveVersion() const;
+	void SetSaveVersion(std::string value);
 	bool GetPublished() const;
 	void SetPublished(bool value);
 	std::string GetDescription() const;

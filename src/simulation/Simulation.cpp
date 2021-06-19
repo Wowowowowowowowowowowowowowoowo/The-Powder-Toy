@@ -624,6 +624,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				strncpy(svf_filename, save->saveInfo.GetFileName().c_str(), 254);
 				svf_publish = save->saveInfo.GetPublished();
 				snprintf(svf_id, 15, "%i", save->saveInfo.GetSaveID());
+				svf_version = save->saveInfo.GetSaveVersion();
 				strncpy(svf_description, save->saveInfo.GetDescription().c_str(), 254);
 				strncpy(svf_author, save->saveInfo.GetAuthor().c_str(), 63);
 				strncpy(svf_tags, save->saveInfo.GetTags().c_str(), 255);
@@ -889,6 +890,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 	newSave->saveInfo.SetFileName(svf_filename);
 	newSave->saveInfo.SetPublished(svf_publish);
 	newSave->saveInfo.SetSaveID(Format::StringToNumber<int>(svf_id));
+	newSave->saveInfo.SetSaveVersion(svf_version);
 	newSave->saveInfo.SetDescription(svf_description);
 	newSave->saveInfo.SetAuthor(svf_author);
 	newSave->saveInfo.SetTags(svf_tags);

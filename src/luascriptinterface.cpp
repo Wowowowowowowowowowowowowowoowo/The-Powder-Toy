@@ -1238,7 +1238,8 @@ int simulation_getSaveID(lua_State *l)
 	if (svf_open)
 	{
 		lua_pushinteger(l, atoi(svf_id));
-		return 1;
+		lua_pushinteger(l, Format::StringToNumber<int>(svf_version));
+		return 2;
 	}
 	return 0;
 }

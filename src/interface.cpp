@@ -98,6 +98,7 @@ int svf_publish = 0;
 char svf_filename[255] = "";
 int svf_fileopen = 0;
 char svf_id[16] = "";
+std::string svf_version = "";
 char svf_name[64] = "";
 char svf_description[255] = "";
 char svf_author[64] = "";
@@ -5082,6 +5083,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 						strcpy(svf_id, save_id);
 					else
 						strcpy(svf_id, "2157797");
+					svf_version = save_date ? save_date : "";
 					strcpy(svf_name, info->name);
 					strcpy(svf_description, info->description);
 					strncpy(svf_author, info->author, 63);
@@ -6781,6 +6783,7 @@ void clear_save_info()
 	svf_own = 0;
 	svf_myvote = 0;
 	svf_id[0] = 0;
+	svf_version = "";
 	svf_name[0] = 0;
 	svf_description[0] = 0;
 	svf_author[0] = 0;

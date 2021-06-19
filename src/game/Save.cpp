@@ -817,6 +817,8 @@ void Save::ParseSaveOPS()
 						saveInfo.SetPublished(bson_iterator_bool(&saveInfoiter));
 					else if (!strcmp(bson_iterator_key(&saveInfoiter), "ID") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
 						saveInfo.SetSaveID(Format::StringToNumber<int>(bson_iterator_string(&saveInfoiter)));
+					else if (!strcmp(bson_iterator_key(&saveInfoiter), "version") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
+						saveInfo.SetSaveVersion(bson_iterator_string(&saveInfoiter));
 					else if (!strcmp(bson_iterator_key(&saveInfoiter), "description") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
 						saveInfo.SetDescription(bson_iterator_string(&saveInfoiter));
 					else if (!strcmp(bson_iterator_key(&saveInfoiter), "author") && bson_iterator_type(&saveInfoiter) == BSON_STRING)
@@ -2686,6 +2688,7 @@ void Save::BuildSave()
 		bson_append_string(&b, "fileName", saveInfo.GetFileName().c_str());
 		bson_append_int(&b, "published", saveInfo.GetPublished());
 		bson_append_string(&b, "ID", Format::NumberToString<int>(saveInfo.GetSaveID()).c_str());
+		bson_append_string(&b, "version", saveInfo.GetSaveVersion().c_str());
 		bson_append_string(&b, "description", saveInfo.GetDescription().c_str());
 		bson_append_string(&b, "author", saveInfo.GetAuthor().c_str());
 		bson_append_string(&b, "tags", saveInfo.GetTags().c_str());
