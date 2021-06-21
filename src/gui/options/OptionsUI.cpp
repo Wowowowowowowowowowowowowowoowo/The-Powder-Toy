@@ -394,7 +394,10 @@ void OptionsUI::UpdateAirTemp(std::string temp, bool isDefocus)
 			airTemp = R_TEMP + 273.15;
 		}
 		else if (!isValid)
-			return;
+		{
+			isValid = true;
+			airTemp = sim->air->GetAmbientAirTempPref();
+		}
 		else if (airTemp < MIN_TEMP)
 			airTemp = MIN_TEMP;
 		else if (airTemp > MAX_TEMP)
