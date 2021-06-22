@@ -17,15 +17,15 @@
 
 #include "common/tpt-minmax.h"
 #include <climits>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <regex.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 #include "EventLoopSDL.h"
 #include "misc.h"
