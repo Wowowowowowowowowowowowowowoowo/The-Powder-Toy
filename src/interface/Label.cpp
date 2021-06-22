@@ -71,7 +71,13 @@ void Label::FindWordPosition(unsigned int position, unsigned int *cursorStart, u
 	while (true)
 	{
 		foundPos = text.find_first_of(spaces, currentPos);
-		if (foundPos == text.npos || foundPos >= position)
+		if (foundPos == text.npos)
+		{
+			*cursorStart = currentPos;
+			*cursorEnd = text.length();
+			return;
+		}
+		else if (foundPos >= position)
 		{
 			*cursorStart = currentPos;
 			*cursorEnd = foundPos;
@@ -355,15 +361,29 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 			FindWordPosition(cursor-1, &start, &end, " .,!?\n");
 			if (start < cursor)
 				MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
-			break;
+			if (!shift)
+				cursorStart = cursor;
+			return;
 		}
 		case SDLK_RIGHT:
 		{
 			unsigned int start, end;
 			FindWordPosition(cursor+1, &start, &end, " .,!?\n");
 			MoveCursor(&cursor, end-cursor+!(cursor > cursorStart));
-			break;
+			if (!shift)
+				cursorStart = cursor;
+			return;
 		}
+		case SDLK_HOME:
+			cursor = 0;
+			if (!shift)
+				cursorStart = cursor;
+			return;
+		case SDLK_END:
+			cursor = text.length();
+			if (!shift)
+				cursorStart = cursor;
+			return;
 		}
 	}
 	if (shift)
@@ -385,6 +405,29 @@ void Label::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bo
 			cursor = text.length();
 			break;
 		}
+	}
+
+	switch (key)
+	{
+	case SDLK_HOME:
+	{
+		unsigned int start, end;
+		FindWordPosition(cursor-1, &start, &end, "\r");
+		if (start < cursor)
+			MoveCursor(&cursor, start-cursor-(cursor > cursorStart));
+		if (!shift)
+			cursorStart = cursor;
+		break;
+	}
+	case SDLK_END:
+	{
+		unsigned int start, end;
+		FindWordPosition(cursor+1, &start, &end, "\r");
+		MoveCursor(&cursor, end-cursor+!(cursor > cursorStart));
+		if (!shift)
+			cursorStart = cursor;
+		break;
+	}
 	}
 }
 
