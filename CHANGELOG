@@ -1065,3 +1065,22 @@ the security of the authentication process.
 
 Version 44.5 (build 124) 2020-12-28
 Update to new TPTMP 1.0.2. This fixes token expiration.
+
+Version 45.0 2021-06-21
+Fix potential crash when scrolling options menu. Fix tpt.getscript. Remove
+error message when checking for updates fails. Add error message in save
+browser when downloading the saves list fails. Fix being unable to show intro
+text again after startup. Redo scrolling code and fix issues with scrollbars.
+It should be much more sane when viewing comments now. Only show .tmp2 for
+elements which use it by default. Add option to show .tmp2 on all elements
+regardless. Support home/end, and ctrl/shift variants of these in "new
+interface" textboxes. Fix ctrl+left/right in "new interface" textboxes. Update
+to include all commits from tpt++. Major additions are five new elements: SCLN
+(silicon), PTNM (platinum), VSNS (velocity sensor), ROCK, and LITH (lithium).
+Custom GoL was also added. Data can now be stored in a common data directory,
+dependent on system. Windows users have it stored somewhere in %APPDATA%, Linux
+users in .local/share. Mac users already had this feature. To migrate your data
+to the common directory, use the new "Migrate to shared data directory" button
+in the options menu. powder.pref, stamps, saved, and scripts will all be
+migrated and shared across all post-96.0 versions of TPT. Preferences and
+downloaded scripts will be migrated from the first migrated instance of TPT only.
