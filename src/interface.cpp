@@ -5663,6 +5663,12 @@ int execute_save(pixel *vid_buf, Save *save)
 		postData.insert(std::pair<std::string, std::string>("ID", svf_id));
 	}
 
+	if (save->fromNewerVersion && svf_publish)
+	{
+		error_ui(vid_buf, 0, "Cannot publish save, incompatible with latest release version.");
+		return 1;
+	}
+
 	int status;
 	std::string result = Request::SimpleAuth(SCHEME SERVER "/Save.api", &status, svf_user_id, svf_session_id, postData);
 

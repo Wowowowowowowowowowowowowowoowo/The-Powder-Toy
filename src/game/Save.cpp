@@ -59,6 +59,7 @@ Save::Save(int blockW, int blockH)
 
 Save::Save(const Save & save):
 	expanded(save.expanded),
+	fromNewerVersion(save.fromNewerVersion),
 	hasPressure(save.hasPressure),
 	hasAmbientHeat(save.hasAmbientHeat),
 	luaCode(save.luaCode),
@@ -2519,6 +2520,11 @@ void Save::BuildSave()
 				RESTRICTVERSION(95, 0);
 		}
 	}
+
+	// Mark save as incompatible with latest release
+	if (minimumMajorVersion > SAVE_VERSION || (minimumMajorVersion == SAVE_VERSION && minimumMinorVersion > MINOR_VERSION))
+		fromNewerVersion = true;
+
 	bson b;
 	b.data = NULL;
 	auto bson_deleter = [](bson * b) { bson_destroy(b); };

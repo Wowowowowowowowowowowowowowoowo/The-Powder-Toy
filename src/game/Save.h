@@ -109,6 +109,8 @@ public:
 	// is set either when parsing a save from data, or when creating a new save in the Simulation class
 	bool expanded;
 
+	bool fromNewerVersion = false;
+
 	unsigned int blockWidth;
 	unsigned int blockHeight;
 	unsigned int particlesCount;
