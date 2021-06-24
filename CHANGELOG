@@ -1081,6 +1081,6 @@ Custom GoL was also added. Data can now be stored in a common data directory,
 dependent on system. Windows users have it stored somewhere in %APPDATA%, Linux
 users in .local/share. Mac users already had this feature. To migrate your data
 to the common directory, use the new "Migrate to shared data directory" button
-in the options menu. powder.pref, stamps, saved, and scripts will all be
+in the options menu. powder.pref, stamps, saves, and scripts will all be
 migrated and shared across all post-96.0 versions of TPT. Preferences and
 downloaded scripts will be migrated from the first migrated instance of TPT only.
