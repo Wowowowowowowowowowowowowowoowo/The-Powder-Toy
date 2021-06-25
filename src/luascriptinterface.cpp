@@ -1149,10 +1149,12 @@ int simulation_loadStamp(lua_State* l)
 	if (!save)
 	{
 		lua_pushnil(l);
-		return 1;
+		lua_pushliteral(l, "Failed to read file");
+		return 2;
 	}
 
 	int oldPause = sys_pause;
+	int pushed = 1;
 	try
 	{
 		luaSim->LoadSave(x, y, save, 0, includePressure);
@@ -1166,12 +1168,14 @@ int simulation_loadStamp(lua_State* l)
 	catch (ParseException & e)
 	{
 		lua_pushnil(l);
+		lua_pushstring(l, e.message.c_str());
+		pushed = 2;
 	}
 	delete save;
 
 	// tpt++ doesn't change pause state with this function, so we won't here either
 	sys_pause = oldPause;
-	return 1;
+	return pushed;
 }
 
 int simulation_deleteStamp(lua_State* l)
