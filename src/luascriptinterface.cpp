@@ -1043,7 +1043,7 @@ int simulation_decoColor(lua_State * l)
 
 int simulation_clearSim(lua_State * l)
 {
-	clear_sim();
+	NewSim();
 	return 0;
 }
 

@@ -1088,6 +1088,6 @@ downloaded scripts will be migrated from the first migrated instance of TPT only
 Version 45.1 2021-06-23
 Fix crash when using platform.restart() on Windows - this fixes bluescreens
 when reloading scripts in the script manager. Block publishing saves that
-contain unreleased elements / features - this matches the behavior of thge
+contain unreleased elements / features - this matches the behavior of the
 snapshots, which currently block the 5 new elements, GoL, and custom ambient
 air heat.
