@@ -1446,7 +1446,6 @@ int BrushClosure(lua_State * l)
 		if (x < radiusX+radiusX+1)
 		{
 			bool yield_coords = false;
-			std::cout << y << "," << x<< "\n";
 			if (bitmap[(y*(radiusX+radiusX+1))+x] && (positionX+(x-radiusX) >= 0 && positionY+(y-radiusY) >= 0 && positionX+(x-radiusX) < XRES && positionY+(y-radiusY) < YRES))
 			{
 				yield_coords = true;
