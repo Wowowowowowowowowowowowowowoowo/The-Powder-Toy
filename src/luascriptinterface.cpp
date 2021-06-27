@@ -3530,9 +3530,9 @@ void initHttpAPI(lua_State *l)
 		{ NULL, NULL }
 	};
 	luaL_register(l, NULL, httpRequestIndexMethods);
+	lua_setfield(l, -2, "__index");
 	lua_pop(l, 1);
 	lua_newtable(l);
-	lua_setfield(l, -2, "__index");
 	struct luaL_Reg httpAPIMethods [] = {
 		{"get", http_get},
 		{"post", http_post},
