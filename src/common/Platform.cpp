@@ -766,7 +766,7 @@ std::string DoMigration(std::string fromDir, std::string toDir)
 	bool hasScriptManager = FileExists(fromDir + "scriptmanager.lua");
 	bool hasPref = FileExists(fromDir + "powder.pref");
 
-	if (stamps.empty() && saves.empty() && scripts.empty() && downloadedScripts.empty() && screenshots.empty(), !hasAutorun && !hasScriptManager && !hasPref)
+	if (stamps.empty() && saves.empty() && scripts.empty() && downloadedScripts.empty() && screenshots.empty() && !hasAutorun && !hasScriptManager && !hasPref)
 	{
 		logFile << "Nothing to migrate.";
 		return "Nothing to migrate. This button is used to migrate data from pre-96.0 TPT installations to the shared directory";
