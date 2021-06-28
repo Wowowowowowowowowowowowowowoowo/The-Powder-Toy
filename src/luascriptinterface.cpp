@@ -797,7 +797,7 @@ int simulation_floodParts(lua_State * l)
 	int cm = luaL_optint(l,4,-1);
 	int flags = luaL_optint(l,5,get_brush_flags());
 
-	if (x < CELL || x >= XRES-CELL || y < CELL || y >= YRES-CELL)
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
 		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 
 	int ret = luaSim->FloodParts(x, y, c, cm, flags);
@@ -812,6 +812,9 @@ int simulation_createWalls(lua_State * l)
 	int rx = luaL_optint(l,3,0)/CELL;
 	int ry = luaL_optint(l,4,0)/CELL;
 	int c = luaL_optint(l,5,WL_WALL);
+
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
@@ -829,6 +832,9 @@ int simulation_createWallLine(lua_State * l)
 	int rx = luaL_optint(l,5,0)/CELL;
 	int ry = luaL_optint(l,6,0)/CELL;
 	int c = luaL_optint(l,7,WL_WALL);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
@@ -843,6 +849,9 @@ int simulation_createWallBox(lua_State * l)
 	int x2 = luaL_optint(l,3,-1)/CELL;
 	int y2 = luaL_optint(l,4,-1)/CELL;
 	int c = luaL_optint(l,5,WL_WALL);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 
@@ -856,6 +865,9 @@ int simulation_floodWalls(lua_State * l)
 	int y = luaL_optint(l,2,-1)/CELL;
 	int c = luaL_optint(l,3,WL_WALL);
 	int bm = luaL_optint(l,4,-1);
+
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
 	if (c < 0 || c >= WALLCOUNT)
 		return luaL_error(l, "Unrecognised wall id '%d'", c);
 	if (c == WL_STREAM)
@@ -901,6 +913,9 @@ int simulation_toolLine(lua_State * l)
 	int tool = luaL_optint(l,7,TOOL_HEAT);
 	int brush = luaL_optint(l,8,CIRCLE_BRUSH);
 	float strength = (float)luaL_optnumber(l, 9, 1.0f);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
@@ -920,6 +935,9 @@ int simulation_toolBox(lua_State * l)
 	int y2 = luaL_optint(l,4,-1)/CELL;
 	int tool = luaL_optint(l,5,TOOL_HEAT);
 	float strength = (float)luaL_optnumber(l, 6, 1.0f);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (tool < 0 || tool >= TOOL_PROP)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 
@@ -939,6 +957,7 @@ int simulation_decoBrush(lua_State * l)
 	int a = luaL_optint(l,8,255);
 	int tool = luaL_optint(l,9,DECO_DRAW);
 	int brush = luaL_optint(l,10,CIRCLE_BRUSH);
+
 	if (tool < 0 || tool >= DECOCOUNT)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
@@ -965,6 +984,9 @@ int simulation_decoLine(lua_State * l)
 	int a = luaL_optint(l,10,255);
 	int tool = luaL_optint(l,11,DECO_DRAW);
 	int brush = luaL_optint(l,12,CIRCLE_BRUSH);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (tool < 0 || tool >= DECOCOUNT)
 			return luaL_error(l, "Invalid tool id '%d'", tool);
 	if (brush < 0 || brush >= BRUSH_NUM)
@@ -988,6 +1010,9 @@ int simulation_decoBox(lua_State * l)
 	int b = luaL_optint(l,7,255);
 	int a = luaL_optint(l,8,255);
 	int tool = luaL_optint(l,9,DECO_DRAW);
+
+	if (x1 < 0 || x2 < 0 || x1 >= XRES || x2 >= XRES || y1 < 0 || y2 < 0 || y1 >= YRES || y2 >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d),(%d,%d)", x1, y1, x2, y2);
 	if (tool < 0 || tool >= DECOCOUNT)
 		return luaL_error(l, "Invalid tool id '%d'", tool);
 
