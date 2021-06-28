@@ -1091,3 +1091,7 @@ when reloading scripts in the script manager. Block publishing saves that
 contain unreleased elements / features - this matches the behavior of the
 snapshots, which currently block the 5 new elements, GoL, and custom ambient
 air heat.
+
+Version 45.2 2021-06-28
+Update with latest commits from tpt++. Fix script manager thinking it was out
+of date. Fix http api (fixes tptmp). Remove debug print in sim.brush.
