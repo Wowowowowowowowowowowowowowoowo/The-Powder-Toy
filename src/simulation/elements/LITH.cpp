@@ -205,7 +205,7 @@ void LITH_init_element(ELEMENT_INIT_FUNC_ARGS)
 {
 	elem->Identifier = "DEFAULT_PT_LITH";
 	elem->Name = "LITH";
-	elem->Colour = PIXPACK(0xC0C0C0);
+	elem->Colour = PIXPACK(0xC5C5BB);
 	elem->MenuVisible = 1;
 	elem->MenuSection = SC_EXPLOSIVE;
 	elem->Enabled = 1;
