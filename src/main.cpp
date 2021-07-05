@@ -894,6 +894,7 @@ int main(int argc, char *argv[])
 			i++;
 		}
 	}
+#ifndef ANDROID
 	if (!usedDdir)
 	{
 		char *ddir = SDL_GetPrefPath(NULL, "The Powder Toy");
@@ -915,6 +916,7 @@ int main(int argc, char *argv[])
 			SDL_free(ddir);
 		}
 	}
+#endif
 
 	// initialize this first so simulation gets inited
 	the_game = new PowderToy(); // you just lost

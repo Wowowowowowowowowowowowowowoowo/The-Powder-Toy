@@ -35,32 +35,9 @@ int savedWindowY = 0;
 void LoadWindowPosition() {}
 void SaveWindowPosition() {}
 
-void SDL_Quit_Wrapper()
-{
-	if (SDL_GetWindowFlags(sdl_window) & SDL_WINDOW_OPENGL)
-	{
-		// * nvidia-460 egl registers callbacks with x11 that end up being called
-		//   after egl is unloaded unless we grab it here and release it after
-		//   sdl closes the display. this is an nvidia driver weirdness but
-		//   technically an sdl bug. glfw has this fixed:
-		//   https://github.com/glfw/glfw/commit/9e6c0c747be838d1f3dc38c2924a47a42416c081
-		SDL_GL_LoadLibrary(NULL);
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_GL_UnloadLibrary();
-	}
-
-	SDL_Quit();
-}
-
 void SDLInit()
 {
-	// https://bugzilla.libsdl.org/show_bug.cgi?id=3796
-	if (SDL_Init(0) < 0)
-	{
-		fprintf(stderr, "Initializing SDL: %s\n", SDL_GetError());
-		exit(-1);
-	}
-	atexit(SDL_Quit_Wrapper);
+	// Do nothing, Android port doesn't use pref path
 }
 
 int sdl_opened = 0;
@@ -86,7 +63,7 @@ int SDLOpen()
 	SDL_ANDROID_SetScreenKeyboardShown(0);
 	//SDL_JoystickOpen(1);
 
-	atexit(SDL_Quit_Wrapper);
+	atexit(SDL_Quit);
 
 	sdl_opened = 1;
 	return 1;
@@ -463,6 +440,7 @@ void limit_fps()
 	int frameTime = SDL_GetTicks() - currentTime;
 
 	frameTimeAvg = frameTimeAvg * .8 + frameTime * .2;
+	float limitFPS = Engine::Ref().GetFpsLimit();
 	if (limitFPS > 2)
 	{
 		double offset = 1000.0 / limitFPS - frameTimeAvg;
