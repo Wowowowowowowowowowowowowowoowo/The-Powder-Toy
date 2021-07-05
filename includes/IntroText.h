@@ -25,7 +25,11 @@ const char *const introText =
 	"\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
 	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Me4502, MaksProg, jacob1, mniip, LBPHacker\n"
 	"\n"
+#ifndef BETA
 	"\bgTo use online features such as saving, you need to register at: \brhttps://powdertoy.co.uk/Register.html\n"
+#else
+	"\brThis is a BETA, you cannot save things publicly. If you are planning on publishing any saves, use the release version\n"
+#endif
 	"\n"
 	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " "
 #else
@@ -55,12 +59,18 @@ const char *const introText =
 	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Me4502, MaksProg, jacob1, mniip, LBPHacker\n"
 	"Thanks to cracker64 for the update server for my mod\n"
 	"\n"
+#ifndef BETA
 	"\bgTo use online features such as saving, you need to register at: \brhttps://powdertoy.co.uk/Register.html\n"
+#else
+	"\brThis is a BETA, you cannot save things publicly. If you are planning on publishing any saves, use the release version\n"
+#endif
 	"\n"
 	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM)
 #endif
 
-
+#ifdef BETA
+	" BETA"
+#endif
 #ifdef X86
 	" X86"
 #endif
