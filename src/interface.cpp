@@ -4672,6 +4672,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 								{
 									sprintf(search_expr,"user:%s", info->commentauthorsunformatted[cc]);
 									search_own = 0;
+									search_page = 0;
 									search_ui(vid_buf);
 									retval = 1;
 									goto finish;
