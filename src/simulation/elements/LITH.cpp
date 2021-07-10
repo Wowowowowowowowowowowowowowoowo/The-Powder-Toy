@@ -15,6 +15,20 @@
 
 #include "simulation/ElementsCommon.h"
 
+/*
+
+tmp2:  carbonation factor
+life:  burn timer above 1000, spark cooldown timer otherwise
+tmp:   hydrogenation factor
+ctype: absorbed energy
+
+For game reasons, baseline LITH has the reactions of both its pure form and
+its hydroxide, and also has basic li-ion battery-like behavior.
+It absorbs CO2 like its hydroxide form, but can only be converted into GLAS
+after having absorbed CO2.
+
+*/
+
 int LITH_update(UPDATE_FUNC_ARGS)
 {
 	particle &self = parts[i];

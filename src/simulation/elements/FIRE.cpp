@@ -159,7 +159,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 					else
 						parts[i].ctype = PT_IRON;
 				}
-				else if (pres <= 255 && parts[i].temp >= 5000 && RNG::Ref().chance(1, 5))
+				else if (parts[i].temp >= 5000 && RNG::Ref().chance(1, 5))
 				{
 					if (RNG::Ref().chance(1, 5))
 						parts[i].ctype = PT_URAN;
@@ -170,7 +170,7 @@ int FIRE_update(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
-		else if (parts[i].ctype == PT_STNE && sim->air->pv[y / CELL][x / CELL] >= 30.0f) // Form ROCK with pressure
+		else if ((parts[i].ctype == PT_STNE || !parts[i].ctype) && sim->air->pv[y / CELL][x / CELL] >= 30.0f) // Form ROCK with pressure
 		{
 			parts[i].tmp2 = RNG::Ref().between(0, 10); // Provide tmp2 for color noise
 			parts[i].ctype = PT_ROCK;
