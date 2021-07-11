@@ -1099,3 +1099,7 @@ of date. Fix http api (fixes tptmp). Remove debug print in sim.brush.
 Version 45.3 2021-07-05
 Fix hang on exit on Linux, due to improper SDL usage. Updates from tpt++:
 Adjust LITH color, make ROCK more resistant to DEST.
+
+Version 45.4 2021-07-10
+Update for version 96.0. Fix shift+click on comment username to ensure it jumps
+to page 1.
