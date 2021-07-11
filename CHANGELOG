@@ -1103,3 +1103,7 @@ Adjust LITH color, make ROCK more resistant to DEST.
 Version 45.4 2021-07-10
 Update for version 96.0. Fix shift+click on comment username to ensure it jumps
 to page 1.
+
+Version 45.5 2021-07-10
+Fix ambient air temp not being set to default when loading saves with ambient
+heat enabled.
