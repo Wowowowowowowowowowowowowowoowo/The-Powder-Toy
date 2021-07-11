@@ -416,7 +416,7 @@ void OptionsUI::UpdateAirTemp(std::string temp, bool isDefocus)
 
 	// If valid, set temp
 	if (isValid)
-		sim->air->SetAmbientAirTemp(airTemp);
+		sim->air->SetAmbientAirTempPref(airTemp);
 
 	UpdateAmbientAirTempPreview(airTemp, isValid);
 }

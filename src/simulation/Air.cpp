@@ -26,8 +26,7 @@ Air::Air()
 {
 	MakeKernel();
 	ambientAirTemp = R_TEMP + 273.15;
-	saveAmbientAirTemp = 0.0f;
-	usingSaveAmbientAirTemp = false;
+	ambientAirTempPref = R_TEMP + 273.15;
 
 	Clear();
 }
@@ -58,8 +57,6 @@ void Air::Clear()
 	std::fill(&bmap_blockair[0][0], &bmap_blockair[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
 	std::fill(&bmap_blockairh[0][0], &bmap_blockairh[0][0]+((XRES/CELL)*(YRES/CELL)), 0);
 
-	// When clearing sim / air, stop using any temporary ambient air temp, use the user-defined setting instead
-	usingSaveAmbientAirTemp = false;
 	float airTemp = GetAmbientAirTemp();
 	for (int x = 0; x < XRES/CELL; x++)
 	{
@@ -430,21 +427,26 @@ void Air::RecalculateBlockAirMaps(Simulation * sim)
 void Air::SetAmbientAirTemp(float ambientAirTemp)
 {
 	this->ambientAirTemp = ambientAirTemp;
-	usingSaveAmbientAirTemp = false;
 }
 
-void Air::SetTemporaryAmbientAirTemp(float ambientAirTemp)
+void Air::SetAmbientAirTempPref(float ambientAirTemp)
 {
-	this->saveAmbientAirTemp = ambientAirTemp;
-	usingSaveAmbientAirTemp = true;
+	this->ambientAirTemp = ambientAirTemp;
+	this->ambientAirTempPref = ambientAirTemp;
+}
+
+void Air::ClearTemporaryAirTemp()
+{
+	// Not called on clear_sim, to ensure correct ambient air temp is set when loading saves
+	this->ambientAirTemp = this->ambientAirTempPref;
 }
 
 float Air::GetAmbientAirTemp()
 {
-	return usingSaveAmbientAirTemp ? saveAmbientAirTemp : ambientAirTemp;
+	return ambientAirTemp;
 }
 
 float Air::GetAmbientAirTempPref()
 {
-	return ambientAirTemp;
+	return ambientAirTempPref;
 }

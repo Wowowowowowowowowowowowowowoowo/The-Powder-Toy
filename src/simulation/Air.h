@@ -30,8 +30,7 @@ class Air
 	float ovy[YRES/CELL][XRES/CELL];
 
 	float ambientAirTemp;
-	float saveAmbientAirTemp;
-	bool usingSaveAmbientAirTemp;
+	float ambientAirTempPref;
 
 public:
 	float pv[YRES/CELL][XRES/CELL];
@@ -60,7 +59,8 @@ public:
 	void RecalculateBlockAirMaps(Simulation * sim);
 
 	void SetAmbientAirTemp(float ambientAirTemp);
-	void SetTemporaryAmbientAirTemp(float ambientAirTemp);
+	void SetAmbientAirTempPref(float ambientAirTemp);
+	void ClearTemporaryAirTemp();
 	float GetAmbientAirTemp();
 	float GetAmbientAirTempPref();
 };

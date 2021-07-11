@@ -562,7 +562,7 @@ void load_presets(void)
 				globalSim->edgeMode = edgeMode;
 			}
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "AmbientAirTemp")))
-				globalSim->air->SetAmbientAirTemp(tmpobj->valuedouble);
+				globalSim->air->SetAmbientAirTempPref(tmpobj->valuedouble);
 #ifndef TOUCHUI
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "NewtonianGravity")) && tmpobj->valuestring && !strcmp(tmpobj->valuestring, "1"))
 				globalSim->grav->StartAsync();

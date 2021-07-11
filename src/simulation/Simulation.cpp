@@ -157,6 +157,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	loadY = blockY*CELL;
 	unsigned int pmapmask = (1 << save->pmapbits) - 1;
 
+	if (save->ambientAirTempPresent)
+		air->SetAmbientAirTemp(save->ambientAirTemp);
 	if (replace >= 1)
 	{
 		clear_sim();
@@ -579,8 +581,8 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 		if (!sys_pause || replace == 2)
 			sys_pause = save->paused;
 		airMode = save->airMode;
-		if (save->ambientAirTempPresent)
-			air->SetTemporaryAmbientAirTemp(save->ambientAirTemp);
+		//if (save->ambientAirTempPresent)
+		//	air->SetAmbientAirTemp(save->ambientAirTemp);
 		gravityMode = save->gravityMode;
 		saveEdgeMode = save->edgeMode;
 		if (save->msRotationPresent)

@@ -1392,7 +1392,7 @@ int simulation_ambientAirTemp(lua_State * l)
 		return 1;
 	}
 	float ambientAirTemp = restrict_flt(luaL_optnumber(l, 1, R_TEMP + 273.15f), MIN_TEMP, MAX_TEMP);
-	luaSim->air->SetAmbientAirTemp(ambientAirTemp);
+	luaSim->air->SetAmbientAirTempPref(ambientAirTemp);
 	return 0;
 }
 
