@@ -630,11 +630,10 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 	return x + (flags&0x1 ? 0 : w);
 }
 
-int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a)
+int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, bool noColor)
 {
 	int sx = x;
 	bool highlight = false;
-	bool noColor = r == 0 && g == 0 && b == 0; // required for drawtext_outline, which usually draws black text around it
 	int oR = r, oG = g, oB = b;
 	for (; *s; s++)
 	{
@@ -771,11 +770,11 @@ int drawhighlight(pixel *vid, int x, int y, const char *s)
 //Draw text with an outline
 int drawtext_outline(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, int outr, int outg, int outb, int outa)
 {
-	drawtext(vid, x-1, y-1, s, outr, outg, outb, outa);
-	drawtext(vid, x+1, y+1, s, outr, outg, outb, outa);
+	drawtext(vid, x-1, y-1, s, outr, outg, outb, outa, true);
+	drawtext(vid, x+1, y+1, s, outr, outg, outb, outa, true);
 	
-	drawtext(vid, x-1, y+1, s, outr, outg, outb, outa);
-	drawtext(vid, x+1, y-1, s, outr, outg, outb, outa);
+	drawtext(vid, x-1, y+1, s, outr, outg, outb, outa, true);
+	drawtext(vid, x+1, y-1, s, outr, outg, outb, outa, true);
 	
 	return drawtext(vid, x, y, s, r, g, b, a);
 }

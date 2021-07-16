@@ -80,7 +80,7 @@ int addchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a);
 
 int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a);
 
-int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a);
+int drawtext(pixel *vid, int x, int y, const char *s, int r, int g, int b, int a, bool noColor = false);
 
 int drawhighlight(pixel *vid, int x, int y, const char *s);
 

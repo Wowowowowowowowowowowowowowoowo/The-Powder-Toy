@@ -567,7 +567,9 @@ void DrawLuaLogs()
 		int alpha = logPair.second * 5;
 		if (alpha > 255)
 			alpha = 255;
-		drawtext_outline(vid_buf, 16, (YRES - 16) - i * 12, logPair.first.c_str(), 255, 255, 255, alpha, 0, 0, 0, alpha);
+		fillrect(vid_buf, 13, (YRES - 19) - i * 13, textwidth(logPair.first.c_str()) + 6, 14, 0, 0, 0, std::min(100, alpha));
+		drawtext(vid_buf, 16, (YRES - 16) - i * 13, logPair.first.c_str(), 255, 255, 255, alpha);
+
 		logHistory[i].second--;
 		if (logPair.second <= 1)
 			logHistory.pop_back();
