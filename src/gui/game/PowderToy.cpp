@@ -1006,8 +1006,9 @@ void PowderToy::OnTick(uint32_t ticks)
 #endif
 	//sdl_key = heldKey; // ui_edit_process in deco editor uses this global so we have to set it ):
 	int mouseDown = mouse_get_state(&mouseX, &mouseY);
-	main_loop_temp(mouseDown, lastMouseDown, heldKey, heldScan, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
+	main_loop_temp(mouseClickCanceled ? 0 : mouseDown, lastMouseDown, heldKey, heldScan, mouseX, mouseY, shiftHeld, ctrlHeld, altHeld);
 	lastMouseDown = mouseDown;
+	mouseClickCanceled = false;
 	heldKey = 0;
 	heldScan = 0;
 
@@ -1505,7 +1506,10 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 bool PowderToy::BeforeMouseDown(int x, int y, unsigned char button)
 {
 	MouseDownEvent ev = MouseDownEvent(x, y, button);
-	return HandleEvent(LuaEvents::mousedown, &ev);
+	bool ret = HandleEvent(LuaEvents::mousedown, &ev);
+	if (!ret)
+		mouseClickCanceled = true;
+	return ret;
 }
 
 void PowderToy::OnMouseDown(int x, int y, unsigned char button)

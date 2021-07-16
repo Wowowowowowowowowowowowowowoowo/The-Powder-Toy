@@ -23,6 +23,7 @@ private:
 	Point mouse;
 	Point cursor;
 	int lastMouseDown, heldKey = 0, heldScan = 0;
+	bool mouseClickCanceled = false; // allow Lua to cancel mouse clicks in the legacy C code
 	int16_t orientation[3];
 
 	// notifications
