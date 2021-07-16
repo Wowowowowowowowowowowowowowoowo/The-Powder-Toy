@@ -134,6 +134,7 @@ int luatpt_active_menu(lua_State* l);
 int luatpt_menu_enabled(lua_State* l);
 int luatpt_menu_click(lua_State* l);
 int luatpt_num_menus(lua_State* l);
+int luatpt_tab_menu(lua_State* l);
 int luatpt_decorations_enable(lua_State* l);
 int luatpt_cmode_set(lua_State* l);
 int luatpt_error(lua_State* l);

@@ -118,6 +118,7 @@ void luacon_open()
 		{"menu_enabled", &luatpt_menu_enabled},
 		{"menu_click", &luatpt_menu_click},
 		{"num_menus", &luatpt_num_menus},
+		{"tab_menu", &luatpt_tab_menu},
 		{"decorations_enable", &luatpt_decorations_enable},
 		{"display_mode", &luatpt_cmode_set},
 		{"throw_error", &luatpt_error},
@@ -1971,6 +1972,18 @@ int luatpt_num_menus(lua_State* l)
 		onlyEnabled = lua_toboolean(l, 1);
 	}
 	lua_pushinteger(l, GetNumMenus(onlyEnabled));
+	return 1;
+}
+
+int luatpt_tab_menu(lua_State* l)
+{
+	int acount = lua_gettop(l);
+	if (acount > 0)
+	{
+		luaL_checktype(l, 1, LUA_TBOOLEAN);
+		show_tabs = lua_toboolean(l, 1);
+	}
+	lua_pushinteger(l, show_tabs);
 	return 1;
 }
 
