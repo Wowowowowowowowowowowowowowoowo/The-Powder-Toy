@@ -114,7 +114,7 @@ OptionsUI::OptionsUI(Simulation *sim):
 	airTempTextbox->SetDefocusCallback([&]() { this->UpdateAirTemp(airTempTextbox->GetText(), true); });
 	scrollArea->AddComponent(airTempTextbox);
 
-	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Ambienty Air Temperature:");
+	descLabel = new Label(Point(17, prev->GetPosition().Y), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Ambient Air Temperature:");
 	scrollArea->AddComponent(descLabel);
 
 	airTempDisplay = new Button(Point(0, airTempTextbox->GetPosition().Y), Point(17, 17), "");
