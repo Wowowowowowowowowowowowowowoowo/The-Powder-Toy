@@ -96,11 +96,11 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					if (currentHud[49] || !currentHud[11])
 						sprintf(nametext, "%s, ", ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
 					else
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
+						sprintf(nametext, "%s (%s), ", ElementResolve(sim, underType, 0).c_str(), ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
 				}
 				else if (currentHud[13] && underType == PT_LAVA && sim->IsElement(parts[underID].ctype))
 				{
-					sprintf(nametext, "Molten %s, ", sim->elements[parts[underID].ctype].Name.c_str());
+					sprintf(nametext, "Molten %s, ", ElementResolve(sim, parts[underID].ctype, 0).c_str());
 				}
 				else if (currentHud[50] && currentHud[11] && underType == PT_FILT)
 				{
@@ -112,23 +112,24 @@ void SetRightHudText(Simulation * sim, int x, int y)
 				}
 				else if (currentHud[14] && currentHud[11] && (underType == PT_PIPE || underType == PT_PPIP) && sim->IsElement(TYP(parts[underID].ctype)))
 				{
-					sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[TYP(parts[underID].ctype)].Name.c_str());
+					sprintf(nametext, "%s (%s), ", ElementResolve(sim, underType, 0).c_str(), ElementResolve(sim, TYP(parts[underID].ctype), parts[underID].pavg[1]).c_str());
 				}
 				else if (currentHud[11])
 				{
 					int tctype = parts[underID].ctype;
+					std::string type = ElementResolve(sim, underType, tctype);
 					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
 					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV || underType == PT_LDTC))
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)).c_str());
+						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)).c_str());
 					else if (currentHud[49] && (underType == PT_CLNE || underType == PT_BCLN || underType == PT_PCLN || underType == PT_PBCN || underType == PT_DTEC))
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), ElementResolve(sim, parts[underID].ctype, parts[underID].tmp).c_str());
+						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, parts[underID].ctype, parts[underID].tmp).c_str());
 					else if (sim->IsElement(tctype))
-						sprintf(nametext, "%s (%s), ", sim->elements[underType].Name.c_str(), sim->elements[tctype].Name.c_str());
+						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, tctype, 0).c_str());
 					else if (tctype)
-						sprintf(nametext, "%s (%d), ", sim->elements[underType].Name.c_str(), tctype);
+						sprintf(nametext, "%s (%d), ", type.c_str(), tctype);
 					else
-						sprintf(nametext, "%s (), ", sim->elements[underType].Name.c_str());
+						sprintf(nametext, "%s (), ", type.c_str());
 				}
 				else
 				{
