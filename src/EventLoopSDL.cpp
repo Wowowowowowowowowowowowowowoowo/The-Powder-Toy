@@ -126,12 +126,6 @@ int SDLOpen()
 				screenWidth = rect.w;
 				screenHeight = rect.h;
 			}
-
-			SDL_DisplayMode displayMode;
-			if (!SDL_GetCurrentDisplayMode(displayIndex, &displayMode) && displayMode.refresh_rate >= 60)
-			{
-				Engine::Ref().SetDrawingFrequency(displayMode.refresh_rate);
-			}
 		}
 	}
 
