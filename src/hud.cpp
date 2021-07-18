@@ -90,6 +90,8 @@ void SetRightHudText(Simulation * sim, int x, int y)
 		tempstring[0] = '\0';
 		if (cr)
 		{
+			if (currentHud[45] && (underType == PT_PHOT || underType == PT_BIZR || underType == PT_BIZRG || underType == PT_BIZRS || underType == PT_FILT || underType == PT_BRAY))
+				wavelength_gfx = (parts[underID].ctype&0x3FFFFFFF);
 			if (currentHud[10])
 			{
 				if (underType == PT_LIFE)
@@ -121,13 +123,17 @@ void SetRightHudText(Simulation * sim, int x, int y)
 					nametext << ElementResolve(sim, underType, tctype);
 					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
-					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV || underType == PT_LDTC))
+					if (wavelength_gfx || underType == PT_EMBR || underType == PT_PRTI || underType == PT_PRTO)
+					{
+						// Do nothing, ctype is meaningless for these elements
+					}
+					else if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV || underType == PT_LDTC))
 						nametext << " (" << ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)) << ")";
 					else if (currentHud[49] && (underType == PT_CLNE || underType == PT_BCLN || underType == PT_PCLN || underType == PT_PBCN || underType == PT_DTEC))
 						nametext << " (" << ElementResolve(sim, parts[underID].ctype, parts[underID].tmp) << ")";
-					else if (sim->IsElement(tctype))
+					else if (sim->IsElement(tctype) && underType != PT_GLOW && underType != PT_WIRE && underType != PT_SOAP && underType != PT_LITH)
 						nametext << " (" << ElementResolve(sim, tctype, 0) << ")";
-					else if (tctype)
+					else if (currentHud[12] && tctype)
 						nametext << " (" << tctype << ")";
 				}
 				else
@@ -210,8 +216,6 @@ void SetRightHudText(Simulation * sim, int x, int y)
 				sprintf(tempstring,"pavg[0]: %f, pavg[1]: %f, ",parts[underID].pavg[0],parts[underID].pavg[1]);
 				strappend(heattext,tempstring);
 			}
-			if (currentHud[45] && (underType == PT_PHOT || underType == PT_BIZR || underType == PT_BIZRG || underType == PT_BIZRS || underType == PT_FILT || underType == PT_BRAY))
-				wavelength_gfx = (parts[underID].ctype&0x3FFFFFFF);
 #ifndef NOMOD
 			if (underType == PT_ANIM)
 				frameNum = parts[underID].tmp2 + 1;
