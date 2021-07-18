@@ -54,7 +54,7 @@ const hud hud_menu[] =
 	{"NAME", COLPACK(0x000000), 2, "Why would you want to disable this?"},
 	{"CTYP", COLPACK(0x000000), 2, "Puts the ctype in parentheses"},
 	{"CTP2", COLPACK(0x000000), 2, "Display invalid ctypes as numbers instead of showing no ctype"},
-	{"MOLT", COLPACK(0x000000), 2, "Molten [NAME] instead of name & ctype, also special FILT mode info"},
+	{"MOLT", COLPACK(0x000000), 2, "Molten [NAME] instead of name & ctype"},
 	{"PIPE", COLPACK(0x000000), 2, "Enables stickwoman, extreme graphics(tm), and \xA3secret admin mode\xA3"},
 	{"CELC", COLPACK(0x000000), 2, "Show temperatures in Celsius"},
 	{"FARH", COLPACK(0x000000), 2, "Show temperatures in Fahrenheit"},

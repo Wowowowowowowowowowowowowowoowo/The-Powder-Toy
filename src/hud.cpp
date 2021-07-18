@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstring>
+#include <sstream>
 
 #include "defines.h"
 #include "graphics.h"
@@ -51,7 +52,7 @@ void SetCurrentHud()
 
 std::string ElementResolve(Simulation * sim, int type, int ctype)
 {
-	if (!type)
+	if (!type || type < 0 || type > PT_NUM)
 		return "";
 	return sim->ElementResolve(type, ctype);
 }
@@ -69,7 +70,7 @@ void SetRightHudText(Simulation * sim, int x, int y)
 	if (y>=0 && y<YRES && x>=0 && x<XRES)
 	{
 		int cr,wl = 0; //cr is particle under mouse, for drawing HUD information
-		char nametext[50] = "";
+		std::stringstream nametext;
 		if (photons[y][x]) {
 			cr = photons[y][x];
 		} else {
@@ -94,62 +95,60 @@ void SetRightHudText(Simulation * sim, int x, int y)
 				if (underType == PT_LIFE)
 				{
 					if (currentHud[49] || !currentHud[11])
-						sprintf(nametext, "%s, ", ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
+						nametext << ElementResolve(sim, PT_LIFE, parts[underID].ctype);
 					else
-						sprintf(nametext, "%s (%s), ", ElementResolve(sim, underType, 0).c_str(), ElementResolve(sim, PT_LIFE, parts[underID].ctype).c_str());
+						nametext << ElementResolve(sim, underType, 0) << " (" << ElementResolve(sim, PT_LIFE, parts[underID].ctype) << ")";
 				}
 				else if (currentHud[13] && underType == PT_LAVA && sim->IsElement(parts[underID].ctype))
 				{
-					sprintf(nametext, "Molten %s, ", ElementResolve(sim, parts[underID].ctype, 0).c_str());
+					nametext << "Molten " << ElementResolve(sim, parts[underID].ctype, 0);
 				}
 				else if (currentHud[50] && currentHud[11] && underType == PT_FILT)
 				{
 					const char* filtModes[] = { "set color", "AND", "OR", "subtract color", "red shift", "blue shift", "no effect", "XOR", "NOT", "PHOT scatter", "variable red shift", "variable blue shift" };
-					if (parts[underID].tmp>=0 && parts[underID].tmp<=11)
-						sprintf(nametext, "FILT (%s), ", filtModes[parts[underID].tmp]);
+					if (parts[underID].tmp >= 0 && parts[underID].tmp <= 11)
+						nametext << "FILT (" << filtModes[parts[underID].tmp] << ")";
 					else
-						sprintf(nametext, "FILT (unknown mode), ");
+						nametext << "FILT (unknown mode)";
 				}
 				else if (currentHud[14] && currentHud[11] && (underType == PT_PIPE || underType == PT_PPIP) && sim->IsElement(TYP(parts[underID].ctype)))
 				{
-					sprintf(nametext, "%s (%s), ", ElementResolve(sim, underType, 0).c_str(), ElementResolve(sim, TYP(parts[underID].ctype), parts[underID].pavg[1]).c_str());
+					nametext << ElementResolve(sim, underType, 0) << " (" << ElementResolve(sim, TYP(parts[underID].ctype), parts[underID].pavg[1]) << ")";
 				}
 				else if (currentHud[11])
 				{
 					int tctype = parts[underID].ctype;
-					std::string type = ElementResolve(sim, underType, tctype);
+					nametext << ElementResolve(sim, underType, tctype);
 					if (!currentHud[12] && (tctype >= PT_NUM || tctype < 0 || underType == PT_PHOT))
 						tctype = 0;
 					if (currentHud[49] && (underType == PT_CRAY || underType == PT_DRAY || underType == PT_CONV || underType == PT_LDTC))
-						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)).c_str());
+						nametext << " (" << ElementResolve(sim, TYP(parts[underID].ctype), ID(parts[underID].ctype)) << ")";
 					else if (currentHud[49] && (underType == PT_CLNE || underType == PT_BCLN || underType == PT_PCLN || underType == PT_PBCN || underType == PT_DTEC))
-						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, parts[underID].ctype, parts[underID].tmp).c_str());
+						nametext << " (" << ElementResolve(sim, parts[underID].ctype, parts[underID].tmp) << ")";
 					else if (sim->IsElement(tctype))
-						sprintf(nametext, "%s (%s), ", type.c_str(), ElementResolve(sim, tctype, 0).c_str());
+						nametext << " (" << ElementResolve(sim, tctype, 0) << ")";
 					else if (tctype)
-						sprintf(nametext, "%s (%d), ", type.c_str(), tctype);
-					else
-						sprintf(nametext, "%s (), ", type.c_str());
+						nametext << " (" << tctype << ")";
 				}
 				else
 				{
-					sprintf(nametext, "%s, ", sim->elements[underType].Name.c_str());
+					nametext << ElementResolve(sim, underType, 0);
 				}
 			}
 			else if (currentHud[11])
 			{
 				if (parts[underID].ctype > 0 && parts[underID].ctype < PT_NUM)
-					sprintf(nametext,"Ctype: %s ", sim->elements[parts[underID].ctype].Name.c_str());
+					nametext << "Ctype: " << ElementResolve(sim, parts[underID].ctype, 0);
 				else if (currentHud[12])
-					sprintf(nametext,"Ctype: %d ", parts[underID].ctype);
+					nametext << "Ctype: " << parts[underID].ctype;
 			}
 			else if (wl && currentHud[48])
 			{
-				sprintf(nametext, "%s, ", wallTypes[wl].name.c_str());
+				nametext << wallTypes[wl].name;
 			}
-			else
-				nametext[0] = '\0';
-			strncpy(heattext,nametext,50);
+			if (!nametext.str().empty())
+				nametext << ", ";
+			strncpy(heattext, nametext.str().c_str(), 50);
 			if (currentHud[15])
 			{
 				sprintf(tempstring,"Temp: %0.*f C, ",currentHud[18],parts[underID].temp-273.15f);
