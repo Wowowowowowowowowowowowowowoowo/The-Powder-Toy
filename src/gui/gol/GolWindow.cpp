@@ -26,6 +26,7 @@ GolWindow::GolWindow(std::string ruleStr, int color1, int color2):
 
 	nameTextbox = new Textbox(golLabel->Below(Point(0, 2)), Point(this->size.X-10, Textbox::AUTOSIZE),
 							  ruleStr.size() ? "" : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedName());
+	nameTextbox->SetCharacterLimit(7);
 	this->AddComponent(nameTextbox);
 
 	ruleTextbox = new Textbox(nameTextbox->Below(Point(0, 4)), Point(this->size.X-10, Textbox::AUTOSIZE),
