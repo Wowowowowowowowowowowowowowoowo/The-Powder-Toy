@@ -298,9 +298,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 					else
 						t = PT_DSTW;
 				}
-				else if (t==PT_LAVA)
+				else if (t == PT_LAVA)
 				{
-					if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA && elements[parts[i].ctype].Enabled)
+					if (parts[i].ctype > 0 && parts[i].ctype < PT_NUM && parts[i].ctype != PT_LAVA && elements[parts[i].ctype].Enabled)
 					{
 						if (parts[i].ctype == PT_THRM && pt>=elements[PT_BMTL].HighTemperatureTransitionThreshold)
 							s = 0;
@@ -365,9 +365,9 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 
 			if (s)
 			{ // particle type change occurred
-				if (t==PT_ICEI || t==PT_LAVA || t==PT_SNOW)
+				if (t == PT_ICEI || t == PT_LAVA || t == PT_SNOW)
 					parts[i].ctype = parts[i].type;
-				if (!(t==PT_ICEI && parts[i].ctype==PT_FRZW))
+				if (!(t == PT_ICEI && parts[i].ctype == PT_FRZW))
 					parts[i].life = 0;
 				if (t == PT_FIRE)
 				{
@@ -376,23 +376,24 @@ bool Simulation::TransferHeat(int i, int t, int surround[8])
 					//and I don't feel like checking each one right now
 					parts[i].tmp = 0;
 				}
-				if ((elements[t].Properties&TYPE_GAS) && !(elements[parts[i].type].Properties&TYPE_GAS))
+				if ((elements[t].Properties & TYPE_GAS) && !(elements[parts[i].type].Properties & TYPE_GAS))
 					air->pv[y/CELL][x/CELL] += 0.50f;
-				if (t==PT_NONE)
+				if (t == PT_NONE)
 				{
 					part_kill(i);
 					return true;
 				}
 				else
-					part_change_type(i,x,y,t);
-				if (t==PT_FIRE || t==PT_PLSM || t==PT_HFLM)
+					part_change_type(i, x, y, t);
+				if (t == PT_FIRE || t == PT_PLSM || t == PT_HFLM)
 					parts[i].life = RNG::Ref().between(120, 169);
-				if (t==PT_LAVA)
+				if (t == PT_LAVA)
 				{
-					if (parts[i].ctype==PT_BRMT)		parts[i].ctype = PT_BMTL;
-					else if (parts[i].ctype==PT_SAND)	parts[i].ctype = PT_GLAS;
-					else if (parts[i].ctype==PT_BGLA)	parts[i].ctype = PT_GLAS;
-					else if (parts[i].ctype==PT_PQRT)	parts[i].ctype = PT_QRTZ;
+					if (parts[i].ctype == PT_BRMT)		parts[i].ctype = PT_BMTL;
+					else if (parts[i].ctype == PT_SAND)	parts[i].ctype = PT_GLAS;
+					else if (parts[i].ctype == PT_BGLA)	parts[i].ctype = PT_GLAS;
+					else if (parts[i].ctype == PT_PQRT)	parts[i].ctype = PT_QRTZ;
+					else if (parts[i].ctype == PT_LITH && parts[i].tmp2 > 3) parts[i].ctype = PT_GLAS;
 					parts[i].life = RNG::Ref().between(240, 359);
 				}
 			}

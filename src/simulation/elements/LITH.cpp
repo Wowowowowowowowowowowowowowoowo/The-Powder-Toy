@@ -177,7 +177,7 @@ int LITH_update(UPDATE_FUNC_ARGS)
 			}
 		}
 	}
-	if (self.temp > 440.f && burnTimer == 1000)
+	if (burnTimer == 1000)
 	{
 		sim->part_change_type(i, x, y, PT_LAVA);
 		if (carbonationFactor < 3)
