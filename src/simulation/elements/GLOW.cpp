@@ -32,7 +32,10 @@ int GLOW_update(UPDATE_FUNC_ARGS)
 					return 1;
 				}
 			}
-	parts[i].ctype = (int)(sim->air->pv[y/CELL][x/CELL]*16);
+	int ctype = (int)(sim->air->pv[y/CELL][x/CELL]*16);
+	if (ctype < 0)
+		ctype = 0;
+	parts[i].ctype = ctype;
 	parts[i].tmp = abs((int)((sim->air->vx[y/CELL][x/CELL]+sim->air->vy[y/CELL][x/CELL])*16.0f)) + abs((int)((parts[i].vx+parts[i].vy)*64.0f));
 	return 0;
 }
