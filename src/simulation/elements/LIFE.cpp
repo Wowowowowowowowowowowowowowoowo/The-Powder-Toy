@@ -35,7 +35,7 @@ int LIFE_graphics(GRAPHICS_FUNC_ARGS)
 	bool renderDeco = true; //!ren->blackDecorations;
 	if (ruleset >= 0 && ruleset < NGOL)
 	{
-		if (!renderDeco)
+		if (!renderDeco || !decorations_enable)
 		{
 			color1 = builtinGol[ruleset].color;
 			color2 = builtinGol[ruleset].color2;

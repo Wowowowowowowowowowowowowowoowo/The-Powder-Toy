@@ -1282,7 +1282,8 @@ void Save::ParseSaveOPS()
 						if (particles[newIndex].type == PT_LIFE && particles[newIndex].ctype >= 0 && particles[newIndex].ctype < NGOL)
 						{
 							particles[newIndex].tmp2 = particles[newIndex].tmp;
-							particles[newIndex].dcolour = builtinGol[particles[newIndex].ctype].color;
+							if (!particles[newIndex].dcolour)
+								particles[newIndex].dcolour = builtinGol[particles[newIndex].ctype].color;
 							particles[newIndex].tmp = builtinGol[particles[newIndex].ctype].color2;
 						}
 					}
@@ -1843,7 +1844,8 @@ void Save::ParseSavePSv()
 				particles[i-1].tmp = 0;
 				if (particles[i-1].ctype >= 0 && particles[i-1].ctype < NGOL)
 				{
-					particles[i-1].dcolour = builtinGol[particles[i-1].ctype].color;
+					if (!particles[i-1].dcolour)
+						particles[i-1].dcolour = builtinGol[particles[i-1].ctype].color;
 					particles[i-1].tmp = builtinGol[particles[i-1].ctype].color2;
 				}
 			}
