@@ -2028,6 +2028,35 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 					}
 				}
 
+				if (color_mode & COLOR_GRAD)
+				{
+					float frequency = 0.05f;
+					int q = (int)parts[i].temp-40;
+					colr = (int)(sin(frequency*q) * 16 + colr);
+					colg = (int)(sin(frequency*q) * 16 + colg);
+					colb = (int)(sin(frequency*q) * 16 + colb);
+					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
+				}
+
+				//All colours are now set, check ranges
+				if(colr>255) colr = 255;
+				else if(colr<0) colr = 0;
+				if(colg>255) colg = 255;
+				else if(colg<0) colg = 0;
+				if(colb>255) colb = 255;
+				else if(colb<0) colb = 0;
+				if(cola>255) cola = 255;
+				else if(cola<0) cola = 0;
+
+				if(firer>255) firer = 255;
+				else if(firer<0) firer = 0;
+				if(fireg>255) fireg = 255;
+				else if(fireg<0) fireg = 0;
+				if(fireb>255) fireb = 255;
+				else if(fireb<0) fireb = 0;
+				if(firea>255) firea = 255;
+				else if(firea<0) firea = 0;
+
 				if (finding && !(finding & 0x8))
 				{
 					if ((finding & 0x1) && ((parts[i].type != PT_LIFE && ((ElementTool*)activeTools[0])->GetID() == parts[i].type) || (parts[i].type == PT_LIFE && ((GolTool*)activeTools[0])->GetID() == parts[i].ctype)))
@@ -2061,35 +2090,6 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 						fireb /= 5;
 					}
 				}
-
-				if (color_mode & COLOR_GRAD)
-				{
-					float frequency = 0.05f;
-					int q = (int)parts[i].temp-40;
-					colr = (int)(sin(frequency*q) * 16 + colr);
-					colg = (int)(sin(frequency*q) * 16 + colg);
-					colb = (int)(sin(frequency*q) * 16 + colb);
-					if(pixel_mode & (FIREMODE | PMODE_GLOW)) pixel_mode = (pixel_mode & ~(FIREMODE|PMODE_GLOW)) | PMODE_BLUR;
-				}
-
-				//All colours are now set, check ranges
-				if(colr>255) colr = 255;
-				else if(colr<0) colr = 0;
-				if(colg>255) colg = 255;
-				else if(colg<0) colg = 0;
-				if(colb>255) colb = 255;
-				else if(colb<0) colb = 0;
-				if(cola>255) cola = 255;
-				else if(cola<0) cola = 0;
-
-				if(firer>255) firer = 255;
-				else if(firer<0) firer = 0;
-				if(fireg>255) fireg = 255;
-				else if(fireg<0) fireg = 0;
-				if(fireb>255) fireb = 255;
-				else if(fireb<0) fireb = 0;
-				if(firea>255) firea = 255;
-				else if(firea<0) firea = 0;
 
 				//Pixel rendering
 				if (t==PT_SOAP) //pixel_mode & EFFECT_LINES, pointless to check if only soap has it ...
