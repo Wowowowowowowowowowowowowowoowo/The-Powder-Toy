@@ -2922,6 +2922,22 @@ void menu_select_element(int b, Tool* over)
 		}
 		else
 		{
+#ifdef TOUCHUI
+			if (activeTools[0] == over && over->GetType() == GOL_TOOL && over->GetID() >= NGOL)
+			{
+				auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+				int cgolRule = cgol->rule;
+				auto *confirmPrompt = new ConfirmPrompt([cgolRule](bool b) {
+					if (b)
+					{
+						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->RemoveCustomGOL(cgolRule);
+						FillMenus();
+						save_presets();
+					}
+				}, "Remove custom GOL type", "Do you want to remove " + cgol->nameString + "?");
+				Engine::Ref().ShowWindow(confirmPrompt);
+			}
+#endif
 			activeTools[0] = over;
 			if (((ToolTool*)over)->GetID() == TOOL_PROP)
 				openProp = true;
