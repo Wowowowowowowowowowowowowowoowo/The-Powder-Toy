@@ -136,8 +136,9 @@ int LITH_update(UPDATE_FUNC_ARGS)
 							sim->part_change_type(i, x, y, PT_PLSM);
 							sim->part_change_type(ID(neighborData), x + rx, y + ry, PT_PLSM);
 							sim->air->pv[y / CELL][x / CELL] += 4.0;
+							return 0;
 						}						
-						return 0;
+						break;
 				}
 			}
 		}
@@ -167,6 +168,9 @@ int LITH_update(UPDATE_FUNC_ARGS)
 			particle &neighbor = parts[ID(neighborData)];
 			
 			int &neighborStoredEnergy = neighbor.ctype;
+			// Transfer overcharge explosion status to nearby LITH
+			if (burnTimer < 1000 && storedEnergy > 90 && neighbor.life > 1000)
+				burnTimer = 1024;
 			if (storedEnergy > neighborStoredEnergy)
 			{
 				int transfer = storedEnergy - neighborStoredEnergy;
@@ -177,17 +181,21 @@ int LITH_update(UPDATE_FUNC_ARGS)
 			}
 		}
 	}
+
+	// Overcharged - begin explosion
+	if (burnTimer < 1000 && storedEnergy >= 100)
+		burnTimer = 1024;
 	if (burnTimer == 1000)
 	{
 		sim->part_change_type(i, x, y, PT_LAVA);
 		if (carbonationFactor < 3)
 		{
-			self.temp = 500.f;
+			self.temp = 500.f + storedEnergy * 10;
 			self.ctype = PT_LITH;
 		}
 		else
 		{
-			self.temp = 2000.f;
+			self.temp = 2000.f + storedEnergy * 10;
 			self.ctype = PT_GLAS;
 		}
 	}
@@ -196,6 +204,7 @@ int LITH_update(UPDATE_FUNC_ARGS)
 
 int LITH_graphics(GRAPHICS_FUNC_ARGS)
 {
+	// Exploding lith
 	if (cpart->life >= 1000)
 	{
 		int colour = 0xFFA040;
@@ -204,12 +213,13 @@ int LITH_graphics(GRAPHICS_FUNC_ARGS)
 		*colb = PIXB(colour);
 		*pixel_mode |= PMODE_FLARE | PMODE_GLOW;
 	}
-	else if (cpart->ctype && RNG::Ref().chance(cpart->ctype, 100))
+	// Charged lith
+	else if (cpart->ctype > 0)
 	{
-		int colour = 0x50A0FF;
-		*colr = PIXR(colour);
-		*colg = PIXG(colour);
-		*colb = PIXB(colour);
+		int mult = RNG::Ref().between(cpart->ctype / 3, cpart->ctype) / 15;
+		mult = std::min(6, mult);
+		*colr -= 30 * mult;
+		*colb += 20 * mult;
 		*pixel_mode |= PMODE_FLARE | PMODE_GLOW;
 	}
 	return 0;
