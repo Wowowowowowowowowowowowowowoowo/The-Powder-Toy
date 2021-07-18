@@ -15,6 +15,10 @@ int ParseGOLString(const std::string &value)
 	{
 		begin |= 1U << (it[0] - '0');
 	}
+	if (!begin)
+	{
+		return -1;
+	}
 
 	// Must have a /S immediately afterwards
 	if (it < value.end() - 1 && it[0] == '/' && it[1] == 'S')
