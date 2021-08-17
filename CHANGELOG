@@ -1107,3 +1107,16 @@ to page 1.
 Version 45.5 2021-07-10
 Fix ambient air temp not being set to default when loading saves with ambient
 heat enabled.
+
+Version 45.6 2021-07-18
+Several bugfixes to prepare for tptmpv2 - Lua logs now draw with alpha
+background instead of drawtext_outline like vanilla does. Add tpt.tab_menu to
+check if tab menu is open or not. Allow lua mousedown events to cancel
+mousedowns in quickoptions and element selection. Fix typo in options menu.
+All changes from TPT 96.1.
+
+Version 46.0 2021-08-16
+Update to tptmp 2.0. This is a completely rewritten version of tptmp by
+LBPHacker. It brings much improved stability and syncing, a better room
+ownership model (which now survives server restarts), an optional fps sync
+mechanism, a prettier UI, and more!
