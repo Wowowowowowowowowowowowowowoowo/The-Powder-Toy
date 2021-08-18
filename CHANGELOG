@@ -1120,3 +1120,7 @@ Update to tptmp 2.0. This is a completely rewritten version of tptmp by
 LBPHacker. It brings much improved stability and syncing, a better room
 ownership model (which now survives server restarts), an optional fps sync
 mechanism, a prettier UI, and more!
+
+Version 46.1 2021-08-18
+Fix builtin-tptmp script suppression. Update to latest version of tptmp, which
+includes several bugfixes.
