@@ -1127,7 +1127,8 @@ int main(int argc, char *argv[])
 	else
 		luacon_openscriptmanager();
 	// TPTMP through the script manager, use that version instead
-	if (!Platform::FileExists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
+	if (!Platform::FileExists("scripts/downloaded/2 LBPHacker-TPTMulti.lua") &&
+			!Platform::FileExists("scripts/downloaded/2 cracker64-TPTMulti.lua"))
 		luacon_openmultiplayer();
 	if (autorun_result)
 		free(autorun_result);
