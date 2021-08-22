@@ -2,6 +2,7 @@
 #define SNAPSHOT
 
 #include <deque>
+#include <memory>
 #include <vector>
 
 #include "SimulationData.h"
@@ -64,7 +65,6 @@ public:
 	static void TakeSnapshot(Simulation * sim);
 	static void RestoreSnapshot(Simulation * sim);
 	static void RestoreRedoSnapshot(Simulation *sim);
-	static void ClearSnapshots();
 
 	static void SetUndoHistoryLimit(unsigned int newLimit) { undoHistoryLimit = std::min(newLimit, (unsigned int)200); }
 	static unsigned int GetUndoHistoryLimit() { return undoHistoryLimit; }
@@ -72,11 +72,11 @@ public:
 private:
 	static unsigned int undoHistoryLimit;
 	static unsigned int historyPosition;
-	static std::deque<Snapshot*> snapshots;
-	static Snapshot* redoHistory;
+	static std::deque<std::unique_ptr<Snapshot>> history;
+	static std::unique_ptr<Snapshot> beforeRestore;
 
 	// actual creation / restoration of snapshots
-	static Snapshot * CreateSnapshot(Simulation * sim);
+	static std::unique_ptr<Snapshot> CreateSnapshot(Simulation * sim);
 	static void Restore(Simulation * sim, const Snapshot &snap);
 };
 

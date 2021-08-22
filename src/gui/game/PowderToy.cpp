@@ -60,7 +60,6 @@ PowderToy::~PowderToy()
 	CloseEvent ev = CloseEvent();
 	HandleEvent(LuaEvents::close, &ev);
 
-	Snapshot::ClearSnapshots();
 	main_end_hack();
 	delete sim;
 	delete clipboardData;
