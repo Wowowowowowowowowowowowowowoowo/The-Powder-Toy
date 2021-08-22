@@ -11,11 +11,13 @@
 #define TOOL_NGRV	5
 #define TOOL_MIX	6
 #define TOOL_CYCL	7
-#define TOOL_WIND	8
-#define TOOL_PROP	9
-#define TOOL_SIGN	10
-#define TOOL_GOL	11
-#define TOOLCOUNT	12
+#define TOOL_AMBM	8
+#define TOOL_AMBP	9
+#define TOOL_WIND	10
+#define TOOL_PROP	11
+#define TOOL_SIGN	12
+#define TOOL_GOL	13
+#define TOOLCOUNT	14
 
 #define OLD_PT_WIND	147
 #define OLD_WL_SIGN	126
@@ -41,6 +43,8 @@ static toolType toolTypes[] =
 	{"NGRV", "DEFAULT_TOOL_NGRV",	COLPACK(0xAACCFF), "Creates a short-lasting negative gravity well."},
 	{"MIX",	 "DEFAULT_TOOL_MIX",	COLPACK(0xFFD090), "Mixes particles around randomly."},
 	{"CYCL", "DEFAULT_TOOL_CYCL",	COLPACK(0x132F5B), "Cyclone, produces swirling air currents."},
+	{"AMBM", "DEFAULT_TOOL_AMBM",	COLPACK(0x00DDFF), "Decreases ambient air temperature."},
+	{"AMBP", "DEFAULT_TOOL_AMBP",	COLPACK(0xFFDD00), "Increases ambient air temperature."},
 	{"WIND", "DEFAULT_UI_WIND",		COLPACK(0x404040), "Creates air movement."},
 	{"PROP", "DEFAULT_UI_PROPERTY",	COLPACK(0xFFAA00), "Property drawing tool."},
 	{"SIGN", "DEFAULT_UI_SIGN",		COLPACK(0x808080), "Sign. Displays text. Click on a sign to edit it or anywhere else to place a new one."},

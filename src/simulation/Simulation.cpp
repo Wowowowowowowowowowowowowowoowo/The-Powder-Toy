@@ -3189,6 +3189,30 @@ int Simulation::CreateTool(int x, int y, int brushX, int brushY, int tool, float
 		}
 		return -1;
 	}
+	else if (tool == TOOL_AMBM)
+	{
+		if (!aheat_enable)
+		{
+			return 0;
+		}
+
+		air->hv[y / CELL][x / CELL] -= strength * 2.0f;
+		if (air->hv[y / CELL][x / CELL] > MAX_TEMP) air->hv[y / CELL][x / CELL] = MAX_TEMP;
+		if (air->hv[y / CELL][x / CELL] < MIN_TEMP) air->hv[y / CELL][x / CELL] = MIN_TEMP;
+		return 1;
+	}
+	else if (tool == TOOL_AMBP)
+	{
+		if (!aheat_enable)
+		{
+			return 0;
+		}
+
+		air->hv[y / CELL][x / CELL] += strength * 2.0f;
+		if (air->hv[y / CELL][x / CELL] > MAX_TEMP) air->hv[y / CELL][x / CELL] = MAX_TEMP;
+		if (air->hv[y / CELL][x / CELL] < MIN_TEMP) air->hv[y / CELL][x / CELL] = MIN_TEMP;
+		return 1;
+	}
 	return -1;
 }
 
