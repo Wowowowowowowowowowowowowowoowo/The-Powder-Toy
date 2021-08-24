@@ -39,7 +39,7 @@ public:
 };
 
 #define MAXSIGNS 16
-extern std::vector<Sign*> signs;
+extern std::vector<Sign> signs;
 extern int MSIGN;
 
 void ClearSigns();

@@ -35,7 +35,7 @@ public:
 		player2.elem = PT_DUST;
 	}
 
-	ElementDataContainer * Clone() override { return new STKM_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<STKM_ElementDataContainer>(*this); }
 
 	void Simulation_Cleared(Simulation *sim) override
 	{

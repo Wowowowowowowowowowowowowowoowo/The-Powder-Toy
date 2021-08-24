@@ -67,9 +67,5 @@ void PPIP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = &PIPE_graphics;
 	elem->Init = &PPIP_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new PPIP_ElementDataContainer;
+	sim->elementData[t].reset(new PPIP_ElementDataContainer);
 }

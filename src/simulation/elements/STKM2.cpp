@@ -20,28 +20,28 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS);
 
 int STKM2_update(UPDATE_FUNC_ARGS)
 {
-	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->Run(((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2(), UPDATE_FUNC_SUBCALL_ARGS);
+	static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).Run(static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2(), UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 
 bool STKM2_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return sim->elementCount[PT_STKM2]<=0 && !((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spwn;
+	return sim->elementCount[PT_STKM2]<=0 && !static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->spwn;
 }
 
 void STKM2_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	int id = sim->part_create(-3, x, y, PT_SPAWN2);
 	if (id >= 0)
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spawnID = id;
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->spawnID = id;
 }
 
 void STKM2_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to == PT_STKM2)
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->NewStickman2(i, -1);
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).NewStickman2(i, -1);
 	else
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spwn = 0;
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->spwn = 0;
 }
 
 void STKM2_init_element(ELEMENT_INIT_FUNC_ARGS)

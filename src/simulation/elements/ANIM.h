@@ -7,6 +7,7 @@
 #include "graphics/ARGBColour.h"
 #include "simulation/ElementDataContainer.h"
 #include "simulation/Simulation.h"
+#include "simulation/SnapshotDelta.h"
 
 class ANIM_ElementDataContainer : public ElementDataContainer
 {
@@ -28,9 +29,9 @@ public:
 				delete[] animations[i];
 	}
 
-	ElementDataContainer * Clone() override
+	std::unique_ptr<ElementDataContainer> Clone() override
 	{
-		ANIM_ElementDataContainer *animContainer = new ANIM_ElementDataContainer();
+		std::unique_ptr<ANIM_ElementDataContainer> animContainer = std::make_unique<ANIM_ElementDataContainer>();
 		animContainer->maxFrames = maxFrames;
 		for (int i = 0; i < NPART; i++)
 		{

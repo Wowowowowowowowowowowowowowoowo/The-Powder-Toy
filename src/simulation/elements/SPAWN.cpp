@@ -18,20 +18,20 @@
 
 bool SPAWN_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spawnID == -1;
+	return static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spawnID == -1;
 }
 
 void SPAWN_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to == PT_SPAWN)
 	{
-		Stickman *player = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
+		Stickman *player = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1();
 		if (player->spawnID == -1)
 			player->spawnID = i;
 	}
 	else
 	{
-		Stickman *player = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
+		Stickman *player = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1();
 		if (player->spawnID == i)
 			player->spawnID = -1;
 	}

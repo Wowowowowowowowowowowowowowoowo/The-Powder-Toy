@@ -14,7 +14,7 @@ class CreateSign : public ui::Window
 	Textbox *signTextbox;
 
 	int signID;
-	Sign *theSign;
+	Sign theSign;
 public:
 	CreateSign(int signID, Point pos);
 

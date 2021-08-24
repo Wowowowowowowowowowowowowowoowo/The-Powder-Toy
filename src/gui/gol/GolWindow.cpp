@@ -25,12 +25,12 @@ GolWindow::GolWindow(std::string ruleStr, int color1, int color2):
 	this->AddComponent(golLabel);
 
 	nameTextbox = new Textbox(golLabel->Below(Point(0, 2)), Point(this->size.X-10, Textbox::AUTOSIZE),
-							  ruleStr.size() ? "" : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedName());
+							  ruleStr.size() ? "" : static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCachedName());
 	nameTextbox->SetCharacterLimit(7);
 	this->AddComponent(nameTextbox);
 
 	ruleTextbox = new Textbox(nameTextbox->Below(Point(0, 4)), Point(this->size.X-10, Textbox::AUTOSIZE),
-							  ruleStr.size() ? ruleStr : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedRuleString());
+							  ruleStr.size() ? ruleStr : static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCachedRuleString());
 	this->AddComponent(ruleTextbox);
 
 	highColorButton = new Button(ruleTextbox->Below(Point(0, 4)), Point(16, 16), "");
@@ -64,8 +64,8 @@ GolWindow::GolWindow(std::string ruleStr, int color1, int color2):
 
 GolWindow::~GolWindow()
 {
-	((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedName(nameTextbox->GetText());
-	((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedRuleString(ruleTextbox->GetText());
+	static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).SetCachedName(nameTextbox->GetText());
+	static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).SetCachedRuleString(ruleTextbox->GetText());
 }
 
 void GolWindow::UpdateGradient()
@@ -93,7 +93,7 @@ bool GolWindow::AddGol()
 		Engine::Ref().ShowWindow(errorPrompt);
 		return false;
 	}
-	if (((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(rule))
+	if (static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByRule(rule))
 	{
 		ErrorPrompt *errorPrompt = new ErrorPrompt("This Custom GoL rule already exists");
 		Engine::Ref().ShowWindow(errorPrompt);
@@ -107,7 +107,7 @@ bool GolWindow::AddGol()
 	cgol.rule = rule;
 	cgol.ruleString = ruleString;
 	cgol.nameString = name;
-	if (!((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cgol))
+	if (!static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).AddCustomGOL(cgol))
 	{
 		ErrorPrompt *errorPrompt = new ErrorPrompt("Duplicate name, cannot add");
 		Engine::Ref().ShowWindow(errorPrompt);

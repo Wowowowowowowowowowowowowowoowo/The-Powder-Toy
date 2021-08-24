@@ -37,7 +37,7 @@ public:
 		initDeltaPos();
 	}
 
-	ElementDataContainer * Clone() override { return new ETRD_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<ETRD_ElementDataContainer>(*this); }
 
 	void invalidate()
 	{

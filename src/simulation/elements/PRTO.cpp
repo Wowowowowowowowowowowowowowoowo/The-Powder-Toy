@@ -34,7 +34,7 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 		return 0;
 #endif
 	int fe = 0;
-	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
+	PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*sim->elementData[PT_PRTI]).GetParticleChannel(sim, i);
 	for (int count = 0; count < 8; count++)
 	{
 		int rx = portal_rx[count];
@@ -77,30 +77,30 @@ int PRTO_update(UPDATE_FUNC_ARGS)
 					{
 						if (storedPart->type == PT_FIGH)
 						{
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)storedPart->tmp);
+							static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Free((unsigned char)storedPart->tmp);
 						}
 						else if (storedPart->type == PT_STKM)
-							((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spwn = 0;
+							static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spwn = 0;
 						else if (storedPart->type == PT_STKM2)
-							((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spwn = 0;
+							static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->spwn = 0;
 						int np = sim->part_create(-1,x+rx,y+ry,storedPart->type);
 						if (np < 0)
 						{
 							if (storedPart->type == PT_FIGH)
 							{
-								((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific((unsigned char)storedPart->tmp);
+								static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).AllocSpecific((unsigned char)storedPart->tmp);
 							}
 							else if (storedPart->type == PT_STKM)
-								((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spwn = 1;
+								static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spwn = 1;
 							else if (storedPart->type == PT_STKM2)
-								((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->spwn = 1;
+								static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->spwn = 1;
 							continue;
 						}
 						if (parts[np].type == PT_FIGH)
 						{
 							// Release the fighters[] element allocated by part_create, the one reserved when the fighter went into the portal will be used
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)parts[np].tmp);
-							((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific((unsigned char)storedPart->tmp);
+							static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Free((unsigned char)parts[np].tmp);
+							static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).AllocSpecific((unsigned char)storedPart->tmp);
 						}
 						if (storedPart->vx == 0.0f && storedPart->vy == 0.0f)
 						{

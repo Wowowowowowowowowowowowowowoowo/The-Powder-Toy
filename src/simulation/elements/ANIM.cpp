@@ -33,13 +33,13 @@ int ANIM_update(UPDATE_FUNC_ARGS)
 	{
 		parts[i].tmp2 = 0;
 	}
-	if (!((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->isValid(i, parts[i].tmp2))
+	if (!(static_cast<ANIM_ElementDataContainer&>(*sim->elementData[PT_ANIM]).isValid(i, parts[i].tmp2)))
 	{
 		sim->part_kill(i);
 		return 1;
 	}
 	// Put current frame color in dcolor, used by graphics function even when deco is turned off
-	parts[i].dcolour = ((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->GetColor(i, parts[i].tmp2);
+	parts[i].dcolour = static_cast<ANIM_ElementDataContainer&>(*sim->elementData[PT_ANIM]).GetColor(i, parts[i].tmp2);
 	return 0;
 }
 
@@ -69,13 +69,13 @@ int ANIM_graphics(GRAPHICS_FUNC_ARGS)
 
 void ANIM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->InitlializePart(i);
+	static_cast<ANIM_ElementDataContainer&>(*sim->elementData[PT_ANIM]).InitlializePart(i);
 }
 
 void ANIM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to != PT_ANIM)
-		((ANIM_ElementDataContainer*)sim->elementData[PT_ANIM])->FreePart(i);
+		static_cast<ANIM_ElementDataContainer&>(*sim->elementData[PT_ANIM]).FreePart(i);
 }
 
 void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -129,10 +129,6 @@ void ANIM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_ChangeType = &ANIM_ChangeType;
 	elem->Init = &ANIM_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new ANIM_ElementDataContainer;
+	sim->elementData[t].reset(new ANIM_ElementDataContainer());
 }
 #endif

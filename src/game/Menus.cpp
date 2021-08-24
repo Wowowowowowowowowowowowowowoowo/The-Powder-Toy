@@ -140,7 +140,7 @@ void FillMenus()
 	{
 		menuSections[SC_LIFE]->AddTool(new GolTool(i));
 	}
-	for (auto &cgol : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL())
+	for (auto &cgol : static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOL())
 	{
 		menuSections[SC_LIFE]->AddTool(new GolTool(cgol.rule, cgol.nameString, "Custom GOL type: " + cgol.ruleString));
 	}

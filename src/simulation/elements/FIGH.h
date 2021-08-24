@@ -34,7 +34,7 @@ public:
 		memset(fighters, 0, sizeof(fighters));
 	}
 
-	ElementDataContainer * Clone() override { return new FIGH_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<FIGH_ElementDataContainer>(*this); }
 
 	Stickman * Get(unsigned char i)
 	{

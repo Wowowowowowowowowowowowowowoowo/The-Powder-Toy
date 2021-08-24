@@ -37,7 +37,7 @@ int PRTI_update(UPDATE_FUNC_ARGS)
 		return 0;
 #endif
 	int fe = 0;
-	PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, i);
+	PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*sim->elementData[PT_PRTI]).GetParticleChannel(sim, i);
 	for (int count = 0; count < 8; count++)
 	{
 		if (channel->particleCount[count] >= channel->storageSize)
@@ -167,9 +167,6 @@ void PRTI_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = &PRTI_graphics;
 	elem->Init = &PRTI_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new PRTI_ElementDataContainer;
+
+	sim->elementData[t].reset(new PRTI_ElementDataContainer);
 }

@@ -15,7 +15,7 @@ public:
 		emp_trigger_count = 0;
 	}
 
-	ElementDataContainer * Clone() override { return new EMP_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<EMP_ElementDataContainer>(*this); }
 
 	void Simulation_Cleared(Simulation *sim) override
 	{

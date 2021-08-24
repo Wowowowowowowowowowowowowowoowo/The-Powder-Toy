@@ -36,7 +36,7 @@
 #include "lua/LuaTCPSocket.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
-#include "simulation/Snapshot.h"
+#include "simulation/SnapshotHistory.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/Tool.h"
 #include "simulation/elements/FIGH.h"
@@ -78,42 +78,42 @@ int simulation_signIndex(lua_State *l)
 	}
 
 	if (!key.compare("text"))
-		return lua_pushstring(l, signs[id]->GetText().c_str()), 1;
+		return lua_pushstring(l, signs[id].GetText().c_str()), 1;
 	else if (!key.compare("displayText"))
-		return lua_pushstring(l, signs[id]->GetDisplayText(luaSim).c_str()), 1;
+		return lua_pushstring(l, signs[id].GetDisplayText(luaSim).c_str()), 1;
 	else if (!key.compare("linkText"))
-		return lua_pushstring(l, signs[id]->GetLinkText().c_str()), 1;
+		return lua_pushstring(l, signs[id].GetLinkText().c_str()), 1;
 	else if (!key.compare("justification"))
-		return lua_pushnumber(l, signs[id]->GetJustification()), 1;
+		return lua_pushnumber(l, signs[id].GetJustification()), 1;
 	else if (!key.compare("x"))
-		return lua_pushnumber(l, signs[id]->GetRealPos().X), 1;
+		return lua_pushnumber(l, signs[id].GetRealPos().X), 1;
 	else if (!key.compare("y"))
-		return lua_pushnumber(l, signs[id]->GetRealPos().Y), 1;
+		return lua_pushnumber(l, signs[id].GetRealPos().Y), 1;
 	else if (!key.compare("screenX"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(luaSim, x, y, w, h);
+		signs[id].GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, x);
 		return 1;
 	}
 	else if (!key.compare("screenY"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(luaSim, x, y, w, h);
+		signs[id].GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, y);
 		return 1;
 	}
 	else if (!key.compare("width"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(luaSim, x, y, w, h);
+		signs[id].GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, w);
 		return 1;
 	}
 	else if (!key.compare("height"))
 	{
 		int x, y, w, h;
-		signs[id]->GetPos(luaSim, x, y, w, h);
+		signs[id].GetPos(luaSim, x, y, w, h);
 		lua_pushnumber(l, h);
 		return 1;
 	}
@@ -141,7 +141,7 @@ int simulation_signNewIndex(lua_State *l)
 		const char *temp = luaL_checkstring(l, 3);
 		std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
 		if (!cleaned.empty())
-			signs[id]->SetText(cleaned);
+			signs[id].SetText(cleaned);
 		else
 			luaL_error(l, "Text is empty");
 		return 1;
@@ -150,7 +150,7 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		int ju = luaL_checkinteger(l, 3);
 		if (ju >= 0 && ju <= 3)
-			return signs[id]->SetJustification((Sign::Justification)ju), 1;
+			return signs[id].SetJustification((Sign::Justification)ju), 1;
 		else
 			luaL_error(l, "Invalid justification");
 		return 0;
@@ -159,7 +159,7 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		int x = luaL_checkinteger(l, 3);
 		if (x >= 0 && x < XRES)
-			return signs[id]->SetPos(Point(x, signs[id]->GetRealPos().Y)), 1;
+			return signs[id].SetPos(Point(x, signs[id].GetRealPos().Y)), 1;
 		else
 			luaL_error(l, "Invalid X coordinate");
 		return 0;
@@ -168,7 +168,7 @@ int simulation_signNewIndex(lua_State *l)
 	{
 		int y = luaL_checkinteger(l, 3);
 		if (y >= 0 && y < YRES)
-			return signs[id]->SetPos(Point(signs[id]->GetRealPos().X, y)), 1;
+			return signs[id].SetPos(Point(signs[id].GetRealPos().X, y)), 1;
 		else
 			luaL_error(l, "Invalid Y coordinate");
 		return 0;
@@ -200,7 +200,7 @@ int simulation_newsign(lua_State *l)
 		return luaL_error(l, "Invalid Y coordinate");
 
 	std::string cleaned = Format::CleanString(temp, false, true, true).substr(0, 45);
-	signs.push_back(new Sign(cleaned, x, y, (Sign::Justification)ju));
+	signs.push_back(Sign(cleaned, x, y, (Sign::Justification)ju));
 	lua_pushnumber(l, signs.size());
 	return 1;
 }
@@ -212,7 +212,6 @@ int simulation_deletesign(lua_State *l)
 	if (signID <= 0 || signID > (int)signs.size())
 		return luaL_error(l, "Sign doesn't exist");
 
-	delete signs[signID-1];
 	signs.erase(signs.begin()+signID-1);
 	return 1;
 }
@@ -1663,19 +1662,19 @@ int simulation_gspeed(lua_State * l)
 {
 	if (lua_gettop(l) == 0)
 	{
-		lua_pushinteger(l, ((LIFE_ElementDataContainer*)luaSim->elementData[PT_LIFE])->golSpeed);
+		lua_pushinteger(l, static_cast<LIFE_ElementDataContainer&>(*luaSim->elementData[PT_LIFE]).golSpeed);
 		return 1;
 	}
 	int gspeed = luaL_checkinteger(l, 1);
 	if (gspeed < 1)
 		return luaL_error(l, "GSPEED must be at least 1");
-	((LIFE_ElementDataContainer*)luaSim->elementData[PT_LIFE])->golSpeed = gspeed;
+	static_cast<LIFE_ElementDataContainer&>(*luaSim->elementData[PT_LIFE]).golSpeed = gspeed;
 	return 0;
 }
 
 int simulation_takeSnapshot(lua_State * l)
 {
-	Snapshot::TakeSnapshot(luaSim);
+	SnapshotHistory::TakeSnapshot(luaSim);
 	return 0;
 }
 
@@ -1690,15 +1689,15 @@ int simulation_stickman(lua_State *l)
 	if (set)
 		value = luaL_checknumber(l, 3);
 
-	if (num < 1 || num > ((FIGH_ElementDataContainer*)luaSim->elementData[PT_FIGH])->MaxFighters()+2)
+	if (num < 1 || num > static_cast<FIGH_ElementDataContainer&>(*luaSim->elementData[PT_FIGH]).MaxFighters()+2)
 		return luaL_error(l, "invalid stickmen number %d", num);
 	Stickman *stick;
 	if (num == 1)
-		stick = ((STKM_ElementDataContainer*)luaSim->elementData[PT_STKM])->GetStickman1();
+		stick = static_cast<STKM_ElementDataContainer&>(*luaSim->elementData[PT_STKM]).GetStickman1();
 	else if (num == 2)
-		stick = ((STKM_ElementDataContainer*)luaSim->elementData[PT_STKM])->GetStickman2();
+		stick = static_cast<STKM_ElementDataContainer&>(*luaSim->elementData[PT_STKM]).GetStickman2();
 	else
-		stick = ((FIGH_ElementDataContainer*)luaSim->elementData[PT_FIGH])->Get((unsigned char)(num-3));
+		stick = static_cast<FIGH_ElementDataContainer&>(*luaSim->elementData[PT_FIGH]).Get((unsigned char)(num-3));
 
 	if (!strcmp(property, "comm"))
 	{

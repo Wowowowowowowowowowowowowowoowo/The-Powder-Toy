@@ -36,7 +36,7 @@
 #include "interface/Window.h"
 #include "lua/LuaEvents.h"
 #include "simulation/Simulation.h"
-#include "simulation/Snapshot.h"
+#include "simulation/SnapshotHistory.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 
@@ -858,7 +858,7 @@ void PowderToy::ReloadSave()
 {
 	if (!reloadSave)
 		return;
-	Snapshot::TakeSnapshot(sim);
+	SnapshotHistory::TakeSnapshot(sim);
 	try
 	{
 		sim->LoadSave(0, 0, reloadSave, 1);
@@ -1498,7 +1498,7 @@ void PowderToy::OnMouseMove(int x, int y, Point difference)
 	// moving sign, update coordinates here
 	if (MSIGN >= 0 && MSIGN < (int)signs.size())
 	{
-		signs[MSIGN]->SetPos(cursor);
+		signs[MSIGN].SetPos(cursor);
 	}
 }
 
@@ -1601,17 +1601,17 @@ void PowderToy::OnMouseDown(int x, int y, unsigned char button)
 			initialDrawPoint = cursor;
 			// WIND lines are constantly being drawn as mouse is down, so we want to take a snapshot at the start
 			if (((ToolTool*)activeTools[toolIndex])->GetID() == TOOL_WIND)
-				Snapshot::TakeSnapshot(sim);
+				SnapshotHistory::TakeSnapshot(sim);
 		}
 		else if (drawState == POINTS)
 		{
-			Snapshot::TakeSnapshot(sim);
+			SnapshotHistory::TakeSnapshot(sim);
 			lastDrawPoint = cursor;
 			activeTools[toolIndex]->DrawPoint(sim, currentBrush, cursor, toolStrength);
 		}
 		else if (drawState == FILL)
 		{
-			Snapshot::TakeSnapshot(sim);
+			SnapshotHistory::TakeSnapshot(sim);
 			activeTools[toolIndex]->FloodFill(sim, currentBrush, cursor);
 		}
 	}
@@ -1686,7 +1686,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 			return;
 		stampMoving = false;
 #endif
-		Snapshot::TakeSnapshot(sim);
+		SnapshotHistory::TakeSnapshot(sim);
 
 		try
 		{
@@ -1777,7 +1777,7 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 					Engine::Ref().ShowWindow(new ErrorPrompt("Error building save: " + std::string(e.what())));
 					break;
 				}
-				Snapshot::TakeSnapshot(sim);
+				SnapshotHistory::TakeSnapshot(sim);
 				sim->ClearArea(savePos.X, savePos.Y, saveSize.X, saveSize.Y);
 				break;
 			}
@@ -1812,14 +1812,14 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 				cursor = LineSnapCoords(initialDrawPoint, cursor);
 			// WIND lines are constantly being drawn as mouse is down, so we don't need to take a snapshot on mouseup
 			if (((ToolTool*)activeTools[toolIndex])->GetID() != TOOL_WIND)
-				Snapshot::TakeSnapshot(sim);
+				SnapshotHistory::TakeSnapshot(sim);
 			activeTools[toolIndex]->DrawLine(sim, currentBrush, initialDrawPoint, cursor, false, 1.0f);
 		}
 		else if (drawState == RECT)
 		{
 			if (altHeld)
 				cursor = RectSnapCoords(initialDrawPoint, cursor);
-			Snapshot::TakeSnapshot(sim);
+			SnapshotHistory::TakeSnapshot(sim);
 			activeTools[toolIndex]->DrawRect(sim, currentBrush, initialDrawPoint, cursor);
 		}
 		else if (drawState == FILL)
@@ -1850,23 +1850,23 @@ void PowderToy::OnMouseUp(int x, int y, unsigned char button)
 					openSign = true;
 				else
 				{
-					switch (signs[signID]->GetType())
+					switch (signs[signID].GetType())
 					{
 					case Sign::Spark:
 					{
-						Point realPos = signs[signID]->GetRealPos();
+						Point realPos = signs[signID].GetRealPos();
 						if (pmap[realPos.Y][realPos.X])
 							sim->spark_all_attempt(ID(pmap[realPos.Y][realPos.X]), realPos.X, realPos.Y);
 						break;
 					}
 					case Sign::SaveLink:
-						open_ui(vid_buf, (char*)signs[signID]->GetLinkText().c_str(), 0, 0);
+						open_ui(vid_buf, (char*)signs[signID].GetLinkText().c_str(), 0, 0);
 						break;
 					case Sign::ThreadLink:
-						Platform::OpenLink(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID]->GetLinkText());
+						Platform::OpenLink(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=" + signs[signID].GetLinkText());
 						break;
 					case Sign::SearchLink:
-						strncpy(search_expr, signs[signID]->GetLinkText().c_str(), 255);
+						strncpy(search_expr, signs[signID].GetLinkText().c_str(), 255);
 						search_own = 0;
 						search_ui(vid_buf);
 						break;
@@ -2086,7 +2086,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 			if (ctrlHeld)
 				ReloadSave();
 			else if (!shiftHeld)
-				((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->golGeneration = 0;
+				static_cast<LIFE_ElementDataContainer&>(*sim->elementData[PT_LIFE]).golGeneration = 0;
 		}
 		break;
 	case SDL_SCANCODE_T:
@@ -2095,7 +2095,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 	case SDL_SCANCODE_Y:
 		if (ctrlHeld)
 		{
-			Snapshot::RestoreRedoSnapshot(sim);
+			SnapshotHistory::HistoryForward(sim);
 		}
 		else
 		{
@@ -2365,9 +2365,9 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		if (ctrlHeld)
 		{
 			if (shiftHeld)
-				Snapshot::RestoreRedoSnapshot(sim);
+				SnapshotHistory::HistoryForward(sim);
 			else
-				Snapshot::RestoreSnapshot(sim);
+				SnapshotHistory::HistoryRestore(sim);
 		}
 		// zoom window
 		else
@@ -2562,7 +2562,7 @@ void PowderToy::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl
 		if (stk2 && ctrl)
 			return;
 		if (pressedKey != STKM_ElementDataContainer::None)
-			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyPress(pressedKey, stk2);
+			static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).HandleKeyPress(pressedKey, stk2);
 	}
 
 	if (!PlacingZoomWindow() && state == NONE)
@@ -2650,7 +2650,7 @@ void PowderToy::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ct
 			stk2 = scan == SDL_SCANCODE_D;
 		}
 		if (pressedKey != STKM_ElementDataContainer::None)
-			((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->HandleKeyRelease(pressedKey, stk2);
+			static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).HandleKeyRelease(pressedKey, stk2);
 	}
 }
 

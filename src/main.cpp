@@ -86,7 +86,7 @@
 #include "game/Request.h"
 #include "game/RequestManager.h"
 #include "simulation/Simulation.h"
-#include "simulation/Snapshot.h"
+#include "simulation/SnapshotHistory.h"
 #include "simulation/Tool.h"
 #include "simulation/ToolNumbers.h"
 #include "simulation/elements/LIFE.h"
@@ -477,7 +477,7 @@ int tab_load(int tabNum, bool del, bool showException)
 		// Prevent crash loops on startup
 		if (del)
 			remove(fileName);
-		Snapshot::TakeSnapshot(globalSim);
+		SnapshotHistory::TakeSnapshot(globalSim);
 
 		Save *save = new Save(saveData, saveSize);
 		bool ret = false;
@@ -1484,19 +1484,19 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		if (mx < XRES && my < YRES)
 		{
 			int signID = InsideSign(globalSim, mx, my, false);
-			if (signID != -1 && signs[signID]->GetType() != Sign::Normal && signs[signID]->GetType() != Sign::Spark)
+			if (signID != -1 && signs[signID].GetType() != Sign::Normal && signs[signID].GetType() != Sign::Spark)
 			{
 				std::stringstream tooltip;
-				switch (signs[signID]->GetType())
+				switch (signs[signID].GetType())
 				{
 				case Sign::SaveLink:
-					tooltip << "Go to save ID:" << signs[signID]->GetLinkText();
+					tooltip << "Go to save ID:" << signs[signID].GetLinkText();
 					break;
 				case Sign::ThreadLink:
-					tooltip << "Open forum thread " << signs[signID]->GetLinkText() << " in browser";
+					tooltip << "Open forum thread " << signs[signID].GetLinkText() << " in browser";
 					break;
 				case Sign::SearchLink:
-					tooltip << "Search for " << signs[signID]->GetLinkText();
+					tooltip << "Search for " << signs[signID].GetLinkText();
 					break;
 				default:
 					break;

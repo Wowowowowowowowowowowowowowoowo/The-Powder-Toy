@@ -270,7 +270,7 @@ bool PropWindow::ParseValue(std::string value)
 				return true;
 			}
 		}
-		for (auto &cgol : ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL())
+		for (auto &cgol : static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOL())
 		{
 			if (cgol.nameString == upperValue)
 			{

@@ -620,7 +620,7 @@ int Simulation::TryMove(int i, int x, int y, int nx, int ny)
 		if ((TYP(r)==PT_PRTI || TYP(r)==PT_PPTI) && (elements[parts[i].type].Properties & TYPE_ENERGY))
 #endif
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)elementData[PT_PRTI])->GetParticleChannel(this, ID(r));
+			PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*elementData[PT_PRTI]).GetParticleChannel(this, ID(r));
 			int slot = PRTI_ElementDataContainer::GetSlot(x-nx,y-ny);
 			if (channel->StoreParticle(this, i, slot))
 				return -1;

@@ -13,7 +13,7 @@ public:
 		ppip_changed = false;
 	}
 
-	ElementDataContainer * Clone() override { return new PPIP_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<PPIP_ElementDataContainer>(*this); }
 
 	void Simulation_BeforeUpdate(Simulation *sim) override
 	{

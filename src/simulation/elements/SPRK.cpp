@@ -242,7 +242,7 @@ int SPRK_update(UPDATE_FUNC_ARGS)
 				case PT_EMP:
 					if (!parts[ID(r)].life && parts[i].life < 4)
 					{
-						((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Activate();
+						static_cast<EMP_ElementDataContainer&>(*sim->elementData[PT_EMP]).Activate();
 						parts[ID(r)].life = 220;
 						break;
 					}

@@ -51,10 +51,10 @@ void EMP_ElementDataContainer::Simulation_AfterUpdate(Simulation *sim)
 	 */
 
 	particle *parts = sim->parts;
-	int triggerCount = ((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_trigger_count;
+	int triggerCount = static_cast<EMP_ElementDataContainer&>(*sim->elementData[PT_EMP]).emp_trigger_count;
 	if (triggerCount == 0)
 		return;
-	((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_trigger_count = 0;
+	static_cast<EMP_ElementDataContainer&>(*sim->elementData[PT_EMP]).emp_trigger_count = 0;
 
 	float prob_changeCenter = Probability::binomial_gte1(triggerCount, 1.0f/48);
 	DeltaTempGenerator temp_center(triggerCount, 1.0f/100, 3000.0f);
@@ -237,9 +237,5 @@ void EMP_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = &EMP_graphics;
 	elem->Init = &EMP_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new EMP_ElementDataContainer;
+	sim->elementData[t].reset(new EMP_ElementDataContainer);
 }

@@ -370,7 +370,7 @@ int draw_tool_xy(pixel *vid_buf, int x, int y, Tool* current)
 			draw_tool_button(vid_buf, x, y, PIXPACK(builtinGol[toolID].color), builtinGol[toolID].name);
 		else
 		{
-			auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+			auto *cgol = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByRule(toolID);
 			int color = 0;
 			std::string name;
 			if (cgol)
@@ -1780,11 +1780,11 @@ void xor_rect(pixel *vid, int x, int y, int w, int h)
 void draw_other(pixel *vid, Simulation * sim) // EMP effect
 {
 	if (!sys_pause || framerender)
-		((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->Deactivate();
+		static_cast<EMP_ElementDataContainer&>(*sim->elementData[PT_EMP]).Deactivate();
 	if (!(render_mode & EFFECT)) // not in nothing mode
 		return;
 
-	int emp_decor = ((EMP_ElementDataContainer*)sim->elementData[PT_EMP])->emp_decor;
+	int emp_decor = static_cast<EMP_ElementDataContainer&>(*sim->elementData[PT_EMP]).emp_decor;
 	if (emp_decor)
 	{
 		int r=(int)(emp_decor*2.5), g=(int)(100+emp_decor*1.5), b=255;
@@ -2104,11 +2104,11 @@ void render_parts(pixel *vid, Simulation * sim, Point mousePos)
 					int legr, legg, legb;
 					Stickman *cplayer;
 					if (t == PT_STKM)
-						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
+						cplayer = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1();
 					else if (t == PT_STKM2)
-						cplayer = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
-					else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->MaxFighters())
-						cplayer = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get(parts[i].tmp);
+						cplayer = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2();
+					else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).MaxFighters())
+						cplayer = static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Get(parts[i].tmp);
 					else
 						continue;
 
@@ -2808,16 +2808,15 @@ void render_signs(pixel *vid_buf, Simulation * sim)
 {
 	int x, y, w, h;
 	Sign::Justification ju;
-	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
+	for (const Sign& sign : signs)
 	{
-		Sign *sign = *iter;
-		sign->GetPos(sim, x, y, w, h);
+		sign.GetPos(sim, x, y, w, h);
 		clearrect(vid_buf, x+1, y+1, w-1, h-1);
 		drawrect(vid_buf, x, y, w, h, 192, 192, 192, 255);
 
 		// spark signs and link signs have different colors
 		ARGBColour textCol;
-		switch (sign->GetType())
+		switch (sign.GetType())
 		{
 		default:
 		case Sign::Normal:
@@ -2836,11 +2835,11 @@ void render_signs(pixel *vid_buf, Simulation * sim)
 			textCol = COLPACK(0x9353D3);
 			break;
 		}
-		drawtext(vid_buf, x+3, y+4, sign->GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
+		drawtext(vid_buf, x+3, y+4, sign.GetDisplayText(sim).c_str(), COLR(textCol), COLG(textCol), COLB(textCol), COLA(textCol));
 
 		// draw the little line on the buttom
-		Point realPos = sign->GetRealPos();
-		ju = sign->GetJustification();
+		Point realPos = sign.GetRealPos();
+		ju = sign.GetJustification();
 		if (ju != Sign::NoJustification)
 		{
 			int dx = 1 - (int)ju;

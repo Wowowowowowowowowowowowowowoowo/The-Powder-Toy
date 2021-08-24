@@ -10,8 +10,8 @@
 #include "common/tpt-minmax.h"
 #include "game/Sign.h"
 #include "json/json.h"
+#include "simulation/ElementDataContainer.h"
 
-class ElementDataContainer;
 class Simulation;
 class Snapshot
 {
@@ -23,7 +23,7 @@ public:
 
 	std::vector<particle> Particles;
 
-	ElementDataContainer *elementData[PT_NUM];
+	std::unique_ptr<ElementDataContainer> elementData[PT_NUM];
 
 	std::vector<float> GravVelocityX;
 	std::vector<float> GravVelocityY;
@@ -36,7 +36,7 @@ public:
 	std::vector<float> FanVelocityX;
 	std::vector<float> FanVelocityY;
 
-	std::vector<Sign*> Signs;
+	std::vector<Sign> Signs;
 
 	Json::Value Authors;
 
@@ -59,24 +59,33 @@ public:
 
 	}
 
-	~Snapshot();
+	Snapshot(const Snapshot& other) :
+		AirPressure(other.AirPressure),
+		AirVelocityX(other.AirVelocityX),
+		AirVelocityY(other.AirVelocityY),
+		AmbientHeat(other.AmbientHeat),
+		Particles(other.Particles),
+		GravVelocityX(other.GravVelocityX),
+		GravVelocityY(other.GravVelocityY),
+		GravValue(other.GravValue),
+		GravMap(other.GravMap),
+		BlockMap(other.BlockMap),
+		ElecMap(other.ElecMap),
+		FanVelocityX(other.FanVelocityX),
+		FanVelocityY(other.FanVelocityY),
+		Signs(other.Signs),
+		Authors(other.Authors)
+	{
+		for (int i = 0; i < PT_NUM; i++)
+		{
+			if (other.elementData[i])
+			{
+				elementData[i] = other.elementData[i]->Clone();
+			}
+		}
+	}
 
-	// manage snapshots list
-	static void TakeSnapshot(Simulation * sim);
-	static void RestoreSnapshot(Simulation * sim);
-	static void RestoreRedoSnapshot(Simulation *sim);
-
-	static void SetUndoHistoryLimit(unsigned int newLimit) { undoHistoryLimit = std::min(newLimit, (unsigned int)200); }
-	static unsigned int GetUndoHistoryLimit() { return undoHistoryLimit; }
-
-private:
-	static unsigned int undoHistoryLimit;
-	static unsigned int historyPosition;
-	static std::deque<std::unique_ptr<Snapshot>> history;
-	static std::unique_ptr<Snapshot> beforeRestore;
-
-	// actual creation / restoration of snapshots
-	static std::unique_ptr<Snapshot> CreateSnapshot(Simulation * sim);
+	static std::unique_ptr<Snapshot> Create(Simulation * sim);
 	static void Restore(Simulation * sim, const Snapshot &snap);
 };
 

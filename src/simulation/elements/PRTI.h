@@ -20,6 +20,7 @@
 #include <cstring>
 #include "common/tpt-minmax.h"
 #include "simulation/ElementDataContainer.h"
+#include "simulation/SnapshotDelta.h"
 #include "simulation/elements/PPIP.h"
 #include "powder.h"
 
@@ -84,6 +85,12 @@ public:
 	}
 };
 
+struct PRTI_ElementDataContainerDelta : ElementDataContainerDelta
+{
+	SnapshotDelta::HunkVector<uint32_t> PortalParticles[CHANNELS];
+	SnapshotDelta::HunkVector<uint32_t> PortalParticleCounts[CHANNELS];
+};
+
 class PRTI_ElementDataContainer : public ElementDataContainer
 {
 private:
@@ -95,7 +102,7 @@ public:
 			channels[i].Simulation_Cleared();
 	}
 
-	ElementDataContainer * Clone() override { return new PRTI_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<PRTI_ElementDataContainer>(*this); }
 
 	PortalChannel* GetChannel(int i)
 	{
@@ -131,6 +138,52 @@ public:
 	{
 		for (int i=0; i<CHANNELS; i++)
 			channels[i].Simulation_Cleared();
+	}
+
+	std::unique_ptr<ElementDataContainerDelta> Compare(const std::unique_ptr<ElementDataContainer> &o, const std::unique_ptr<ElementDataContainer> &n) override
+	{
+		std::unique_ptr<PRTI_ElementDataContainerDelta> delta = std::make_unique<PRTI_ElementDataContainerDelta>(PRTI_ElementDataContainerDelta());
+		PRTI_ElementDataContainer *oldContainer = &static_cast<PRTI_ElementDataContainer&>(*o);
+		PRTI_ElementDataContainer *newContainer = &static_cast<PRTI_ElementDataContainer&>(*n);
+		for (int i = 0; i < CHANNELS; i++)
+		{
+			PortalChannel *oldChannel = oldContainer->GetChannel(i);
+			PortalChannel *newChannel = newContainer->GetChannel(i);
+
+			SnapshotDelta::FillHunkVectorPtr(reinterpret_cast<const uint32_t *>(&oldChannel->portalp[0]),
+					reinterpret_cast<const uint32_t *>(&newChannel->portalp[0]),
+					delta->PortalParticles[i],
+					80 * 8 * ParticleUint32Count);
+			SnapshotDelta::FillHunkVectorPtr(reinterpret_cast<const uint32_t *>(&oldChannel->particleCount[0]),
+					reinterpret_cast<const uint32_t *>(&newChannel->particleCount[0]),
+					delta->PortalParticleCounts[i],
+					8);
+		}
+		return delta;
+	}
+
+	void Forward(const std::unique_ptr<ElementDataContainer> &prti_datacontainer, const std::unique_ptr<ElementDataContainerDelta> &prti_delta) override
+	{
+		PRTI_ElementDataContainer *container = &static_cast<PRTI_ElementDataContainer&>(*prti_datacontainer);
+		PRTI_ElementDataContainerDelta *delta = &static_cast<PRTI_ElementDataContainerDelta&>(*prti_delta);
+		for (int i = 0; i < CHANNELS; i++)
+		{
+			PortalChannel *channel = container->GetChannel(i);
+			SnapshotDelta::ApplyHunkVectorPtr<false>(delta->PortalParticleCounts[i], reinterpret_cast<uint32_t *>(&channel->particleCount[0]));
+			SnapshotDelta::ApplyHunkVectorPtr<false>(delta->PortalParticles[i], reinterpret_cast<uint32_t *>(&channel->portalp[0]));
+		}
+	}
+
+	void Restore(const std::unique_ptr<ElementDataContainer> &prti_datacontainer, const std::unique_ptr<ElementDataContainerDelta> &prti_delta) override
+	{
+		PRTI_ElementDataContainer *container = &static_cast<PRTI_ElementDataContainer&>(*prti_datacontainer);
+		PRTI_ElementDataContainerDelta *delta = &static_cast<PRTI_ElementDataContainerDelta&>(*prti_delta);
+		for (int i = 0; i < CHANNELS; i++)
+		{
+			PortalChannel *channel = container->GetChannel(i);
+			SnapshotDelta::ApplyHunkVectorPtr<true>(delta->PortalParticleCounts[i], reinterpret_cast<uint32_t *>(&channel->particleCount[0]));
+			SnapshotDelta::ApplyHunkVectorPtr<true>(delta->PortalParticles[i], reinterpret_cast<uint32_t *>(&channel->portalp[0]));
+		}
 	}
 };
 

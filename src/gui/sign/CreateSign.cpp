@@ -5,7 +5,8 @@
 
 CreateSign::CreateSign(int signID, Point pos):
 	ui::Window(Point(CENTERED, CENTERED), Point(250, 100)),
-	signID(signID)
+	signID(signID),
+	theSign(Sign("", pos.X, pos.Y, Sign::Middle))
 {
 	if (signID == -1)
 		newSignLabel = new Label(Point(5, 3), Point(Label::AUTOSIZE, Label::AUTOSIZE), "New sign:");
@@ -59,14 +60,13 @@ CreateSign::CreateSign(int signID, Point pos):
 	{
 		moveButton->SetEnabled(false);
 		deleteButton->SetEnabled(false);
-		theSign = new Sign("", pos.X, pos.Y, Sign::Middle);
 		SetJustification(Sign::Middle);
 	}
 	else
 	{
 		theSign = signs[signID];
-		signTextbox->SetText(theSign->GetText());
-		SetJustification(theSign->GetJustification());
+		signTextbox->SetText(theSign.GetText());
+		SetJustification(theSign.GetJustification());
 	}
 }
 
@@ -81,7 +81,7 @@ void CreateSign::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctr
 
 void CreateSign::SetJustification(Sign::Justification ju)
 {
-	theSign->SetJustification(ju);
+	theSign.SetJustification(ju);
 	leftJuButton->SetState(ju == 0 ? Button::INVERTED : Button::NORMAL);
 	middleJuButton->SetState(ju == 1 ? Button::INVERTED : Button::NORMAL);
 	rightJuButton->SetState(ju == 2 ? Button::INVERTED : Button::NORMAL);
@@ -106,13 +106,12 @@ void CreateSign::SaveSign()
 	{
 		if (signID != -1)
 		{
-			delete signs[signID];
-			signs.erase(signs.begin()+signID);
+			signs.erase(signs.begin() + signID);
 		}
 	}
 	else
 	{
-		theSign->SetText(signTextbox->GetText());
+		theSign.SetText(signTextbox->GetText());
 		if (signID == -1)
 			signs.push_back(theSign);
 	}

@@ -39,7 +39,7 @@ public:
 	particle parts[NPART];
 	int elementCount[PT_NUM];
 	Element elements[PT_NUM];
-	ElementDataContainer *elementData[PT_NUM];
+	std::unique_ptr<ElementDataContainer> elementData[PT_NUM];
 	int pfree;
 	int parts_lastActiveIndex;
 	int debug_currentParticle;

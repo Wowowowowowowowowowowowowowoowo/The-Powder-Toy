@@ -58,7 +58,7 @@ public:
 			movingSolids[i].Simulation_Cleared();
 	}
 
-	ElementDataContainer * Clone() override { return new MOVS_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<MOVS_ElementDataContainer>(*this); }
 
 	MovingSolid* GetMovingSolid(int bn)
 	{

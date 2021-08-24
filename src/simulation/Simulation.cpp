@@ -68,7 +68,7 @@ Simulation::Simulation():
 #endif
 	lightningRecreate(0)
 {
-	std::fill(&elementData[0], &elementData[PT_NUM], static_cast<ElementDataContainer*>(NULL));
+	std::fill(&elementData[0], &elementData[PT_NUM], nullptr);
 
 	// Initialize global parts variable. TODO: make everything use sim->parts
 	::parts = this->parts;
@@ -83,14 +83,6 @@ Simulation::Simulation():
 
 Simulation::~Simulation()
 {
-	for (int t = 0; t < PT_NUM; t++)
-	{
-		if (elementData[t])
-		{
-			delete elementData[t];
-			elementData[t] = NULL;
-		}
-	}
 	delete air;
 	delete grav;
 }
@@ -202,7 +194,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	std::fill(&solids[0], &solids[MAX_MOVING_SOLIDS], MAX_MOVING_SOLIDS);
 	if (save->MOVSdata.size())
 	{
-		int numBalls = ((MOVS_ElementDataContainer*)elementData[PT_MOVS])->GetNumBalls();
+		int numBalls = static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).GetNumBalls();
 		for (std::vector<Save::MOVSdataItem>::iterator iter = save->MOVSdata.begin(), end = save->MOVSdata.end(); iter != end; ++iter)
 		{
 			Save::MOVSdataItem data = *iter;
@@ -210,7 +202,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			if (bn >= 0 && bn < MAX_MOVING_SOLIDS)
 			{
 				solids[bn] = numBalls;
-				MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)elementData[PT_MOVS])->GetMovingSolid(numBalls++);
+				MovingSolid *movingSolid = static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).GetMovingSolid(numBalls++);
 				// Create a moving solid and clear all its variables
 				if (movingSolid)
 				{
@@ -221,7 +213,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			}
 		}
 		// New number of known moving solids
-		((MOVS_ElementDataContainer*)elementData[PT_MOVS])->SetNumBalls(numBalls);
+		static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).SetNumBalls(numBalls);
 	}
 
 	unsigned int animDataPos = 0;
@@ -256,7 +248,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			tempPart->type = 0;
 			continue;
 		}
-		if (type == PT_FIGH && !((FIGH_ElementDataContainer*)elementData[PT_FIGH])->CanAlloc())
+		if (type == PT_FIGH && !static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).CanAlloc())
 		{
 			tempPart->type = 0;
 			continue;
@@ -383,13 +375,13 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				fan = true;
 				parts[i].ctype = 0;
 			}
-			((STKM_ElementDataContainer*)elementData[PT_STKM])->NewStickman1(i, parts[i].ctype);
+			static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).NewStickman1(i, parts[i].ctype);
 			if (fan)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->fan = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1()->fan = true;
 			if (save->stkm.rocketBoots1)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->rocketBoots = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1()->rocketBoots = true;
 			if (save->stkm.fan1)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->fan = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1()->fan = true;
 			break;
 		}
 		case PT_STKM2:
@@ -401,24 +393,24 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 				fan = true;
 				parts[i].ctype = 0;
 			}
-			((STKM_ElementDataContainer*)elementData[PT_STKM])->NewStickman2(i, parts[i].ctype);
+			static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).NewStickman2(i, parts[i].ctype);
 			if (fan)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->fan = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2()->fan = true;
 			if (save->stkm.rocketBoots2)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->rocketBoots = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2()->rocketBoots = true;
 			if (save->stkm.fan2)
-				((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->fan = true;
+				static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2()->fan = true;
 		}
 		case PT_SPAWN:
-			((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1()->spawnID = i;
+			static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1()->spawnID = i;
 			break;
 		case PT_SPAWN2:
-			((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2()->spawnID = i;
+			static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2()->spawnID = i;
 			break;
 		case PT_FIGH:
 		{
 			unsigned int oldTmp = parts[i].tmp;
-			parts[i].tmp = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Alloc();
+			parts[i].tmp = static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Alloc();
 			if (parts[i].tmp >= 0)
 			{
 				bool fan = false;
@@ -428,18 +420,18 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 					fan = true;
 					parts[i].ctype = 0;
 				}
-				((FIGH_ElementDataContainer*)elementData[PT_FIGH])->NewFighter(this, parts[i].tmp, i, parts[i].ctype);
+				static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).NewFighter(this, parts[i].tmp, i, parts[i].ctype);
 				if (fan)
-					((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->fan = true;
+					static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Get(parts[i].tmp)->fan = true;
 				for (unsigned int fighNum : save->stkm.rocketBootsFigh)
 				{
 					if (fighNum == oldTmp)
-						((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->rocketBoots = true;
+						static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Get(parts[i].tmp)->rocketBoots = true;
 				}
 				for (unsigned int fighNum : save->stkm.fanFigh)
 				{
 					if (fighNum == oldTmp)
-						((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(parts[i].tmp)->fan = true;
+						static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Get(parts[i].tmp)->fan = true;
 				}
 			}
 			else
@@ -472,7 +464,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			else
 			{
 				parts[i].tmp2 = solids[parts[i].tmp2];
-				MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)elementData[PT_MOVS])->GetMovingSolid(parts[i].tmp2);
+				MovingSolid *movingSolid = static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).GetMovingSolid(parts[i].tmp2);
 				if (movingSolid)
 				{
 					// Increase ball particle count
@@ -496,7 +488,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			}
 
 			Save::ANIMdataItem data =  save->ANIMdata[animDataPos++];
-			((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetAllColors(i, data.second, data.first + 1);
+			static_cast<ANIM_ElementDataContainer&>(*elementData[PT_ANIM]).SetAllColors(i, data.second, data.first + 1);
 			break;
 #endif
 		}
@@ -534,7 +526,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 			if (!InBounds(pos.X, pos.Y))
 				continue;
 			tempSign.SetPos(pos);
-			signs.push_back(new Sign(tempSign));
+			signs.push_back(tempSign);
 		}
 	}
 	for (unsigned int saveBlockX = 0; saveBlockX < save->blockWidth; saveBlockX++)
@@ -567,7 +559,7 @@ bool Simulation::LoadSave(int loadX, int loadY, Save *save, int replace, bool in
 	// check for excessive stacking of particles next time update_particles is run
 	forceStackingCheck = 1;
 	grav->gravWallChanged = true;
-	((PPIP_ElementDataContainer*)elementData[PT_PPIP])->ppip_changed = 1;
+	static_cast<PPIP_ElementDataContainer&>(*elementData[PT_PPIP]).ppip_changed = 1;
 	air->RecalculateBlockAirMaps(this);
 	RecalcFreeParticles(false);
 
@@ -749,10 +741,10 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 				}
 				else if (tempPart.type == PT_ANIM)
 				{
-					int animLength = std::min(tempPart.ctype, (int)(((ANIM_ElementDataContainer*)elementData[PT_ANIM])->GetMaxFrames() - 1));
+					int animLength = std::min(tempPart.ctype, (int)(static_cast<ANIM_ElementDataContainer&>(*elementData[PT_ANIM]).GetMaxFrames() - 1));
 					Save::ANIMdataItem data;
 					data.first = animLength;
-					data.second = ((ANIM_ElementDataContainer*)elementData[PT_ANIM])->GetAllColors(i, tempPart.ctype+1);
+					data.second = static_cast<ANIM_ElementDataContainer&>(*elementData[PT_ANIM]).GetAllColors(i, tempPart.ctype+1);
 					newSave->ANIMdata.push_back(data);
 				}
 #endif
@@ -809,9 +801,9 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 
 	for (size_t i = 0; i < MAXSIGNS && i < signs.size(); i++)
 	{
-		if (signs[i]->GetText().length() && signs[i]->IsSignInArea(Point(fullX, fullY), Point(fullX2, fullY2)))
+		if (signs[i].GetText().length() && signs[i].IsSignInArea(Point(fullX, fullY), Point(fullX2, fullY2)))
 		{
-			Sign tempSign = Sign(*signs[i]);
+			Sign tempSign = Sign(signs[i]);
 			tempSign.SetPos(tempSign.GetRealPos() - Point(blockX*CELL, blockY*CELL));
 			*newSave << tempSign;
 		}
@@ -842,16 +834,16 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 		}
 	}
 
-	Stickman *stkm = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
+	Stickman *stkm = static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1();
 	newSave->stkm.rocketBoots1 = stkm->rocketBoots;
 	newSave->stkm.fan1 = stkm->fan;
-	stkm = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
+	stkm = static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2();
 	newSave->stkm.rocketBoots2 = stkm->rocketBoots;
 	newSave->stkm.fan2 = stkm->fan;
 
-	for (unsigned char i = 0; i < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters(); i++)
+	for (unsigned char i = 0; i < static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).MaxFighters(); i++)
 	{
-		stkm = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get(i);
+		stkm = static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Get(i);
 		if (stkm->rocketBoots)
 			newSave->stkm.rocketBootsFigh.push_back(i);
 		if (stkm->fan)
@@ -863,7 +855,7 @@ Save * Simulation::CreateSave(int fullX, int fullY, int fullX2, int fullY2, bool
 		// List of moving solids that are in the save area, filled above
 		if (solids[bn])
 		{
-			MovingSolid* movingSolid = ((MOVS_ElementDataContainer*)globalSim->elementData[PT_MOVS])->GetMovingSolid(bn);
+			MovingSolid* movingSolid = static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).GetMovingSolid(bn);
 			if (movingSolid && (movingSolid->index || movingSolid->particleCount))
 			{
 				newSave->MOVSdata.push_back(Save::MOVSdataItem(bn, (char)((movingSolid->rotationOld + 2*M_PI)*20)));
@@ -1168,7 +1160,7 @@ std::string Simulation::ElementResolve(int type, int ctype)
 		{
 			return builtinGol[ctype].name;
 		}
-		auto *cgol = ((LIFE_ElementDataContainer*)elementData[PT_LIFE])->GetCustomGOLByRule(ctype);
+		auto *cgol = static_cast<LIFE_ElementDataContainer&>(*elementData[PT_LIFE]).GetCustomGOLByRule(ctype);
 		if (cgol)
 		{
 			return cgol->nameString;
@@ -1997,11 +1989,11 @@ bool Simulation::UpdateParticle(int i)
 				//adjust stickmen legs
 				Stickman *stickman = NULL;
 				if (t == PT_STKM)
-					stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman1();
+					stickman = static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman1();
 				else if (t == PT_STKM2)
-					stickman = ((STKM_ElementDataContainer*)elementData[PT_STKM])->GetStickman2();
-				else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->MaxFighters())
-					stickman = ((FIGH_ElementDataContainer*)elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
+					stickman = static_cast<STKM_ElementDataContainer&>(*elementData[PT_STKM]).GetStickman2();
+				else if (t == PT_FIGH && parts[i].tmp >= 0 && parts[i].tmp < static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).MaxFighters())
+					stickman = static_cast<FIGH_ElementDataContainer&>(*elementData[PT_FIGH]).Get((unsigned char)parts[i].tmp);
 	
 				if (stickman)
 				{
@@ -2605,7 +2597,7 @@ int Simulation::CreateParts(int x, int y, int c, int flags, bool fill, Brush* br
 #ifndef NOMOD
 	else if (c == PT_MOVS)
 	{
-		if (CreatePartFlags(x, y, PMAP(1, c), flags) && !((MOVS_ElementDataContainer*)this->elementData[PT_MOVS])->IsCreatingSolid())
+		if (CreatePartFlags(x, y, PMAP(1, c), flags) && !static_cast<MOVS_ElementDataContainer&>(*elementData[PT_MOVS]).IsCreatingSolid())
 			return 1;
 		c = PMAP(2, c);
 	}
@@ -3712,7 +3704,7 @@ void Simulation::CreateDeco(int x, int y, int tool, ARGBColour color)
 
 #ifndef NOMOD
 	if (parts[rp].type == PT_ANIM)
-		((ANIM_ElementDataContainer*)elementData[PT_ANIM])->SetColor(rp, parts[rp].tmp2, parts[rp].dcolour);
+		static_cast<ANIM_ElementDataContainer&>(*elementData[PT_ANIM]).SetColor(rp, parts[rp].tmp2, parts[rp].dcolour);
 #endif
 }
 

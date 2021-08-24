@@ -27,7 +27,7 @@ public:
 		wifi_lastframe = false;
 	}
 
-	ElementDataContainer * Clone() override { return new WIFI_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<WIFI_ElementDataContainer>(*this); }
 
 	void Simulation_Cleared(Simulation *sim) override
 	{
@@ -65,7 +65,7 @@ int WIFI_update(UPDATE_FUNC_ARGS)
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
 	if (parts[i].tmp>=CHANNELS) parts[i].tmp = CHANNELS-1;
 	else if (parts[i].tmp<0) parts[i].tmp = 0;
-	int *channel = ((WIFI_ElementDataContainer*)sim->elementData[PT_WIFI])->wireless[parts[i].tmp];
+	int *channel = static_cast<WIFI_ElementDataContainer&>(*sim->elementData[PT_WIFI]).wireless[parts[i].tmp];
 	for (rx=-1; rx<2; rx++)
 		for (ry=-1; ry<2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
@@ -147,9 +147,5 @@ void WIFI_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = &WIFI_graphics;
 	elem->Init = &WIFI_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new WIFI_ElementDataContainer;
+	sim->elementData[t].reset(new WIFI_ElementDataContainer);
 }

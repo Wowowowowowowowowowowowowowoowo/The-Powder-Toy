@@ -21,7 +21,7 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS);
 
 void FIGH_ElementDataContainer::NewFighter(Simulation *sim, int fighterID, int i, int elem)
 {
-	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->InitLegs(&fighters[fighterID], i);
+	static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).InitLegs(&fighters[fighterID], i);
 	if (elem >= 0 && elem < PT_NUM)
 		fighters[fighterID].elem = elem;
 	fighters[fighterID].spwn = 1;
@@ -29,15 +29,15 @@ void FIGH_ElementDataContainer::NewFighter(Simulation *sim, int fighterID, int i
 
 int FIGH_update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].tmp < 0 || parts[i].tmp >= ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->MaxFighters())
+	if (parts[i].tmp < 0 || parts[i].tmp >= static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).MaxFighters())
 	{
 		sim->part_kill(i);
 		return 1;
 	}
 
-	Stickman * figh = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Get((unsigned char)parts[i].tmp);
-	Stickman * player = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1();
-	Stickman * player2 = ((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2();
+	Stickman * figh = static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Get((unsigned char)parts[i].tmp);
+	Stickman * player = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1();
+	Stickman * player2 = static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2();
 
 	parts[i].tmp2 = 0; //0 - stay in place, 1 - seek a stickman
 
@@ -120,26 +120,26 @@ int FIGH_update(UPDATE_FUNC_ARGS)
 
 	figh->pcomm = figh->comm;
 
-	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->Run(figh, UPDATE_FUNC_SUBCALL_ARGS);
+	static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).Run(figh, UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 
 bool FIGH_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->CanAlloc();
+	return static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).CanAlloc();
 }
 
 void FIGH_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to == PT_FIGH)
 	{
-		sim->parts[i].tmp = ((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Alloc();
+		sim->parts[i].tmp = static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Alloc();
 		if (sim->parts[i].tmp >= 0)
-			((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->NewFighter(sim, sim->parts[i].tmp, i, PT_DUST);
+			static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).NewFighter(sim, sim->parts[i].tmp, i, PT_DUST);
 	}
 	else
 	{
-		((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->Free((unsigned char)sim->parts[i].tmp);
+		static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).Free((unsigned char)sim->parts[i].tmp);
 	}
 }
 
@@ -198,9 +198,5 @@ void FIGH_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_ChangeType = &FIGH_ChangeType;
 	elem->Init = &FIGH_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new FIGH_ElementDataContainer;
+	sim->elementData[t].reset(new FIGH_ElementDataContainer);
 }

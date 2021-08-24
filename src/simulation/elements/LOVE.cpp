@@ -38,7 +38,7 @@ public:
 		std::fill_n(&love[0][0], (XRES/9)*(YRES/9), false);
 	}
 
-	ElementDataContainer * Clone() override { return new LOVE_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<LOVE_ElementDataContainer>(*this); }
 
 	void Simulation_BeforeUpdate(Simulation *sim) override
 	{
@@ -123,9 +123,5 @@ void LOVE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Graphics = NULL;
 	elem->Init = &LOVE_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new LOVE_ElementDataContainer;
+	sim->elementData[t].reset(new LOVE_ElementDataContainer);
 }

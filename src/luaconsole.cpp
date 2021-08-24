@@ -2213,14 +2213,14 @@ int luatpt_maxframes(lua_State* l)
 	int maxFrames = luaL_optint(l,1,-1);
 	if (maxFrames == -1)
 	{
-		lua_pushnumber(l, ((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->GetMaxFrames());
+		lua_pushnumber(l, static_cast<ANIM_ElementDataContainer&>(*luaSim->elementData[PT_ANIM]).GetMaxFrames());
 		return 1;
 	}
 	if (maxFrames > 0 && maxFrames <= 256)
-		((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->SetMaxFrames(maxFrames);
+		static_cast<ANIM_ElementDataContainer&>(*luaSim->elementData[PT_ANIM]).SetMaxFrames(maxFrames);
 	else
 		return luaL_error(l, "must be between 1 and 256");
-	((ANIM_ElementDataContainer*)luaSim->elementData[PT_ANIM])->Simulation_Cleared(luaSim);
+	static_cast<ANIM_ElementDataContainer&>(*luaSim->elementData[PT_ANIM]).Simulation_Cleared(luaSim);
 	return 0;
 }
 #endif

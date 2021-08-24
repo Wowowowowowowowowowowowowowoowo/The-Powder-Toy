@@ -228,11 +228,11 @@ int LIGH_update(UPDATE_FUNC_ARGS)
 						parts[ID(r)].life = 99;
 					break;
 				case PT_STKM:
-					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->elem != PT_LIGH)
+					if (static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->elem != PT_LIGH)
 						parts[ID(r)].life -= powderful/100;
 					break;
 				case PT_STKM2:
-					if (((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman2()->elem != PT_LIGH)
+					if (static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman2()->elem != PT_LIGH)
 						parts[ID(r)].life -= powderful/100;
 					break;
 				case PT_HEAC:

@@ -5,13 +5,11 @@
 #include "graphics/VideoBuffer.h"
 #include "simulation/Simulation.h"
 
-std::vector<Sign*> signs;
+std::vector<Sign> signs;
 int MSIGN = -1;
 
 void ClearSigns()
 {
-	for (std::vector<Sign*>::iterator iter = signs.begin(), end = signs.end(); iter != end; ++iter)
-		delete *iter;
 	signs.clear();
 
 	MSIGN = -1;
@@ -21,10 +19,9 @@ void DeleteSignsInArea(Point topLeft, Point bottomRight)
 {
 	for (int i = signs.size()-1; i >= 0; i--)
 	{
-		Point realPos = signs[i]->GetRealPos();
+		Point realPos = signs[i].GetRealPos();
 		if (realPos.X >= topLeft.X && realPos.Y >= topLeft.Y && realPos.X < bottomRight.X && realPos.Y < bottomRight.Y)
 		{
-			delete signs[i];
 			signs.erase(signs.begin()+i);
 		}
 	}
@@ -37,10 +34,10 @@ int InsideSign(Simulation * sim, int mx, int my, bool allsigns)
 	int x, y, w, h;
 	for (int i = (int)signs.size()-1; i >= 0; i--)
 	{
-		signs[i]->GetPos(sim, x, y, w, h);
+		signs[i].GetPos(sim, x, y, w, h);
 		if (mx >= x && mx <= x+w && my >= y && my <= y+h)
 		{
-			if (allsigns || signs[i]->GetType() != Sign::Normal)
+			if (allsigns || signs[i].GetType() != Sign::Normal)
 				return i;
 		}
 	}

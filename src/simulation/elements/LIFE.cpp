@@ -78,7 +78,7 @@ void LIFE_create(ELEMENT_CREATE_FUNC_ARGS)
 	}
 	else if (!skipLookup)
 	{
-		auto *cgol = ((LIFE_ElementDataContainer*)sim->elementData[PT_LIFE])->GetCustomGOLByRule(v);
+		auto *cgol = static_cast<LIFE_ElementDataContainer&>(*sim->elementData[PT_LIFE]).GetCustomGOLByRule(v);
 		if (cgol)
 		{
 			sim->parts[i].dcolour = cgol->color1;
@@ -135,9 +135,5 @@ void LIFE_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_Create = &LIFE_create;
 	elem->Init = &LIFE_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new LIFE_ElementDataContainer;
+	sim->elementData[t].reset(new LIFE_ElementDataContainer);
 }

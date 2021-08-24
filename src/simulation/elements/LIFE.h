@@ -7,6 +7,7 @@
 #include "simulation/GolNumbers.h"
 #include "simulation/GOLString.h"
 #include "simulation/Simulation.h"
+#include "simulation/SnapshotDelta.h"
 #include "simulation/WallNumbers.h"
 
 struct CustomGOLData
@@ -18,6 +19,11 @@ struct CustomGOLData
 	{
 		return rule == other.rule;
 	}
+};
+
+struct LIFE_ElementDataContainerDelta : ElementDataContainerDelta
+{
+	SnapshotDelta::SingleDiff<int> golGeneration;
 };
 
 class LIFE_ElementDataContainer : public ElementDataContainer
@@ -40,7 +46,7 @@ public:
 		golGeneration = 0;
 	}
 
-	ElementDataContainer * Clone() override { return new LIFE_ElementDataContainer(*this); }
+	std::unique_ptr<ElementDataContainer> Clone() override { return std::make_unique<LIFE_ElementDataContainer>(*this); }
 
 	void Simulation_Cleared(Simulation *sim) override
 	{
@@ -281,6 +287,30 @@ public:
 	std::string GetCachedRuleString()
 	{
 		return cachedRuleString;
+	}
+
+	std::unique_ptr<ElementDataContainerDelta> Compare(const std::unique_ptr<ElementDataContainer> &o, const std::unique_ptr<ElementDataContainer> &n) override
+	{
+		std::unique_ptr<LIFE_ElementDataContainerDelta> delta = std::make_unique<LIFE_ElementDataContainerDelta>(LIFE_ElementDataContainerDelta());
+		LIFE_ElementDataContainer *oldContainer = &static_cast<LIFE_ElementDataContainer&>(*o);
+		LIFE_ElementDataContainer *newContainer = &static_cast<LIFE_ElementDataContainer&>(*n);
+
+		SnapshotDelta::FillSingleDiff<int>(oldContainer->golGeneration, newContainer->golGeneration, delta->golGeneration);
+		return delta;
+	}
+
+	void Forward(const std::unique_ptr<ElementDataContainer> &prti_datacontainer, const std::unique_ptr<ElementDataContainerDelta> &life_delta) override
+	{
+		LIFE_ElementDataContainer *container = &static_cast<LIFE_ElementDataContainer&>(*prti_datacontainer);
+		LIFE_ElementDataContainerDelta *delta = &static_cast<LIFE_ElementDataContainerDelta&>(*life_delta);
+		SnapshotDelta::ApplySingleDiff<false>(delta->golGeneration, container->golGeneration);
+	}
+
+	void Restore(const std::unique_ptr<ElementDataContainer> &prti_datacontainer, const std::unique_ptr<ElementDataContainerDelta> &life_delta) override
+	{
+		LIFE_ElementDataContainer *container = &static_cast<LIFE_ElementDataContainer&>(*prti_datacontainer);
+		LIFE_ElementDataContainerDelta *delta = &static_cast<LIFE_ElementDataContainerDelta&>(*life_delta);
+		SnapshotDelta::ApplySingleDiff<true>(delta->golGeneration, container->golGeneration);
 	}
 };
 

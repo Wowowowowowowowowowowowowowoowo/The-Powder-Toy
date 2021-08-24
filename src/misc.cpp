@@ -46,7 +46,7 @@
 #include "graphics/Renderer.h"
 #include "interface/Engine.h"
 #include "simulation/Simulation.h"
-#include "simulation/Snapshot.h"
+#include "simulation/SnapshotHistory.h"
 #include "simulation/Tool.h"
 
 #include "gui/console/Console.h"
@@ -208,7 +208,7 @@ void save_presets()
 	cJSON_AddNumberToObject(simulationobj, "NewtonianGravity", globalSim->grav->IsEnabled());
 	cJSON_AddNumberToObject(simulationobj, "AmbientHeat", aheat_enable);
 	cJSON_AddNumberToObject(simulationobj, "PrettyPowder", pretty_powder);
-	cJSON_AddNumberToObject(simulationobj, "UndoHistoryLimit", Snapshot::GetUndoHistoryLimit());
+	cJSON_AddNumberToObject(simulationobj, "UndoHistoryLimit", SnapshotHistory::GetUndoHistoryLimit());
 	if (globalSim->includePressure)
 		cJSON_AddTrueToObject(simulationobj, "LoadPressure");
 	else
@@ -316,9 +316,9 @@ void save_presets()
 	cJSON_AddNumberToObject(tmpobj, "scrollDeceleration", scrollDeceleration);
 	cJSON_AddNumberToObject(tmpobj, "ShowIDs", show_ids);
 
-	auto cachedName = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedName();
-	auto cachedRuleString = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCachedRuleString();
-	auto customGol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOL();
+	auto cachedName = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCachedName();
+	auto cachedRuleString = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCachedRuleString();
+	auto customGol = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOL();
 	cJSON_AddItemToObject(root, "CustomGOL", tmpobj=cJSON_CreateObject());
 	cJSON_AddStringToObject(tmpobj, "Name", cachedName.c_str());
 	cJSON_AddStringToObject(tmpobj, "Rule", cachedRuleString.c_str());
@@ -572,7 +572,7 @@ void load_presets(void)
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "PrettyPowder")))
 				pretty_powder = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "UndoHistoryLimit")))
-				Snapshot::SetUndoHistoryLimit(tmpobj->valueint);
+				SnapshotHistory::SetUndoHistoryLimit(tmpobj->valueint);
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "LoadPressure")))
 				globalSim->includePressure = tmpobj->valueint;
 			if ((tmpobj = cJSON_GetObjectItem(simulationobj, "DecoSpace")))
@@ -687,9 +687,9 @@ void load_presets(void)
 		if (customgolobj)
 		{
 			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Name")) && tmpobj->type == cJSON_String)
-				((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedName(tmpobj->valuestring);
+				static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).SetCachedName(tmpobj->valuestring);
 			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Rule")) && tmpobj->type == cJSON_String)
-				((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->SetCachedRuleString(tmpobj->valuestring);
+				static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).SetCachedRuleString(tmpobj->valuestring);
 
 			if ((tmpobj = cJSON_GetObjectItem(customgolobj, "Types")) && tmpobj->type == cJSON_Array)
 			{
@@ -735,7 +735,7 @@ void load_presets(void)
 					cgol.color1 = Format::StringToNumber<int>(color1Str);
 					cgol.color2 = Format::StringToNumber<int>(color2Str);
 
-					((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->AddCustomGOL(cgol);
+					static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).AddCustomGOL(cgol);
 				}
 			}
 		}

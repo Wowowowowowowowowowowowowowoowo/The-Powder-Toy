@@ -615,12 +615,12 @@ void STKM_ElementDataContainer::Interact(Simulation* sim, Stickman *playerp, int
 		{
 			int t = parts[i].type;
 			unsigned char tmp = TYP(parts[i].tmp);
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
+			PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*sim->elementData[PT_PRTI]).GetParticleChannel(sim, ID(r));
 			if (channel->StoreParticle(sim, i, 1))//slot=1 gives rx=0, ry=1 in PRTO_update
 			{
 				//stop new STKM/fighters being created to replace the ones in the portal:
 				if (t==PT_FIGH)
-					((FIGH_ElementDataContainer*)sim->elementData[PT_FIGH])->AllocSpecific(tmp);
+					static_cast<FIGH_ElementDataContainer&>(*sim->elementData[PT_FIGH]).AllocSpecific(tmp);
 				else
 					playerp->spwn = 1;
 			}
@@ -703,7 +703,7 @@ void STKM_ElementDataContainer::STKM_set_element(Simulation *sim, Stickman *play
 
 int STKM_update(UPDATE_FUNC_ARGS)
 {
-	((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->Run(((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1(), UPDATE_FUNC_SUBCALL_ARGS);
+	static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).Run(static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1(), UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
 }
 
@@ -716,22 +716,22 @@ int STKM_graphics(GRAPHICS_FUNC_ARGS)
 
 bool STKM_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	return sim->elementCount[PT_STKM]<=0 && !((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spwn;
+	return sim->elementCount[PT_STKM]<=0 && !static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spwn;
 }
 
 void STKM_create(ELEMENT_CREATE_FUNC_ARGS)
 {
 	int id = sim->part_create(-3, x, y, PT_SPAWN);
 	if (id >= 0)
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spawnID = id;
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spawnID = id;
 }
 
 void STKM_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to == PT_STKM)
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->NewStickman1(i, -1);
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).NewStickman1(i, -1);
 	else
-		((STKM_ElementDataContainer*)sim->elementData[PT_STKM])->GetStickman1()->spwn = 0;
+		static_cast<STKM_ElementDataContainer&>(*sim->elementData[PT_STKM]).GetStickman1()->spwn = 0;
 }
 
 void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
@@ -790,9 +790,5 @@ void STKM_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_ChangeType = &STKM_ChangeType;
 	elem->Init = &STKM_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new STKM_ElementDataContainer;
+	sim->elementData[t].reset(new STKM_ElementDataContainer);
 }

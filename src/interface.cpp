@@ -71,7 +71,7 @@
 #include "game/ToolTip.h"
 #include "interface/Engine.h"
 #include "json/json.h"
-#include "simulation/Snapshot.h"
+#include "simulation/SnapshotHistory.h"
 #include "simulation/Tool.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
@@ -2925,12 +2925,12 @@ void menu_select_element(int b, Tool* over)
 #ifdef TOUCHUI
 			if (activeTools[0] == over && over->GetType() == GOL_TOOL && over->GetID() >= NGOL)
 			{
-				auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+				auto *cgol = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByRule(toolID);
 				int cgolRule = cgol->rule;
 				auto *confirmPrompt = new ConfirmPrompt([cgolRule](bool b) {
 					if (b)
 					{
-						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->RemoveCustomGOL(cgolRule);
+						static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).RemoveCustomGOL(cgolRule);
 						FillMenus();
 						save_presets();
 					}
@@ -2986,12 +2986,12 @@ void menu_select_element(int b, Tool* over)
 
 			if (!removed && over->GetType() == GOL_TOOL && over->GetID() >= NGOL)
 			{
-				auto *cgol = ((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->GetCustomGOLByRule(toolID);
+				auto *cgol = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByRule(toolID);
 				int cgolRule = cgol->rule;
 				auto *confirmPrompt = new ConfirmPrompt([cgolRule](bool b) {
 					if (b)
 					{
-						((LIFE_ElementDataContainer*)globalSim->elementData[PT_LIFE])->RemoveCustomGOL(cgolRule);
+						static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).RemoveCustomGOL(cgolRule);
 						FillMenus();
 						save_presets();
 					}
@@ -5086,7 +5086,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		{
 			if (info_ready && data_ready && save)
 			{
-				Snapshot::TakeSnapshot(globalSim);
+				SnapshotHistory::TakeSnapshot(globalSim);
 				// Do Open!
 				try
 				{
@@ -6212,11 +6212,11 @@ void decoration_editor(pixel *vid_buf, int b, int bq, int mx, int my)
 	}
 #ifndef NOMOD
 	if (sdl_key==SDLK_RIGHT)
-		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_GUI));
+		static_cast<ANIM_ElementDataContainer&>(*globalSim->elementData[PT_ANIM]).NewFrame(globalSim, sdl_mod & (KMOD_CTRL|KMOD_GUI));
 	else if (sdl_key==SDLK_LEFT)
-		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->PreviousFrame(globalSim);
+		static_cast<ANIM_ElementDataContainer&>(*globalSim->elementData[PT_ANIM]).PreviousFrame(globalSim);
 	else if (sdl_key==SDLK_DELETE)
-		((ANIM_ElementDataContainer*)globalSim->elementData[PT_ANIM])->DeleteFrame(globalSim);
+		static_cast<ANIM_ElementDataContainer&>(*globalSim->elementData[PT_ANIM]).DeleteFrame(globalSim);
 #endif
 	else if (sdl_key == SDLK_TAB)
 	{
@@ -6675,7 +6675,7 @@ void catalogue_ui(pixel * vid_buf)
 						char *data = (char*)file_load(csave->filename, &size);
 						if (data)
 						{
-							Snapshot::TakeSnapshot(globalSim);
+							SnapshotHistory::TakeSnapshot(globalSim);
 							Save *localSave = new Save(data, size);
 							bool success = false;
 							try

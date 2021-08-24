@@ -133,7 +133,7 @@ void PPIP_flood_trigger(Simulation* sim, int x, int y, int sparkedBy)
 		for (x = x1; x <= x2; x++)
 		{
 			if (!(parts[ID(pmap[y][x])].tmp & prop))
-				((PPIP_ElementDataContainer*)sim->elementData[PT_PPIP])->ppip_changed = 1;
+				static_cast<PPIP_ElementDataContainer&>(*sim->elementData[PT_PPIP]).ppip_changed = 1;
 			parts[ID(pmap[y][x])].tmp |= prop;
 		}
 
@@ -267,7 +267,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 				// Pass particles into PRTI for a pipe speed increase
 				else if (TYP(r) == PT_PRTI)
 				{
-					PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
+					PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*sim->elementData[PT_PRTI]).GetParticleChannel(sim, ID(r));
 					int slot = PRTI_ElementDataContainer::GetSlot(-rx, -ry);
 					particle *storePart = channel->AllocParticle(slot);
 					if (storePart)
@@ -297,7 +297,7 @@ void pushParticle(Simulation *sim, int i, int count, int original)
 		// Pass particles into PRTI for a pipe speed increase
 		else if (TYP(r) == PT_PRTI)
 		{
-			PortalChannel *channel = ((PRTI_ElementDataContainer*)sim->elementData[PT_PRTI])->GetParticleChannel(sim, ID(r));
+			PortalChannel *channel = static_cast<PRTI_ElementDataContainer&>(*sim->elementData[PT_PRTI]).GetParticleChannel(sim, ID(r));
 			int slot = PRTI_ElementDataContainer::GetSlot(-pos_1_rx[coords], -pos_1_ry[coords]);
 			particle *storePart = channel->AllocParticle(slot);
 			if (storePart)

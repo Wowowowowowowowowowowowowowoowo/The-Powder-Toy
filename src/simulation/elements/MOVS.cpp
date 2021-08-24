@@ -29,7 +29,7 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 	int bn = parts[i].tmp2, type, bounce = 2;
 	float tmp = parts[i].pavg[0], tmp2 = parts[i].pavg[1];
 
-	MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetMovingSolid(bn);
+	MovingSolid *movingSolid = static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).GetMovingSolid(bn);
 	if (!movingSolid || (parts[i].flags&FLAG_DISAPPEAR))
 		return 0;
 	//center control particle was killed, ball slowly falls apart
@@ -88,20 +88,20 @@ int MOVS_update(UPDATE_FUNC_ARGS)
 
 bool MOVS_create_allowed(ELEMENT_CREATE_ALLOWED_FUNC_ARGS)
 {
-	if (((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetNumBalls() >= 255 || pmap[y][x])
+	if (static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).GetNumBalls() >= 255 || pmap[y][x])
 		return false;
 	return true;
 }
 
 void MOVS_create(ELEMENT_CREATE_FUNC_ARGS)
 {
-	if (v == 2 || ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->IsCreatingSolid())
+	if (v == 2 || static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).IsCreatingSolid())
 	{
-		((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->CreateMovingSolid(i, x, y);
+		static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).CreateMovingSolid(i, x, y);
 	}
 	else if (v == 1)
 	{
-		((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->CreateMovingSolidCenter(i);
+		static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).CreateMovingSolidCenter(i);
 	}
 	else
 	{
@@ -115,7 +115,7 @@ void MOVS_ChangeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
 {
 	if (to != PT_MOVS)
 	{
-		MovingSolid *movingSolid = ((MOVS_ElementDataContainer*)sim->elementData[PT_MOVS])->GetMovingSolid(parts[i].tmp2);
+		MovingSolid *movingSolid = static_cast<MOVS_ElementDataContainer&>(*sim->elementData[PT_MOVS]).GetMovingSolid(parts[i].tmp2);
 		if (movingSolid && !(parts[i].flags&FLAG_DISAPPEAR))
 		{
 			movingSolid->particleCount--;
@@ -174,10 +174,6 @@ void MOVS_init_element(ELEMENT_INIT_FUNC_ARGS)
 	elem->Func_ChangeType = &MOVS_ChangeType;
 	elem->Init = &MOVS_init_element;
 
-	if (sim->elementData[t])
-	{
-		delete sim->elementData[t];
-	}
-	sim->elementData[t] = new MOVS_ElementDataContainer;
+	sim->elementData[t].reset(new MOVS_ElementDataContainer);
 }
 #endif
