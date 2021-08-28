@@ -137,6 +137,7 @@ void luacon_open()
 		{"element",&luatpt_getelement},
 		{"element_func",&luatpt_element_func},
 		{"graphics_func",&luatpt_graphics_func},
+		{"perfectCircleBrush",&luatpt_perfectCircle},
 		{"load",&simulation_loadSave},
 		{"bubble",&luatpt_bubble},
 #ifndef NOMOD
@@ -2172,6 +2173,18 @@ int luatpt_record(lua_State* l)
 	int recordingFolder = Renderer::Ref().StartRecording();
 	lua_pushinteger(l, recordingFolder);
 	return 1;
+}
+
+int luatpt_perfectCircle(lua_State* l)
+{
+	if (!lua_gettop(l))
+	{
+		lua_pushboolean(l, perfectCircleBrush);
+		return 1;
+	}
+	luaL_checktype(l, 1, LUA_TBOOLEAN);
+	perfectCircleBrush = lua_toboolean(l, 1);
+	return 0;
 }
 
 int luatpt_bubble(lua_State* l)

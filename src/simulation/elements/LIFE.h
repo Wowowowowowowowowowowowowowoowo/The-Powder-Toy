@@ -249,7 +249,15 @@ public:
 		return nullptr;
 	}
 
-	std::vector<CustomGOLData> GetCustomGOL()
+	const CustomGOLData *GetCustomGOLByName(std::string name) const
+	{
+		auto it = std::find_if(customGol.begin(), customGol.end(), [&](CustomGOLData c) { return c.nameString == name; });
+		if (it != customGol.end())
+			return &*it;
+		return nullptr;
+	}
+
+	const std::vector<CustomGOLData> GetCustomGOL()
 	{
 		return customGol;
 	}

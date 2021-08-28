@@ -155,6 +155,7 @@ int luatpt_getwall(lua_State* l);
 int luatpt_createwall(lua_State* l);
 int luatpt_set_elecmap(lua_State* l);
 int luatpt_get_elecmap(lua_State* l);
+int luatpt_perfectCircle(lua_State* l);
 int luatpt_indestructible(lua_State* l);
 int luatpt_oldmenu(lua_State* l);
 

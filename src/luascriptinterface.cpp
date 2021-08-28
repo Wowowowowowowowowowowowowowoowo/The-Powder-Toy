@@ -281,6 +281,10 @@ void initSimulationAPI(lua_State * l)
 		{"gspeed", simulation_gspeed},
 		{"takeSnapshot", simulation_takeSnapshot},
 		{"stickman", simulation_stickman},
+		{"replaceModeFlags", simulation_replaceModeFlags},
+		{"listCustomGol", simulation_listCustomGol},
+		{"addCustomGol", simulation_addCustomGol},
+		{"removeCustomGol", simulation_removeCustomGol},
 		{NULL, NULL}
 	};
 	luaL_register(l, "simulation", simulationAPIMethods);
@@ -1031,16 +1035,21 @@ int simulation_decoBox(lua_State * l)
 
 int simulation_floodDeco(lua_State * l)
 {
-	int x = luaL_optint(l,1,-1);
-	int y = luaL_optint(l,2,-1);
-	int r = luaL_optint(l,3,255);
-	int g = luaL_optint(l,4,255);
-	int b = luaL_optint(l,5,255);
-	int a = luaL_optint(l,6,255);
+	int x = luaL_checkinteger(l, 1);
+	int y = luaL_checkinteger(l, 2);
+	int r = luaL_checkinteger(l, 3);
+	int g = luaL_checkinteger(l, 4);
+	int b = luaL_checkinteger(l, 5);
+	int a = luaL_checkinteger(l, 6);
 
-	PropertyValue color;
-	color.UInteger = COLARGB(a, r, g, b);
-	luaSim->FloodProp(x, y, particle::PropertyByName("dcolour"), color);
+	if (x < 0 || x >= XRES || y < 0 || y >= YRES)
+		return luaL_error(l, "coordinates out of range (%d,%d)", x, y);
+
+	// hilariously broken, intersects with console and all Lua graphics
+	pixel rep = vid_buf[x + y * VIDXRES];
+	unsigned int col = COLARGB(r, g, b, a);
+	luaSim->FloodDeco(vid_buf, x, y, col, PIXCONV(rep));
+
 	return 0;
 }
 
@@ -1676,6 +1685,91 @@ int simulation_takeSnapshot(lua_State * l)
 {
 	SnapshotHistory::TakeSnapshot(luaSim);
 	return 0;
+}
+
+int simulation_replaceModeFlags(lua_State *l)
+{
+	if (lua_gettop(l) == 0)
+	{
+		lua_pushinteger(l, get_brush_flags());
+		return 1;
+	}
+	unsigned int flags = luaL_checkinteger(l, 1);
+	if (flags & ~0x3)
+		return luaL_error(l, "Invalid flags");
+	if ((flags & 0x1) && (flags & 0x2))
+		return luaL_error(l, "Cannot set replace mode and specific delete at the same time");
+	REPLACE_MODE = flags & 0x1 ? true : false;
+	SPECIFIC_DELETE = flags & 0x2 ? true : false;
+	return 0;
+}
+
+int simulation_listCustomGol(lua_State *l)
+{
+	int i = 0;
+	lua_newtable(l);
+	for (auto &cgol : static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOL())
+	{
+		lua_newtable(l);
+		lua_pushstring(l, cgol.nameString.c_str());
+		lua_setfield(l, -2, "name");
+		lua_pushstring(l, cgol.ruleString.c_str());
+		lua_setfield(l, -2, "rulestr");
+		lua_pushnumber(l, cgol.rule);
+		lua_setfield(l, -2, "rule");
+		lua_pushnumber(l, cgol.color1);
+		lua_setfield(l, -2, "color1");
+		lua_pushnumber(l, cgol.color2);
+		lua_setfield(l, -2, "color2");
+		lua_rawseti(l, -2, ++i);
+	}
+	return 1;
+}
+
+int simulation_addCustomGol(lua_State *l)
+{
+	CustomGOLData cgol;
+	if (lua_isnumber(l, 1))
+	{
+		cgol.rule = luaL_checkinteger(l, 1);
+		cgol.ruleString = SerialiseGOLRule(cgol.rule);
+		cgol.rule = ParseGOLString(cgol.ruleString);
+	}
+	else
+	{
+		cgol.ruleString = luaL_checkstring(l, 1);
+		cgol.rule = ParseGOLString(cgol.ruleString);
+	}
+	cgol.nameString = luaL_checkstring(l, 2);
+	cgol.color1 = COLMODALPHA(luaL_checkinteger(l, 3), 0);
+	cgol.color2 = COLMODALPHA(luaL_checkinteger(l, 4), 0);
+
+	if (cgol.nameString.empty() || !ValidateGOLName(cgol.nameString))
+		return luaL_error(l, "Invalid name provided");
+	if (cgol.rule == -1)
+		return luaL_error(l, "Invalid rule provided");
+	if (static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByRule(cgol.rule))
+		return luaL_error(l, "This Custom GoL rule already exists");
+
+	if (!static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).AddCustomGOL(cgol))
+		return luaL_error(l, "Duplicate name, cannot add");
+	FillMenus();
+	return 0;
+}
+
+int simulation_removeCustomGol(lua_State *l)
+{
+	std::string ruleString = luaL_checkstring(l, 1);
+	auto cgol = static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).GetCustomGOLByName(ruleString);
+	if (!cgol)
+	{
+		lua_pushboolean(l, false);
+		return 1;
+	}
+	static_cast<LIFE_ElementDataContainer&>(*globalSim->elementData[PT_LIFE]).RemoveCustomGOL(cgol->rule);
+	FillMenus();
+	lua_pushboolean(l, true);
+	return 1;
 }
 
 //function added only for tptmp really
