@@ -349,15 +349,12 @@ void load_console_history(cJSON *commandObj, cJSON *resultObj)
 
 	int commandSize = cJSON_GetArraySize(commandObj);
 	int resultSize = resultObj ? cJSON_GetArraySize(resultObj) : 0;
-	// powder.pref is screwed up, just ignore all history
-	if (resultSize && commandSize != resultSize)
-		return;
 
 	for (int i = 0; i < commandSize; i++)
 	{
 		const char *command = cJSON_GetArrayItem(commandObj, i)->valuestring;
 		const char *result;
-		if (resultSize)
+		if (resultSize && i < resultSize)
 			result = cJSON_GetArrayItem(resultObj, i)->valuestring;
 		else
 			result = "";
