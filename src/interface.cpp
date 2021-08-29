@@ -2943,7 +2943,7 @@ void menu_select_element(int b, Tool* over)
 				openProp = true;
 			if (((ToolTool*)over)->GetID() == TOOL_GOL)
 			{
-				auto *golWindow = new GolWindow();
+				auto *golWindow = new GolWindow(true);
 				Engine::Ref().ShowWindow(golWindow);
 			}
 			Favorite::Ref().AddRecent(over->GetIdentifier());
@@ -3009,7 +3009,7 @@ void menu_select_element(int b, Tool* over)
 				openProp = true;
 			if (((ToolTool*)over)->GetID() == TOOL_GOL)
 			{
-				auto *golWindow = new GolWindow();
+				auto *golWindow = new GolWindow(false);
 				Engine::Ref().ShowWindow(golWindow);
 			}
 			Favorite::Ref().AddRecent(over->GetIdentifier());

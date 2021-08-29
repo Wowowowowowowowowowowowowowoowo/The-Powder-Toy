@@ -10,12 +10,13 @@
 #include "gui/dialogs/ErrorPrompt.h"
 #include "simulation/elements/LIFE.h"
 
-GolWindow::GolWindow():
-	GolWindow("", 0, 0)
+GolWindow::GolWindow(bool leftTool):
+	GolWindow("", 0, 0, leftTool)
 {}
 
-GolWindow::GolWindow(std::string ruleStr, int color1, int color2):
-	ui::Window(Point(CENTERED, CENTERED), Point(200, 98))
+GolWindow::GolWindow(std::string ruleStr, int color1, int color2, bool leftTool):
+	ui::Window(Point(CENTERED, CENTERED), Point(200, 98)),
+	leftTool(leftTool)
 {
 	highColor = color1 ? color1 : COLRGB(RNG::Ref().between(0x80, 0xFF), RNG::Ref().between(0x80, 0xFF), RNG::Ref().between(0x80, 0xFF));
 	lowColor = color2 ? color2 : COLRGB(RNG::Ref().between(0x00, 0x7F), RNG::Ref().between(0x00, 0x7F), RNG::Ref().between(0x00, 0x7F));
@@ -116,6 +117,9 @@ bool GolWindow::AddGol()
 	else
 	{
 		FillMenus();
+		Tool *golTool = GetToolFromIdentifier("DEFAULT_PT_LIFECUST_" + cgol.nameString);
+		if (golTool)
+			activeTools[leftTool ? 0 : 1] = golTool;
 	}
 
 	return true;
