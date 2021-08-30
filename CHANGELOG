@@ -1126,8 +1126,15 @@ Fix builtin-tptmp script suppression. Update to latest version of tptmp, which
 includes several bugfixes.
 
 Version 46.2 2021-08-29
-Updates from tpt++, including: HSV sliders in CGOL window, add AMBP and AMBM
-tools, decrease memory used by ctrl+z snapshots, LIGH lasts longer than one
-frame. Fix some edge cases in ctrl+z (element data not being restored if no
-elements of that type were on screen, ability to undo the addition of CGOL).
-Automatically select new CGOL tool after creating it.
+Update to TPT version 96.2, which includes:: HSV sliders in CGOL window, add
+AMBP and AMBMtools, decrease memory used by ctrl+z snapshots, LIGH lasts longer
+than one frame. Fix some edge cases in ctrl+z (element data not being restored
+if no elements of that type were on screen, ability to undo the addition of
+CGOL). Automatically select new CGOL tool after creating it. Fix console
+history often being deleted when sharing powder.pref between mod and vanilla.
+
+Version 46.3 2021-08-29
+Update to TPTMP v2.0.20 (lots of bugfixes and some additions like floating
+mode, see tptmp thread for details). Related - fix blank pink elements that
+appeared in element search, these came from tptmp and are now hidden. Fix bug
+on Windows causing random disconnects in tptmp.
