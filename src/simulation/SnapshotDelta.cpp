@@ -121,11 +121,13 @@ std::unique_ptr<SnapshotDelta> SnapshotDelta::FromSnapshots(const Snapshot &oldS
 
 	for (int i = 0; i < PT_NUM; i++)
 	{
+#ifndef NOMOD
 		// ANIM is very huge, better to never take snapshots of it unless necessary, or else memory usage skyrockets
 		// This is incorrect behavior, but unless someone does something weird with deleting ANIM between snapshots, nobody will notice
 		// ANIM's data structure is too weird and I don't want to write delta support for it right now
 		if (i == PT_ANIM && !globalSim->elementCount[PT_ANIM])
 			continue;
+#endif
 		if (newSnap.elementData[i] && oldSnap.elementData[i])
 		{
 			std::unique_ptr<ElementDataContainerDelta> elementDataDelta = newSnap.elementData[i]->Compare(oldSnap.elementData[i], newSnap.elementData[i]);
