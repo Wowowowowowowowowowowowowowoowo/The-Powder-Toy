@@ -1745,11 +1745,11 @@ void main_end_hack()
 {
 	SaveWindowPosition();
 	save_presets();
-#ifndef NOHTTP
-	RequestManager::Ref().Shutdown();
-#endif
 #ifdef LUACONSOLE
 	luacon_close();
+#endif
+#ifndef NOHTTP
+	RequestManager::Ref().Shutdown();
 #endif
 	ClearMenusections();
 	ClearSigns();
