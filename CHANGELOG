@@ -1139,4 +1139,7 @@ mode, see tptmp thread for details). Related - fix blank pink elements that
 appeared in element search, these came from tptmp and are now hidden. Fix bug
 on Windows causing random disconnects in tptmp. Implement interface api. This
 long overdue change brings Lua parity to this mod, after 9 years. Fix resizable
-window not being enabled at startup.
+window not being enabled after restarting game.
+
+Version 47.0 2021-09-03
+Fix text input sometimes not working in legacy interfaces

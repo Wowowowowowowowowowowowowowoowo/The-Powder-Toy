@@ -351,7 +351,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 		break;
 
 	case SDL_TEXTINPUT:
-		if (!Engine::Ref().DoTextInput() && SDL_GetModState() & KMOD_GUI)
+		if (!Engine::Ref().DoTextInput() || SDL_GetModState() & KMOD_GUI)
 			break;
 
 		sdl_textinput = std::string(event.text.text);
@@ -757,6 +757,7 @@ int mouse_get_state(int *x, int *y)
 
 int sdl_poll()
 {
+	Engine::Ref().StartTextInput();
 	return SDLPoll();
 }
 #endif
