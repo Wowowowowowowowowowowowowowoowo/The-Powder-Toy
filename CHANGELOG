@@ -1133,8 +1133,10 @@ if no elements of that type were on screen, ability to undo the addition of
 CGOL). Automatically select new CGOL tool after creating it. Fix console
 history often being deleted when sharing powder.pref between mod and vanilla.
 
-Version 46.3 2021-08-29
+Version 47.0 2021-09-02
 Update to TPTMP v2.0.20 (lots of bugfixes and some additions like floating
 mode, see tptmp thread for details). Related - fix blank pink elements that
 appeared in element search, these came from tptmp and are now hidden. Fix bug
-on Windows causing random disconnects in tptmp.
+on Windows causing random disconnects in tptmp. Implement interface api. This
+long overdue change brings Lua parity to this mod, after 9 years. Fix resizable
+window not being enabled at startup.
