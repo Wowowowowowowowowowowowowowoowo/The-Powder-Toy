@@ -172,19 +172,27 @@ int SDLOpen()
 	return 1;
 }
 
-void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_,
-				  bool forceIntegerScaling_, bool canRecreateWindow)
+void UpdateSettings(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_, bool forceIntegerScaling_)
 {
-	if (!sdl_opened)
-		return;
-	bool changingFullscreen = fullscreen_ != fullscreen || (altFullscreen_ != altFullscreen && fullscreen);
-	bool changingResizable = resizable != resizable_ || pixelFilteringMode != pixelFilteringMode_;
 	resizable = resizable_;
 	pixelFilteringMode = pixelFilteringMode_;
 	fullscreen = fullscreen_;
 	altFullscreen = altFullscreen_;
 	forceIntegerScaling = forceIntegerScaling_;
-	if ((changingFullscreen || (changingResizable && resizable && !fullscreen)) && canRecreateWindow)
+}
+
+void SDLSetScreen(bool resizable_, int pixelFilteringMode_, bool fullscreen_, bool altFullscreen_,
+				  bool forceIntegerScaling_, bool canRecreateWindow)
+{
+	if (!sdl_opened)
+	{
+		UpdateSettings(resizable_, pixelFilteringMode_, fullscreen_, altFullscreen_, forceIntegerScaling_);
+		return;
+	}
+	bool changingFullscreen = fullscreen_ != fullscreen || (altFullscreen_ != altFullscreen && fullscreen);
+	bool changingResizable = resizable != resizable_ || pixelFilteringMode != pixelFilteringMode_;
+	UpdateSettings(resizable_, pixelFilteringMode_, fullscreen_, altFullscreen_, forceIntegerScaling_);
+	if ((changingFullscreen || altFullscreen || (changingResizable && resizable && !fullscreen)) && canRecreateWindow)
 	{
 		RecreateWindow();
 		return;
