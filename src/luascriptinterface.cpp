@@ -32,8 +32,15 @@
 #include "graphics/ARGBColour.h"
 #include "graphics/Renderer.h"
 #include "interface/Engine.h"
+#include "lua/LuaButton.h"
+#include "lua/LuaCheckbox.h"
+#include "lua/LuaLabel.h"
+#include "lua/LuaProgressBar.h"
+#include "lua/LuaSlider.h"
 #include "lua/LuaSmartRef.h"
 #include "lua/LuaTCPSocket.h"
+#include "lua/LuaTextbox.h"
+#include "lua/LuaWindow.h"
 #include "simulation/Simulation.h"
 #include "simulation/WallNumbers.h"
 #include "simulation/SnapshotHistory.h"
@@ -2333,6 +2340,137 @@ int fileSystem_copy(lua_State * l)
 	return 1;
 }
 
+void initInterfaceAPI(lua_State * l)
+{
+	struct luaL_Reg interfaceAPIMethods [] = {
+		{"showWindow", interface_showWindow},
+		{"closeWindow", interface_closeWindow},
+		{"addComponent", interface_addComponent},
+		{"removeComponent", interface_removeComponent},
+		{"grabTextInput", interface_grabTextInput},
+		{"dropTextInput", interface_dropTextInput},
+		{"textInputRect", interface_textInputRect},
+		{NULL, NULL}
+	};
+	luaL_register(l, "interface", interfaceAPIMethods);
+
+	//Ren shortcut
+	lua_getglobal(l, "interface");
+	lua_setglobal(l, "ui");
+
+	Luna<LuaWindow>::Register(l);
+	Luna<LuaButton>::Register(l);
+	Luna<LuaLabel>::Register(l);
+	Luna<LuaTextbox>::Register(l);
+	Luna<LuaCheckbox>::Register(l);
+	Luna<LuaSlider>::Register(l);
+	Luna<LuaProgressBar>::Register(l);
+}
+
+std::map<LuaComponent *, LuaSmartRef> grabbed_components;
+int interface_addComponent(lua_State * l)
+{
+	void *opaque = nullptr;
+	LuaComponent *luaComponent = nullptr;
+	if ((opaque = Luna<LuaButton>::tryGet(l, 1)))
+		luaComponent = Luna<LuaButton>::get(opaque);
+	else if ((opaque = Luna<LuaLabel>::tryGet(l, 1)))
+		luaComponent = Luna<LuaLabel>::get(opaque);
+	else if ((opaque = Luna<LuaTextbox>::tryGet(l, 1)))
+		luaComponent = Luna<LuaTextbox>::get(opaque);
+	else if ((opaque = Luna<LuaCheckbox>::tryGet(l, 1)))
+		luaComponent = Luna<LuaCheckbox>::get(opaque);
+	else if ((opaque = Luna<LuaSlider>::tryGet(l, 1)))
+		luaComponent = Luna<LuaSlider>::get(opaque);
+	else if ((opaque = Luna<LuaProgressBar>::tryGet(l, 1)))
+		luaComponent = Luna<LuaProgressBar>::get(opaque);
+	else
+		luaL_typerror(l, 1, "Component");
+	if (luaComponent)
+	{
+		auto ok = grabbed_components.insert(std::make_pair(luaComponent, LuaSmartRef(l)));
+		if (ok.second)
+		{
+			auto it = ok.first;
+			it->second.Assign(l, 1);
+			it->first->owner_ref = it->second;
+		}
+		the_game->AddComponent(luaComponent->GetComponent());
+		luaComponent->GetComponent()->SetSelfManaged();
+	}
+	return 0;
+}
+
+int interface_removeComponent(lua_State * l)
+{
+	void *opaque = nullptr;
+	LuaComponent *luaComponent = nullptr;
+	if ((opaque = Luna<LuaButton>::tryGet(l, 1)))
+		luaComponent = Luna<LuaButton>::get(opaque);
+	else if ((opaque = Luna<LuaLabel>::tryGet(l, 1)))
+		luaComponent = Luna<LuaLabel>::get(opaque);
+	else if ((opaque = Luna<LuaTextbox>::tryGet(l, 1)))
+		luaComponent = Luna<LuaTextbox>::get(opaque);
+	else if ((opaque = Luna<LuaCheckbox>::tryGet(l, 1)))
+		luaComponent = Luna<LuaCheckbox>::get(opaque);
+	else if ((opaque = Luna<LuaSlider>::tryGet(l, 1)))
+		luaComponent = Luna<LuaSlider>::get(opaque);
+	else if ((opaque = Luna<LuaProgressBar>::tryGet(l, 1)))
+		luaComponent = Luna<LuaProgressBar>::get(opaque);
+	else
+		luaL_typerror(l, 1, "Component");
+	if (luaComponent)
+	{
+		Component *component = luaComponent->GetComponent();
+		the_game->RemoveComponent(component);
+		auto it = grabbed_components.find(luaComponent);
+		if (it != grabbed_components.end())
+		{
+			it->second.Clear();
+			it->first->owner_ref = it->second;
+			grabbed_components.erase(it);
+		}
+	}
+	return 0;
+}
+
+int textInputRefcount;
+int interface_grabTextInput(lua_State * l)
+{
+	textInputRefcount += 1;
+	the_game->SetDoesTextInput(textInputRefcount > 0);
+	return 0;
+}
+
+int interface_dropTextInput(lua_State * l)
+{
+	textInputRefcount -= 1;
+	the_game->SetDoesTextInput(textInputRefcount > 0);
+	return 0;
+}
+
+int interface_textInputRect(lua_State * l)
+{
+	return 0;
+}
+
+int interface_showWindow(lua_State * l)
+{
+	LuaWindow * window = Luna<LuaWindow>::check(l, 1);
+
+	if (window && Engine::Ref().GetTop() != window->GetWindow())
+		Engine::Ref().ShowWindow(window->GetWindow());
+	return 0;
+}
+
+int interface_closeWindow(lua_State * l)
+{
+	LuaWindow * window = Luna<LuaWindow>::check(l, 1);
+	if (window)
+		window->GetWindow()->toDelete = true;
+	return 0;
+}
+
 /*
 
 GRAPHICS API
@@ -2365,14 +2503,14 @@ void initGraphicsAPI(lua_State * l)
 	lua_pushinteger(l, YRES+MENUSIZE);	lua_setfield(l, -2, "HEIGHT");
 }
 
+#include "graphics/VideoBuffer.h"
 int graphics_textSize(lua_State * l)
 {
-    int width, height;
 	char* text = (char*)luaL_optstring(l, 1, "");
-	textsize(text, &width, &height);
 
-	lua_pushinteger(l, width);
-	lua_pushinteger(l, height);
+	Point size = gfx::VideoBuffer::TextSize(text);
+	lua_pushinteger(l, size.X);
+	lua_pushinteger(l, size.Y);
 	return 2;
 }
 
@@ -2396,7 +2534,7 @@ int graphics_drawText(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawtext(lua_vid_buf, x, y, text, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->DrawString(x, y, text, r, g, b, a);
 	return 0;
 }
 
@@ -2421,7 +2559,7 @@ int graphics_drawLine(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	blend_line(lua_vid_buf, x1, y1, x2, y2, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->DrawLine(x1, y1, x2, y2, r, g, b, a);
 	return 0;
 }
 
@@ -2430,8 +2568,8 @@ int graphics_drawRect(lua_State * l)
 	int x, y, w, h, r, g, b, a;
 	x = lua_tointeger(l, 1);
 	y = lua_tointeger(l, 2);
-	w = lua_tointeger(l, 3)-1;
-	h = lua_tointeger(l, 4)-1;
+	w = lua_tointeger(l, 3);
+	h = lua_tointeger(l, 4);
 	r = luaL_optint(l, 5, 255);
 	g = luaL_optint(l, 6, 255);
 	b = luaL_optint(l, 7, 255);
@@ -2446,17 +2584,17 @@ int graphics_drawRect(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawrect(lua_vid_buf, x, y, w, h, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->DrawRect(x, y, w, h, r, g, b, a);
 	return 0;
 }
 
 int graphics_fillRect(lua_State * l)
 {
 	int x, y, w, h, r, g, b, a;
-	x = lua_tointeger(l, 1)-1;
-	y = lua_tointeger(l, 2)-1;
-	w = lua_tointeger(l, 3)+1;
-	h = lua_tointeger(l, 4)+1;
+	x = lua_tointeger(l, 1);
+	y = lua_tointeger(l, 2);
+	w = lua_tointeger(l, 3);
+	h = lua_tointeger(l, 4);
 	r = luaL_optint(l, 5, 255);
 	g = luaL_optint(l, 6, 255);
 	b = luaL_optint(l, 7, 255);
@@ -2471,7 +2609,7 @@ int graphics_fillRect(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	fillrect(lua_vid_buf, x, y, w, h, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->FillRect(x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2496,7 +2634,7 @@ int graphics_drawCircle(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	drawcircle(lua_vid_buf, x, y, w, h, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->DrawCircle(x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2521,7 +2659,7 @@ int graphics_fillCircle(lua_State * l)
 	if (a<0) a = 0;
 	else if (a>255) a = 255;
 
-	fillcircle(lua_vid_buf, x, y, w, h, r, g, b, a);
+	Engine::Ref().GetTop()->GetVid()->FillCircle(x, y, w, h, r, g, b, a);
 	return 0;
 }
 
@@ -2970,7 +3108,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "Update");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			lua_el_func[id].Assign(-1);
+			lua_el_func[id].Assign(l, -1);
 			lua_el_mode[id] = 1;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
@@ -2983,7 +3121,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "Graphics");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			lua_gr_func[id].Assign(-1);
+			lua_gr_func[id].Assign(l, -1);
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
 		{
@@ -2995,7 +3133,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "CtypeDraw");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			luaCtypeDrawHandlers[id].Assign(-1);
+			luaCtypeDrawHandlers[id].Assign(l, -1);
 			luaSim->elements[id].CtypeDraw = luaCtypeDrawWrapper;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
@@ -3008,7 +3146,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "Create");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			luaCreateHandlers[id].Assign(-1);
+			luaCreateHandlers[id].Assign(l, -1);
 			luaSim->elements[id].Func_Create = luaCreateWrapper;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
@@ -3021,7 +3159,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "CreateAllowed");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			luaCreateAllowedHandlers[id].Assign(-1);
+			luaCreateAllowedHandlers[id].Assign(l, -1);
 			luaSim->elements[id].Func_Create_Allowed = luaCreateAllowedWrapper;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
@@ -3034,7 +3172,7 @@ int elements_element(lua_State * l)
 		lua_getfield(l, -1, "ChangeType");
 		if (lua_type(l, -1) == LUA_TFUNCTION)
 		{
-			luaChangeTypeHandlers[id].Assign(-1);
+			luaChangeTypeHandlers[id].Assign(l, -1);
 			luaSim->elements[id].Func_ChangeType = luaChangeTypeWrapper;
 		}
 		else if (lua_type(l, -1) == LUA_TBOOLEAN && !lua_toboolean(l, -1))
@@ -3149,7 +3287,7 @@ int elements_property(lua_State * l)
 					break;
 				}
 
-				lua_el_func[id].Assign(3);
+				lua_el_func[id].Assign(l, 3);
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
 			{
@@ -3161,7 +3299,7 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				lua_gr_func[id].Assign(3);
+				lua_gr_func[id].Assign(l, 3);
 				graphicscache[id].isready = 0;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
@@ -3175,7 +3313,7 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				luaCtypeDrawHandlers[id].Assign(3);
+				luaCtypeDrawHandlers[id].Assign(l, 3);
 				luaSim->elements[id].CtypeDraw = luaCtypeDrawWrapper;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
@@ -3189,7 +3327,7 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				luaCreateHandlers[id].Assign(3);
+				luaCreateHandlers[id].Assign(l, 3);
 				luaSim->elements[id].Func_Create = luaCreateWrapper;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
@@ -3203,7 +3341,7 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				luaCreateAllowedHandlers[id].Assign(3);
+				luaCreateAllowedHandlers[id].Assign(l, 3);
 				luaSim->elements[id].Func_Create_Allowed = luaCreateAllowedWrapper;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))
@@ -3216,7 +3354,7 @@ int elements_property(lua_State * l)
 		{
 			if (lua_type(l, 3) == LUA_TFUNCTION)
 			{
-				luaChangeTypeHandlers[id].Assign(3);
+				luaChangeTypeHandlers[id].Assign(l, 3);
 				luaSim->elements[id].Func_ChangeType = luaChangeTypeWrapper;
 			}
 			else if (lua_type(l, 3) == LUA_TBOOLEAN && !lua_toboolean(l, 3))

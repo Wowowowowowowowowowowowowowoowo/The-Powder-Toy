@@ -30,6 +30,7 @@ public:
 	bool IsChecked() { return checked; }
 
 	void SetChecked(bool checked_) { checked = checked_; }
+	std::string GetText() { return text; }
 	void SetText(std::string text_);
 	void UseCheckIcon(bool useIcon) { useCheckIcon = useIcon; }
 	void SetTooltip(ToolTip *newTip);

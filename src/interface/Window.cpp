@@ -87,11 +87,19 @@ void Window::AddSubwindow(Window *other)
 
 void Window::RemoveComponent(Component *other)
 {
-	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
+	bool selfManaged = other->IsSelfManaged() || this->selfManaged;
+	for (int i = Components.size()-1; i >= 0; i--)
 	{
-		if ((*iter) == other)
+		if (Components[i] == other)
 		{
-			(*iter)->toDelete = true;
+			if (!selfManaged)
+				Components[i]->toDelete = true;
+			else
+			{
+				// Hack: Lua will delete this component while garbage collecting
+				Components[i]->SetParent(nullptr);
+				Components.erase(Components.begin()+i);
+			}
 		}
 	}
 	if (other == focused)
@@ -182,9 +190,9 @@ void Window::SetTransparency(int transparency)
 	this->transparency = transparency;
 }
 
-void Window::DoExit()
+void Window::DoExit(DeleteReason deleteReason)
 {
-	OnExit();
+	OnExit(deleteReason);
 }
 
 void Window::DoFocus()
@@ -197,11 +205,26 @@ void Window::DoDefocus()
 	OnDefocus();
 }
 
-void Window::DoTick(uint32_t ticks)
+void Window::DoTick(uint32_t ticks, bool isSubWindow)
 {
+	if (!isSubWindow)
+	{
+		bool needsTextInput = doesTextInput || legacyCodeDoesTextInput || (focused && focused->IsVisible() && focused->IsEnabled() && focused->DoesTextInput());
+		for (auto &subWindow : Subwindows)
+		{
+			Component *f = subWindow->focused;
+			needsTextInput = needsTextInput || (f && f->IsVisible() && f->IsEnabled() && f->DoesTextInput());
+		}
+
+		if (needsTextInput)
+			Engine::Ref().StartTextInput();
+		else
+			Engine::Ref().StopTextInput();
+	}
+
 	for (std::vector<Window*>::iterator iter = Subwindows.begin(), end = Subwindows.end(); iter != end; iter++)
 	{
-		(*iter)->DoTick(ticks);
+		(*iter)->DoTick(ticks, true);
 	}
 	for (std::vector<Component*>::iterator iter = Components.begin(), end = Components.end(); iter != end; iter++)
 	{
@@ -355,6 +378,7 @@ void Window::DoMouseUp(int x, int y, unsigned char button)
 		if (hasBorder && (x < position.X || x > position.X+size.X || y < position.Y || y > position.Y+size.Y))
 		{
 			toDelete = true;
+			deleteReason = MouseOutside;
 		}
 	}
 #endif

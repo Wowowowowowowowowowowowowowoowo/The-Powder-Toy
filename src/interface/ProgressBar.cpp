@@ -42,8 +42,16 @@ void ProgressBar::OnDraw(gfx::VideoBuffer *vid)
 	int width = static_cast<int>((size.X - 2) * progress / 100.0f);
 	vid->FillRect(position.X+1, position.Y+1, width, size.Y-2, color);
 
-	std::string progressStr = Format::NumberToString<int>(progress);
-	progressStr += "%";
+	std::string progressStr;
+	if (status.length())
+	{
+		progressStr = status;
+	}
+	else
+	{
+		progressStr = Format::NumberToString<int>(progress);
+		progressStr += "%";
+	}
 	width = gfx::VideoBuffer::TextSize(progressStr).X;
 	if (progress < 53)
 		vid->DrawString(position.X + size.X/2 - width/2, position.Y + (size.Y-8)/2, progressStr, 192, 192, 192, 255);

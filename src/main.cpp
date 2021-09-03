@@ -1456,6 +1456,11 @@ int main_loop_temp(int b, int bq, int sdl_key, int scan, int x, int y, bool shif
 		}
 		else
 			old_menu_v2(active_menu, x, y, b, bq);
+
+		if (active_menu == SC_DECO)
+			the_game->SetLegacyCodeDoesTextInput(true);
+		else
+			the_game->SetLegacyCodeDoesTextInput(false);
 #endif
 
 		//TODO: only when entering / exiting menu

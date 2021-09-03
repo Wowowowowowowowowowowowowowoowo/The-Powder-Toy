@@ -28,13 +28,14 @@ protected:
 	uint32_t lastClick;
 	unsigned int numClicks, clickPosition;
 	bool autosizeX, autosizeY;
+	bool noCutoff;
 
 	void UpdateDisplayText(bool updateCursor = false, bool firstClick = false);
 	void MoveCursor(unsigned int *cursor, int amount);
 	virtual bool ShowCursor() { return false; }
 
 public:
-	Label(Point position, Point size, std::string text, bool multiline = false);
+	Label(Point position, Point size, std::string text, bool multiline = false, bool noCutoff = false);
 	virtual ~Label() { }
 
 	void SetSize(Point size) override;

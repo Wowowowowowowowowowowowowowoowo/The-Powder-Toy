@@ -31,8 +31,9 @@ public:
 	ARGBColour GetBackgroundColor2() { return bgColor2; }
 
 	int GetSteps() { return steps; }
-	void SetValue(int position) { this->sliderPos = position; }
+	void SetSteps(int steps);
 	int GetValue() { return sliderPos; }
+	void SetValue(int position);
 
 	void OnDraw(gfx::VideoBuffer* vid) override;
 	void OnMouseMoved(int x, int y, Point difference) override;

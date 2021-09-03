@@ -32,6 +32,8 @@ int sdl_key, sdl_wheel;
 // Irrelevant for Android (only thing that uses sdl 1.2)
 int savedWindowX = 0;
 int savedWindowY = 0;
+void StartTextInput() {}
+void StopTextInput() {}
 void LoadWindowPosition() {}
 void SaveWindowPosition() {}
 

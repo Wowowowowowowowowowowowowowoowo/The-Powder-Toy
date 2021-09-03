@@ -16,6 +16,8 @@ class VideoBuffer
 	int width;
 	int height;
 
+	void DrawPixelSafe(int x, int y, int r, int g, int b, int a);
+
 public:
 	VideoBuffer(int width, int height);
 	~VideoBuffer();
@@ -36,6 +38,8 @@ public:
 	void DrawRect(int x, int y, int w, int h, ARGBColour color);
 	void FillRect(int x, int y, int w, int h, int r, int g, int b, int a);
 	void FillRect(int x, int y, int w, int h, ARGBColour color);
+	void DrawCircle(int x, int y, int rx, int ry, int r, int g, int b, int a);
+	void FillCircle(int x, int y, int rx, int ry, int r, int g, int b, int a);
 
 	int DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a, bool modifiedColor = false);
 	int DrawChar(int x, int y, unsigned char c, ARGBColour color, bool modifiedColor = false);

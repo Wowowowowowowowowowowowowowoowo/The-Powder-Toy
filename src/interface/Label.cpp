@@ -12,7 +12,7 @@
 // TODO: Put label in ui namespace and remove this
 using namespace ui;
 
-Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
+Label::Label(Point position_, Point size_, std::string text_, bool multiline_, bool noCutoff) :
 	Component(position_, size_),
 	currentTick(0),
 	isClicked(false),
@@ -27,7 +27,8 @@ Label::Label(Point position_, Point size_, std::string text_, bool multiline_) :
 	cursorPosReset(false),
 	lastClick(0),
 	numClicks(0),
-	clickPosition(0)
+	clickPosition(0),
+	noCutoff(noCutoff)
 {
 	autosizeX = (size.X == AUTOSIZE);
 	autosizeY = (size.Y == AUTOSIZE);
@@ -194,7 +195,7 @@ void Label::UpdateDisplayText(bool updateCursor, bool firstClick)
 				bool hasCharacter = posX != 0;
 				//normal character, add to the current width and check if it's too long
 				posX += gfx::VideoBuffer::CharSize(text[i]);
-				if (hasCharacter && !autosizeX && posX+4 >= size.X)
+				if (hasCharacter && !autosizeX && posX+4 >= size.X && !noCutoff)
 				{
 					if (multiline)
 					{

@@ -11,6 +11,7 @@ class VideoBuffer;
 class ProgressBar : public Component
 {
 	int progress = 0;
+	std::string status;
 
 public:
 	ProgressBar(Point position, Point size);
@@ -18,6 +19,8 @@ public:
 	int GetProgress();
 	void SetProgress(int progress);
 
+	std::string GetStatus() { return status; }
+	void SetStatus(std::string status) { this->status = status; }
 	void OnDraw(gfx::VideoBuffer* vid) override;
 };
 

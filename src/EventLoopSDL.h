@@ -13,7 +13,8 @@ extern unsigned short sdl_mod;
 extern std::string sdl_textinput;
 extern int sdl_key, sdl_wheel;
 
-
+void StartTextInput();
+void StopTextInput();
 void SaveWindowPosition();
 
 void SDLInit();

@@ -24,8 +24,9 @@ protected:
 	bool isMouseInside; // keeps track of if mouse is inside so child classes don't have to
 	bool visible; // ignore all events + tick and hide component
 	bool enabled; // ignore all events, still call tick and draw function
-
+	bool doesTextInput = false; // Should textinput events be forwarded to this component?
 	ARGBColour color;
+	bool selfManaged = false;
 
 public:
 	Component(Point position, Point size);
@@ -50,8 +51,12 @@ public:
 	void SetVisible(bool visible);
 	bool IsEnabled() { return enabled; }
 	void SetEnabled(bool enabled_) { enabled = enabled_; if (!enabled) isMouseInside = false; }
+	bool DoesTextInput() { return doesTextInput; }
+	void SetDoesTextInput(bool doesTextInput) { this->doesTextInput = doesTextInput; }
 	virtual void SetColor(ARGBColour newColor) { color = newColor; }
 	ARGBColour GetColor() { return color; }
+	bool IsSelfManaged() { return selfManaged; }
+	void SetSelfManaged() { selfManaged = true; }
 
 	// can be used to line up components
 	Point Right(Point diff) { return Point(position.X + size.X + diff.X, position.Y+diff.Y); }

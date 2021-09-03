@@ -47,6 +47,7 @@
 #include "game/ToolTip.h"
 #include "graphics/Renderer.h"
 #include "gui/game/PowderToy.h"
+#include "lua/LuaComponent.h"
 #include "lua/LuaSmartRef.h"
 #include "simulation/Simulation.h"
 #include "simulation/Tool.h"
@@ -149,6 +150,7 @@ void luacon_open()
 	};
 
 	l = luaL_newstate();
+	tpt_lua_setmainthread(l);
 	luaL_openlibs(l);
 	luaopen_bit(l);
 	luaL_register(l, "tpt", tptluaapi);
@@ -157,6 +159,7 @@ void luacon_open()
 	initSimulationAPI(l);
 	initRendererAPI(l);
 	initFileSystemAPI(l);
+	initInterfaceAPI(l);
 	initGraphicsAPI(l);
 	initElementsAPI(l);
 	initPlatformAPI(l);
@@ -242,7 +245,7 @@ tpt.partsdata = nil");
 	}
 	
 	tptPart = new LuaSmartRef(l);
-	tptPart->Assign(-1);
+	tptPart->Assign(l, -1);
 	lua_pop(l, 1);
 #endif
 	
@@ -705,7 +708,7 @@ char *logs = NULL; //logs from tpt.log are temporarily stored here
 int luacon_eval(const char *command, char **result)
 {
 	int level = lua_gettop(l), ret = -1;
-	char *text = NULL, *tmp;
+	char *text = NULL;
 	if (logs)
 	{
 		free(logs);
@@ -723,10 +726,11 @@ int luacon_eval(const char *command, char **result)
 		lastCode = (char*)malloc(strlen(command)+1);
 		sprintf(lastCode, "%s", command);
 	}
-	tmp = (char*)malloc(strlen(lastCode) + 8);
+	char *tmp = (char*)malloc(strlen(lastCode) + 8);
 	sprintf(tmp, "return %s", lastCode);
 	loop_time = Platform::GetTime();
 	luaL_loadbuffer(l, tmp, strlen(tmp), "@console");
+	free(tmp);
 	if (lua_type(l, -1) != LUA_TFUNCTION)
 	{
 		lua_pop(l, 1);
@@ -985,6 +989,12 @@ void luacon_close()
 	luaCreateHandlers.clear();
 	luaCreateAllowedHandlers.clear();
 	luaChangeTypeHandlers.clear();
+	for (auto &component_and_ref : grabbed_components)
+	{
+		the_game->RemoveComponent(component_and_ref.first->GetComponent());
+		component_and_ref.second.Clear();
+		component_and_ref.first->owner_ref = component_and_ref.second;
+	}
 	lua_close(l);
 	if (lastCode)
 		free(lastCode);
@@ -1057,7 +1067,7 @@ int luatpt_element_func(lua_State *l)
 		int replace = luaL_optint(l, 3, 0);
 		if (luaSim->IsElement(element))
 		{
-			lua_el_func[element].Assign(1);
+			lua_el_func[element].Assign(l, 1);
 			if (replace == 2)
 				lua_el_mode[element] = 3; // update before
 			else if (replace)
@@ -1096,7 +1106,7 @@ int luatpt_graphics_func(lua_State *l)
 		int element = luaL_optint(l, 2, 0);
 		if (luaSim->IsElement(element))
 		{
-			lua_gr_func[element].Assign(1);
+			lua_gr_func[element].Assign(l, 1);
 			graphicscache[element].isready = 0;
 			return 0;
 		}

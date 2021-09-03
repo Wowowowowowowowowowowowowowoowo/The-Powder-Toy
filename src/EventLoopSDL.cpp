@@ -35,6 +35,15 @@ unsigned short sdl_mod;
 std::string sdl_textinput = "";
 int sdl_key, sdl_wheel;
 
+void StartTextInput()
+{
+	SDL_StartTextInput();
+}
+
+void StopTextInput()
+{
+	SDL_StopTextInput();
+}
 
 void LoadWindowPosition()
 {
@@ -334,7 +343,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 		break;
 
 	case SDL_TEXTINPUT:
-		if (SDL_GetModState() & KMOD_GUI)
+		if (!Engine::Ref().DoTextInput() && SDL_GetModState() & KMOD_GUI)
 			break;
 
 		sdl_textinput = std::string(event.text.text);
@@ -484,11 +493,11 @@ void MainLoop()
 		}
 
 		uint32_t currentTick = SDL_GetTicks();
-		top->DoTick(currentTick-lastTick);
+		top->DoTick(currentTick-lastTick, false);
 		drawingTimer += currentTick - lastTick;
 		lastTick = currentTick;
 
-		int drawcap = Engine::Ref().GetDrawingFrequency();
+		int drawcap = engine.GetDrawingFrequency();
 		if (!drawcap || drawingTimer > 1000.f/drawcap)
 		{
 			drawingTimer = 0;

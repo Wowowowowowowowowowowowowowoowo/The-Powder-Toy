@@ -90,7 +90,11 @@ void Engine::CloseWindowDelayed()
 {
 	while (top && (top->toDelete || isShutdown))
 	{
-		delete top;
+		top->DoExit(top->deleteReason);
+		if (!top->IsSelfManaged())
+			delete top;
+		else
+			top->UpdateComponents();
 		windows.pop();
 
 		// Restore original copy of the video buffer from before this window was shown
@@ -220,6 +224,26 @@ void Engine::SetForceIntegerScaling(bool forceIntegerScaling)
 		SDLSetScreen(resizable, pixelFilteringMode, fullscreen, altFullscreen, forceIntegerScaling, true);
 		this->forceIntegerScaling = forceIntegerScaling;
 	}
+}
+
+void Engine::StartTextInput()
+{
+	if (textInput)
+	{
+		return;
+	}
+	textInput = true;
+	::StartTextInput();
+}
+
+void Engine::StopTextInput()
+{
+	if (!textInput)
+	{
+		return;
+	}
+	::StopTextInput();
+	textInput = false;
 }
 
 void Engine::ClipboardPush(std::string text)

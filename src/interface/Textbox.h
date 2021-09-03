@@ -29,12 +29,18 @@ public:
 	void SetAutoSize(bool X, bool Y, Point limit);
 	void SetCharacterLimit(int characterLimit_) { characterLimit = characterLimit_; }
 	void SetAutoCorrect(bool autoCorrect_) { autoCorrect = autoCorrect_; }
+	bool IsReadOnly() { return readOnly; }
+	void SetReadOnly(bool readOnly) { this->readOnly = readOnly; }
+	std::string GetPlaceholder() { return placeholder; }
+	void SetPlaceholder(std::string placeholder) { this->placeholder = placeholder; }
 	void SetType(texttype type_) { type = type_; }
 
 private:
 	Point sizeLimit;
 	unsigned int characterLimit;
 	bool autoCorrect;
+	bool readOnly;
+	std::string placeholder;
 	std::function<void(void)> callback = nullptr;
 	std::function<void(void)> defocusCallback = nullptr;
 	texttype type;

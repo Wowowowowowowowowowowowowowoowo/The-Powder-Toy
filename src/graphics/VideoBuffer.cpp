@@ -1,5 +1,6 @@
-#include <cstdlib>
 #include "VideoBuffer.h"
+#include <cmath>
+#include <cstdlib>
 #define INCLUDE_FONTDATA
 #include "font.h"
 #include "common/tpt-minmax.h"
@@ -99,8 +100,6 @@ void VideoBuffer::CopyBufferFrom(pixel* vidFrom, int vidWidth, int vidHeight, in
 //This function does NO bounds checking
 void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
 {
-	//if (x < 0 || y < 0 || x >= width || y >= height || a == 0)
-	//	return;
 	if (a == 0)
 		return;
 	if (a != 255)
@@ -117,6 +116,13 @@ void VideoBuffer::DrawPixel(int x, int y, int r, int g, int b, int a)
 void VideoBuffer::DrawPixel(int x, int y, ARGBColour color)
 {
 	DrawPixel(x, y, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
+void VideoBuffer::DrawPixelSafe(int x, int y, int r, int g, int b, int a)
+{
+	if (x < 0 || y < 0 || x >= width || y >= height)
+		return;
+	DrawPixel(x, y, r, g, b, a);
 }
 
 //This function does NO bounds checking
@@ -297,6 +303,61 @@ void VideoBuffer::FillRect(int x, int y, int w, int h, int r, int g, int b, int 
 void VideoBuffer::FillRect(int x, int y, int w, int h, ARGBColour color)
 {
 	FillRect(x, y, w, h, COLR(color), COLG(color), COLB(color), COLA(color));
+}
+
+void VideoBuffer::DrawCircle(int x, int y, int rx, int ry, int r, int g, int b, int a)
+{
+	int tempy = y;
+	if (!rx)
+	{
+		for (int j = -ry; j <= ry; j++)
+			DrawPixelSafe(x, y + j, r, g, b, a);
+		return;
+	}
+	for (int i = x - rx; i <= x; i++)
+	{
+		int oldy = tempy;
+		while (std::pow(i - x, 2.0) * std::pow(ry, 2.0) + std::pow(tempy - y, 2.0) * std::pow(rx, 2.0) <= std::pow(rx, 2.0) * std::pow(ry, 2.0))
+			tempy = tempy - 1;
+		tempy = tempy + 1;
+		if (oldy != tempy)
+			oldy--;
+		for (int j = tempy; j <= oldy; j++)
+		{
+			int i2 = 2 * x - i, j2 = 2 * y - j;
+			DrawPixelSafe(i, j, r, g, b, a);
+			if (i2 != i)
+				DrawPixelSafe(i2, j, r, g, b, a);
+			if (j2 != j)
+				DrawPixelSafe(i, j2, r, g, b, a);
+			if (i2 != i && j2 != j)
+				DrawPixelSafe(i2, j2, r, g, b, a);
+		}
+	}
+}
+
+void VideoBuffer::FillCircle(int x, int y, int rx, int ry, int r, int g, int b, int a)
+{
+	int tempy = y;
+	if (!rx)
+	{
+		for (int j = -ry; j <= ry; j++)
+			DrawPixelSafe(x, y + j, r, g, b, a);
+		return;
+	}
+	for (int i = x - rx; i <= x; i++)
+	{
+		while (std::pow(i - x, 2.0) * std::pow(ry, 2.0) + std::pow(tempy - y, 2.0) * std::pow(rx, 2.0) <= std::pow(rx, 2.0) * std::pow(ry, 2.0))
+			tempy = tempy - 1;
+		tempy = tempy + 1;
+		int jmax = 2 * y - tempy;
+		for (int j = tempy; j <= jmax; j++)
+		{
+			DrawPixelSafe(i, j, r, g, b, a);
+			if (i != x)
+				DrawPixelSafe(2 * x - i, j, r, g, b, a);
+		}
+	}
 }
 
 int VideoBuffer::DrawChar(int x, int y, unsigned char c, int r, int g, int b, int a, bool modifiedColor)

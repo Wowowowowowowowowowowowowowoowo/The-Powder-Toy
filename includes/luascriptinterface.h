@@ -3,6 +3,7 @@
 #define LUASCRIPT_H
 
 #include <luaconsole.h>
+#include <map>
 #include "simulation/StructProperty.h"
 #include "simulation/SimulationData.h"
 
@@ -13,6 +14,10 @@
 
 extern char custom_can_move[PT_NUM][PT_NUM];
 void custom_init_can_move();
+
+class LuaComponent;
+extern std::map<LuaComponent *, LuaSmartRef> grabbed_components;
+extern int textInputRefcount;
 
 int simulation_signIndex(lua_State *l);
 int simulation_signNewIndex(lua_State *l);
@@ -103,6 +108,15 @@ int fileSystem_removeDirectory(lua_State * l);
 int fileSystem_removeFile(lua_State * l);
 int fileSystem_move(lua_State * l);
 int fileSystem_copy(lua_State * l);
+
+void initInterfaceAPI(lua_State * l);
+int interface_showWindow(lua_State * l);
+int interface_closeWindow(lua_State * l);
+int interface_addComponent(lua_State * l);
+int interface_removeComponent(lua_State * l);
+int interface_grabTextInput(lua_State * l);
+int interface_dropTextInput(lua_State * l);
+int interface_textInputRect(lua_State * l);
 
 void initGraphicsAPI(lua_State * l);
 int graphics_textSize(lua_State * l);

@@ -38,6 +38,7 @@ public:
 	Button(Point position, Point size, std::string text_);
 	virtual ~Button();
 
+	std::string GetText() { return text; }
 	void SetText(std::string text_);
 	void SetColor(ARGBColour newColor) override;
 	void SetTextColor(ARGBColour newColor);

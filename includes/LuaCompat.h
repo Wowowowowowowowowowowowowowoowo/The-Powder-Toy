@@ -24,10 +24,17 @@ extern "C"
 #include "lua5.1/lualib.h"
 #endif
 
+LUALIB_API void tpt_lua_setmainthread(lua_State *L);
+LUALIB_API void tpt_lua_getmainthread(lua_State *L);
+
 #if LUA_VERSION_NUM >= 502
 #define LUA_GLOBALSINDEX	LUA_RIDX_GLOBALS
 
 LUALIB_API int (luaL_typerror) (lua_State *L, int narg, const char *tname);
+#else
+# ifndef lua_pushglobaltable // * Thank you moonjit
+LUALIB_API void (lua_pushglobaltable) (lua_State *L);
+# endif
 #endif
 
 #ifdef __cplusplus

@@ -32,10 +32,12 @@ public:
 	bool IsFocused(const Component *other) const { return other == focused; }
 	bool IsClicked(const Component *other) const { return other == clicked; }
 
-	void DoExit(); // calls OnExit, doesn't actually exit though
+	enum DeleteReason { NoDeleteReason, Enter, Escape, OkayButton, ExitButton, MouseOutside };
+
+	void DoExit(DeleteReason deleteReason); // calls OnExit, doesn't actually exit though
 	void DoFocus();
 	void DoDefocus();
-	void DoTick(uint32_t ticks);
+	void DoTick(uint32_t ticks, bool isSubWindow);
 
 	virtual void DoDraw(pixel *copyBuf, Point copySize, Point copyPos);
 	virtual void DoMouseMove(int x, int y, int dx, int dy);
@@ -59,6 +61,12 @@ public:
 	int GetTransparency() { return transparency; }
 	void SetTransparency(int transparency);
 
+	void SetDoesTextInput(bool doesTextInput) { this->doesTextInput = doesTextInput; }
+	void SetLegacyCodeDoesTextInput(bool doesTextInput) { this->legacyCodeDoesTextInput = doesTextInput; }
+	bool DoesTextInbpt() { return doesTextInput; }
+	bool IsSelfManaged() { return selfManaged; }
+
+	DeleteReason deleteReason = NoDeleteReason;
 	bool toDelete;
 
 	static const int CENTERED = -1;
@@ -74,7 +82,7 @@ protected:
 	bool hasBorder;
 	int transparency = 0;
 
-	virtual void OnExit() { }
+	virtual void OnExit(DeleteReason deleteReason) { }
 	virtual void OnTick(uint32_t ticks) { }
 	virtual void OnDraw(gfx::VideoBuffer *buf) { }
 	virtual void OnDrawBeforeComponents(gfx::VideoBuffer *buf) { }
@@ -105,6 +113,9 @@ protected:
 	bool InsideSubwindow(int x, int y);
 
 	Component *clicked = nullptr;
+	bool doesTextInput = false;
+	bool legacyCodeDoesTextInput = false; // for deco editor
+	bool selfManaged = false; // don't automatically delete this window .. major hack for interface api
 
 private:
 	Window *parent;

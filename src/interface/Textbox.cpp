@@ -19,6 +19,7 @@ Textbox::Textbox(Point position, Point size_, std::string text, bool multiline):
 	autoCorrect(true),
 	type(TEXT)
 {
+	doesTextInput = true;
 }
 
 //deletes any highlighted text, returns true if there was something deleted (cancels backspace/delete action)
@@ -122,16 +123,20 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 			return;
 		case SDL_SCANCODE_V:
 		{
+			if (readOnly)
+				break;
 			std::string clipboard = Engine::Ref().ClipboardPull();
 			if (clipboard.length())
 				InsertText(clipboard);
 			break;
 		}
 		case SDL_SCANCODE_X:
+			if (readOnly)
+				break;
 			DeleteHighlight(true);
 			break;
 		case SDL_SCANCODE_BACKSPACE:
-			if (!DeleteHighlight(true) && cursor > 0)
+			if (!readOnly && !DeleteHighlight(true) && cursor > 0)
 			{
 				size_t stopChar;
 				stopChar = text.substr(0, cursor).find_last_not_of(" .,!?\r\n");
@@ -148,7 +153,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 			}
 			break;
 		case SDL_SCANCODE_DELETE:
-			if (!DeleteHighlight(true) && text.length() && cursor < text.length())
+			if (!readOnly && !DeleteHighlight(true) && text.length() && cursor < text.length())
 			{
 				size_t stopChar;
 				stopChar = text.find_first_not_of(" .,!?\n", cursor);
@@ -171,7 +176,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 	switch (scan) //all of these do different things if any text is highlighted
 	{
 	case SDL_SCANCODE_BACKSPACE:
-		if (!DeleteHighlight(true) && cursor > 0)
+		if (!readOnly && !DeleteHighlight(true) && cursor > 0)
 		{
 			// move cursor barkward 1 real character (accounts for formatting that also needs to be deleted)
 			MoveCursor(&cursor, -1);
@@ -194,7 +199,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 		}
 		break;
 	case SDL_SCANCODE_DELETE:
-		if (!DeleteHighlight(true) && text.length() && cursor < text.length())
+		if (!readOnly && !DeleteHighlight(true) && text.length() && cursor < text.length())
 		{
 			// move cursor forward 1 real character (accounts for formatting that also needs to be deleted)
 			MoveCursor(&cursor, 1);
@@ -300,7 +305,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 		}
 		break;
 	case SDLK_RETURN:
-		if (this->type == MULTILINE)
+		if (!readOnly && this->type == MULTILINE)
 		{
 			InsertText("\n");
 		}
@@ -310,7 +315,7 @@ void Textbox::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, 
 
 void Textbox::OnTextInput(const char *text)
 {
-	if (StringValid(text))
+	if (!readOnly && StringValid(text))
 		InsertText(text);
 }
 
@@ -328,6 +333,8 @@ void Textbox::OnDraw(gfx::VideoBuffer* vid)
 	else
 		borderColor = COLMULT(color, Style::DeselectedMultiplier);
 
+	if (!IsFocused() && !text.length() && placeholder.length())
+		vid->DrawString(position.X+3, position.Y+4, placeholder, COLMODALPHA(color, 170));
 	vid->DrawRect(position.X, position.Y, size.X, size.Y, borderColor);
 }
 

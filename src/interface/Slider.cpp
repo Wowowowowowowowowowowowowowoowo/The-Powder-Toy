@@ -32,6 +32,24 @@ void Slider::UpdateSliderPos(int position)
 		callback(position);
 }
 
+void Slider::SetSteps(int steps)
+{
+	if (steps < 0)
+		steps = 0;
+	if (steps < sliderPos)
+		sliderPos = steps;
+	this->steps = steps;
+}
+
+void Slider::SetValue(int value)
+{
+	if (value < 0)
+		value = 0;
+	if (value > steps)
+		value = steps;
+	sliderPos = value;
+}
+
 void Slider::OnDraw(gfx::VideoBuffer* vid)
 {
 	if (bgColor1)
