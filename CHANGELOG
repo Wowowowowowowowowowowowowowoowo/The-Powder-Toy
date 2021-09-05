@@ -1141,5 +1141,8 @@ on Windows causing random disconnects in tptmp. Implement interface api. This
 long overdue change brings Lua parity to this mod, after 9 years. Fix resizable
 window not being enabled after restarting game.
 
-Version 47.0 2021-09-03
+Version 47.1 2021-09-03
 Fix text input sometimes not working in legacy interfaces
+
+Version 47.2 2021-09-05
+Fix text input sometimes not working in modern interfaces

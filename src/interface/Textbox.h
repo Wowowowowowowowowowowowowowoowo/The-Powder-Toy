@@ -39,7 +39,7 @@ private:
 	Point sizeLimit;
 	unsigned int characterLimit;
 	bool autoCorrect;
-	bool readOnly;
+	bool readOnly = false;
 	std::string placeholder;
 	std::function<void(void)> callback = nullptr;
 	std::function<void(void)> defocusCallback = nullptr;
