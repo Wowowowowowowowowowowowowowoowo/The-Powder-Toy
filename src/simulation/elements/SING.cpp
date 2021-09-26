@@ -84,8 +84,7 @@ int SING_update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (!(sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) && !(sim->elements[TYP(r)].Properties&PROP_CLONE) &&
-				        !(sim->elements[TYP(r)].Properties&PROP_BREAKABLECLONE) && RNG::Ref().chance(1, 3))
+				if (!(sim->elements[TYP(r)].Properties&PROP_INDESTRUCTIBLE) && RNG::Ref().chance(1, 3))
 				{
 					if (TYP(r)==PT_SING && parts[ID(r)].life >10)
 					{
