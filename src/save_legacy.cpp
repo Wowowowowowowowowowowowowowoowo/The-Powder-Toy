@@ -24,9 +24,10 @@
 #include "BSON.h"
 #include "interface.h"
 
+#include "simulation/GolNumbers.h"
 #include "simulation/Simulation.h"
-#include "simulation/WallNumbers.h"
 #include "simulation/ToolNumbers.h"
+#include "simulation/WallNumbers.h"
 
 //Pop
 pixel *prerender_save(void *save, int size, int *width, int *height)
@@ -273,7 +274,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 {
 	unsigned char * inputData = (unsigned char*)save, *bsonData = NULL, *partsData = NULL, *partsPosData = NULL, *wallData = NULL;
 	int inputDataLen = size, bsonDataLen = 0, partsDataLen, partsPosDataLen, wallDataLen;
-	int i, x, y, j, type, ctype, wt, pc, gc, modsave = 0, saved_version = inputData[4];
+	int i, x, y, j, wt, pc, gc, modsave = 0, saved_version = inputData[4];
 	int blockX, blockY, blockW, blockH, fullX, fullY, fullW, fullH;
 	int bsonInitialised = 0;
 	int elementPalette[PT_NUM];
@@ -534,6 +535,7 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//i+3 because we have 4 bytes of required fields (type (1), descriptor (2), temp (1))
 					if (i+3 >= partsDataLen)
 						goto fail;
+					int type = 0, ctype = 0, tmp = 0, tmp2 = 0, dcolor = 0;
 					x = saved_x + fullX;
 					y = saved_y + fullY;
 					fieldDescriptor = partsData[i+1];
@@ -613,14 +615,17 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//Skip tmp
 					if(fieldDescriptor & 0x08)
 					{
-						if(i++ >= partsDataLen) goto fail;
-						if(fieldDescriptor & 0x10)
+						if (i >= partsDataLen) goto fail;
+						tmp = partsData[i++];
+						if (fieldDescriptor & 0x10)
 						{
-							if(i++ >= partsDataLen) goto fail;
-							if(fieldDescriptor & 0x1000)
+							if (i >= partsDataLen) goto fail;
+							tmp |= (((unsigned)partsData[i++]) << 8);
+							if (fieldDescriptor & 0x1000)
 							{
-								if(i+1 >= partsDataLen) goto fail;
-								i += 2;
+								if (i+1 >= partsDataLen) goto fail;
+								tmp |= (((unsigned)partsData[i++]) << 24);
+								tmp |= (((unsigned)partsData[i++]) << 16);
 							}
 						}
 					}
@@ -648,10 +653,14 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						r = partsData[i++];
 						g = partsData[i++];
 						b = partsData[i++];
-						r = ((a*r + (255-a)*COLR(globalSim->elements[type].Colour))>>8);
-						g = ((a*g + (255-a)*COLG(globalSim->elements[type].Colour))>>8);
-						b = ((a*b + (255-a)*COLB(globalSim->elements[type].Colour))>>8);
-						vidBuf[(fullY+y)*fullW+(fullX+x)] = PIXRGB(r, g, b);
+						if (type != PT_LIFE)
+						{
+							r = ((a*r + (255-a)*COLR(globalSim->elements[type].Colour))>>8);
+							g = ((a*g + (255-a)*COLG(globalSim->elements[type].Colour))>>8);
+							b = ((a*b + (255-a)*COLB(globalSim->elements[type].Colour))>>8);
+						}
+						dcolor = PIXRGB(r, g, b);
+						vidBuf[(fullY+y)*fullW+(fullX+x)] = dcolor;
 					}
 					
 					//Skip vx
@@ -669,9 +678,13 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 					//Skip tmp2
 					if(fieldDescriptor & 0x400)
 					{
-						if(i++ >= partsDataLen) goto fail;
+						if (i >= partsDataLen) goto fail;
+						tmp2 = partsData[i++];
 						if (fieldDescriptor & 0x800)
-							if(i++ >= partsDataLen) goto fail;
+						{
+							if (i >= partsDataLen) goto fail;
+							tmp2 |= (((unsigned)partsData[i++]) << 8);
+						}
 					}
 
 					//Skip pavg (moving solids)
@@ -687,6 +700,40 @@ pixel *prerender_save_OPS(void *save, int size, int *width, int *height)
 						if(fieldDescriptor & 0x4000)
 						{
 							if(i++ >= partsDataLen) goto fail;
+						}
+					}
+
+					if (type == PT_LIFE)
+					{
+						auto color1 = dcolor;
+						auto color2 = tmp;
+						if (!color1)
+						{
+							color1 = PIXPACK(0xFFFFFF);
+						}
+						auto ruleset = ctype;
+						if (ruleset >= 0 && ruleset < NGOL)
+						{
+							if (!decorations_enable)
+							{
+								color1 = builtinGol[ruleset].color;
+								color2 = builtinGol[ruleset].color2;
+							}
+							ruleset = builtinGol[ruleset].ruleset;
+						}
+
+						auto states = ((ruleset >> 17) & 0xF) + 2;
+						if (states == 2)
+						{
+							vidBuf[(fullY+y)*fullW+(fullX+x)] = COLMODALPHA(color1, 255);
+						}
+						else
+						{
+							auto mul = (tmp2 - 1) / float(states - 2);
+							int colr = int(PIXR(color1) * mul + PIXR(color2) * (1.f - mul));
+							int colg = int(PIXG(color1) * mul + PIXG(color2) * (1.f - mul));
+							int colb = int(PIXB(color1) * mul + PIXB(color2) * (1.f - mul));
+							vidBuf[(fullY+y)*fullW+(fullX+x)] = COLRGB(colr, colg, colb);
 						}
 					}
 				}
