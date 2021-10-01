@@ -3904,13 +3904,13 @@ int search_ui(pixel *vid_buf)
 			uri << SCHEME << SERVER << "/Search.api?Start=" << start << "&Count=" << count+1 << "&ShowVotes=true";
 			if (byvotes)
 				uri << "&t=" << ((GRID_Y-GRID_P)*YRES)/(GRID_Y*14)*GRID_X; //what does this even mean? ...
-			uri << "&Query=" << last;
+			uri << "&Query=" << Format::URLEncode(last);
 			if (search_own)
-				uri << " user:" << svf_user;
+				uri << Format::URLEncode(" user:") + Format::URLEncode(svf_user);
 			if (search_fav)
-				uri << " cat:favs";
+				uri << Format::URLEncode(" cat:favs");
 			if (search_date)
-				uri << " sort:date";
+				uri << Format::URLEncode(" sort:date");
 
 			if (saveListDownload)
 				saveListDownload->Cancel();
