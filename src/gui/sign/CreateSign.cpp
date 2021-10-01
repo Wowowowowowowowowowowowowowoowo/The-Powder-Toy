@@ -25,7 +25,7 @@ CreateSign::CreateSign(int signID, Point pos):
 	pointerLabel = new Label(signTextbox->Below(Point(0, 4)), Point(Label::AUTOSIZE, Label::AUTOSIZE), "Pointer:");
 	this->AddComponent(pointerLabel);
 
-	leftJuButton = new Button(pointerLabel->Right(Point(8, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\xA0 Left");
+	leftJuButton = new Button(pointerLabel->Right(Point(3, 0)), Point(Button::AUTOSIZE, Button::AUTOSIZE), "\xA0 Left");
 	leftJuButton->SetCallback([&](int mb) { this->SetJustification(Sign::Left); });
 	this->AddComponent(leftJuButton);
 
@@ -114,5 +114,7 @@ void CreateSign::SaveSign()
 		theSign.SetText(signTextbox->GetText());
 		if (signID == -1)
 			signs.push_back(theSign);
+		else
+			signs[signID] = theSign;
 	}
 }
