@@ -41,8 +41,8 @@
 #define MOD_BUILD_VERSION 138 //For update checks
 
 #define MOBILE_MAJOR 1
-#define MOBILE_MINOR 12
-#define MOBILE_BUILD 118
+#define MOBILE_MINOR 13
+#define MOBILE_BUILD 119
 
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter
 
@@ -67,6 +67,11 @@
 #define LOCAL_SAVE_DIR "Saves"
 
 #define THUMB_CACHE_SIZE 256
+
+#if !(defined(MACOSX) && defined(DEBUG))
+//#define HIGH_QUALITY_RESAMPLE			//High quality image resampling, slower but much higher quality than [my] terribad linear interpolation
+// Disabled because it makes save browser expanded thumbnails not look so great
+#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265f

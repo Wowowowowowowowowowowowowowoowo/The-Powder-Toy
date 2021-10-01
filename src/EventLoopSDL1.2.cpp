@@ -223,7 +223,7 @@ void MainLoop()
 		}
 
 		uint32_t currentTick = SDL_GetTicks();
-		top->DoTick(currentTick-lastTick);
+		top->DoTick(currentTick-lastTick, false);
 		lastTick = currentTick;
 
 		top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
