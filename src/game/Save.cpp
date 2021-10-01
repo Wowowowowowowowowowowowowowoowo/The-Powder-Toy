@@ -2225,26 +2225,17 @@ void Save::BuildSave()
 				// Tmp (optional), 1, 2 or 4 bytes
 				if (particles[i].tmp)
 				{
-					// TODO: Compatibility with non-custom GoL in 95.0, Delete this
-					if (particles[i].type == PT_LIFE && particles[i].ctype >= 0 && particles[i].ctype < NGOL)
+					fieldDesc |= 1 << 3;
+					partsData[partsDataLen++] = particles[i].tmp;
+					if (particles[i].tmp & 0xFFFFFF00)
 					{
-						fieldDesc |= 1 << 3;
-						partsData[partsDataLen++] = particles[i].tmp2 & 0xFF;
-					}
-					else
-					{
-						fieldDesc |= 1 << 3;
-						partsData[partsDataLen++] = particles[i].tmp;
-						if (particles[i].tmp & 0xFFFFFF00)
+						fieldDesc |= 1 << 4;
+						partsData[partsDataLen++] = particles[i].tmp >> 8;
+						if (particles[i].tmp & 0xFFFF0000)
 						{
-							fieldDesc |= 1 << 4;
-							partsData[partsDataLen++] = particles[i].tmp >> 8;
-							if (particles[i].tmp & 0xFFFF0000)
-							{
-								fieldDesc |= 1 << 12;
-								partsData[partsDataLen++] = (particles[i].tmp&0xFF000000)>>24;
-								partsData[partsDataLen++] = (particles[i].tmp&0x00FF0000)>>16;
-							}
+							fieldDesc |= 1 << 12;
+							partsData[partsDataLen++] = (particles[i].tmp&0xFF000000)>>24;
+							partsData[partsDataLen++] = (particles[i].tmp&0x00FF0000)>>16;
 						}
 					}
 				}
@@ -2264,8 +2255,7 @@ void Save::BuildSave()
 				}
 				
 				// Dcolour (optional), 4 bytes
-				// TODO: Compatibility with non-custom GoL in 95.0, Delete this
-				if (particles[i].dcolour && (COLA(particles[i].dcolour) || (particles[i].type == PT_LIFE && (particles[i].ctype < 0 || particles[i].ctype >= NGOL))))
+				if (particles[i].dcolour && (COLA(particles[i].dcolour) || particles[i].type == PT_LIFE))
 				{
 					fieldDesc |= 1 << 6;
 					partsData[partsDataLen++] = COLA(particles[i].dcolour);
