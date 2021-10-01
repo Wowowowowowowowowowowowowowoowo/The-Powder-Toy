@@ -3551,7 +3551,7 @@ int search_ui(pixel *vid_buf)
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-textwidth(search_names[pos])/2, gy+YRES/GRID_S+7, search_names[pos], 192, 192, 192, 255);
 				j = textwidth(search_owners[pos]);
 				if (mx>=gx+XRES/(GRID_S*2)-j/2 && mx<=gx+XRES/(GRID_S*2)+j/2 &&
-				        my>=gy+YRES/GRID_S+18 && my<=gy+YRES/GRID_S+29)
+						my>=gy+YRES/GRID_S+18 && my<=gy+YRES/GRID_S+29)
 				{
 					st = 1;
 					drawtext(vid_buf, gx+XRES/(GRID_S*2)-j/2, gy+YRES/GRID_S+20, search_owners[pos], 128, 128, 160, 255);
@@ -3696,7 +3696,7 @@ int search_ui(pixel *vid_buf)
 					int finh, finw;
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[mp], search_thsizes[mp], &finw, &finh);
 					if(thumb_imgdata!=NULL){
-						bthumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_Z, YRES/GRID_Z);				
+						bthumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_Z, YRES/GRID_Z);
 						free(thumb_imgdata);
 					}
 				}
