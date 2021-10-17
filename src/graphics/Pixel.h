@@ -26,6 +26,7 @@
 #define PIXEL_H
 
 #define PIXELSIZE 4
+#define PIXELCHANNELS 3
 typedef unsigned int pixel;
 
 #ifdef PIX32BGR
@@ -61,7 +62,7 @@ char * generate_gradient(pixel * colours, float * points, int pointcount, int si
 void * ptif_pack(pixel *src, int w, int h, int *result_size);
 pixel * ptif_unpack(void *datain, int size, int *w, int *h);
 pixel * resample_img_nn(pixel *src, int sw, int sh, int rw, int rh);
-pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh);
+pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh, bool highQualityResample=true);
 pixel * rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f);
 
 #endif // PIXEL_H

@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
 #include "bzlib.h"
 #include "Pixel.h"
+#include "resampler/Resampler.h"
 
 char * generate_gradient(pixel * colours, float * points, int pointcount, int size)
 {
@@ -170,31 +172,135 @@ pixel * resample_img_nn(pixel * src, int sw, int sh, int rw, int rh)
 	return q;
 }
 
-//TODO: Actual resampling, this is just cheap nearest pixel crap
-pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh)
+pixel * resample_img_high(pixel *src, int sw, int sh, int rw, int rh)
 {
-	if (rw == sw && rh == sh)
+	unsigned char * source = (unsigned char*)src;
+	int sourceWidth = sw, sourceHeight = sh;
+	int resultWidth = rw, resultHeight = rh;
+	int sourcePitch = sourceWidth*PIXELSIZE, resultPitch = resultWidth*PIXELSIZE;
+	// Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
+	const float filter_scale = 0.75f;
+	const char* pFilter = "lanczos12";
+
+
+	Resampler * resamplers[PIXELCHANNELS];
+	float * samples[PIXELCHANNELS];
+
+	//Resampler for each colour channel
+	if (sourceWidth <= 0 || sourceHeight <= 0 || resultWidth <= 0 || resultHeight <= 0)
+		return NULL;
+	resamplers[0] = new Resampler(sourceWidth, sourceHeight, resultWidth, resultHeight, Resampler::BOUNDARY_CLAMP, 0.0f, 1.0f, pFilter, NULL, NULL, filter_scale, filter_scale);
+	samples[0] = new float[sourceWidth];
+	for (int i = 1; i < PIXELCHANNELS; i++)
 	{
-		//Don't resample
-		pixel *q = (pixel*)malloc(rw*rh*PIXELSIZE);
-		memcpy(q, src, rw*rh*PIXELSIZE);
-		return q;
+		resamplers[i] = new Resampler(sourceWidth, sourceHeight, resultWidth, resultHeight, Resampler::BOUNDARY_CLAMP, 0.0f, 1.0f, pFilter, resamplers[0]->get_clist_x(), resamplers[0]->get_clist_y(), filter_scale, filter_scale);
+		samples[i] = new float[sourceWidth];
 	}
-	else if (rw > sw && rh > sh)
+
+	unsigned char * resultImage = new unsigned char[resultHeight * resultPitch];
+	std::fill(resultImage, resultImage + (resultHeight*resultPitch), 0);
+
+	//Resample time
+	int resultY = 0;
+	for (int sourceY = 0; sourceY < sourceHeight; sourceY++)
 	{
-		int fxceil, fyceil;
-		float fx, fy, fxc, fyc;
+		unsigned char * sourcePixel = &source[sourceY * sourcePitch];
+
+		//Move pixel components into channel samples
+		for (int c = 0; c < PIXELCHANNELS; c++)
+		{
+			for (int x = 0; x < sourceWidth; x++)
+			{
+				samples[c][x] = sourcePixel[(x*PIXELSIZE)+c] * (1.0f/255.0f);
+			}
+		}
+
+		//Put channel sample data into resampler
+		for (int c = 0; c < PIXELCHANNELS; c++)
+		{
+			if (!resamplers[c]->put_line(&samples[c][0]))
+			{
+				printf("Out of memory!\n");
+				return NULL;
+			}
+		}
+
+		//Perform resample and Copy components from resampler result samples to image buffer
+		for ( ; ; )
+		{
+			int comp_index;
+			for (comp_index = 0; comp_index < PIXELCHANNELS; comp_index++)
+			{
+				const float* resultSamples = resamplers[comp_index]->get_line();
+				if (!resultSamples)
+					break;
+
+				unsigned char * resultPixel = &resultImage[(resultY * resultPitch) + comp_index];
+
+				for (int x = 0; x < resultWidth; x++)
+				{
+					int c = (int)(255.0f * resultSamples[x] + .5f);
+					if (c < 0) c = 0; else if (c > 255) c = 255;
+					*resultPixel = (unsigned char)c;
+					resultPixel += PIXELSIZE;
+				}
+			}
+			if (comp_index < PIXELCHANNELS)
+				break;
+
+			resultY++;
+		}
+	}
+
+	//Clean up
+	for(int i = 0; i < PIXELCHANNELS; i++)
+	{
+		delete resamplers[i];
+		delete[] samples[i];
+	}
+
+	return (pixel*)resultImage;
+}
+
+pixel * resample_img_orig(pixel *src, int sw, int sh, int rw, int rh)
+{
+	bool stairstep = false;
+	if(rw < sw || rh < sh)
+	{
+		float fx = (float)(((float)sw)/((float)rw));
+		float fy = (float)(((float)sh)/((float)rh));
+
+		int fxint, fyint;
+		double fxintp_t, fyintp_t;
+
+		float fxf = modf(fx, &fxintp_t), fyf = modf(fy, &fyintp_t);
+		fxint = fxintp_t;
+		fyint = fyintp_t;
+
+		if(((fxint & (fxint-1)) == 0 && fxf < 0.1f) || ((fyint & (fyint-1)) == 0 && fyf < 0.1f))
+			stairstep = true;
+	}
+
+	int y, x, fxceil, fyceil;
+	//int i,j,x,y,w,h,r,g,b,c;
+	pixel *q = NULL;
+	if(rw == sw && rh == sh){
+		//Don't resample
+		q = new pixel[rw*rh];
+		std::copy(src, src+(rw*rh), q);
+	} else if(!stairstep) {
+		float fx, fy, fyc, fxc;
 		double intp;
 		pixel tr, tl, br, bl;
-		pixel *q = (pixel*)malloc(rw*rh*PIXELSIZE);
+		q = new pixel[rw*rh];
 		//Bilinear interpolation for upscaling
-		for (int y = 0; y < rh; y++)
-			for (int x = 0; x < rw; x++)
+		for (y=0; y<rh; y++)
+			for (x=0; x<rw; x++)
 			{
 				fx = ((float)x)*((float)sw)/((float)rw);
 				fy = ((float)y)*((float)sh)/((float)rh);
-				fxc = (float)modf(fx, &intp);
-				fyc = (float)modf(fy, &intp);
+				fxc = modf(fx, &intp);
+				fyc = modf(fy, &intp);
 				fxceil = (int)ceil(fx);
 				fyceil = (int)ceil(fy);
 				if (fxceil>=sw) fxceil = sw-1;
@@ -209,39 +315,35 @@ pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh)
 					(int)(((((float)PIXB(tl))*(1.0f-fxc))+(((float)PIXB(tr))*(fxc)))*(1.0f-fyc) + ((((float)PIXB(bl))*(1.0f-fxc))+(((float)PIXB(br))*(fxc)))*(fyc))
 					);
 			}
-		return q;
-	}
-	else
-	{
+	} else {
 		//Stairstepping
-		int fxceil, fyceil;
 		float fx, fy, fyc, fxc;
 		double intp;
 		pixel tr, tl, br, bl;
 		int rrw = rw, rrh = rh;
-		pixel *q;
-		pixel * oq = (pixel*)malloc(sw*sh*PIXELSIZE);
-		memcpy(oq, src, sw*sh*PIXELSIZE);
+		pixel * oq;
+		oq = new pixel[sw*sh];
+		std::copy(src, src+(sw*sh), oq);
 		rw = sw;
 		rh = sh;
-		while (rrw != rw && rrh != rh)
-		{
-			rw = (int)(rw*0.7);
-			rh = (int)(rh*0.7);
-			if (rw <= rrw || rh <= rrh)
-			{
+		while(rrw != rw && rrh != rh){
+			if(rw > rrw)
+				rw *= 0.7;
+			if(rh > rrh)
+				rh *= 0.7;
+			if(rw <= rrw)
 				rw = rrw;
+			if(rh <= rrh)
 				rh = rrh;
-			}
-			q = (pixel*)malloc(rw*rh*PIXELSIZE);
-			//Bilinear interpolation for upscaling
-			for (int y = 0; y < rh; y++)
-				for (int x = 0; x < rw; x++)
+			q = new pixel[rw*rh];
+			//Bilinear interpolation
+			for (y=0; y<rh; y++)
+				for (x=0; x<rw; x++)
 				{
 					fx = ((float)x)*((float)sw)/((float)rw);
 					fy = ((float)y)*((float)sh)/((float)rh);
-					fxc = (float)modf(fx, &intp);
-					fyc = (float)modf(fy, &intp);
+					fxc = modf(fx, &intp);
+					fyc = modf(fy, &intp);
 					fxceil = (int)ceil(fx);
 					fyceil = (int)ceil(fy);
 					if (fxceil>=sw) fxceil = sw-1;
@@ -256,13 +358,21 @@ pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh)
 						(int)(((((float)PIXB(tl))*(1.0f-fxc))+(((float)PIXB(tr))*(fxc)))*(1.0f-fyc) + ((((float)PIXB(bl))*(1.0f-fxc))+(((float)PIXB(br))*(fxc)))*(fyc))
 						);
 				}
-			free(oq);
+			delete[] oq;
 			oq = q;
 			sw = rw;
 			sh = rh;
 		}
-		return q;
 	}
+	return q;
+}
+
+pixel * resample_img(pixel *src, int sw, int sh, int rw, int rh, bool highQualityResample)
+{
+	if (highQualityResample)
+		return resample_img_high(src, sw, sh, rw, rh);
+	else
+		return resample_img_orig(src, sw, sh, rw, rh);
 }
 
 pixel * rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f)

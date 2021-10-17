@@ -3696,7 +3696,7 @@ int search_ui(pixel *vid_buf)
 					int finh, finw;
 					pixel *thumb_imgdata = ptif_unpack(search_thumbs[mp], search_thsizes[mp], &finw, &finh);
 					if(thumb_imgdata!=NULL){
-						bthumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_Z, YRES/GRID_Z);
+						bthumb_rsdata = resample_img(thumb_imgdata, finw, finh, XRES/GRID_Z, YRES/GRID_Z, false);
 						free(thumb_imgdata);
 					}
 				}
@@ -4334,7 +4334,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date, int instant_open)
 		int finw, finh;
 		pixel *thumb_imgdata = ptif_unpack(thumb_data, thumb_data_size, &finw, &finh);
 		if(thumb_imgdata!=NULL){
-			save_pic_thumb = resample_img(thumb_imgdata, finw, finh, XRES/2, YRES/2);
+			save_pic_thumb = resample_img(thumb_imgdata, finw, finh, XRES/2, YRES/2, false);
 			//draw_image(vid_buf, save_pic_thumb, 51, 51, XRES/2, YRES/2, 255);	
 		}
 		free(thumb_imgdata);

@@ -68,11 +68,6 @@
 
 #define THUMB_CACHE_SIZE 256
 
-#if !(defined(MACOSX) && defined(DEBUG))
-//#define HIGH_QUALITY_RESAMPLE			//High quality image resampling, slower but much higher quality than [my] terribad linear interpolation
-// Disabled because it makes save browser expanded thumbnails not look so great
-#endif
-
 #ifndef M_PI
 #define M_PI 3.14159265f
 #endif
