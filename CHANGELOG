@@ -1150,5 +1150,9 @@ Fix text input sometimes not working in modern interfaces
 Version 48.0 2021-10-17
 Vanilla compat fix - SING should eat clone elements. Fix being unable to edit
 existing signs. Fix GoL not saving correctly (resulting in corrupted GoL).
-Render GoL colors in stamp previews. Make certain thumbnails less blurry (Just
-the stamp-sized thumbnails, not larger ones). Update TPTMP to version 2.0.21.
+Render GoL colors in stamp previews. Make certain thumbnails slightly less
+blurry (Just the stamp-sized thumbnails, not larger ones). Fix crash when
+rendering certain thumbnails. Update TPTMP to version 2.0.21.
+
+Version 48.1 2021-10-27
+Update to tptmp v2.0.22
