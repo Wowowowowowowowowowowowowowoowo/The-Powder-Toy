@@ -461,7 +461,7 @@ bool Save::CheckBsonFieldFloat(bson_iterator iter, const char *field, float *set
 	{
 		if (bson_iterator_type(&iter) == BSON_DOUBLE)
 		{
-			*setting = float(bson_iterator_int(&iter));
+			*setting = float(bson_iterator_double(&iter));
 			return true;
 		}
 		else
