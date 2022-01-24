@@ -2335,7 +2335,7 @@ int save_name_ui(pixel *vid_buf)
 			{
 				std::string message = "This save was created by ";
 				message += svf_author;
-				message += ", you're about to publish this under your own name; If you haven't been given permission"
+				message += ", you're about to publish this under your own name. If you haven't been given permission "
 				           "by the author to do so, please uncheck the publish box, otherwise continue";
 				cont = confirm_ui(vid_buf, "Publish", message.c_str(), "Continue");
 			}
@@ -2365,7 +2365,9 @@ int save_name_ui(pixel *vid_buf)
 				return nd+1;
 			}
 		}
-		if (b && !bq && (mx < x0 || my < y0 || mx > x0+420 || my > y0+110+YRES/4))
+		if (b && !bq && (mx < x0 || my < y0 || mx > x0+420 || my > y0+110+YRES/4)
+			&& !(mx >= ctb.x && mx <= ctb.x + ctb.width && my >= ctb.y && my <= ctb.y + ctb.height)
+		)
 			break;
 		if (sdl_key == SDLK_ESCAPE)
 		{
