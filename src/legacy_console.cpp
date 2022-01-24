@@ -211,7 +211,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, const char *command, c
 		sscanf(command,"%14s %14s %14s %14s", console2, console3, console4, console5);//why didn't i know about this function?!
 		if (strcmp(console2, "quit")==0)
 		{
-			return -1;
+			return -2;
 		}
 		else if (strcmp(console2, "file")==0 && console3[0])
 		{
@@ -312,7 +312,7 @@ int process_command_old(Simulation * sim, pixel *vid_buf, const char *command, c
 				j = atoi(console3);
 				if (j)
 				{
-					if (open_ui(vid_buf, console3, NULL, 0))
+					if (open_ui(vid_buf, console3, nullptr, 0))
 						return -1;
 				}
 			}

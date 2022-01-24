@@ -6,6 +6,7 @@
 #include "graphics/ARGBColour.h"
 #include "graphics/VideoBuffer.h"
 #include "interface/Button.h"
+#include "interface/Engine.h"
 #include "interface/Label.h"
 #include "interface/ScrollWindow.h"
 #include "interface/Style.h"
@@ -134,13 +135,19 @@ void Console::Submit(std::string command)
 std::string Console::RunCommand(std::string command)
 {
 	char *result = nullptr;
+	int ret;
 #ifdef LUACONSOLE
-	if (process_command_lua(vid_buf, command.c_str(), &result) == -1)
+	ret = process_command_lua(vid_buf, command.c_str(), &result);
 #else
-	if (process_command_old(globalSim, vid_buf, command, &result) == -1)
+	ret = process_command_old(globalSim, vid_buf, command, &result);
 #endif
+	if (ret == -1)
 	{
 		this->toDelete = true;
+	}
+	else if (ret == -2)
+	{
+		Engine::Ref().Shutdown();
 	}
 	if (!result)
 		return "";
