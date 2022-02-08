@@ -120,7 +120,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 
 		if (eventHandler)
 		{
-			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.sym, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyPress(event.key.keysym.sym, event.key.keysym.sym, false, sdl_mod&KMOD_SHIFT, sdl_mod&KMOD_CTRL, sdl_mod&KMOD_ALT);
 			char c[2];
 			sprintf(c, "%c", event.key.keysym.unicode);
 			std::string text = c;
@@ -145,7 +145,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 		sdl_mod = static_cast<unsigned short>(SDL_GetModState()); // LEGACY
 
 		if (eventHandler)
-			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, false, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			eventHandler->DoKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, false, sdl_mod&KMOD_SHIFT, sdl_mod&KMOD_CTRL, sdl_mod&KMOD_ALT);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 	{
