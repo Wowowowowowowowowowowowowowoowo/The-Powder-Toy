@@ -13,7 +13,7 @@ class VideoBuffer;
 
 class Slider : public Component
 {
-	ARGBColour bgColor1, bgColor2;
+	ARGBColour bgColor1 = 0, bgColor2 = 0;
 	int steps;
 	int sliderPos;
 	std::function<void(int)> callback = nullptr;
