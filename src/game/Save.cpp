@@ -2761,7 +2761,7 @@ vector2d Save::Translate(vector2d translate)
 	vector2d translateReal = translate;
 	float minx = 0, miny = 0, maxx = 0, maxy = 0;
 	// determine minimum and maximum position of all particles / signs
-	for (const Sign sign: signs)
+	for (const Sign &sign: signs)
 	{
 		vector2d pos = v2d_new(sign.GetRealPos().X, sign.GetRealPos().Y);
 		pos = v2d_add(pos, translate);

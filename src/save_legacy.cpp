@@ -129,8 +129,8 @@ int invalid_element(int save_as, int el)
 {
 	if (save_as > 0 && (el >= PT_NORMAL_NUM || el < 0 || globalSim->elements[el].Enabled == 0)) //Check for mod/disabled elements
 		return 1;
-	if (save_as > 1 && (el == PT_LDTC))
-		return 1;
+	//if (save_as > 1 && (el == PT_LDTC))
+	//	return 1;
 	return 0;
 }
 
@@ -188,7 +188,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 			}
 		}
 	}
-	for (int x = 0; x < XRES/CELL; x++)
+	/*for (int x = 0; x < XRES/CELL; x++)
 		for (int y = 0; y < YRES/CELL; y++)
 		{
 			if (bmap[y][x] == WL_STASIS)
@@ -200,7 +200,7 @@ int check_save(int save_as, int orig_x0, int orig_y0, int orig_w, int orig_h, in
 				}
 				return 1;
 			}
-		}
+		}*/
 	return 0;
 }
 
