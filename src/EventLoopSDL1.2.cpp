@@ -188,7 +188,7 @@ int EventProcess(SDL_Event event, ui::Window * eventHandler)
 	return 0;
 }
 
-uint32_t lastTick;
+uint32_t lastTick, drawingTimer;
 bool inOldInterface = false;
 void MainLoop()
 {
@@ -224,10 +224,16 @@ void MainLoop()
 
 		uint32_t currentTick = SDL_GetTicks();
 		top->DoTick(currentTick-lastTick, false);
+		drawingTimer += currentTick - lastTick;
 		lastTick = currentTick;
 
-		top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
-		SDLBlit(vid_buf);
+		int drawcap = engine.GetDrawingFrequency();
+		if (!drawcap || drawingTimer > 1000.f/drawcap)
+		{
+			drawingTimer = 0;
+			top->DoDraw(vid_buf, Point(XRES+BARSIZE, YRES+MENUSIZE), top->GetPosition());
+			SDLBlit(vid_buf);
+		}
 		limit_fps();
 
 		engine.ProcessWindowUpdates();
