@@ -386,7 +386,12 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			}
 			break;
 		case SDLK_DELETE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+			if (ed->highlightlength)
+			{
+				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+				ed->cursor = ed->highlightstart;
+			}
+			else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -396,11 +401,6 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					memmove(ed->str+ed->cursor, ed->str+end, l-ed->cursor);
 					break;
 				}
-			}
-			if (ed->highlightlength)
-			{
-				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
-				ed->cursor = ed->highlightstart;
 			}
 			else if (ed->cursor < l)
 			{
@@ -414,7 +414,12 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 			ed->cursorstart = ed->cursor;
 			break;
 		case SDLK_BACKSPACE:
-			if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
+			if (ed->highlightlength)
+			{
+				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
+				ed->cursor = ed->highlightstart;
+			}
+			else if (sdl_mod & (KMOD_CTRL|KMOD_GUI))
 			{
 				int start, end;
 				const char *spaces = " .,!?\n";
@@ -425,11 +430,6 @@ void ui_edit_process(int mx, int my, int mb, int mbq, ui_edit *ed)
 					ed->cursorstart = ed->cursor = start;
 					break;
 				}
-			}
-			if (ed->highlightlength)
-			{
-				memmove(ed->str+ed->highlightstart, ed->str+ed->highlightstart+ed->highlightlength, l-ed->highlightstart);
-				ed->cursor = ed->highlightstart;
 			}
 			else if (ed->cursor > 0)
 			{
@@ -1726,9 +1726,11 @@ bool login_ui(pixel *vid_buf)
 				signIn = true;
 				break;
 			}
+#ifndef TOUCHUI
 			// out of bounds, exit without doing anything
 			if (mx < x0 || my < y0 || mx > x0+192 || my > y0+80)
 				return false;
+#endif
 		}
 
 		if (sdl_key == SDLK_RETURN)
@@ -2165,8 +2167,10 @@ void tag_list_ui(pixel *vid_buf)
 				break;
 		}
 
+#ifndef TOUCHUI
 		if (!b && bq && (mx < x0 || my < y0 || mx > x0+192 || my > y0+256))
 			break;
+#endif
 
 		if (sdl_key == SDLK_RETURN)
 		{
@@ -2365,9 +2369,11 @@ int save_name_ui(pixel *vid_buf)
 				return nd+1;
 			}
 		}
+#ifndef TOUCHUI
 		if (b && !bq && (mx < x0 || my < y0 || mx > x0+420 || my > y0+110+YRES/4)
 			&& !(mx >= ctb.x && mx <= ctb.x + ctb.width && my >= ctb.y && my <= ctb.y + ctb.height)
 		)
+#endif
 			break;
 		if (sdl_key == SDLK_ESCAPE)
 		{
@@ -4123,8 +4129,10 @@ int report_ui(pixel* vid_buf, char *save_id, bool bug)
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 		ui_edit_process(mx, my, b, bq, &ed);
 
+#ifndef TOUCHUI
 		if (b && !bq && (mx < 200 || my < 150-messageHeight || mx > (XRES+BARSIZE-200) || my > (YRES+MENUSIZE-150)+messageHeight))
 			return 0;
+#endif
 		if (sdl_key == SDLK_ESCAPE)
 		{
 			return 0;
@@ -6487,8 +6495,10 @@ int save_filename_ui(pixel *vid_buf, Save *save)
 			}
 		}
 
+#ifndef TOUCHUI
 		if (b && !bq && (mx < x0 || my < y0 || mx > x0+xsize || my > y0+ysize))
 			break;
+#endif
 		if (sdl_key == SDLK_ESCAPE)
 		{
 			break;
