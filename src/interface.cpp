@@ -1888,7 +1888,13 @@ int stamp_ui(pixel *vid_buf, int *reorder)
 		r = -1;
 		d = -1;
 		if (!stamps[k].name[0])
+		{
+#ifndef TOUCHUI
 			drawtext(vid_buf, (XRES-textwidth("Use 's' to save stamps"))/2, YRES/2-6, "Use 's' to save stamps", 255, 255, 255, 255);
+#else
+			drawtext(vid_buf, (XRES-textwidth("You haven't created any stamps yet"))/2, YRES/2-6, "You haven't created any stamps yet", 255, 255, 255, 255);
+#endif
+		}
 		for (j=0; j<GRID_Y; j++)
 			for (i=0; i<GRID_X; i++)
 			{
